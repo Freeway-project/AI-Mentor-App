@@ -1,0 +1,26 @@
+{
+  "name": "@blucodes/mentor-app",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "bun run --filter '*' dev",
+    "dev:web": "bun run --filter @mentor-app/web dev",
+    "dev:api": "bun run --filter @mentor-app/api dev",
+    "build": "bun run --filter '*' build",
+    "build:web": "bun run --filter @mentor-app/web build",
+    "build:api": "bun run --filter @mentor-app/api build",
+    "start:web": "bun run --filter @mentor-app/web start",
+    "start:api": "bun run --filter @mentor-app/api start",
+    "type-check": "bun run --filter '*' type-check",
+    "lint": "bun run --filter '*' lint",
+    "clean": "bun run --filter '*' clean && rm -rf node_modules"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "typescript": "^5.3.3"
+  }
+}
