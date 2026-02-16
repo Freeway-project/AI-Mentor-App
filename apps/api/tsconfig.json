@@ -1,0 +1,16 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "noEmit": false,
+    "paths": {
+      "@mentor-app/types": ["../../packages/types/src"],
+      "@mentor-app/database": ["../../packages/database/src"],
+      "@mentor-app/llm": ["../../packages/llm/src"],
+      "@mentor-app/utils": ["../../packages/utils/src"]
+    }
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist"]
+}
