@@ -1,5 +1,5 @@
 import { ObjectId } from 'mongodb';
-import { User, UserRole } from '@mentor-app/types';
+import { User, UserRole } from '@owl-mentors/types';
 
 export interface UserDocument extends Omit<User, 'id' | 'createdAt' | 'updatedAt'> {
   _id: ObjectId;

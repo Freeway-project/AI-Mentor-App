@@ -1,5 +1,5 @@
 import { LLMMessage, LLMResponse, LLMChatOptions, LLMProvider } from '../types';
-import { logger } from '@mentor-app/utils';
+import { logger } from '@owl-mentors/utils';
 
 export abstract class BaseLLMClient implements LLMProvider {
   protected apiKey: string;

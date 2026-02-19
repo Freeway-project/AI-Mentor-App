@@ -22,10 +22,10 @@ jobs:
         run: bun install
 
       - name: Build API
-        run: bun run --filter @mentor-app/api build
+        run: bun run --filter @owl-mentors/api build
 
       - name: Build web app
-        run: bun run --filter @mentor-app/web build
+        run: bun run --filter @owl-mentors/web build
 
       - name: Upload API artifact
         uses: actions/upload-artifact@v4

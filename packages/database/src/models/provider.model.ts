@@ -1,5 +1,5 @@
 import { ObjectId } from 'mongodb';
-import { Provider } from '@mentor-app/types';
+import { Provider } from '@owl-mentors/types';
 
 export interface ProviderDocument extends Omit<Provider, 'id' | 'userId' | 'createdAt' | 'updatedAt'> {
   _id: ObjectId;

@@ -30,10 +30,10 @@ jobs:
         run: bun run type-check
 
       - name: Lint web app
-        run: bun run --filter @mentor-app/web lint
+        run: bun run --filter @owl-mentors/web lint
 
       - name: Build API
-        run: bun run --filter @mentor-app/api build
+        run: bun run --filter @owl-mentors/api build
 
       - name: Build web app
-        run: bun run --filter @mentor-app/web build
+        run: bun run --filter @owl-mentors/web build

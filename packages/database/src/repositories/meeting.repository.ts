@@ -1,6 +1,6 @@
 import { Collection, ObjectId } from 'mongodb';
-import { Meeting, CreateMeetingInput, UpdateMeetingInput, MeetingStatus, ListMeetingsInput } from '@mentor-app/types';
-import { logger } from '@mentor-app/utils';
+import { Meeting, CreateMeetingInput, UpdateMeetingInput, MeetingStatus, ListMeetingsInput } from '@owl-mentors/types';
+import { logger } from '@owl-mentors/utils';
 import { getDatabase } from '../connection';
 import { MeetingDocument, toMeeting, toMeetingDocument } from '../models/meeting.model';
 

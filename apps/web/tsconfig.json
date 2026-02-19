@@ -15,8 +15,8 @@
     ],
     "paths": {
       "@/*": ["./src/*"],
-      "@mentor-app/types": ["../../packages/types/src"],
-      "@mentor-app/utils": ["../../packages/utils/src"]
+      "@owl-mentors/types": ["../../packages/types/src"],
+      "@owl-mentors/utils": ["../../packages/utils/src"]
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],

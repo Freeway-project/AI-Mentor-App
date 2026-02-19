@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { ZodError } from 'zod';
-import { logger } from '@mentor-app/utils';
+import { logger } from '@owl-mentors/utils';
 
 export class AppError extends Error {
   constructor(

@@ -1,5 +1,5 @@
 {
-  "name": "@mentor-app/llm",
+  "name": "@owl-mentors/llm",
   "version": "1.0.0",
   "private": true,
   "main": "./src/index.ts",
@@ -9,8 +9,8 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "@mentor-app/types": "workspace:*",
-    "@mentor-app/utils": "workspace:*",
+    "@owl-mentors/types": "workspace:*",
+    "@owl-mentors/utils": "workspace:*",
     "zod": "^3.22.4"
   },
   "devDependencies": {
