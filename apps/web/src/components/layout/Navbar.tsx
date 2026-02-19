@@ -2,14 +2,24 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
-import { Menu, X, Rocket } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { Menu, X, Rocket, LogOut, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
+import { useAuth } from '@/lib/auth-context';
 
 export function Navbar() {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const { user, logout } = useAuth();
+    const router = useRouter();
 
     const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
+
+    const handleLogout = () => {
+        logout();
+        router.push('/');
+    };
+
+    const isMentor = user?.roles?.includes('mentor');
 
     return (
         <nav className="sticky top-0 z-50 w-full border-b bg-white/80 backdrop-blur-md">
@@ -23,39 +33,65 @@ export function Navbar() {
                 {/* Desktop Navigation */}
                 <div className="hidden md:flex md:items-center md:space-x-8">
                     <Link
-                        href="#how-it-works"
-                        className="text-sm font-medium text-slate-600 hover:text-blue-600 transition-colors"
-                    >
-                        How it works
-                    </Link>
-                    <Link
-                        href="#mentors"
+                        href="/browse"
                         className="text-sm font-medium text-slate-600 hover:text-blue-600 transition-colors"
                     >
                         Browse Mentors
                     </Link>
-                    <Link
-                        href="#pricing"
-                        className="text-sm font-medium text-slate-600 hover:text-blue-600 transition-colors"
-                    >
-                        Pricing
-                    </Link>
-                    <Link
-                        href="#faq"
-                        className="text-sm font-medium text-slate-600 hover:text-blue-600 transition-colors"
-                    >
-                        FAQ
-                    </Link>
+                    {!user && (
+                        <>
+                            <Link
+                                href="#how-it-works"
+                                className="text-sm font-medium text-slate-600 hover:text-blue-600 transition-colors"
+                            >
+                                How it works
+                            </Link>
+                            <Link
+                                href="#pricing"
+                                className="text-sm font-medium text-slate-600 hover:text-blue-600 transition-colors"
+                            >
+                                Pricing
+                            </Link>
+                        </>
+                    )}
+                    {isMentor && (
+                        <Link
+                            href="/onboarding"
+                            className="text-sm font-medium text-slate-600 hover:text-blue-600 transition-colors"
+                        >
+                            My Profile
+                        </Link>
+                    )}
                 </div>
 
                 {/* Desktop Actions */}
                 <div className="hidden md:flex md:items-center md:space-x-4">
-                    <Button variant="ghost" asChild>
-                        <Link href="/login">Log in</Link>
-                    </Button>
-                    <Button asChild>
-                        <Link href="/register">Get Started</Link>
-                    </Button>
+                    {user ? (
+                        <div className="flex items-center gap-3">
+                            <div className="flex items-center gap-2 text-sm text-slate-600">
+                                <User className="h-4 w-4" />
+                                <span>{user.name}</span>
+                            </div>
+                            {!isMentor && (
+                                <Button variant="outline" size="sm" asChild>
+                                    <Link href="/onboarding">Become a Mentor</Link>
+                                </Button>
+                            )}
+                            <Button variant="ghost" size="sm" onClick={handleLogout}>
+                                <LogOut className="h-4 w-4 mr-1" />
+                                Log out
+                            </Button>
+                        </div>
+                    ) : (
+                        <>
+                            <Button variant="ghost" asChild>
+                                <Link href="/login">Log in</Link>
+                            </Button>
+                            <Button asChild>
+                                <Link href="/register">Get Started</Link>
+                            </Button>
+                        </>
+                    )}
                 </div>
 
                 {/* Mobile Menu Button */}
@@ -72,45 +108,51 @@ export function Navbar() {
                 <div className="md:hidden border-t bg-white px-4 py-4 space-y-4 shadow-lg absolute w-full left-0">
                     <div className="flex flex-col space-y-4">
                         <Link
-                            href="#how-it-works"
-                            className="text-sm font-medium text-slate-600 hover:text-blue-600"
-                            onClick={toggleMenu}
-                        >
-                            How it works
-                        </Link>
-                        <Link
-                            href="#mentors"
+                            href="/browse"
                             className="text-sm font-medium text-slate-600 hover:text-blue-600"
                             onClick={toggleMenu}
                         >
                             Browse Mentors
                         </Link>
-                        <Link
-                            href="#pricing"
-                            className="text-sm font-medium text-slate-600 hover:text-blue-600"
-                            onClick={toggleMenu}
-                        >
-                            Pricing
-                        </Link>
-                        <Link
-                            href="#faq"
-                            className="text-sm font-medium text-slate-600 hover:text-blue-600"
-                            onClick={toggleMenu}
-                        >
-                            FAQ
-                        </Link>
+                        {isMentor && (
+                            <Link
+                                href="/onboarding"
+                                className="text-sm font-medium text-slate-600 hover:text-blue-600"
+                                onClick={toggleMenu}
+                            >
+                                My Profile
+                            </Link>
+                        )}
                     </div>
                     <div className="flex flex-col space-y-2 pt-4 border-t">
-                        <Button variant="ghost" className="justify-start px-0" asChild>
-                            <Link href="/login" onClick={toggleMenu}>
-                                Log in
-                            </Link>
-                        </Button>
-                        <Button className="w-full" asChild>
-                            <Link href="/register" onClick={toggleMenu}>
-                                Get Started
-                            </Link>
-                        </Button>
+                        {user ? (
+                            <>
+                                <div className="text-sm text-slate-600 py-2">{user.name} ({user.email})</div>
+                                {!isMentor && (
+                                    <Button variant="outline" className="w-full" asChild>
+                                        <Link href="/onboarding" onClick={toggleMenu}>
+                                            Become a Mentor
+                                        </Link>
+                                    </Button>
+                                )}
+                                <Button variant="ghost" className="w-full justify-start" onClick={() => { handleLogout(); toggleMenu(); }}>
+                                    Log out
+                                </Button>
+                            </>
+                        ) : (
+                            <>
+                                <Button variant="ghost" className="justify-start px-0" asChild>
+                                    <Link href="/login" onClick={toggleMenu}>
+                                        Log in
+                                    </Link>
+                                </Button>
+                                <Button className="w-full" asChild>
+                                    <Link href="/register" onClick={toggleMenu}>
+                                        Get Started
+                                    </Link>
+                                </Button>
+                            </>
+                        )}
                     </div>
                 </div>
             )}
