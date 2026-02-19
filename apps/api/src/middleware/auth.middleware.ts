@@ -5,7 +5,7 @@ import { AppError } from './error.middleware';
 interface JWTPayload {
   userId: string;
   email: string;
-  role: string;
+  roles: string[];
 }
 
 export function authenticate(req: Request, res: Response, next: NextFunction) {
@@ -25,6 +25,7 @@ export function authenticate(req: Request, res: Response, next: NextFunction) {
 
     const decoded = jwt.verify(token, secret) as JWTPayload;
     req.userId = decoded.userId;
+    req.userRoles = decoded.roles;
 
     next();
   } catch (error) {
@@ -50,11 +51,12 @@ export function authorize(...roles: string[]) {
 
       const decoded = jwt.verify(token, secret) as JWTPayload;
 
-      if (roles.length > 0 && !roles.includes(decoded.role)) {
+      if (roles.length > 0 && !decoded.roles.some(r => roles.includes(r))) {
         throw new AppError(403, 'FORBIDDEN', 'Insufficient permissions');
       }
 
       req.userId = decoded.userId;
+      req.userRoles = decoded.roles;
       next();
     } catch (error) {
       next(error);

@@ -57,10 +57,12 @@ async function createIndexes(database: Db): Promise<void> {
     // Users indexes
     await database.collection('users').createIndexes([
       { key: { email: 1 }, unique: true },
-      { key: { role: 1 } },
+      { key: { roles: 1 } },
+      { key: { resetToken: 1 }, sparse: true },
+      { key: { verifyToken: 1 }, sparse: true },
     ]);
 
-    // Providers indexes
+    // Providers (mentors) indexes
     await database.collection('providers').createIndexes([
       { key: { userId: 1 }, unique: true },
       { key: { specialties: 1 } },
@@ -68,24 +70,25 @@ async function createIndexes(database: Db): Promise<void> {
       { key: { languages: 1 } },
       { key: { rating: -1 } },
       { key: { isActive: 1 } },
+      { key: { onboardingStep: 1 } },
     ]);
 
     // Meetings indexes
     await database.collection('meetings').createIndexes([
-      { key: { learnerId: 1 } },
-      { key: { providerId: 1 } },
+      { key: { menteeId: 1 } },
+      { key: { mentorId: 1 } },
       { key: { scheduledAt: 1 } },
       { key: { status: 1 } },
-      { key: { learnerId: 1, status: 1 } },
-      { key: { providerId: 1, status: 1 } },
+      { key: { menteeId: 1, status: 1 } },
+      { key: { mentorId: 1, status: 1 } },
     ]);
 
     // Conversations indexes
     await database.collection('conversations').createIndexes([
-      { key: { learnerId: 1 } },
-      { key: { providerId: 1 } },
+      { key: { menteeId: 1 } },
+      { key: { mentorId: 1 } },
       { key: { lastMessageAt: -1 } },
-      { key: { learnerId: 1, providerId: 1 }, unique: true },
+      { key: { menteeId: 1, mentorId: 1 }, unique: true },
     ]);
 
     // Messages indexes
@@ -101,7 +104,18 @@ async function createIndexes(database: Db): Promise<void> {
       { key: { status: 1 } },
       { key: { scheduledAt: 1 } },
       { key: { userId: 1, status: 1 } },
-      { key: { status: 1, scheduledAt: 1 } }, // For job processing
+      { key: { status: 1, scheduledAt: 1 } },
+    ]);
+
+    // Offers indexes
+    await database.collection('offers').createIndexes([
+      { key: { mentorId: 1 } },
+      { key: { mentorId: 1, isActive: 1 } },
+    ]);
+
+    // Policies indexes
+    await database.collection('policies').createIndexes([
+      { key: { mentorId: 1 }, unique: true },
     ]);
 
     logger.debug('Database indexes created successfully');
