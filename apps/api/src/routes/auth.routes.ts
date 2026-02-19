@@ -29,7 +29,7 @@ function generateToken(userId: string, email: string, roles: string[]) {
     throw new AppError(500, 'MISSING_JWT_SECRET', 'JWT_SECRET is not configured');
   }
 
-  const expiresIn = toExpiresIn(process.env.JWT_EXPIRES_IN);
+  const expiresIn = parseJwtExpiresIn(process.env.JWT_EXPIRES_IN);
   const payload = { userId, email, roles };
 
   const options: jwt.SignOptions = {
@@ -39,7 +39,7 @@ function generateToken(userId: string, email: string, roles: string[]) {
   return jwt.sign(payload, secret, options);
 }
 
-function toExpiresIn(value?: string): jwt.SignOptions['expiresIn'] {
+function parseJwtExpiresIn(value?: string): jwt.SignOptions['expiresIn'] {
   if (!value) return '7d';
 
   const numeric = Number(value);
