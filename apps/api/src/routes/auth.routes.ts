@@ -29,12 +29,25 @@ function generateToken(userId: string, email: string, roles: string[]) {
     throw new AppError(500, 'MISSING_JWT_SECRET', 'JWT_SECRET is not configured');
   }
 
+  const expiresIn = toExpiresIn(process.env.JWT_EXPIRES_IN);
   const payload = { userId, email, roles };
+
   const options: jwt.SignOptions = {
-    expiresIn: (process.env.JWT_EXPIRES_IN || '7d') as jwt.SignOptions['expiresIn'],
+    expiresIn,
   };
 
   return jwt.sign(payload, secret, options);
+}
+
+function toExpiresIn(value?: string): jwt.SignOptions['expiresIn'] {
+  if (!value) return '7d';
+
+  const numeric = Number(value);
+  if (!Number.isNaN(numeric)) {
+    return numeric;
+  }
+
+  return value as jwt.SignOptions['expiresIn'];
 }
 
 // Register
