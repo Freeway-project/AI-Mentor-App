@@ -7,7 +7,14 @@ import { validate } from '../middleware/validation.middleware';
 import { AppError } from '../middleware/error.middleware';
 
 const router = Router();
-const userRepo = new UserRepository();
+
+let userRepo: UserRepository;
+function getUserRepo() {
+  if (!userRepo) {
+    userRepo = new UserRepository();
+  }
+  return userRepo;
+}
 
 // Register
 router.post('/register', validate(registerSchema), async (req: Request, res: Response, next: NextFunction) => {
@@ -15,7 +22,7 @@ router.post('/register', validate(registerSchema), async (req: Request, res: Res
     const { email, password, name, role, timezone } = req.body;
 
     // Check if user already exists
-    const existingUser = await userRepo.findByEmail(email);
+    const existingUser = await getUserRepo().findByEmail(email);
     if (existingUser) {
       throw new AppError(409, 'USER_EXISTS', 'User with this email already exists');
     }
@@ -24,7 +31,7 @@ router.post('/register', validate(registerSchema), async (req: Request, res: Res
     const hashedPassword = await bcrypt.hash(password, 10);
 
     // Create user
-    const user = await userRepo.create({
+    const user = await getUserRepo().create({
       email,
       password: hashedPassword,
       name,
@@ -63,7 +70,7 @@ router.post('/login', validate(loginSchema), async (req: Request, res: Response,
     const { email, password } = req.body;
 
     // Find user
-    const user = await userRepo.findByEmail(email);
+    const user = await getUserRepo().findByEmail(email);
     if (!user) {
       throw new AppError(401, 'INVALID_CREDENTIALS', 'Invalid email or password');
     }

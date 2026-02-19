@@ -7,12 +7,19 @@ import { createLLMClient, buildProviderRankingPrompt } from '@owl-mentors/llm';
 import { logger } from '@owl-mentors/utils';
 
 const router = Router();
-const providerRepo = new ProviderRepository();
+
+let providerRepo: ProviderRepository;
+function getProviderRepo() {
+  if (!providerRepo) {
+    providerRepo = new ProviderRepository();
+  }
+  return providerRepo;
+}
 
 // Create provider profile (protected)
 router.post('/', authenticate, validate(createProviderSchema), async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const provider = await providerRepo.create({
+    const provider = await getProviderRepo().create({
       ...req.body,
       userId: req.userId!,
     });
@@ -29,7 +36,7 @@ router.post('/', authenticate, validate(createProviderSchema), async (req: Reque
 // Get provider by ID
 router.get('/:id', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const provider = await providerRepo.findById(req.params.id);
+    const provider = await getProviderRepo().findById(req.params.id);
 
     res.json({
       success: true,
@@ -46,7 +53,7 @@ router.get('/', validateQuery(searchProvidersSchema), async (req: Request, res: 
     const params = req.query as any;
 
     // Get providers from database
-    const providers = await providerRepo.search(params);
+    const providers = await getProviderRepo().search(params);
 
     // If there's a text query, use LLM to rank and provide reasons
     if (params.query && providers.length > 0) {
