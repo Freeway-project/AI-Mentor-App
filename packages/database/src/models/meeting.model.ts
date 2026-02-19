@@ -1,10 +1,10 @@
 import { ObjectId } from 'mongodb';
 import { Meeting, MeetingStatus } from '@owl-mentors/types';
 
-export interface MeetingDocument extends Omit<Meeting, 'id' | 'learnerId' | 'providerId' | 'cancelledBy' | 'createdAt' | 'updatedAt'> {
+export interface MeetingDocument extends Omit<Meeting, 'id' | 'menteeId' | 'mentorId' | 'cancelledBy' | 'createdAt' | 'updatedAt'> {
   _id: ObjectId;
-  learnerId: ObjectId;
-  providerId: ObjectId;
+  menteeId: ObjectId;
+  mentorId: ObjectId;
   cancelledBy?: ObjectId;
   createdAt: Date;
   updatedAt: Date;
@@ -13,8 +13,8 @@ export interface MeetingDocument extends Omit<Meeting, 'id' | 'learnerId' | 'pro
 export function toMeeting(doc: MeetingDocument): Meeting {
   return {
     id: doc._id.toString(),
-    learnerId: doc.learnerId.toString(),
-    providerId: doc.providerId.toString(),
+    menteeId: doc.menteeId.toString(),
+    mentorId: doc.mentorId.toString(),
     title: doc.title,
     description: doc.description,
     scheduledAt: doc.scheduledAt,
@@ -40,12 +40,12 @@ export function toMeetingDocument(meeting: Partial<Meeting>): Partial<MeetingDoc
     delete doc.id;
   }
 
-  if (meeting.learnerId) {
-    doc.learnerId = new ObjectId(meeting.learnerId);
+  if (meeting.menteeId) {
+    doc.menteeId = new ObjectId(meeting.menteeId);
   }
 
-  if (meeting.providerId) {
-    doc.providerId = new ObjectId(meeting.providerId);
+  if (meeting.mentorId) {
+    doc.mentorId = new ObjectId(meeting.mentorId);
   }
 
   if (meeting.cancelledBy) {

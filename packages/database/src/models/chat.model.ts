@@ -1,10 +1,10 @@
 import { ObjectId } from 'mongodb';
 import { Conversation, Message } from '@owl-mentors/types';
 
-export interface ConversationDocument extends Omit<Conversation, 'id' | 'learnerId' | 'providerId' | 'meetingId' | 'createdAt' | 'updatedAt'> {
+export interface ConversationDocument extends Omit<Conversation, 'id' | 'menteeId' | 'mentorId' | 'meetingId' | 'createdAt' | 'updatedAt'> {
   _id: ObjectId;
-  learnerId: ObjectId;
-  providerId: ObjectId;
+  menteeId: ObjectId;
+  mentorId: ObjectId;
   meetingId?: ObjectId;
   createdAt: Date;
   updatedAt: Date;
@@ -22,8 +22,8 @@ export interface MessageDocument extends Omit<Message, 'id' | 'conversationId' |
 export function toConversation(doc: ConversationDocument): Conversation {
   return {
     id: doc._id.toString(),
-    learnerId: doc.learnerId.toString(),
-    providerId: doc.providerId.toString(),
+    menteeId: doc.menteeId.toString(),
+    mentorId: doc.mentorId.toString(),
     meetingId: doc.meetingId?.toString(),
     lastMessageAt: doc.lastMessageAt,
     unreadCount: doc.unreadCount,
@@ -60,12 +60,12 @@ export function toConversationDocument(conversation: Partial<Conversation>): Par
     delete doc.id;
   }
 
-  if (conversation.learnerId) {
-    doc.learnerId = new ObjectId(conversation.learnerId);
+  if (conversation.menteeId) {
+    doc.menteeId = new ObjectId(conversation.menteeId);
   }
 
-  if (conversation.providerId) {
-    doc.providerId = new ObjectId(conversation.providerId);
+  if (conversation.mentorId) {
+    doc.mentorId = new ObjectId(conversation.mentorId);
   }
 
   if (conversation.meetingId) {
