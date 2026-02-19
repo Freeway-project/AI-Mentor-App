@@ -5,7 +5,7 @@ import { validate } from '../middleware/validation.middleware';
 import { authenticate, authorize } from '../middleware/auth.middleware';
 import { AppError } from '../middleware/error.middleware';
 
-const router = Router();
+const router: Router = Router();
 
 let mentorRepo: MentorRepository;
 let offerRepo: OfferRepository;

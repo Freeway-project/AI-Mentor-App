@@ -77,6 +77,20 @@ bun run start:web
 bun run start:api
 ```
 
+## Docker
+
+Containerized development and deployment are available via the `docker` folder.
+
+- Build and start all services (web, API, MongoDB, Qdrant):
+
+```bash
+docker compose -f docker/docker-compose.yml up --build
+```
+
+- API available at http://localhost:3001
+- Web available at http://localhost:3000
+- Qdrant UI available at http://localhost:6333
+
 ## Core Features
 
 - Provider profiles with AI-powered search and suggestions

@@ -3,7 +3,7 @@ import { UserRepository, MentorRepository } from '@owl-mentors/database';
 import { authenticate, authorize } from '../middleware/auth.middleware';
 import { AppError } from '../middleware/error.middleware';
 
-const router = Router();
+const router: Router = Router();
 
 let userRepo: UserRepository;
 let mentorRepo: MentorRepository;
