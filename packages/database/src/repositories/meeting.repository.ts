@@ -2,7 +2,7 @@ import { Collection, ObjectId } from 'mongodb';
 import { Meeting, CreateMeetingInput, UpdateMeetingInput, MeetingStatus, ListMeetingsInput } from '@owl-mentors/types';
 import { logger } from '@owl-mentors/utils';
 import { getDatabase } from '../connection';
-import { MeetingDocument, toMeeting, toMeetingDocument } from '../models/meeting.model';
+import { MeetingDocument, toMeeting } from '../models/meeting.model';
 
 export class MeetingRepository {
   private collection: Collection<MeetingDocument>;
@@ -11,12 +11,12 @@ export class MeetingRepository {
     this.collection = getDatabase().collection<MeetingDocument>('meetings');
   }
 
-  async create(learnerId: string, data: CreateMeetingInput): Promise<Meeting> {
+  async create(menteeId: string, data: CreateMeetingInput): Promise<Meeting> {
     const startTime = Date.now();
     try {
       const doc: Partial<MeetingDocument> = {
-        learnerId: new ObjectId(learnerId),
-        providerId: new ObjectId(data.providerId),
+        menteeId: new ObjectId(menteeId),
+        mentorId: new ObjectId(data.mentorId),
         title: data.title,
         description: data.description,
         scheduledAt: new Date(data.scheduledAt),
@@ -58,8 +58,8 @@ export class MeetingRepository {
     try {
       const filter: any = {
         $or: [
-          { learnerId: new ObjectId(userId) },
-          { providerId: new ObjectId(userId) },
+          { menteeId: new ObjectId(userId) },
+          { mentorId: new ObjectId(userId) },
         ],
       };
 

@@ -5,6 +5,7 @@ import { logger } from '@owl-mentors/utils';
 import routes from './routes';
 import { errorHandler } from './middleware/error.middleware';
 import { requestLogger } from './middleware/logger.middleware';
+import { generalRateLimit } from './middleware/rateLimit.middleware';
 
 const app = express();
 
@@ -23,6 +24,9 @@ app.use(
 // Body parsing
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// Rate limiting
+app.use(generalRateLimit);
 
 // Request logging middleware
 app.use(requestLogger);

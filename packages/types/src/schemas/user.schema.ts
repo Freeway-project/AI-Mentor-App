@@ -1,17 +1,24 @@
 import { z } from 'zod';
 
-export const userRoleEnum = z.enum(['learner', 'provider', 'admin']);
+export const userRoleEnum = z.enum(['mentee', 'mentor', 'admin']);
 
 export const userSchema = z.object({
   id: z.string(),
   email: z.string().email(),
-  password: z.string().min(8),
+  password: z.string().min(8).optional(),
   name: z.string().min(1).max(100),
-  role: userRoleEnum,
+  roles: z.array(userRoleEnum).min(1),
   avatar: z.string().url().optional(),
   timezone: z.string().default('UTC'),
   emailVerified: z.boolean().default(false),
   isActive: z.boolean().default(true),
+  oauthProviders: z.array(z.object({
+    provider: z.string(),
+    providerId: z.string(),
+  })).optional(),
+  resetToken: z.string().optional(),
+  resetTokenExpiresAt: z.date().optional(),
+  verifyToken: z.string().optional(),
   createdAt: z.date(),
   updatedAt: z.date(),
 });
@@ -45,7 +52,28 @@ export const changePasswordSchema = z.object({
   newPassword: z.string().min(8).max(100),
 });
 
+export const forgotPasswordSchema = z.object({
+  email: z.string().email(),
+});
+
+export const resetPasswordSchema = z.object({
+  token: z.string().min(1),
+  newPassword: z.string().min(8).max(100),
+});
+
+export const verifyEmailSchema = z.object({
+  token: z.string().min(1),
+});
+
+export const googleAuthSchema = z.object({
+  idToken: z.string().min(1),
+});
+
 export type RegisterInput = z.infer<typeof registerSchema>;
 export type LoginInput = z.infer<typeof loginSchema>;
 export type UpdateUserInput = z.infer<typeof updateUserSchema>;
 export type ChangePasswordInput = z.infer<typeof changePasswordSchema>;
+export type ForgotPasswordInput = z.infer<typeof forgotPasswordSchema>;
+export type ResetPasswordInput = z.infer<typeof resetPasswordSchema>;
+export type VerifyEmailInput = z.infer<typeof verifyEmailSchema>;
+export type GoogleAuthInput = z.infer<typeof googleAuthSchema>;

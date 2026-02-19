@@ -2,7 +2,7 @@ import { Collection, ObjectId } from 'mongodb';
 import { Conversation, Message, CreateConversationInput, SendMessageInput, ListMessagesInput } from '@owl-mentors/types';
 import { logger } from '@owl-mentors/utils';
 import { getDatabase } from '../connection';
-import { ConversationDocument, MessageDocument, toConversation, toMessage, toConversationDocument, toMessageDocument } from '../models/chat.model';
+import { ConversationDocument, MessageDocument, toConversation, toMessage } from '../models/chat.model';
 
 export class ChatRepository {
   private conversationCollection: Collection<ConversationDocument>;
@@ -14,14 +14,14 @@ export class ChatRepository {
     this.messageCollection = db.collection<MessageDocument>('messages');
   }
 
-  async createConversation(learnerId: string, data: CreateConversationInput): Promise<Conversation> {
+  async createConversation(menteeId: string, data: CreateConversationInput): Promise<Conversation> {
     const startTime = Date.now();
     try {
       const doc: Partial<ConversationDocument> = {
-        learnerId: new ObjectId(learnerId),
-        providerId: new ObjectId(data.providerId),
+        menteeId: new ObjectId(menteeId),
+        mentorId: new ObjectId(data.mentorId),
         meetingId: data.meetingId ? new ObjectId(data.meetingId) : undefined,
-        unreadCount: { learner: 0, provider: 0 },
+        unreadCount: { mentee: 0, mentor: 0 },
         isActive: true,
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -60,8 +60,8 @@ export class ChatRepository {
       const docs = await this.conversationCollection
         .find({
           $or: [
-            { learnerId: new ObjectId(userId) },
-            { providerId: new ObjectId(userId) },
+            { menteeId: new ObjectId(userId) },
+            { mentorId: new ObjectId(userId) },
           ],
           isActive: true,
         })
@@ -77,7 +77,7 @@ export class ChatRepository {
     }
   }
 
-  async sendMessage(senderId: string, senderRole: 'learner' | 'provider', data: SendMessageInput): Promise<Message> {
+  async sendMessage(senderId: string, senderRole: 'mentee' | 'mentor', data: SendMessageInput): Promise<Message> {
     const startTime = Date.now();
     try {
       const doc: Partial<MessageDocument> = {
@@ -97,12 +97,11 @@ export class ChatRepository {
 
       const result = await this.messageCollection.insertOne(doc as MessageDocument);
 
-      // Update conversation lastMessageAt
       await this.conversationCollection.updateOne(
         { _id: new ObjectId(data.conversationId) },
         {
           $set: { lastMessageAt: new Date(), updatedAt: new Date() },
-          $inc: senderRole === 'learner' ? { 'unreadCount.provider': 1 } : { 'unreadCount.learner': 1 }
+          $inc: senderRole === 'mentee' ? { 'unreadCount.mentor': 1 } : { 'unreadCount.mentee': 1 }
         }
       );
 
@@ -169,13 +168,12 @@ export class ChatRepository {
         { $addToSet: { readBy: new ObjectId(userId) } }
       );
 
-      // Reset unread count
       const conversation = await this.conversationCollection.findOne({ _id: new ObjectId(conversationId) });
       if (conversation) {
-        const isLearner = conversation.learnerId.toString() === userId;
+        const isMentee = conversation.menteeId.toString() === userId;
         await this.conversationCollection.updateOne(
           { _id: new ObjectId(conversationId) },
-          { $set: isLearner ? { 'unreadCount.learner': 0 } : { 'unreadCount.provider': 0 } }
+          { $set: isMentee ? { 'unreadCount.mentee': 0 } : { 'unreadCount.mentor': 0 } }
         );
       }
 

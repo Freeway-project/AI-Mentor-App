@@ -11,8 +11,8 @@ export const meetingStatusEnum = z.enum([
 
 export const meetingSchema = z.object({
   id: z.string(),
-  learnerId: z.string(),
-  providerId: z.string(),
+  menteeId: z.string(),
+  mentorId: z.string(),
   title: z.string().min(1).max(200),
   description: z.string().max(1000).optional(),
   scheduledAt: z.date(),
@@ -33,7 +33,7 @@ export type Meeting = z.infer<typeof meetingSchema>;
 export type MeetingStatus = z.infer<typeof meetingStatusEnum>;
 
 export const createMeetingSchema = z.object({
-  providerId: z.string(),
+  mentorId: z.string(),
   title: z.string().min(1).max(200),
   description: z.string().max(1000).optional(),
   scheduledAt: z.string().datetime(), // ISO 8601 string

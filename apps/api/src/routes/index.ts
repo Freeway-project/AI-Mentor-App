@@ -1,16 +1,17 @@
 import { Router } from 'express';
 import authRoutes from './auth.routes';
-import providerRoutes from './provider.routes';
+import mentorRoutes from './mentor.routes';
+import offerRoutes from './offer.routes';
+import policyRoutes from './policy.routes';
+import adminRoutes from './admin.routes';
 
 const router = Router();
 
 // Mount route modules
 router.use('/auth', authRoutes);
-router.use('/providers', providerRoutes);
-
-// Add more routes as needed:
-// router.use('/meetings', meetingRoutes);
-// router.use('/chat', chatRoutes);
-// router.use('/notifications', notificationRoutes);
+router.use('/mentors', mentorRoutes);
+router.use('/mentors/me/offers', offerRoutes);
+router.use('/mentors/me/policies', policyRoutes);
+router.use('/admin', adminRoutes);
 
 export default router;

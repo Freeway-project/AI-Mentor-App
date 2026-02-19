@@ -4,7 +4,7 @@ export function buildSearchQueryParserPrompt(query: string): LLMMessage[] {
   return [
     {
       role: 'system',
-      content: `You are a search query parser. Extract structured information from natural language search queries for finding mentors/providers.
+      content: `You are a search query parser. Extract structured information from natural language search queries for finding mentors.
 
 Extract:
 - topic: main subject/expertise being searched
@@ -37,7 +37,7 @@ export function buildProviderRankingPrompt(query: string, providers: any[]): LLM
   return [
     {
       role: 'system',
-      content: `You are a mentor matching assistant. Given a search query and list of providers, rank them and provide brief reasons for the ranking.
+      content: `You are a mentor matching assistant. Given a search query and list of mentors, rank them and provide brief reasons for the ranking.
 
 Focus on:
 - Expertise match
@@ -51,10 +51,10 @@ Return JSON array with: [{ "providerId": "id", "score": 0-100, "reason": "brief 
       role: 'user',
       content: `Query: "${query}"
 
-Providers:
+Mentors:
 ${JSON.stringify(providers, null, 2)}
 
-Rank these providers and explain why each is a good or poor match.`,
+Rank these mentors and explain why each is a good or poor match.`,
     },
   ];
 }

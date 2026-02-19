@@ -4,13 +4,13 @@ export const messageTypeEnum = z.enum(['text', 'file', 'system']);
 
 export const conversationSchema = z.object({
   id: z.string(),
-  learnerId: z.string(),
-  providerId: z.string(),
+  menteeId: z.string(),
+  mentorId: z.string(),
   meetingId: z.string().optional(),
   lastMessageAt: z.date().optional(),
   unreadCount: z.object({
-    learner: z.number().int().nonnegative().default(0),
-    provider: z.number().int().nonnegative().default(0),
+    mentee: z.number().int().nonnegative().default(0),
+    mentor: z.number().int().nonnegative().default(0),
   }),
   isActive: z.boolean().default(true),
   createdAt: z.date(),
@@ -21,7 +21,7 @@ export const messageSchema = z.object({
   id: z.string(),
   conversationId: z.string(),
   senderId: z.string(),
-  senderRole: z.enum(['learner', 'provider', 'system']),
+  senderRole: z.enum(['mentee', 'mentor', 'system']),
   type: messageTypeEnum,
   content: z.string().max(5000),
   fileUrl: z.string().url().optional(),
@@ -39,7 +39,7 @@ export type Message = z.infer<typeof messageSchema>;
 export type MessageType = z.infer<typeof messageTypeEnum>;
 
 export const createConversationSchema = z.object({
-  providerId: z.string(),
+  mentorId: z.string(),
   meetingId: z.string().optional(),
 });
 
