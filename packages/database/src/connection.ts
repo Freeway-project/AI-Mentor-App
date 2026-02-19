@@ -1,5 +1,5 @@
 import { MongoClient, Db } from 'mongodb';
-import { logger } from '@mentor-app/utils';
+import { logger } from '@owl-mentors/utils';
 
 let client: MongoClient | null = null;
 let db: Db | null = null;

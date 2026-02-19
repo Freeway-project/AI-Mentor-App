@@ -1,5 +1,5 @@
 {
-  "name": "@blucodes/mentor-app",
+  "name": "@owl-mentors/monorepo",
   "version": "1.0.0",
   "private": true,
   "workspaces": [
@@ -8,13 +8,13 @@
   ],
   "scripts": {
     "dev": "bun run --filter '*' dev",
-    "dev:web": "bun run --filter @mentor-app/web dev",
-    "dev:api": "bun run --filter @mentor-app/api dev",
+    "dev:web": "bun run --filter @owl-mentors/web dev",
+    "dev:api": "bun run --filter @owl-mentors/api dev",
     "build": "bun run --filter '*' build",
-    "build:web": "bun run --filter @mentor-app/web build",
-    "build:api": "bun run --filter @mentor-app/api build",
-    "start:web": "bun run --filter @mentor-app/web start",
-    "start:api": "bun run --filter @mentor-app/api start",
+    "build:web": "bun run --filter @owl-mentors/web build",
+    "build:api": "bun run --filter @owl-mentors/api build",
+    "start:web": "bun run --filter @owl-mentors/web start",
+    "start:api": "bun run --filter @owl-mentors/api start",
     "type-check": "bun run --filter '*' type-check",
     "lint": "bun run --filter '*' lint",
     "clean": "bun run --filter '*' clean && rm -rf node_modules"

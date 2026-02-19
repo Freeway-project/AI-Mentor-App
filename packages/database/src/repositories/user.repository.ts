@@ -1,6 +1,6 @@
 import { Collection, ObjectId } from 'mongodb';
-import { User, RegisterInput, UpdateUserInput } from '@mentor-app/types';
-import { logger } from '@mentor-app/utils';
+import { User, RegisterInput, UpdateUserInput } from '@owl-mentors/types';
+import { logger } from '@owl-mentors/utils';
 import { getDatabase } from '../connection';
 import { UserDocument, toUser, toUserDocument } from '../models/user.model';
 

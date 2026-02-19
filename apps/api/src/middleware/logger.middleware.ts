@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { logger } from '@mentor-app/utils';
+import { logger } from '@owl-mentors/utils';
 import { randomBytes } from 'crypto';
 
 // Extend Express Request to include requestId

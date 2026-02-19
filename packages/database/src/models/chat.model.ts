@@ -1,5 +1,5 @@
 import { ObjectId } from 'mongodb';
-import { Conversation, Message } from '@mentor-app/types';
+import { Conversation, Message } from '@owl-mentors/types';
 
 export interface ConversationDocument extends Omit<Conversation, 'id' | 'learnerId' | 'providerId' | 'meetingId' | 'createdAt' | 'updatedAt'> {
   _id: ObjectId;

@@ -1,6 +1,6 @@
 import app from './app';
-import { connectDatabase } from '@mentor-app/database';
-import { logger } from '@mentor-app/utils';
+import { connectDatabase } from '@owl-mentors/database';
+import { logger } from '@owl-mentors/utils';
 
 const PORT = process.env.PORT || 3001;
 

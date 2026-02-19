@@ -1,6 +1,6 @@
 import { Collection, ObjectId } from 'mongodb';
-import { Notification, CreateNotificationInput, UpdateNotificationInput, ListNotificationsInput } from '@mentor-app/types';
-import { logger } from '@mentor-app/utils';
+import { Notification, CreateNotificationInput, UpdateNotificationInput, ListNotificationsInput } from '@owl-mentors/types';
+import { logger } from '@owl-mentors/utils';
 import { getDatabase } from '../connection';
 import { NotificationDocument, toNotification, toNotificationDocument } from '../models/notification.model';
 

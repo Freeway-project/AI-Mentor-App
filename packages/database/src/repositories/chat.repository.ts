@@ -1,6 +1,6 @@
 import { Collection, ObjectId } from 'mongodb';
-import { Conversation, Message, CreateConversationInput, SendMessageInput, ListMessagesInput } from '@mentor-app/types';
-import { logger } from '@mentor-app/utils';
+import { Conversation, Message, CreateConversationInput, SendMessageInput, ListMessagesInput } from '@owl-mentors/types';
+import { logger } from '@owl-mentors/utils';
 import { getDatabase } from '../connection';
 import { ConversationDocument, MessageDocument, toConversation, toMessage, toConversationDocument, toMessageDocument } from '../models/chat.model';
 

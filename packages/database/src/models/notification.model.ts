@@ -1,5 +1,5 @@
 import { ObjectId } from 'mongodb';
-import { Notification } from '@mentor-app/types';
+import { Notification } from '@owl-mentors/types';
 
 export interface NotificationDocument extends Omit<Notification, 'id' | 'userId' | 'createdAt' | 'updatedAt'> {
   _id: ObjectId;

@@ -1,6 +1,6 @@
 import { BaseLLMClient } from './base.client';
 import { LLMMessage, LLMResponse, LLMChatOptions } from '../types';
-import { logger } from '@mentor-app/utils';
+import { logger } from '@owl-mentors/utils';
 
 export class GroqClient extends BaseLLMClient {
   constructor(apiKey: string) {

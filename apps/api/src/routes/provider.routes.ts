@@ -1,10 +1,10 @@
 import { Router, Request, Response, NextFunction } from 'express';
-import { ProviderRepository } from '@mentor-app/database';
-import { createProviderSchema, searchProvidersSchema } from '@mentor-app/types';
+import { ProviderRepository } from '@owl-mentors/database';
+import { createProviderSchema, searchProvidersSchema } from '@owl-mentors/types';
 import { validate, validateQuery } from '../middleware/validation.middleware';
 import { authenticate } from '../middleware/auth.middleware';
-import { createLLMClient, buildProviderRankingPrompt } from '@mentor-app/llm';
-import { logger } from '@mentor-app/utils';
+import { createLLMClient, buildProviderRankingPrompt } from '@owl-mentors/llm';
+import { logger } from '@owl-mentors/utils';
 
 const router = Router();
 const providerRepo = new ProviderRepository();

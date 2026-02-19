@@ -4,8 +4,8 @@
     "outDir": "./dist",
     "rootDir": "./src",
     "paths": {
-      "@mentor-app/types": ["../types/src"],
-      "@mentor-app/utils": ["../utils/src"]
+      "@owl-mentors/types": ["../types/src"],
+      "@owl-mentors/utils": ["../utils/src"]
     }
   },
   "include": ["src/**/*"],

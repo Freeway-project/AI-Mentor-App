@@ -2,7 +2,7 @@ import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
-  transpilePackages: ['@mentor-app/types', '@mentor-app/utils'],
+  transpilePackages: ['@owl-mentors/types', '@owl-mentors/utils'],
   env: {
     NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL,
   },

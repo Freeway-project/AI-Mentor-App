@@ -1,5 +1,5 @@
 {
-  "name": "@mentor-app/database",
+  "name": "@owl-mentors/database",
   "version": "1.0.0",
   "private": true,
   "main": "./src/index.ts",
@@ -10,8 +10,8 @@
   },
   "dependencies": {
     "mongodb": "^6.3.0",
-    "@mentor-app/types": "workspace:*",
-    "@mentor-app/utils": "workspace:*",
+    "@owl-mentors/types": "workspace:*",
+    "@owl-mentors/utils": "workspace:*",
     "zod": "^3.22.4"
   },
   "devDependencies": {

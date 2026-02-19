@@ -1,5 +1,5 @@
 {
-  "name": "@mentor-app/types",
+  "name": "@owl-mentors/types",
   "version": "1.0.0",
   "private": true,
   "main": "./src/index.ts",

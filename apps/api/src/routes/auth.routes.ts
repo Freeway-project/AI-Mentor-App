@@ -1,8 +1,8 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import { UserRepository } from '@mentor-app/database';
-import { registerSchema, loginSchema } from '@mentor-app/types';
+import { UserRepository } from '@owl-mentors/database';
+import { registerSchema, loginSchema } from '@owl-mentors/types';
 import { validate } from '../middleware/validation.middleware';
 import { AppError } from '../middleware/error.middleware';
 

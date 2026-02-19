@@ -1,5 +1,5 @@
 import { ObjectId } from 'mongodb';
-import { Meeting, MeetingStatus } from '@mentor-app/types';
+import { Meeting, MeetingStatus } from '@owl-mentors/types';
 
 export interface MeetingDocument extends Omit<Meeting, 'id' | 'learnerId' | 'providerId' | 'cancelledBy' | 'createdAt' | 'updatedAt'> {
   _id: ObjectId;

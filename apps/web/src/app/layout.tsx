@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'AI Mentor Platform',
+  title: 'OWLMentors',
   description: 'Find and connect with expert mentors',
 };
 
