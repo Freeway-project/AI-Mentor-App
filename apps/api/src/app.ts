@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { type Application } from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import { logger } from '@owl-mentors/utils';
@@ -7,7 +7,7 @@ import { errorHandler } from './middleware/error.middleware';
 import { requestLogger } from './middleware/logger.middleware';
 import { generalRateLimit } from './middleware/rateLimit.middleware';
 
-const app = express();
+const app: Application = express();
 
 // Security middleware
 app.use(helmet());

@@ -7,7 +7,7 @@ import { createLLMClient, buildProviderRankingPrompt } from '@owl-mentors/llm';
 import { logger } from '@owl-mentors/utils';
 import { AppError } from '../middleware/error.middleware';
 
-const router = Router();
+const router: Router = Router();
 
 let mentorRepo: MentorRepository;
 let userRepo: UserRepository;

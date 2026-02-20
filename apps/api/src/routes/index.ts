@@ -5,7 +5,7 @@ import offerRoutes from './offer.routes';
 import policyRoutes from './policy.routes';
 import adminRoutes from './admin.routes';
 
-const router = Router();
+const router: Router = Router();
 
 // Mount route modules
 router.use('/auth', authRoutes);

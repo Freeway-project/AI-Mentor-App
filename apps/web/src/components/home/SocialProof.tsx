@@ -48,7 +48,7 @@ export function SocialProof() {
                 {/* Testimonials */}
                 <div className="text-center mb-12">
                     <h2 className="text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl mb-4">
-                        Don't just take our word for it
+                        Don&apos;t just take our word for it
                     </h2>
                     <p className="text-lg text-slate-600 max-w-2xl mx-auto">
                         See what our community has to say about their mentorship journey.
@@ -61,7 +61,7 @@ export function SocialProof() {
                             <CardContent className="p-8 space-y-6 flex flex-col h-full">
                                 <Quote className="h-8 w-8 text-blue-200" />
                                 <p className="text-slate-700 italic flex-1">
-                                    "{testimonial.quote}"
+                                    &ldquo;{testimonial.quote}&rdquo;
                                 </p>
                                 <div className="flex items-center gap-4 pt-4 border-t border-slate-200">
                                     <div className="h-10 w-10 rounded-full overflow-hidden bg-slate-200 shrink-0">

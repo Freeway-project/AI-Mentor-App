@@ -2,7 +2,7 @@
   "extends": "../../tsconfig.json",
   "compilerOptions": {
     "outDir": "./dist",
-    "rootDir": "./src",
+    "rootDir": "../..",
     "noEmit": false,
     "paths": {
       "@owl-mentors/types": ["../../packages/types/src"],
@@ -11,6 +11,6 @@
       "@owl-mentors/utils": ["../../packages/utils/src"]
     }
   },
-  "include": ["src/**/*"],
+  "include": ["src/**/*", "../../packages/*/src/**/*"],
   "exclude": ["node_modules", "dist"]
 }

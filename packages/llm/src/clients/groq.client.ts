@@ -1,5 +1,5 @@
 import { BaseLLMClient } from './base.client';
-import { LLMMessage, LLMResponse, LLMChatOptions } from '../types';
+import { LLMMessage, LLMResponse, LLMChatOptions, ChatCompletionResponse } from '../types';
 import { logger } from '@owl-mentors/utils';
 
 export class GroqClient extends BaseLLMClient {
@@ -28,11 +28,11 @@ export class GroqClient extends BaseLLMClient {
         }),
       });
 
-      const data = await response.json();
+      const data = await response.json() as ChatCompletionResponse;
       const duration = Date.now() - startTime;
 
       const result: LLMResponse = {
-        content: data.choices[0]?.message?.content || '',
+        content: data.choices?.[0]?.message?.content || '',
         model,
         provider: 'groq',
         tokens: {
