@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import { UserPlus, Search, Calendar, Repeat, ArrowRight } from 'lucide-react';
 import { motion, Variants } from 'framer-motion';
 
@@ -76,7 +77,7 @@ export function HowItWorks() {
                         Your Journey to Mastery
                     </h2>
                     <p className="text-lg text-slate-600 max-w-2xl mx-auto">
-                        We've streamlined the mentorship process. Getting expert guidance has never been this simple and effective.
+                        We&apos;ve streamlined the mentorship process. Getting expert guidance has never been this simple and effective.
                     </p>
                 </motion.div>
 
@@ -138,7 +139,7 @@ export function HowItWorks() {
                             >
                                 <div className="relative">
                                     <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-white shadow-sm ring-2 ring-slate-100">
-                                        <img src="https://i.pravatar.cc/150?img=11" alt="Student" className="w-full h-full object-cover" />
+                                        <Image src="https://i.pravatar.cc/150?img=11" alt="Student" width={48} height={48} className="w-full h-full object-cover" />
                                     </div>
                                     <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-green-500 rounded-full border-2 border-white flex items-center justify-center">
                                         <ArrowRight className="w-3 h-3 text-white -rotate-45" />
