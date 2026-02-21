@@ -31,7 +31,7 @@ function TopicForm({
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="e.g. Leadership Coaching"
-            className="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-300"
+            className="w-full px-3 py-2 text-sm text-slate-900 bg-white placeholder:text-slate-400 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-300"
           />
         </div>
         <div>
@@ -41,7 +41,7 @@ function TopicForm({
             value={category}
             onChange={(e) => setCategory(e.target.value)}
             placeholder="e.g. Business, Tech, Wellness"
-            className="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-300"
+            className="w-full px-3 py-2 text-sm text-slate-900 bg-white placeholder:text-slate-400 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-300"
           />
         </div>
       </div>
@@ -52,7 +52,7 @@ function TopicForm({
           onChange={(e) => setDescription(e.target.value)}
           rows={2}
           placeholder="Optional description..."
-          className="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-300 resize-none"
+          className="w-full px-3 py-2 text-sm text-slate-900 bg-white placeholder:text-slate-400 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-300 resize-none"
         />
       </div>
       <div className="flex gap-2 justify-end">

@@ -52,7 +52,7 @@ export default function LoginPage() {
       <div className="min-h-screen flex items-center justify-center bg-slate-50 px-4">
         <div className="w-full max-w-md space-y-8">
           <div className="text-center">
-            <h1 className="text-3xl font-bold">Welcome back</h1>
+            <h1 className="text-3xl font-bold text-slate-900">Welcome back</h1>
             <p className="mt-2 text-slate-600">Sign in to your account</p>
           </div>
 
@@ -110,7 +110,7 @@ export default function LoginPage() {
                 <div className="w-full border-t border-slate-300" />
               </div>
               <div className="relative flex justify-center text-sm">
-                <span className="bg-slate-50 px-2 text-slate-500">Or continue with</span>
+                <span className="bg-slate-50 px-2 text-slate-600">Or continue with</span>
               </div>
             </div>
           )}

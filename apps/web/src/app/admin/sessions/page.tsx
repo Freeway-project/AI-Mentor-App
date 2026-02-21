@@ -69,14 +69,14 @@ export default function SessionsPage() {
             type="date"
             value={dateFrom}
             onChange={(e) => { setDateFrom(e.target.value); setOffset(0); }}
-            className="px-2 py-1.5 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-300 text-sm"
+            className="px-2 py-1.5 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-300 text-sm text-slate-900 bg-white"
           />
           <label>To</label>
           <input
             type="date"
             value={dateTo}
             onChange={(e) => { setDateTo(e.target.value); setOffset(0); }}
-            className="px-2 py-1.5 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-300 text-sm"
+            className="px-2 py-1.5 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-300 text-sm text-slate-900 bg-white"
           />
           {(dateFrom || dateTo) && (
             <button

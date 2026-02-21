@@ -5,4 +5,5 @@
 body {
   color: #0f172a; /* slate-900 */
   background: #ffffff;
+  /* Make sure text is visible globally unless explicitly inverted */
 }

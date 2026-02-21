@@ -64,7 +64,7 @@ export default function RegisterPage() {
       <div className="min-h-screen flex items-center justify-center bg-slate-50 px-4 py-12">
         <div className="w-full max-w-md space-y-8">
           <div className="text-center">
-            <h1 className="text-3xl font-bold">Create your account</h1>
+            <h1 className="text-3xl font-bold text-slate-900">Create your account</h1>
             <p className="mt-2 text-slate-600">Start your mentoring journey</p>
           </div>
 
@@ -145,11 +145,10 @@ export default function RegisterPage() {
                 <button
                   type="button"
                   onClick={() => setRole('mentee')}
-                  className={`p-4 border-2 rounded-xl text-left transition-all ${
-                    role === 'mentee'
+                  className={`p-4 border-2 rounded-xl text-left transition-all ${role === 'mentee'
                       ? 'border-blue-500 bg-blue-50'
                       : 'border-slate-200 bg-white hover:border-blue-300 hover:bg-blue-50/40'
-                  }`}
+                    }`}
                 >
                   <div className={`text-xl mb-1`}>🎓</div>
                   <div className={`text-sm font-semibold ${role === 'mentee' ? 'text-blue-700' : 'text-slate-700'}`}>
@@ -164,11 +163,10 @@ export default function RegisterPage() {
                 <button
                   type="button"
                   onClick={() => setRole('mentor')}
-                  className={`p-4 border-2 rounded-xl text-left transition-all ${
-                    role === 'mentor'
+                  className={`p-4 border-2 rounded-xl text-left transition-all ${role === 'mentor'
                       ? 'border-purple-500 bg-purple-50'
                       : 'border-slate-200 bg-white hover:border-purple-300 hover:bg-purple-50/40'
-                  }`}
+                    }`}
                 >
                   <div className={`text-xl mb-1`}>🏆</div>
                   <div className={`text-sm font-semibold ${role === 'mentor' ? 'text-purple-700' : 'text-slate-700'}`}>
@@ -197,7 +195,7 @@ export default function RegisterPage() {
                   <div className="w-full border-t border-slate-300" />
                 </div>
                 <div className="relative flex justify-center text-sm">
-                  <span className="bg-slate-50 px-2 text-slate-500">Or continue with</span>
+                  <span className="bg-slate-50 px-2 text-slate-600">Or continue with</span>
                 </div>
               </div>
 

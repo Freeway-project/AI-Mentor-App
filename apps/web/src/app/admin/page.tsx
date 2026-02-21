@@ -152,7 +152,7 @@ export default function AdminDashboard() {
                       placeholder="Rejection reason (required)"
                       value={rejectNote[coach.id] || ''}
                       onChange={(e) => setRejectNote((n) => ({ ...n, [coach.id]: e.target.value }))}
-                      className="flex-1 px-3 py-1.5 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-300"
+                      className="flex-1 px-3 py-1.5 text-sm text-slate-900 bg-white placeholder:text-slate-400 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-300"
                     />
                     <Button
                       size="sm"

@@ -54,7 +54,7 @@ function CoachCard({ coach, onApprove, onReject }: {
             placeholder="Reason for rejection..."
             value={rejectNote}
             onChange={(e) => setRejectNote(e.target.value)}
-            className="flex-1 px-3 py-1.5 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-300"
+            className="flex-1 px-3 py-1.5 text-sm text-slate-900 bg-white placeholder:text-slate-400 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-300"
           />
           <Button
             size="sm"
