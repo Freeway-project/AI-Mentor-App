@@ -8,7 +8,9 @@ export interface IUserDocument extends mongoose.Document {
   roles: string[];
   avatar?: string;
   timezone: string;
+  phone?: string;
   emailVerified: boolean;
+  phoneVerified: boolean;
   isActive: boolean;
   oauthProviders?: { provider: string; providerId: string }[];
   resetToken?: string;
@@ -26,7 +28,9 @@ const userSchema = new Schema<IUserDocument>(
     roles: { type: [String], required: true },
     avatar: { type: String },
     timezone: { type: String, default: 'UTC' },
+    phone: { type: String },
     emailVerified: { type: Boolean, default: false },
+    phoneVerified: { type: Boolean, default: false },
     isActive: { type: Boolean, default: true },
     oauthProviders: [{ provider: String, providerId: String }],
     resetToken: { type: String, index: { sparse: true } },
@@ -49,7 +53,9 @@ export function toUser(doc: IUserDocument): User {
     roles: doc.roles as any,
     avatar: doc.avatar,
     timezone: doc.timezone,
+    phone: doc.phone,
     emailVerified: doc.emailVerified,
+    phoneVerified: doc.phoneVerified,
     isActive: doc.isActive,
     oauthProviders: doc.oauthProviders,
     resetToken: doc.resetToken,

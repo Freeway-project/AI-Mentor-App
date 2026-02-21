@@ -12,10 +12,12 @@
     "mongodb": "^6.3.0",
     "@owl-mentors/types": "workspace:*",
     "@owl-mentors/utils": "workspace:*",
-    "zod": "^3.22.4"
+    "zod": "^3.22.4",
+    "mongoose": "^8.0.0"
   },
   "devDependencies": {
     "@types/node": "^20.11.5",
-    "typescript": "^5.3.3"
+    "typescript": "^5.3.3",
+    "@types/mongoose": "^5.11.97"
   }
 }
