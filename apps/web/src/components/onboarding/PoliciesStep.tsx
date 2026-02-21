@@ -66,7 +66,7 @@ export function PoliciesStep({ mentorId, onComplete }: PoliciesStepProps) {
           min="0"
           value={cancellationHours}
           onChange={(e) => setCancellationHours(e.target.value)}
-          className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-900 bg-white placeholder:text-slate-400"
         />
         <p className="text-xs text-slate-400 mt-1">How many hours before a session can a mentee cancel?</p>
       </div>
@@ -80,7 +80,7 @@ export function PoliciesStep({ mentorId, onComplete }: PoliciesStepProps) {
           min="0"
           value={rescheduleHours}
           onChange={(e) => setRescheduleHours(e.target.value)}
-          className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-900 bg-white placeholder:text-slate-400"
         />
       </div>
 
@@ -90,7 +90,7 @@ export function PoliciesStep({ mentorId, onComplete }: PoliciesStepProps) {
           type="text"
           value={noShowPolicy}
           onChange={(e) => setNoShowPolicy(e.target.value)}
-          className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-900 bg-white placeholder:text-slate-400"
           placeholder="e.g. No refund for no-shows"
         />
       </div>
@@ -100,7 +100,7 @@ export function PoliciesStep({ mentorId, onComplete }: PoliciesStepProps) {
         <textarea
           value={customTerms}
           onChange={(e) => setCustomTerms(e.target.value)}
-          className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-900 bg-white placeholder:text-slate-400"
           rows={3}
           placeholder="Any additional terms..."
         />

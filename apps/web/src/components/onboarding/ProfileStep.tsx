@@ -56,7 +56,7 @@ export function ProfileStep({ profile, onComplete }: ProfileStepProps) {
           type="text"
           value={headline}
           onChange={(e) => setHeadline(e.target.value)}
-          className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-900 bg-white placeholder:text-slate-400"
           placeholder="e.g. Senior React Developer & Mentor"
           maxLength={200}
         />
@@ -67,7 +67,7 @@ export function ProfileStep({ profile, onComplete }: ProfileStepProps) {
         <textarea
           value={bio}
           onChange={(e) => setBio(e.target.value)}
-          className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-900 bg-white placeholder:text-slate-400"
           rows={4}
           placeholder="Share your background, experience, and what you can help with..."
           maxLength={1000}
@@ -80,7 +80,7 @@ export function ProfileStep({ profile, onComplete }: ProfileStepProps) {
           type="text"
           value={specialties}
           onChange={(e) => setSpecialties(e.target.value)}
-          className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-900 bg-white placeholder:text-slate-400"
           placeholder="e.g. React, TypeScript, System Design"
         />
       </div>
@@ -91,7 +91,7 @@ export function ProfileStep({ profile, onComplete }: ProfileStepProps) {
           type="text"
           value={expertise}
           onChange={(e) => setExpertise(e.target.value)}
-          className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-900 bg-white placeholder:text-slate-400"
           placeholder="e.g. Frontend, Full-stack, Cloud Architecture"
         />
       </div>
@@ -102,7 +102,7 @@ export function ProfileStep({ profile, onComplete }: ProfileStepProps) {
           type="text"
           value={languages}
           onChange={(e) => setLanguages(e.target.value)}
-          className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-900 bg-white placeholder:text-slate-400"
           placeholder="e.g. English, Spanish"
         />
       </div>
@@ -114,7 +114,7 @@ export function ProfileStep({ profile, onComplete }: ProfileStepProps) {
           min="0"
           value={hourlyRate}
           onChange={(e) => setHourlyRate(e.target.value)}
-          className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-900 bg-white placeholder:text-slate-400"
           placeholder="e.g. 50"
         />
       </div>

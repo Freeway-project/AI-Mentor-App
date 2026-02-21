@@ -118,7 +118,7 @@ export default function MentorSignupPage() {
                 required
                 value={form.name}
                 onChange={handleChange}
-                className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-900 bg-white placeholder:text-slate-400"
                 placeholder="Jane Smith"
               />
             </div>
@@ -134,7 +134,7 @@ export default function MentorSignupPage() {
                 required
                 value={form.email}
                 onChange={handleChange}
-                className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-900 bg-white placeholder:text-slate-400"
                 placeholder="jane@example.com"
               />
             </div>
@@ -150,7 +150,7 @@ export default function MentorSignupPage() {
                 required
                 value={form.phone}
                 onChange={handleChange}
-                className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-900 bg-white placeholder:text-slate-400"
                 placeholder="+1 (555) 000-0000"
               />
               <p className="mt-1 text-xs text-slate-500">Used for identity verification via SMS</p>
@@ -168,7 +168,7 @@ export default function MentorSignupPage() {
                 minLength={8}
                 value={form.password}
                 onChange={handleChange}
-                className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-900 bg-white placeholder:text-slate-400"
                 placeholder="At least 8 characters"
               />
             </div>
@@ -184,7 +184,7 @@ export default function MentorSignupPage() {
                 required
                 value={form.confirmPassword}
                 onChange={handleChange}
-                className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-900 bg-white placeholder:text-slate-400"
                 placeholder="Repeat your password"
               />
             </div>
