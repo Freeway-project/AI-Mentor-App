@@ -10,7 +10,9 @@ export const userSchema = z.object({
   roles: z.array(userRoleEnum).min(1),
   avatar: z.string().url().optional(),
   timezone: z.string().default('UTC'),
+  phone: z.string().optional(),
   emailVerified: z.boolean().default(false),
+  phoneVerified: z.boolean().default(false),
   isActive: z.boolean().default(true),
   oauthProviders: z.array(z.object({
     provider: z.string(),

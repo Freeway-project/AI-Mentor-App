@@ -1,13 +1,29 @@
+# Dependencies
 node_modules
-.turbo
-.next
-dist
 apps/*/node_modules
-apps/*/.next
-apps/*/dist
 packages/*/node_modules
+
+# Build outputs
+.next
+apps/*/.next
+dist
+apps/*/dist
+
+# Dev/test artifacts
+.turbo
 coverage
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
+*.log
+
+# Secrets — never bake into image
+.env
+apps/**/.env
+docker/.env
+
+# Git
+.git
+.gitignore
+
+# Editor
+.vscode
+.idea
+*.swp

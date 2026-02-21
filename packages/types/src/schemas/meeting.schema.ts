@@ -1,13 +1,18 @@
 import { z } from 'zod';
 
 export const meetingStatusEnum = z.enum([
-  'scheduled',
+  'draft',
+  'booked',
   'confirmed',
   'in_progress',
   'completed',
   'cancelled',
+  'rescheduled',
   'no_show',
+  'refunded',
 ]);
+
+export const sessionDurationEnum = z.enum(['30', '60']);
 
 export const meetingSchema = z.object({
   id: z.string(),
@@ -18,6 +23,8 @@ export const meetingSchema = z.object({
   scheduledAt: z.date(),
   duration: z.number().int().positive(), // in minutes
   status: meetingStatusEnum,
+  creditCost: z.number(), // 0.5 or 1.0
+  offerId: z.string().optional(),
   meetingLink: z.string().url().optional(),
   notes: z.string().max(5000).optional(),
   rating: z.number().min(0).max(5).optional(),
@@ -25,12 +32,15 @@ export const meetingSchema = z.object({
   cancelledBy: z.string().optional(),
   cancelledAt: z.date().optional(),
   cancellationReason: z.string().max(500).optional(),
+  rescheduledFrom: z.string().optional(),
+  rescheduledAt: z.date().optional(),
   createdAt: z.date(),
   updatedAt: z.date(),
 });
 
 export type Meeting = z.infer<typeof meetingSchema>;
 export type MeetingStatus = z.infer<typeof meetingStatusEnum>;
+export type SessionDuration = z.infer<typeof sessionDurationEnum>;
 
 export const createMeetingSchema = z.object({
   mentorId: z.string(),
@@ -38,6 +48,7 @@ export const createMeetingSchema = z.object({
   description: z.string().max(1000).optional(),
   scheduledAt: z.string().datetime(), // ISO 8601 string
   duration: z.number().int().positive().default(60),
+  offerId: z.string().optional(),
 });
 
 export const updateMeetingSchema = z.object({
@@ -61,6 +72,8 @@ export const listMeetingsSchema = z.object({
   status: meetingStatusEnum.optional(),
   startDate: z.string().datetime().optional(),
   endDate: z.string().datetime().optional(),
+  mentorId: z.string().optional(),
+  menteeId: z.string().optional(),
   limit: z.number().int().positive().max(100).default(20),
   offset: z.number().int().nonnegative().default(0),
 });

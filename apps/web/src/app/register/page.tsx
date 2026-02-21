@@ -64,7 +64,7 @@ export default function RegisterPage() {
       <div className="min-h-screen flex items-center justify-center bg-slate-50 px-4 py-12">
         <div className="w-full max-w-md space-y-8">
           <div className="text-center">
-            <h1 className="text-3xl font-bold">Create your account</h1>
+            <h1 className="text-3xl font-bold text-slate-900">Create your account</h1>
             <p className="mt-2 text-slate-600">Start your mentoring journey</p>
           </div>
 
@@ -85,7 +85,7 @@ export default function RegisterPage() {
                 required
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-900 bg-white placeholder:text-slate-400"
                 placeholder="Your name"
               />
             </div>
@@ -100,7 +100,7 @@ export default function RegisterPage() {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-900 bg-white placeholder:text-slate-400"
                 placeholder="you@example.com"
               />
             </div>
@@ -116,7 +116,7 @@ export default function RegisterPage() {
                 minLength={8}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-900 bg-white placeholder:text-slate-400"
                 placeholder="Min 8 characters"
               />
             </div>
@@ -131,43 +131,60 @@ export default function RegisterPage() {
                 required
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
-                className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-900 bg-white placeholder:text-slate-400"
                 placeholder="Repeat your password"
               />
             </div>
 
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-2">
-                I want to...
+                I am a...
               </label>
               <div className="grid grid-cols-2 gap-3">
+                {/* Learner / Mentee */}
                 <button
                   type="button"
                   onClick={() => setRole('mentee')}
-                  className={`p-3 border rounded-lg text-sm font-medium transition-colors ${
-                    role === 'mentee'
-                      ? 'border-blue-500 bg-blue-50 text-blue-700'
-                      : 'border-slate-300 text-slate-600 hover:border-slate-400'
-                  }`}
+                  className={`p-4 border-2 rounded-xl text-left transition-all ${role === 'mentee'
+                      ? 'border-blue-500 bg-blue-50'
+                      : 'border-slate-200 bg-white hover:border-blue-300 hover:bg-blue-50/40'
+                    }`}
                 >
-                  Find a mentor
+                  <div className={`text-xl mb-1`}>🎓</div>
+                  <div className={`text-sm font-semibold ${role === 'mentee' ? 'text-blue-700' : 'text-slate-700'}`}>
+                    Learner
+                  </div>
+                  <div className={`text-xs mt-0.5 ${role === 'mentee' ? 'text-blue-500' : 'text-slate-400'}`}>
+                    Find &amp; book a mentor
+                  </div>
                 </button>
+
+                {/* Mentor / Coach */}
                 <button
                   type="button"
                   onClick={() => setRole('mentor')}
-                  className={`p-3 border rounded-lg text-sm font-medium transition-colors ${
-                    role === 'mentor'
-                      ? 'border-blue-500 bg-blue-50 text-blue-700'
-                      : 'border-slate-300 text-slate-600 hover:border-slate-400'
-                  }`}
+                  className={`p-4 border-2 rounded-xl text-left transition-all ${role === 'mentor'
+                      ? 'border-purple-500 bg-purple-50'
+                      : 'border-slate-200 bg-white hover:border-purple-300 hover:bg-purple-50/40'
+                    }`}
                 >
-                  Be a mentor
+                  <div className={`text-xl mb-1`}>🏆</div>
+                  <div className={`text-sm font-semibold ${role === 'mentor' ? 'text-purple-700' : 'text-slate-700'}`}>
+                    Mentor
+                  </div>
+                  <div className={`text-xs mt-0.5 ${role === 'mentor' ? 'text-purple-500' : 'text-slate-400'}`}>
+                    Share your expertise
+                  </div>
                 </button>
               </div>
             </div>
 
-            <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? 'Creating account...' : 'Create account'}
+            <Button
+              type="submit"
+              className={`w-full ${role === 'mentor' ? 'bg-purple-600 hover:bg-purple-700 text-white' : ''}`}
+              disabled={loading}
+            >
+              {loading ? 'Creating account...' : `Join as ${role === 'mentor' ? 'Mentor' : 'Learner'}`}
             </Button>
           </form>
 
@@ -178,7 +195,7 @@ export default function RegisterPage() {
                   <div className="w-full border-t border-slate-300" />
                 </div>
                 <div className="relative flex justify-center text-sm">
-                  <span className="bg-slate-50 px-2 text-slate-500">Or continue with</span>
+                  <span className="bg-slate-50 px-2 text-slate-600">Or continue with</span>
                 </div>
               </div>
 

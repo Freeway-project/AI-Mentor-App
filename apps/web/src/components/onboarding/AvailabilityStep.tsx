@@ -66,7 +66,7 @@ export function AvailabilityStep({ profile, onComplete }: AvailabilityStepProps)
         <select
           value={timezone}
           onChange={(e) => setTimezone(e.target.value)}
-          className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-900 bg-white placeholder:text-slate-400"
         >
           {Intl.supportedValuesOf('timeZone').map((tz) => (
             <option key={tz} value={tz}>{tz}</option>
@@ -100,7 +100,7 @@ export function AvailabilityStep({ profile, onComplete }: AvailabilityStepProps)
             <select
               value={newDay}
               onChange={(e) => setNewDay(Number(e.target.value))}
-              className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-900 bg-white placeholder:text-slate-400"
             >
               {DAYS.map((day, i) => (
                 <option key={i} value={i}>{day}</option>
@@ -113,7 +113,7 @@ export function AvailabilityStep({ profile, onComplete }: AvailabilityStepProps)
               type="time"
               value={newStart}
               onChange={(e) => setNewStart(e.target.value)}
-              className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-900 bg-white placeholder:text-slate-400"
             />
           </div>
           <div>
@@ -122,7 +122,7 @@ export function AvailabilityStep({ profile, onComplete }: AvailabilityStepProps)
               type="time"
               value={newEnd}
               onChange={(e) => setNewEnd(e.target.value)}
-              className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-900 bg-white placeholder:text-slate-400"
             />
           </div>
         </div>

@@ -1,46 +1,37 @@
-import { Collection, ObjectId } from 'mongodb';
-import { User, UserRole, RegisterInput, UpdateUserInput } from '@owl-mentors/types';
+import { User, UserRole, UpdateUserInput } from '@owl-mentors/types';
 import { logger } from '@owl-mentors/utils';
-import { getDatabase } from '../connection';
-import { UserDocument, toUser } from '../models/user.model';
+import { UserModel, IUserDocument, toUser } from '../models/user.model';
 
 export class UserRepository {
-  private collection: Collection<UserDocument>;
-
-  constructor() {
-    this.collection = getDatabase().collection<UserDocument>('users');
-  }
-
   async create(data: {
     email: string;
     password?: string;
     name: string;
     roles: UserRole[];
     timezone?: string;
+    phone?: string;
     emailVerified?: boolean;
+    phoneVerified?: boolean;
     oauthProviders?: { provider: string; providerId: string }[];
     verifyToken?: string;
   }): Promise<User> {
     const startTime = Date.now();
     try {
-      const doc: Partial<UserDocument> = {
+      const doc = await UserModel.create({
         email: data.email,
         password: data.password,
         name: data.name,
         roles: data.roles,
         timezone: data.timezone || 'UTC',
+        phone: data.phone,
         emailVerified: data.emailVerified || false,
+        phoneVerified: data.phoneVerified || false,
         isActive: true,
         oauthProviders: data.oauthProviders,
         verifyToken: data.verifyToken,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      };
-
-      const result = await this.collection.insertOne(doc as UserDocument);
+      });
       logger.db({ operation: 'insert', collection: 'users', duration: Date.now() - startTime });
-
-      return this.findById(result.insertedId.toString());
+      return toUser(doc);
     } catch (error) {
       logger.db({ operation: 'insert', collection: 'users', duration: Date.now() - startTime, error: (error as Error).message });
       throw error;
@@ -50,14 +41,10 @@ export class UserRepository {
   async findById(id: string): Promise<User> {
     const startTime = Date.now();
     try {
-      const doc = await this.collection.findOne({ _id: new ObjectId(id) });
+      const doc = await UserModel.findById(id).lean<IUserDocument>();
       logger.db({ operation: 'findOne', collection: 'users', duration: Date.now() - startTime });
-
-      if (!doc) {
-        throw new Error('User not found');
-      }
-
-      return toUser(doc);
+      if (!doc) throw new Error('User not found');
+      return toUser(doc as any);
     } catch (error) {
       logger.db({ operation: 'findOne', collection: 'users', duration: Date.now() - startTime, error: (error as Error).message });
       throw error;
@@ -67,9 +54,8 @@ export class UserRepository {
   async findByEmail(email: string): Promise<User | null> {
     const startTime = Date.now();
     try {
-      const doc = await this.collection.findOne({ email });
+      const doc = await UserModel.findOne({ email: email.toLowerCase() });
       logger.db({ operation: 'findOne', collection: 'users', duration: Date.now() - startTime });
-
       return doc ? toUser(doc) : null;
     } catch (error) {
       logger.db({ operation: 'findOne', collection: 'users', duration: Date.now() - startTime, error: (error as Error).message });
@@ -80,19 +66,10 @@ export class UserRepository {
   async update(id: string, data: UpdateUserInput): Promise<User> {
     const startTime = Date.now();
     try {
-      const result = await this.collection.findOneAndUpdate(
-        { _id: new ObjectId(id) },
-        { $set: { ...data, updatedAt: new Date() } },
-        { returnDocument: 'after' }
-      );
-
+      const doc = await UserModel.findByIdAndUpdate(id, { $set: data }, { new: true });
       logger.db({ operation: 'update', collection: 'users', duration: Date.now() - startTime });
-
-      if (!result) {
-        throw new Error('User not found');
-      }
-
-      return toUser(result);
+      if (!doc) throw new Error('User not found');
+      return toUser(doc);
     } catch (error) {
       logger.db({ operation: 'update', collection: 'users', duration: Date.now() - startTime, error: (error as Error).message });
       throw error;
@@ -102,7 +79,7 @@ export class UserRepository {
   async delete(id: string): Promise<void> {
     const startTime = Date.now();
     try {
-      await this.collection.deleteOne({ _id: new ObjectId(id) });
+      await UserModel.findByIdAndDelete(id);
       logger.db({ operation: 'delete', collection: 'users', duration: Date.now() - startTime });
     } catch (error) {
       logger.db({ operation: 'delete', collection: 'users', duration: Date.now() - startTime, error: (error as Error).message });
@@ -113,19 +90,10 @@ export class UserRepository {
   async addRole(userId: string, role: UserRole): Promise<User> {
     const startTime = Date.now();
     try {
-      const result = await this.collection.findOneAndUpdate(
-        { _id: new ObjectId(userId) },
-        { $addToSet: { roles: role }, $set: { updatedAt: new Date() } },
-        { returnDocument: 'after' }
-      );
-
+      const doc = await UserModel.findByIdAndUpdate(userId, { $addToSet: { roles: role } }, { new: true });
       logger.db({ operation: 'update', collection: 'users', duration: Date.now() - startTime });
-
-      if (!result) {
-        throw new Error('User not found');
-      }
-
-      return toUser(result);
+      if (!doc) throw new Error('User not found');
+      return toUser(doc);
     } catch (error) {
       logger.db({ operation: 'update', collection: 'users', duration: Date.now() - startTime, error: (error as Error).message });
       throw error;
@@ -135,10 +103,7 @@ export class UserRepository {
   async setResetToken(userId: string, token: string, expiresAt: Date): Promise<void> {
     const startTime = Date.now();
     try {
-      await this.collection.updateOne(
-        { _id: new ObjectId(userId) },
-        { $set: { resetToken: token, resetTokenExpiresAt: expiresAt, updatedAt: new Date() } }
-      );
+      await UserModel.findByIdAndUpdate(userId, { $set: { resetToken: token, resetTokenExpiresAt: expiresAt } });
       logger.db({ operation: 'update', collection: 'users', duration: Date.now() - startTime });
     } catch (error) {
       logger.db({ operation: 'update', collection: 'users', duration: Date.now() - startTime, error: (error as Error).message });
@@ -149,12 +114,8 @@ export class UserRepository {
   async findByResetToken(token: string): Promise<User | null> {
     const startTime = Date.now();
     try {
-      const doc = await this.collection.findOne({
-        resetToken: token,
-        resetTokenExpiresAt: { $gt: new Date() },
-      });
+      const doc = await UserModel.findOne({ resetToken: token, resetTokenExpiresAt: { $gt: new Date() } });
       logger.db({ operation: 'findOne', collection: 'users', duration: Date.now() - startTime });
-
       return doc ? toUser(doc) : null;
     } catch (error) {
       logger.db({ operation: 'findOne', collection: 'users', duration: Date.now() - startTime, error: (error as Error).message });
@@ -165,13 +126,10 @@ export class UserRepository {
   async resetPassword(userId: string, hashedPassword: string): Promise<void> {
     const startTime = Date.now();
     try {
-      await this.collection.updateOne(
-        { _id: new ObjectId(userId) },
-        {
-          $set: { password: hashedPassword, updatedAt: new Date() },
-          $unset: { resetToken: '', resetTokenExpiresAt: '' },
-        }
-      );
+      await UserModel.findByIdAndUpdate(userId, {
+        $set: { password: hashedPassword },
+        $unset: { resetToken: '', resetTokenExpiresAt: '' },
+      });
       logger.db({ operation: 'update', collection: 'users', duration: Date.now() - startTime });
     } catch (error) {
       logger.db({ operation: 'update', collection: 'users', duration: Date.now() - startTime, error: (error as Error).message });
@@ -182,10 +140,7 @@ export class UserRepository {
   async setVerifyToken(userId: string, token: string): Promise<void> {
     const startTime = Date.now();
     try {
-      await this.collection.updateOne(
-        { _id: new ObjectId(userId) },
-        { $set: { verifyToken: token, updatedAt: new Date() } }
-      );
+      await UserModel.findByIdAndUpdate(userId, { $set: { verifyToken: token } });
       logger.db({ operation: 'update', collection: 'users', duration: Date.now() - startTime });
     } catch (error) {
       logger.db({ operation: 'update', collection: 'users', duration: Date.now() - startTime, error: (error as Error).message });
@@ -196,9 +151,8 @@ export class UserRepository {
   async findByVerifyToken(token: string): Promise<User | null> {
     const startTime = Date.now();
     try {
-      const doc = await this.collection.findOne({ verifyToken: token });
+      const doc = await UserModel.findOne({ verifyToken: token });
       logger.db({ operation: 'findOne', collection: 'users', duration: Date.now() - startTime });
-
       return doc ? toUser(doc) : null;
     } catch (error) {
       logger.db({ operation: 'findOne', collection: 'users', duration: Date.now() - startTime, error: (error as Error).message });
@@ -209,13 +163,10 @@ export class UserRepository {
   async verifyEmail(userId: string): Promise<void> {
     const startTime = Date.now();
     try {
-      await this.collection.updateOne(
-        { _id: new ObjectId(userId) },
-        {
-          $set: { emailVerified: true, updatedAt: new Date() },
-          $unset: { verifyToken: '' },
-        }
-      );
+      await UserModel.findByIdAndUpdate(userId, {
+        $set: { emailVerified: true },
+        $unset: { verifyToken: '' },
+      });
       logger.db({ operation: 'update', collection: 'users', duration: Date.now() - startTime });
     } catch (error) {
       logger.db({ operation: 'update', collection: 'users', duration: Date.now() - startTime, error: (error as Error).message });
@@ -223,20 +174,22 @@ export class UserRepository {
     }
   }
 
-  async findAll(filter: { roles?: UserRole; isActive?: boolean } = {}, limit = 20, offset = 0): Promise<{ users: User[]; total: number }> {
+  async findAll(filter: { roles?: UserRole; isActive?: boolean; search?: string } = {}, limit = 20, offset = 0): Promise<{ users: User[]; total: number }> {
     const startTime = Date.now();
     try {
       const query: any = {};
       if (filter.roles) query.roles = filter.roles;
       if (filter.isActive !== undefined) query.isActive = filter.isActive;
+      if (filter.search) {
+        const rx = new RegExp(filter.search, 'i');
+        query.$or = [{ name: rx }, { email: rx }];
+      }
 
       const [docs, total] = await Promise.all([
-        this.collection.find(query).skip(offset).limit(limit).toArray(),
-        this.collection.countDocuments(query),
+        UserModel.find(query).skip(offset).limit(limit),
+        UserModel.countDocuments(query),
       ]);
-
       logger.db({ operation: 'find', collection: 'users', duration: Date.now() - startTime });
-
       return { users: docs.map(toUser), total };
     } catch (error) {
       logger.db({ operation: 'find', collection: 'users', duration: Date.now() - startTime, error: (error as Error).message });
@@ -247,10 +200,7 @@ export class UserRepository {
   async suspend(userId: string): Promise<void> {
     const startTime = Date.now();
     try {
-      await this.collection.updateOne(
-        { _id: new ObjectId(userId) },
-        { $set: { isActive: false, updatedAt: new Date() } }
-      );
+      await UserModel.findByIdAndUpdate(userId, { $set: { isActive: false } });
       logger.db({ operation: 'update', collection: 'users', duration: Date.now() - startTime });
     } catch (error) {
       logger.db({ operation: 'update', collection: 'users', duration: Date.now() - startTime, error: (error as Error).message });
@@ -261,10 +211,29 @@ export class UserRepository {
   async activate(userId: string): Promise<void> {
     const startTime = Date.now();
     try {
-      await this.collection.updateOne(
-        { _id: new ObjectId(userId) },
-        { $set: { isActive: true, updatedAt: new Date() } }
-      );
+      await UserModel.findByIdAndUpdate(userId, { $set: { isActive: true } });
+      logger.db({ operation: 'update', collection: 'users', duration: Date.now() - startTime });
+    } catch (error) {
+      logger.db({ operation: 'update', collection: 'users', duration: Date.now() - startTime, error: (error as Error).message });
+      throw error;
+    }
+  }
+
+  async markEmailVerified(userId: string): Promise<void> {
+    const startTime = Date.now();
+    try {
+      await UserModel.findByIdAndUpdate(userId, { $set: { emailVerified: true } });
+      logger.db({ operation: 'update', collection: 'users', duration: Date.now() - startTime });
+    } catch (error) {
+      logger.db({ operation: 'update', collection: 'users', duration: Date.now() - startTime, error: (error as Error).message });
+      throw error;
+    }
+  }
+
+  async markPhoneVerified(userId: string): Promise<void> {
+    const startTime = Date.now();
+    try {
+      await UserModel.findByIdAndUpdate(userId, { $set: { phoneVerified: true } });
       logger.db({ operation: 'update', collection: 'users', duration: Date.now() - startTime });
     } catch (error) {
       logger.db({ operation: 'update', collection: 'users', duration: Date.now() - startTime, error: (error as Error).message });

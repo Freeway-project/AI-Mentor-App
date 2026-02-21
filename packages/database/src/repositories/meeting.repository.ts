@@ -1,35 +1,25 @@
-import { Collection, ObjectId } from 'mongodb';
+import mongoose from 'mongoose';
 import { Meeting, CreateMeetingInput, UpdateMeetingInput, MeetingStatus, ListMeetingsInput } from '@owl-mentors/types';
 import { logger } from '@owl-mentors/utils';
-import { getDatabase } from '../connection';
-import { MeetingDocument, toMeeting } from '../models/meeting.model';
+import { MeetingModel, toMeeting } from '../models/meeting.model';
 
 export class MeetingRepository {
-  private collection: Collection<MeetingDocument>;
-
-  constructor() {
-    this.collection = getDatabase().collection<MeetingDocument>('meetings');
-  }
-
-  async create(menteeId: string, data: CreateMeetingInput): Promise<Meeting> {
+  async create(menteeId: string, data: CreateMeetingInput & { creditCost?: number }): Promise<Meeting> {
     const startTime = Date.now();
     try {
-      const doc: Partial<MeetingDocument> = {
-        menteeId: new ObjectId(menteeId),
-        mentorId: new ObjectId(data.mentorId),
+      const doc = await MeetingModel.create({
+        menteeId: new mongoose.Types.ObjectId(menteeId),
+        mentorId: new mongoose.Types.ObjectId(data.mentorId),
         title: data.title,
         description: data.description,
         scheduledAt: new Date(data.scheduledAt),
         duration: data.duration,
-        status: 'scheduled',
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      };
-
-      const result = await this.collection.insertOne(doc as MeetingDocument);
+        status: 'booked',
+        creditCost: data.creditCost ?? (data.duration <= 30 ? 0.5 : 1.0),
+        offerId: data.offerId,
+      });
       logger.db({ operation: 'insert', collection: 'meetings', duration: Date.now() - startTime });
-
-      return this.findById(result.insertedId.toString());
+      return toMeeting(doc);
     } catch (error) {
       logger.db({ operation: 'insert', collection: 'meetings', duration: Date.now() - startTime, error: (error as Error).message });
       throw error;
@@ -39,13 +29,9 @@ export class MeetingRepository {
   async findById(id: string): Promise<Meeting> {
     const startTime = Date.now();
     try {
-      const doc = await this.collection.findOne({ _id: new ObjectId(id) });
+      const doc = await MeetingModel.findById(id);
       logger.db({ operation: 'findOne', collection: 'meetings', duration: Date.now() - startTime });
-
-      if (!doc) {
-        throw new Error('Meeting not found');
-      }
-
+      if (!doc) throw new Error('Meeting not found');
       return toMeeting(doc);
     } catch (error) {
       logger.db({ operation: 'findOne', collection: 'meetings', duration: Date.now() - startTime, error: (error as Error).message });
@@ -58,36 +44,48 @@ export class MeetingRepository {
     try {
       const filter: any = {
         $or: [
-          { menteeId: new ObjectId(userId) },
-          { mentorId: new ObjectId(userId) },
+          { menteeId: new mongoose.Types.ObjectId(userId) },
+          { mentorId: new mongoose.Types.ObjectId(userId) },
         ],
       };
 
-      if (params.status) {
-        filter.status = params.status;
-      }
-
-      if (params.startDate) {
-        filter.scheduledAt = { $gte: new Date(params.startDate) };
-      }
-
+      if (params.status) filter.status = params.status;
+      if (params.startDate) filter.scheduledAt = { $gte: new Date(params.startDate) };
       if (params.endDate) {
-        filter.scheduledAt = {
-          ...filter.scheduledAt,
-          $lte: new Date(params.endDate),
-        };
+        filter.scheduledAt = { ...filter.scheduledAt, $lte: new Date(params.endDate) };
       }
 
-      const docs = await this.collection
-        .find(filter)
+      const docs = await MeetingModel.find(filter)
         .sort({ scheduledAt: -1 })
         .skip(params.offset || 0)
-        .limit(params.limit || 20)
-        .toArray();
+        .limit(params.limit || 20);
 
       logger.db({ operation: 'find', collection: 'meetings', duration: Date.now() - startTime });
-
       return docs.map(toMeeting);
+    } catch (error) {
+      logger.db({ operation: 'find', collection: 'meetings', duration: Date.now() - startTime, error: (error as Error).message });
+      throw error;
+    }
+  }
+
+  async listAll(params: ListMeetingsInput): Promise<{ meetings: Meeting[]; total: number }> {
+    const startTime = Date.now();
+    try {
+      const filter: any = {};
+      if (params.status) filter.status = params.status;
+      if (params.mentorId) filter.mentorId = new mongoose.Types.ObjectId(params.mentorId);
+      if (params.menteeId) filter.menteeId = new mongoose.Types.ObjectId(params.menteeId);
+      if (params.startDate) filter.scheduledAt = { $gte: new Date(params.startDate) };
+      if (params.endDate) {
+        filter.scheduledAt = { ...filter.scheduledAt, $lte: new Date(params.endDate) };
+      }
+
+      const [docs, total] = await Promise.all([
+        MeetingModel.find(filter).sort({ scheduledAt: -1 }).skip(params.offset || 0).limit(params.limit || 20),
+        MeetingModel.countDocuments(filter),
+      ]);
+      logger.db({ operation: 'find', collection: 'meetings', duration: Date.now() - startTime });
+      return { meetings: docs.map(toMeeting), total };
     } catch (error) {
       logger.db({ operation: 'find', collection: 'meetings', duration: Date.now() - startTime, error: (error as Error).message });
       throw error;
@@ -98,23 +96,12 @@ export class MeetingRepository {
     const startTime = Date.now();
     try {
       const updateData: any = { ...data };
-      if (data.scheduledAt) {
-        updateData.scheduledAt = new Date(data.scheduledAt);
-      }
+      if (data.scheduledAt) updateData.scheduledAt = new Date(data.scheduledAt);
 
-      const result = await this.collection.findOneAndUpdate(
-        { _id: new ObjectId(id) },
-        { $set: { ...updateData, updatedAt: new Date() } },
-        { returnDocument: 'after' }
-      );
-
+      const doc = await MeetingModel.findByIdAndUpdate(id, { $set: updateData }, { new: true });
       logger.db({ operation: 'update', collection: 'meetings', duration: Date.now() - startTime });
-
-      if (!result) {
-        throw new Error('Meeting not found');
-      }
-
-      return toMeeting(result);
+      if (!doc) throw new Error('Meeting not found');
+      return toMeeting(doc);
     } catch (error) {
       logger.db({ operation: 'update', collection: 'meetings', duration: Date.now() - startTime, error: (error as Error).message });
       throw error;
@@ -124,10 +111,7 @@ export class MeetingRepository {
   async updateStatus(id: string, status: MeetingStatus): Promise<void> {
     const startTime = Date.now();
     try {
-      await this.collection.updateOne(
-        { _id: new ObjectId(id) },
-        { $set: { status, updatedAt: new Date() } }
-      );
+      await MeetingModel.findByIdAndUpdate(id, { $set: { status } });
       logger.db({ operation: 'update', collection: 'meetings', duration: Date.now() - startTime });
     } catch (error) {
       logger.db({ operation: 'update', collection: 'meetings', duration: Date.now() - startTime, error: (error as Error).message });
@@ -138,27 +122,21 @@ export class MeetingRepository {
   async cancel(id: string, userId: string, reason: string): Promise<Meeting> {
     const startTime = Date.now();
     try {
-      const result = await this.collection.findOneAndUpdate(
-        { _id: new ObjectId(id) },
+      const doc = await MeetingModel.findByIdAndUpdate(
+        id,
         {
           $set: {
             status: 'cancelled',
-            cancelledBy: new ObjectId(userId),
+            cancelledBy: new mongoose.Types.ObjectId(userId),
             cancelledAt: new Date(),
             cancellationReason: reason,
-            updatedAt: new Date(),
           },
         },
-        { returnDocument: 'after' }
+        { new: true }
       );
-
       logger.db({ operation: 'update', collection: 'meetings', duration: Date.now() - startTime });
-
-      if (!result) {
-        throw new Error('Meeting not found');
-      }
-
-      return toMeeting(result);
+      if (!doc) throw new Error('Meeting not found');
+      return toMeeting(doc);
     } catch (error) {
       logger.db({ operation: 'update', collection: 'meetings', duration: Date.now() - startTime, error: (error as Error).message });
       throw error;
@@ -168,21 +146,26 @@ export class MeetingRepository {
   async rate(id: string, rating: number, review?: string): Promise<Meeting> {
     const startTime = Date.now();
     try {
-      const result = await this.collection.findOneAndUpdate(
-        { _id: new ObjectId(id) },
-        { $set: { rating, review, updatedAt: new Date() } },
-        { returnDocument: 'after' }
-      );
-
+      const doc = await MeetingModel.findByIdAndUpdate(id, { $set: { rating, review } }, { new: true });
       logger.db({ operation: 'update', collection: 'meetings', duration: Date.now() - startTime });
-
-      if (!result) {
-        throw new Error('Meeting not found');
-      }
-
-      return toMeeting(result);
+      if (!doc) throw new Error('Meeting not found');
+      return toMeeting(doc);
     } catch (error) {
       logger.db({ operation: 'update', collection: 'meetings', duration: Date.now() - startTime, error: (error as Error).message });
+      throw error;
+    }
+  }
+
+  async getStatusCounts(): Promise<Record<string, number>> {
+    const startTime = Date.now();
+    try {
+      const results = await MeetingModel.aggregate([
+        { $group: { _id: '$status', count: { $sum: 1 } } },
+      ]);
+      logger.db({ operation: 'aggregate', collection: 'meetings', duration: Date.now() - startTime });
+      return results.reduce((acc, { _id, count }) => ({ ...acc, [_id]: count }), {});
+    } catch (error) {
+      logger.db({ operation: 'aggregate', collection: 'meetings', duration: Date.now() - startTime, error: (error as Error).message });
       throw error;
     }
   }

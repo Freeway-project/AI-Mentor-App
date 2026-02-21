@@ -40,3 +40,5 @@ coverage/
 *.tsbuildinfo
 .turbo/
 bun.lockb
+# Docker secrets
+docker/.env
