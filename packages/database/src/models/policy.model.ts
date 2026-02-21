@@ -1,14 +1,30 @@
-import { ObjectId } from 'mongodb';
+import mongoose, { Schema } from 'mongoose';
 import { Policy } from '@owl-mentors/types';
 
-export interface PolicyDocument extends Omit<Policy, 'id' | 'mentorId' | 'createdAt' | 'updatedAt'> {
-  _id: ObjectId;
-  mentorId: ObjectId;
+export interface IPolicyDocument extends mongoose.Document {
+  mentorId: mongoose.Types.ObjectId;
+  cancellationHours: number;
+  rescheduleHours: number;
+  noShowPolicy?: string;
+  customTerms?: string;
   createdAt: Date;
   updatedAt: Date;
 }
 
-export function toPolicy(doc: PolicyDocument): Policy {
+const policySchema = new Schema<IPolicyDocument>(
+  {
+    mentorId: { type: Schema.Types.ObjectId, ref: 'Mentor', required: true, unique: true },
+    cancellationHours: { type: Number, required: true },
+    rescheduleHours: { type: Number, required: true },
+    noShowPolicy: { type: String },
+    customTerms: { type: String },
+  },
+  { timestamps: true }
+);
+
+export const PolicyModel = mongoose.model<IPolicyDocument>('Policy', policySchema);
+
+export function toPolicy(doc: IPolicyDocument): Policy {
   return {
     id: doc._id.toString(),
     mentorId: doc.mentorId.toString(),
@@ -20,3 +36,6 @@ export function toPolicy(doc: PolicyDocument): Policy {
     updatedAt: doc.updatedAt,
   };
 }
+
+// Legacy compat
+export type PolicyDocument = IPolicyDocument;

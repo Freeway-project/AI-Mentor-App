@@ -1,25 +1,78 @@
-import { ObjectId } from 'mongodb';
+import mongoose, { Schema } from 'mongoose';
 import { Conversation, Message } from '@owl-mentors/types';
 
-export interface ConversationDocument extends Omit<Conversation, 'id' | 'menteeId' | 'mentorId' | 'meetingId' | 'createdAt' | 'updatedAt'> {
-  _id: ObjectId;
-  menteeId: ObjectId;
-  mentorId: ObjectId;
-  meetingId?: ObjectId;
+export interface IConversationDocument extends mongoose.Document {
+  menteeId: mongoose.Types.ObjectId;
+  mentorId: mongoose.Types.ObjectId;
+  meetingId?: mongoose.Types.ObjectId;
+  lastMessageAt?: Date;
+  unreadCount: { mentee: number; mentor: number };
+  isActive: boolean;
   createdAt: Date;
   updatedAt: Date;
 }
 
-export interface MessageDocument extends Omit<Message, 'id' | 'conversationId' | 'senderId' | 'readBy' | 'createdAt' | 'updatedAt'> {
-  _id: ObjectId;
-  conversationId: ObjectId;
-  senderId: ObjectId;
-  readBy: ObjectId[];
+export interface IMessageDocument extends mongoose.Document {
+  conversationId: mongoose.Types.ObjectId;
+  senderId: mongoose.Types.ObjectId;
+  senderRole: 'mentee' | 'mentor' | 'system';
+  type: 'text' | 'file' | 'system';
+  content: string;
+  fileUrl?: string;
+  fileName?: string;
+  fileSize?: number;
+  readBy: mongoose.Types.ObjectId[];
+  isEdited: boolean;
+  editedAt?: Date;
   createdAt: Date;
   updatedAt: Date;
 }
 
-export function toConversation(doc: ConversationDocument): Conversation {
+const conversationSchema = new Schema<IConversationDocument>(
+  {
+    menteeId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+    mentorId: { type: Schema.Types.ObjectId, ref: 'Mentor', required: true },
+    meetingId: { type: Schema.Types.ObjectId, ref: 'Meeting' },
+    lastMessageAt: { type: Date },
+    unreadCount: {
+      mentee: { type: Number, default: 0 },
+      mentor: { type: Number, default: 0 },
+    },
+    isActive: { type: Boolean, default: true },
+  },
+  { timestamps: true }
+);
+
+conversationSchema.index({ menteeId: 1 });
+conversationSchema.index({ mentorId: 1 });
+conversationSchema.index({ lastMessageAt: -1 });
+conversationSchema.index({ menteeId: 1, mentorId: 1 }, { unique: true });
+
+const messageSchema = new Schema<IMessageDocument>(
+  {
+    conversationId: { type: Schema.Types.ObjectId, ref: 'Conversation', required: true },
+    senderId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+    senderRole: { type: String, enum: ['mentee', 'mentor', 'system'], required: true },
+    type: { type: String, enum: ['text', 'file', 'system'], default: 'text' },
+    content: { type: String, required: true },
+    fileUrl: { type: String },
+    fileName: { type: String },
+    fileSize: { type: Number },
+    readBy: [{ type: Schema.Types.ObjectId, ref: 'User' }],
+    isEdited: { type: Boolean, default: false },
+    editedAt: { type: Date },
+  },
+  { timestamps: true }
+);
+
+messageSchema.index({ conversationId: 1 });
+messageSchema.index({ conversationId: 1, createdAt: -1 });
+messageSchema.index({ senderId: 1 });
+
+export const ConversationModel = mongoose.model<IConversationDocument>('Conversation', conversationSchema);
+export const MessageModel = mongoose.model<IMessageDocument>('Message', messageSchema);
+
+export function toConversation(doc: IConversationDocument): Conversation {
   return {
     id: doc._id.toString(),
     menteeId: doc.menteeId.toString(),
@@ -33,7 +86,7 @@ export function toConversation(doc: ConversationDocument): Conversation {
   };
 }
 
-export function toMessage(doc: MessageDocument): Message {
+export function toMessage(doc: IMessageDocument): Message {
   return {
     id: doc._id.toString(),
     conversationId: doc.conversationId.toString(),
@@ -52,48 +105,8 @@ export function toMessage(doc: MessageDocument): Message {
   };
 }
 
-export function toConversationDocument(conversation: Partial<Conversation>): Partial<ConversationDocument> {
-  const doc: any = { ...conversation };
-
-  if (conversation.id) {
-    doc._id = new ObjectId(conversation.id);
-    delete doc.id;
-  }
-
-  if (conversation.menteeId) {
-    doc.menteeId = new ObjectId(conversation.menteeId);
-  }
-
-  if (conversation.mentorId) {
-    doc.mentorId = new ObjectId(conversation.mentorId);
-  }
-
-  if (conversation.meetingId) {
-    doc.meetingId = new ObjectId(conversation.meetingId);
-  }
-
-  return doc;
-}
-
-export function toMessageDocument(message: Partial<Message>): Partial<MessageDocument> {
-  const doc: any = { ...message };
-
-  if (message.id) {
-    doc._id = new ObjectId(message.id);
-    delete doc.id;
-  }
-
-  if (message.conversationId) {
-    doc.conversationId = new ObjectId(message.conversationId);
-  }
-
-  if (message.senderId) {
-    doc.senderId = new ObjectId(message.senderId);
-  }
-
-  if (message.readBy) {
-    doc.readBy = message.readBy.map((id) => new ObjectId(id));
-  }
-
-  return doc;
-}
+// Legacy compat
+export type ConversationDocument = IConversationDocument;
+export type MessageDocument = IMessageDocument;
+export function toConversationDocument(c: any) { return c; }
+export function toMessageDocument(m: any) { return m; }
