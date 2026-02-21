@@ -20,6 +20,8 @@ export const onboardingStepEnum = z.enum([
   'published',
 ]);
 
+export const approvalStatusEnum = z.enum(['pending', 'approved', 'rejected']);
+
 export const mentorSchema = z.object({
   id: z.string(),
   userId: z.string(),
@@ -28,6 +30,7 @@ export const mentorSchema = z.object({
   bio: z.string().max(1000).optional(),
   specialties: z.array(z.string()),
   expertise: z.array(z.string()),
+  topicIds: z.array(z.string()).default([]),
   languages: z.array(z.string()).default(['English']),
   hourlyRate: z.number().positive().optional(),
   availability: availabilitySchema.optional(),
@@ -37,6 +40,10 @@ export const mentorSchema = z.object({
   verified: z.boolean().default(false),
   isActive: z.boolean().default(true),
   onboardingStep: onboardingStepEnum.default('profile'),
+  approvalStatus: approvalStatusEnum.default('pending'),
+  approvalNote: z.string().optional(),
+  approvedAt: z.date().optional(),
+  approvedBy: z.string().optional(),
   createdAt: z.date(),
   updatedAt: z.date(),
 });
@@ -45,6 +52,7 @@ export type Mentor = z.infer<typeof mentorSchema>;
 export type AvailabilitySlot = z.infer<typeof availabilitySlotSchema>;
 export type Availability = z.infer<typeof availabilitySchema>;
 export type OnboardingStep = z.infer<typeof onboardingStepEnum>;
+export type ApprovalStatus = z.infer<typeof approvalStatusEnum>;
 
 export const createMentorSchema = mentorSchema.omit({
   id: true,

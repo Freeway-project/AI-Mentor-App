@@ -20,6 +20,7 @@ export function Navbar() {
     };
 
     const isMentor = user?.roles?.includes('mentor');
+    const isAdmin = user?.roles?.includes('admin');
 
     return (
         <nav className="sticky top-0 z-50 w-full border-b bg-white/80 backdrop-blur-md">
@@ -72,7 +73,12 @@ export function Navbar() {
                                 <User className="h-4 w-4" />
                                 <span>{user.name}</span>
                             </div>
-                            {!isMentor && (
+                            {isAdmin && (
+                                <Button variant="outline" size="sm" asChild>
+                                    <Link href="/admin">Admin</Link>
+                                </Button>
+                            )}
+                            {!isMentor && !isAdmin && (
                                 <Button variant="outline" size="sm" asChild>
                                     <Link href="/onboarding">Become a Mentor</Link>
                                 </Button>
@@ -88,7 +94,7 @@ export function Navbar() {
                                 <Link href="/login">Log in</Link>
                             </Button>
                             <Button asChild>
-                                <Link href="/register">Get Started</Link>
+                                <Link href="/mentee/signup">Find a Mentor</Link>
                             </Button>
                         </>
                     )}
@@ -128,7 +134,12 @@ export function Navbar() {
                         {user ? (
                             <>
                                 <div className="text-sm text-slate-600 py-2">{user.name} ({user.email})</div>
-                                {!isMentor && (
+                                {isAdmin && (
+                                    <Button variant="outline" className="w-full" asChild>
+                                        <Link href="/admin" onClick={toggleMenu}>Admin Panel</Link>
+                                    </Button>
+                                )}
+                                {!isMentor && !isAdmin && (
                                     <Button variant="outline" className="w-full" asChild>
                                         <Link href="/onboarding" onClick={toggleMenu}>
                                             Become a Mentor
@@ -147,8 +158,8 @@ export function Navbar() {
                                     </Link>
                                 </Button>
                                 <Button className="w-full" asChild>
-                                    <Link href="/register" onClick={toggleMenu}>
-                                        Get Started
+                                    <Link href="/mentee/signup" onClick={toggleMenu}>
+                                        Find a Mentor
                                     </Link>
                                 </Button>
                             </>
