@@ -33,6 +33,8 @@ export interface AdminSession {
   id: string;
   menteeId: string;
   mentorId: string;
+  menteeName?: string;
+  mentorName?: string;
   title: string;
   scheduledAt: string;
   duration: number;

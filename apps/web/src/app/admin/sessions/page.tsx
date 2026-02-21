@@ -95,7 +95,7 @@ export default function SessionsPage() {
           <div className="flex justify-center py-12">
             <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" />
           </div>
-        ) : !data?.sessions.length ? (
+        ) : !data?.meetings.length ? (
           <div className="text-center py-12 text-slate-500">No sessions found</div>
         ) : (
           <table className="w-full text-sm min-w-[700px]">

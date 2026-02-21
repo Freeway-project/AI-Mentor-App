@@ -138,36 +138,55 @@ export default function RegisterPage() {
 
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-2">
-                I want to...
+                I am a...
               </label>
               <div className="grid grid-cols-2 gap-3">
+                {/* Learner / Mentee */}
                 <button
                   type="button"
                   onClick={() => setRole('mentee')}
-                  className={`p-3 border rounded-lg text-sm font-medium transition-colors ${
+                  className={`p-4 border-2 rounded-xl text-left transition-all ${
                     role === 'mentee'
-                      ? 'border-blue-500 bg-blue-50 text-blue-700'
-                      : 'border-slate-300 text-slate-600 hover:border-slate-400'
+                      ? 'border-blue-500 bg-blue-50'
+                      : 'border-slate-200 bg-white hover:border-blue-300 hover:bg-blue-50/40'
                   }`}
                 >
-                  Find a mentor
+                  <div className={`text-xl mb-1`}>🎓</div>
+                  <div className={`text-sm font-semibold ${role === 'mentee' ? 'text-blue-700' : 'text-slate-700'}`}>
+                    Learner
+                  </div>
+                  <div className={`text-xs mt-0.5 ${role === 'mentee' ? 'text-blue-500' : 'text-slate-400'}`}>
+                    Find &amp; book a mentor
+                  </div>
                 </button>
+
+                {/* Mentor / Coach */}
                 <button
                   type="button"
                   onClick={() => setRole('mentor')}
-                  className={`p-3 border rounded-lg text-sm font-medium transition-colors ${
+                  className={`p-4 border-2 rounded-xl text-left transition-all ${
                     role === 'mentor'
-                      ? 'border-blue-500 bg-blue-50 text-blue-700'
-                      : 'border-slate-300 text-slate-600 hover:border-slate-400'
+                      ? 'border-purple-500 bg-purple-50'
+                      : 'border-slate-200 bg-white hover:border-purple-300 hover:bg-purple-50/40'
                   }`}
                 >
-                  Be a mentor
+                  <div className={`text-xl mb-1`}>🏆</div>
+                  <div className={`text-sm font-semibold ${role === 'mentor' ? 'text-purple-700' : 'text-slate-700'}`}>
+                    Mentor
+                  </div>
+                  <div className={`text-xs mt-0.5 ${role === 'mentor' ? 'text-purple-500' : 'text-slate-400'}`}>
+                    Share your expertise
+                  </div>
                 </button>
               </div>
             </div>
 
-            <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? 'Creating account...' : 'Create account'}
+            <Button
+              type="submit"
+              className={`w-full ${role === 'mentor' ? 'bg-purple-600 hover:bg-purple-700 text-white' : ''}`}
+              disabled={loading}
+            >
+              {loading ? 'Creating account...' : `Join as ${role === 'mentor' ? 'Mentor' : 'Learner'}`}
             </Button>
           </form>
 

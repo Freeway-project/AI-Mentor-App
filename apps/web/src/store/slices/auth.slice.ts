@@ -11,7 +11,7 @@ export interface AuthUser {
   phoneVerified?: boolean;
 }
 
-interface AuthState {
+export interface AuthState {
   user: AuthUser | null;
   token: string | null;
   loading: boolean;

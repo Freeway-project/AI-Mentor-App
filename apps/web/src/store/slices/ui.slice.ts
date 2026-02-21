@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
-interface UiState {
+export interface UiState {
   sidebarOpen: boolean;
   modalStack: string[];
   notifications: { id: string; type: 'success' | 'error' | 'info'; message: string }[];
