@@ -2,7 +2,7 @@ import { Router, Request, Response, NextFunction } from 'express';
 import { MentorRepository, UserRepository, OfferRepository, PolicyRepository } from '@owl-mentors/database';
 import { updateMentorSchema, updateAvailabilitySchema, searchMentorsSchema } from '@owl-mentors/types';
 import { validate, validateQuery } from '../middleware/validation.middleware';
-import { authenticate, authorize } from '../middleware/auth.middleware';
+import { authenticate, authorize, requireEmailVerified } from '../middleware/auth.middleware';
 import { createLLMClient, buildProviderRankingPrompt } from '@owl-mentors/llm';
 import { logger } from '@owl-mentors/utils';
 import { AppError } from '../middleware/error.middleware';
@@ -32,7 +32,7 @@ function getPolicyRepo() {
 }
 
 // Become a mentor
-router.post('/become', authenticate, async (req: Request, res: Response, next: NextFunction) => {
+router.post('/become', authenticate, requireEmailVerified, async (req: Request, res: Response, next: NextFunction) => {
   try {
     const existing = await getMentorRepo().findByUserId(req.userId!);
     if (existing) {
@@ -53,7 +53,7 @@ router.post('/become', authenticate, async (req: Request, res: Response, next: N
 });
 
 // Get own mentor profile
-router.get('/me', authenticate, authorize('mentor'), async (req: Request, res: Response, next: NextFunction) => {
+router.get('/me', authenticate, requireEmailVerified, authorize('mentor'), async (req: Request, res: Response, next: NextFunction) => {
   try {
     const mentor = await getMentorRepo().findByUserId(req.userId!);
     if (!mentor) {
@@ -70,7 +70,7 @@ router.get('/me', authenticate, authorize('mentor'), async (req: Request, res: R
 });
 
 // Update own mentor profile
-router.put('/me', authenticate, authorize('mentor'), validate(updateMentorSchema), async (req: Request, res: Response, next: NextFunction) => {
+router.put('/me', authenticate, requireEmailVerified, authorize('mentor'), validate(updateMentorSchema), async (req: Request, res: Response, next: NextFunction) => {
   try {
     const mentor = await getMentorRepo().findByUserId(req.userId!);
     if (!mentor) {
@@ -96,7 +96,7 @@ router.put('/me', authenticate, authorize('mentor'), validate(updateMentorSchema
 });
 
 // Update availability
-router.put('/me/availability', authenticate, authorize('mentor'), validate(updateAvailabilitySchema), async (req: Request, res: Response, next: NextFunction) => {
+router.put('/me/availability', authenticate, requireEmailVerified, authorize('mentor'), validate(updateAvailabilitySchema), async (req: Request, res: Response, next: NextFunction) => {
   try {
     const mentor = await getMentorRepo().findByUserId(req.userId!);
     if (!mentor) {
@@ -119,7 +119,7 @@ router.put('/me/availability', authenticate, authorize('mentor'), validate(updat
 });
 
 // Publish profile
-router.post('/me/publish', authenticate, authorize('mentor'), async (req: Request, res: Response, next: NextFunction) => {
+router.post('/me/publish', authenticate, requireEmailVerified, authorize('mentor'), async (req: Request, res: Response, next: NextFunction) => {
   try {
     const mentor = await getMentorRepo().findByUserId(req.userId!);
     if (!mentor) {

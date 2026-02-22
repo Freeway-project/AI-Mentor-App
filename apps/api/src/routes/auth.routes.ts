@@ -211,6 +211,24 @@ router.post('/login', authRateLimit, validate(loginSchema), async (req: Request,
       throw new AppError(401, 'INVALID_CREDENTIALS', 'Invalid email or password');
     }
 
+    // Block login if email is not verified — resend OTP and tell frontend where to go
+    if (!user.emailVerified) {
+      const code = await getOtpRepo().createOtp(user.id, 'email', user.email);
+      await EmailService.sendOtp(user.email, code);
+      const token = generateToken(user.id, user.email, user.roles);
+      return res.status(403).json({
+        success: false,
+        error: {
+          code: 'EMAIL_NOT_VERIFIED',
+          message: 'Please verify your email before logging in. A new code has been sent.',
+        },
+        data: {
+          token,
+          nextStep: user.roles.includes('mentor') ? 'mentor-verify-otp' : 'mentee-verify-otp',
+        },
+      });
+    }
+
     const token = generateToken(user.id, user.email, user.roles);
 
     res.json({
@@ -221,6 +239,7 @@ router.post('/login', authRateLimit, validate(loginSchema), async (req: Request,
           email: user.email,
           name: user.name,
           roles: user.roles,
+          emailVerified: user.emailVerified,
         },
         token,
       },

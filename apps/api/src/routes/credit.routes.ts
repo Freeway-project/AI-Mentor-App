@@ -1,7 +1,7 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import { CreditRepository } from '@owl-mentors/database';
 import { purchaseCreditsSchema, listTransactionsSchema } from '@owl-mentors/types';
-import { authenticate } from '../middleware/auth.middleware';
+import { authenticate, requireEmailVerified } from '../middleware/auth.middleware';
 import { AppError } from '../middleware/error.middleware';
 
 const router: Router = Router();
@@ -13,8 +13,8 @@ function getCreditRepo() {
   return creditRepo;
 }
 
-// All credit routes require authentication
-router.use(authenticate);
+// All credit routes require authentication AND email verification
+router.use(authenticate, requireEmailVerified);
 
 // GET /credits/balance
 router.get('/balance', async (req: Request, res: Response, next: NextFunction) => {

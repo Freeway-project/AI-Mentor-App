@@ -18,11 +18,22 @@ export default function MentorDashboardLayout({ children }: { children: React.Re
         if (!user.roles.includes('mentor')) { router.replace('/'); return; }
 
         apiClient.getMyMentorProfile()
-            .then((p) => setApprovalStatus(p.approvalStatus || 'pending'))
-            .catch(() => { });
+            .then((p) => {
+                // If onboarding not finished, force them to complete it
+                if (p.onboardingStep !== 'completed') {
+                    router.replace('/onboarding');
+                    return;
+                }
+                setApprovalStatus(p.approvalStatus || 'pending');
+                setProfileLoaded(true);
+            })
+            .catch(() => {
+                // Fallback for errors or empty profile — push to onboarding
+                router.replace('/onboarding');
+            });
     }, [user, loading, router]);
 
-    if (loading) {
+    if (loading || !profileLoaded) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-slate-950">
                 <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin" />

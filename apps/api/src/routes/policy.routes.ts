@@ -2,7 +2,7 @@ import { Router, Request, Response, NextFunction } from 'express';
 import { MentorRepository, PolicyRepository } from '@owl-mentors/database';
 import { upsertPolicySchema } from '@owl-mentors/types';
 import { validate } from '../middleware/validation.middleware';
-import { authenticate, authorize } from '../middleware/auth.middleware';
+import { authenticate, authorize, requireEmailVerified } from '../middleware/auth.middleware';
 import { AppError } from '../middleware/error.middleware';
 
 const router: Router = Router();
@@ -20,7 +20,7 @@ function getPolicyRepo() {
 }
 
 // Get own policies
-router.get('/', authenticate, authorize('mentor'), async (req: Request, res: Response, next: NextFunction) => {
+router.get('/', authenticate, requireEmailVerified, authorize('mentor'), async (req: Request, res: Response, next: NextFunction) => {
   try {
     const mentor = await getMentorRepo().findByUserId(req.userId!);
     if (!mentor) {
@@ -39,7 +39,7 @@ router.get('/', authenticate, authorize('mentor'), async (req: Request, res: Res
 });
 
 // Upsert policies
-router.put('/', authenticate, authorize('mentor'), validate(upsertPolicySchema), async (req: Request, res: Response, next: NextFunction) => {
+router.put('/', authenticate, requireEmailVerified, authorize('mentor'), validate(upsertPolicySchema), async (req: Request, res: Response, next: NextFunction) => {
   try {
     const mentor = await getMentorRepo().findByUserId(req.userId!);
     if (!mentor) {

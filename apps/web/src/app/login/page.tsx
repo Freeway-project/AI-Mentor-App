@@ -9,12 +9,12 @@ import { login } from '@/store/slices/auth.slice';
 import { useAuth } from '@/lib/auth-context';
 import { Navbar } from '@/components/layout/Navbar';
 import { Button } from '@/components/ui/button';
+import { toast } from 'sonner';
 import type { AppDispatch } from '@/store';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const dispatch = useDispatch<AppDispatch>();
   const { login: ctxLogin, loginWithGoogle } = useAuth();
@@ -22,7 +22,6 @@ export default function LoginPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
     setLoading(true);
 
     try {
@@ -34,25 +33,35 @@ export default function LoginPage() {
       if (result.user.roles.includes('admin')) {
         router.push('/admin');
       } else if (result.user.roles.includes('mentor')) {
-        router.push('/onboarding');
+        window.location.href = '/mentor/dashboard';
       } else {
         router.push('/browse');
       }
     } catch (err: any) {
-      setError(err.message || err || 'Login failed');
+      // Handle unverified email — backend sends a token + nextStep in the error body
+      if (err?.code === 'EMAIL_NOT_VERIFIED' || err?.message?.includes('verify your email')) {
+        toast.error('Please verify your email first. A new code has been sent to your inbox.');
+        // Store the token so the OTP page can use it
+        if (err?.data?.token) {
+          localStorage.setItem('auth_token', err.data.token);
+        }
+        const isMentor = err?.data?.nextStep === 'mentor-verify-otp';
+        window.location.href = isMentor ? '/mentor/verify-otp' : '/mentee/verify-otp';
+        return;
+      }
+      toast.error(err.message || 'Login failed');
     } finally {
       setLoading(false);
     }
   };
 
   const handleGoogleSuccess = async (credentialResponse: any) => {
-    setError('');
     setLoading(true);
     try {
       await loginWithGoogle(credentialResponse.credential);
       router.push('/browse');
     } catch (err: any) {
-      setError(err.message || 'Google sign-in failed');
+      toast.error(err.message || 'Google sign-in failed');
     } finally {
       setLoading(false);
     }
@@ -70,11 +79,7 @@ export default function LoginPage() {
             <p className="mt-2 text-slate-600">Sign in to your account</p>
           </div>
 
-          {error && (
-            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
-              {error}
-            </div>
-          )}
+
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
@@ -133,7 +138,7 @@ export default function LoginPage() {
             <div className="flex justify-center">
               <GoogleLogin
                 onSuccess={handleGoogleSuccess}
-                onError={() => setError('Google sign-in failed')}
+                onError={() => toast.error('Google sign-in failed')}
               />
             </div>
           )}
