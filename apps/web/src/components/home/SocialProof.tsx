@@ -30,21 +30,6 @@ export function SocialProof() {
     return (
         <section className="py-16 md:py-24 bg-white border-t border-slate-100">
             <div className="container mx-auto px-4 md:px-6">
-
-                {/* Company Logos */}
-                <div className="text-center mb-20">
-                    <p className="text-sm font-semibold uppercase tracking-wider text-slate-500 mb-8">
-                        Mentors from top companies
-                    </p>
-                    <div className="flex flex-wrap justify-center items-center gap-8 md:gap-12 opacity-50 grayscale hover:grayscale-0 transition-all duration-500">
-                        {companies.map((company) => (
-                            <span key={company} className="text-xl md:text-2xl font-bold text-slate-800">
-                                {company}
-                            </span>
-                        ))}
-                    </div>
-                </div>
-
                 {/* Testimonials */}
                 <div className="text-center mb-12">
                     <h2 className="text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl mb-4">

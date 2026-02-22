@@ -145,7 +145,7 @@ export default function MenteeVerifyOtpPage() {
                         </div>
                         <h1 className="text-2xl font-bold text-slate-900">Check your email</h1>
                         <p className="mt-2 text-slate-500 text-sm">
-                            We've sent a 6-digit verification code to your email address
+                            We&apos;ve sent a 6-digit verification code to your email address
                         </p>
                     </div>
 

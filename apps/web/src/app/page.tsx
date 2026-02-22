@@ -3,7 +3,7 @@ import { Hero } from '@/components/home/Hero';
 import { HowItWorks } from '@/components/home/HowItWorks';
 import { MentorHighlights } from '@/components/home/MentorHighlights';
 import { SocialProof } from '@/components/home/SocialProof';
-import { Pricing } from '@/components/home/Pricing';
+import { ProgressPath } from '@/components/home/ProgressPath';
 import { FAQ } from '@/components/home/FAQ';
 import { Footer } from '@/components/layout/Footer';
 
@@ -15,7 +15,7 @@ export default function Home() {
       <HowItWorks />
       <MentorHighlights />
       <SocialProof />
-      <Pricing />
+      <ProgressPath />
       <FAQ />
       <Footer />
     </main>
