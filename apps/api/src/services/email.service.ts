@@ -16,9 +16,11 @@ export class EmailService {
   static async sendEmail(to: string, subject: string, html: string): Promise<void> {
     try {
       // In development, if credentials aren't set, just log it out.
-      if (!process.env.SMTP_PASS) {
+      const pass = process.env.SMTP_PASS;
+      if (!pass || pass === '' || pass === 'your_smtp_password_here' || pass.includes('dummy')) {
         logger.warn(`[Email Stub] Would have sent email to ${to} with subject: ${subject}`);
-        logger.warn(`[Email Content] \n${html}\n`);
+        // Log the HTML content safely without blowing up logs
+        logger.warn(`[Email Content Stub] Length: ${html.length} chars`);
         return;
       }
 

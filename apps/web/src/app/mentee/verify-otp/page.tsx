@@ -10,7 +10,7 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 
 export default function MenteeVerifyOtpPage() {
     const router = useRouter();
-    const { login } = useAuth();
+    const { loginWithToken } = useAuth();
     const [otp, setOtp] = useState(['', '', '', '', '', '']);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
@@ -98,7 +98,7 @@ export default function MenteeVerifyOtpPage() {
             if (!json.success) throw new Error(json.error?.message || 'Verification failed');
 
             // If successful, log them in properly and redirect
-            login(token!);
+            await loginWithToken(token!);
             router.push('/browse');
         } catch (err: any) {
             setError(err.message);
