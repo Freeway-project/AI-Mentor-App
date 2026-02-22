@@ -110,4 +110,16 @@ export class TopicRepository {
       throw error;
     }
   }
+
+  async findDistinctCategories(): Promise<string[]> {
+    const startTime = Date.now();
+    try {
+      const categories = await TopicModel.distinct('category', { isActive: true });
+      logger.db({ operation: 'distinct', collection: 'topics', duration: Date.now() - startTime });
+      return categories;
+    } catch (error) {
+      logger.db({ operation: 'distinct', collection: 'topics', duration: Date.now() - startTime, error: (error as Error).message });
+      throw error;
+    }
+  }
 }

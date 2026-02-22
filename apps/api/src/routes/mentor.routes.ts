@@ -1,5 +1,5 @@
 import { Router, Request, Response, NextFunction } from 'express';
-import { MentorRepository, UserRepository, OfferRepository, PolicyRepository } from '@owl-mentors/database';
+import { MentorRepository, UserRepository, OfferRepository, PolicyRepository, TopicRepository } from '@owl-mentors/database';
 import { updateMentorSchema, updateAvailabilitySchema, searchMentorsSchema } from '@owl-mentors/types';
 import { validate, validateQuery } from '../middleware/validation.middleware';
 import { authenticate, authorize } from '../middleware/auth.middleware';
@@ -13,6 +13,7 @@ let mentorRepo: MentorRepository;
 let userRepo: UserRepository;
 let offerRepo: OfferRepository;
 let policyRepo: PolicyRepository;
+let topicRepo: TopicRepository;
 
 function getMentorRepo() {
   if (!mentorRepo) mentorRepo = new MentorRepository();
@@ -29,6 +30,10 @@ function getOfferRepo() {
 function getPolicyRepo() {
   if (!policyRepo) policyRepo = new PolicyRepository();
   return policyRepo;
+}
+function getTopicRepo() {
+  if (!topicRepo) topicRepo = new TopicRepository();
+  return topicRepo;
 }
 
 // Become a mentor
@@ -148,6 +153,24 @@ router.post('/me/publish', authenticate, authorize('mentor'), async (req: Reques
     res.json({
       success: true,
       data: published,
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// Get featured mentors and available subjects (public)
+router.get('/featured', async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const subjects = await getTopicRepo().findDistinctCategories();
+    const mentors = await getMentorRepo().findFeatured(15);
+
+    res.json({
+      success: true,
+      data: {
+        subjects,
+        mentors,
+      },
     });
   } catch (error) {
     next(error);
