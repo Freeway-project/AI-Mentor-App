@@ -35,13 +35,13 @@ export function FAQ() {
     };
 
     return (
-        <section id="faq" className="py-16 md:py-24 bg-white border-t border-slate-100">
+        <section id="faq" className="py-16 md:py-24 bg-slate-900 border-t border-slate-800">
             <div className="container mx-auto px-4 md:px-6 max-w-3xl">
                 <div className="text-center mb-12 space-y-4">
-                    <h2 className="text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">
+                    <h2 className="text-3xl font-bold tracking-tight text-white sm:text-4xl">
                         Frequently Asked Questions
                     </h2>
-                    <p className="text-lg text-slate-600">
+                    <p className="text-lg text-slate-400">
                         Everything you need to know about the product and billing.
                     </p>
                 </div>
@@ -50,14 +50,14 @@ export function FAQ() {
                     {faqs.map((faq, index) => (
                         <div
                             key={index}
-                            className="border border-slate-200 rounded-lg overflow-hidden transition-all duration-200 hover:border-slate-300 hover:shadow-sm"
+                            className="border border-slate-700 bg-slate-800/50 rounded-lg overflow-hidden transition-all duration-200 hover:border-slate-600 hover:shadow-sm"
                         >
                             <button
                                 onClick={() => toggleFAQ(index)}
-                                className="flex items-center justify-between w-full p-4 md:p-6 text-left bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-inset"
+                                className="flex items-center justify-between w-full p-4 md:p-6 text-left bg-transparent focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:ring-inset"
                                 aria-expanded={openIndex === index}
                             >
-                                <span className="text-lg font-medium text-slate-900 pr-8">
+                                <span className="text-lg font-medium text-white pr-8">
                                     {faq.question}
                                 </span>
                                 {openIndex === index ? (
@@ -68,11 +68,11 @@ export function FAQ() {
                             </button>
                             <div
                                 className={cn(
-                                    "overflow-hidden transition-all duration-300 ease-in-out bg-slate-50",
+                                    "overflow-hidden transition-all duration-300 ease-in-out",
                                     openIndex === index ? "max-h-48 opacity-100" : "max-h-0 opacity-0"
                                 )}
                             >
-                                <div className="p-4 md:p-6 pt-2 text-slate-600 leading-relaxed border-t border-slate-100">
+                                <div className="p-4 md:p-6 pt-2 text-slate-400 leading-relaxed border-t border-slate-700">
                                     {faq.answer}
                                 </div>
                             </div>
