@@ -67,7 +67,7 @@ export const StorageService = {
                 // If there's a custom domain, use it. Otherwise, rely on presigned URLs later.
                 url: publicUrl ? `${publicUrl}/${key}` : null,
             };
-        } catch (error) {
+        } catch (error: any) {
             logger.error('[StorageService] R2 Upload Error:', error);
             throw new Error('Failed to upload file to storage');
         }
@@ -90,7 +90,7 @@ export const StorageService = {
             });
 
             return await getSignedUrl(s3Client, command, { expiresIn });
-        } catch (error) {
+        } catch (error: any) {
             logger.error('[StorageService] R2 Presign Error:', error);
             throw new Error('Failed to generate download link');
         }
@@ -111,7 +111,7 @@ export const StorageService = {
             });
             await s3Client.send(command);
             logger.info(`[StorageService] Deleted file from R2: ${key}`);
-        } catch (error) {
+        } catch (error: any) {
             logger.error('[StorageService] R2 Delete Error:', error);
             throw new Error('Failed to delete file from storage');
         }
