@@ -99,7 +99,7 @@ export function MentorHighlights() {
         : mentors.filter(m => m.category === activeCategory || (activeCategory === 'Career' && true)); // Simplified filter for demo
 
     return (
-        <section id="mentors" className="py-16 md:py-24 bg-white">
+        <section id="mentors" className="py-16 md:py-24 bg-slate-950">
             <div className="container mx-auto px-4 md:px-6">
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
@@ -108,10 +108,10 @@ export function MentorHighlights() {
                     transition={{ duration: 0.6 }}
                     className="text-center mb-12 space-y-4"
                 >
-                    <h2 className="text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">
+                    <h2 className="text-3xl font-bold tracking-tight text-white sm:text-4xl">
                         Featured Mentors
                     </h2>
-                    <p className="text-lg text-slate-600 max-w-2xl mx-auto">
+                    <p className="text-lg text-slate-400 max-w-2xl mx-auto">
                         Learn from the best in the industry. Our mentors come from top tech companies and startups.
                     </p>
                 </motion.div>
@@ -128,8 +128,8 @@ export function MentorHighlights() {
                             key={category}
                             onClick={() => setActiveCategory(category)}
                             className={`px-5 py-2.5 rounded-full text-sm font-semibold transition-all duration-300 ${activeCategory === category
-                                ? 'bg-blue-600 text-white shadow-lg shadow-blue-200 scale-105'
-                                : 'bg-slate-50 text-slate-600 hover:bg-slate-100 border border-slate-200 hover:scale-105'
+                                ? 'bg-amber-500 text-slate-950 shadow-[0_0_15px_rgba(245,158,11,0.4)] scale-105'
+                                : 'bg-slate-900 text-slate-400 hover:bg-slate-800 border border-slate-800 hover:text-white hover:scale-105'
                                 }`}
                         >
                             {category}
@@ -148,43 +148,43 @@ export function MentorHighlights() {
                     <AnimatePresence mode="popLayout">
                         {filteredMentors.slice(0, 6).map((mentor, index) => (
                             <motion.div key={mentor.name} variants={itemVariants} layout initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }} transition={{ duration: 0.3 }}>
-                                <Card className="h-full overflow-hidden border-slate-200 bg-white hover:border-blue-300 hover:shadow-xl hover:shadow-blue-900/5 transition-all duration-300 group flex flex-col">
+                                <Card className="h-full overflow-hidden border-slate-800 bg-slate-900 hover:border-amber-500/50 hover:shadow-[0_0_20px_rgba(245,158,11,0.1)] transition-all duration-300 group flex flex-col">
                                     <CardHeader className="pb-4">
                                         <div className="flex items-start justify-between">
                                             <div className="flex items-center gap-4">
-                                                <div className="relative h-14 w-14 rounded-full p-0.5 bg-gradient-to-tr from-blue-500 to-indigo-500 shrink-0">
-                                                    <div className="h-full w-full rounded-full overflow-hidden border-2 border-white bg-white">
+                                                <div className="relative h-14 w-14 rounded-full p-0.5 bg-gradient-to-tr from-amber-400 to-amber-600 shrink-0">
+                                                    <div className="h-full w-full rounded-full overflow-hidden border-2 border-slate-900 bg-slate-800">
                                                         {/* eslint-disable-next-line @next/next/no-img-element */}
-                                                        <img src={mentor.image} alt={mentor.name} className="h-full w-full object-cover group-hover:scale-110 transition-transform duration-500" />
+                                                        <img src={mentor.image} alt={mentor.name} className="h-full w-full object-cover group-hover:scale-110 transition-transform duration-500 opacity-90" />
                                                     </div>
                                                 </div>
                                                 <div>
-                                                    <CardTitle className="text-lg font-bold text-slate-900 group-hover:text-blue-700 transition-colors">{mentor.name}</CardTitle>
-                                                    <CardDescription className="text-sm line-clamp-1 font-medium">{mentor.title}</CardDescription>
+                                                    <CardTitle className="text-lg font-bold text-white group-hover:text-amber-400 transition-colors">{mentor.name}</CardTitle>
+                                                    <CardDescription className="text-sm line-clamp-1 font-medium text-slate-400">{mentor.title}</CardDescription>
                                                 </div>
                                             </div>
                                         </div>
                                     </CardHeader>
                                     <CardContent className="space-y-4 pb-4 flex-1">
-                                        <div className="flex items-center gap-2 text-sm text-amber-500 font-semibold bg-amber-50 w-fit px-2 py-1 rounded-md">
+                                        <div className="flex items-center gap-2 text-sm text-amber-400 font-semibold bg-amber-500/10 w-fit px-2 py-1 rounded-md border border-amber-500/20">
                                             <Star className="h-4 w-4 fill-current" />
                                             <span>{mentor.rating}</span>
                                             <span className="text-slate-500 font-medium">({mentor.sessions} sessions)</span>
                                         </div>
-                                        <p className="text-sm text-slate-700 font-medium line-clamp-2">
+                                        <p className="text-sm text-slate-300 font-medium line-clamp-2">
                                             {mentor.experience}
                                         </p>
                                         <div className="flex flex-wrap gap-2">
                                             {mentor.tags.map((tag) => (
-                                                <Badge key={tag} variant="secondary" className="bg-slate-50 text-slate-600 border border-slate-200 hover:bg-blue-50 hover:text-blue-700 hover:border-blue-200 transition-colors">
+                                                <Badge key={tag} variant="secondary" className="bg-slate-800 text-slate-300 border border-slate-700 hover:bg-emerald-500/10 hover:text-emerald-400 hover:border-emerald-500/30 transition-colors">
                                                     {tag}
                                                 </Badge>
                                             ))}
                                         </div>
                                     </CardContent>
                                     <CardFooter className="pt-0 flex gap-3 mt-auto">
-                                        <Button variant="outline" className="flex-1 border-slate-200 bg-white hover:bg-slate-50 group-hover:border-blue-200 text-slate-700 transition-all font-semibold shadow-sm">View Profile</Button>
-                                        <Button className="flex-1 bg-slate-900 hover:bg-blue-600 text-white transition-colors shadow-md font-semibold">Book Session</Button>
+                                        <Button variant="outline" className="flex-1 border-slate-700 bg-slate-900 hover:bg-slate-800 group-hover:border-amber-500/30 text-slate-300 transition-all font-semibold shadow-sm">View Profile</Button>
+                                        <Button className="flex-1 bg-amber-500 hover:bg-amber-400 text-slate-950 transition-colors shadow-md font-bold">Book Session</Button>
                                     </CardFooter>
                                 </Card>
                             </motion.div>
