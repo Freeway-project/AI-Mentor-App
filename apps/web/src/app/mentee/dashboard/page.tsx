@@ -32,7 +32,7 @@ export default function MenteeDashboardPage() {
                 </div>
                 <div className="flex-1 min-w-0">
                     <h2 className={`font-semibold text-base text-blue-400`}>Find your first mentor</h2>
-                    <p className="text-sm text-slate-400 mt-0.5">You haven't booked any sessions yet. Browse our list of expert mentors to get started.</p>
+                    <p className="text-sm text-slate-400 mt-0.5">You haven&apos;t booked any sessions yet. Browse our list of expert mentors to get started.</p>
                     <Link
                         href="/browse"
                         className="inline-flex items-center gap-1.5 mt-3 text-sm font-medium text-blue-400 hover:underline"
