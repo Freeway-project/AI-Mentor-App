@@ -36,35 +36,35 @@ export default function MentorProfilePage() {
         <div className="p-8 max-w-4xl mx-auto space-y-6">
             {/* Header */}
             <div>
-                <h1 className="text-2xl font-bold text-slate-900">My Profile</h1>
-                <p className="text-slate-500 text-sm mt-1">
+                <h1 className="text-2xl font-bold text-white">My Profile</h1>
+                <p className="text-slate-400 text-sm mt-1">
                     Any changes you save will require admin re-approval before going live.
                 </p>
             </div>
 
             {/* Approval status banner */}
             {status === 'pending' && (
-                <div className="flex items-center gap-3 bg-amber-50 border border-amber-200 rounded-xl px-4 py-3">
-                    <Clock className="w-5 h-5 text-amber-600 shrink-0" />
-                    <p className="text-sm text-amber-700">
+                <div className="flex items-center gap-3 bg-amber-500/10 border border-amber-500/30 rounded-xl px-4 py-3">
+                    <Clock className="w-5 h-5 text-amber-400 shrink-0" />
+                    <p className="text-sm text-amber-300">
                         <span className="font-semibold">Under Review — </span>
                         Your profile is awaiting admin approval. Changes you make will restart the review process.
                     </p>
                 </div>
             )}
             {status === 'approved' && (
-                <div className="flex items-center gap-3 bg-emerald-50 border border-emerald-200 rounded-xl px-4 py-3">
-                    <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
-                    <p className="text-sm text-emerald-700">
+                <div className="flex items-center gap-3 bg-emerald-500/10 border border-emerald-500/30 rounded-xl px-4 py-3">
+                    <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />
+                    <p className="text-sm text-emerald-300">
                         <span className="font-semibold">Live — </span>
                         Your profile is approved and visible to mentees. Saving changes will re-submit for approval.
                     </p>
                 </div>
             )}
             {status === 'rejected' && (
-                <div className="flex items-center gap-3 bg-red-50 border border-red-200 rounded-xl px-4 py-3">
-                    <AlertTriangle className="w-5 h-5 text-red-600 shrink-0" />
-                    <div className="text-sm text-red-700">
+                <div className="flex items-center gap-3 bg-red-500/10 border border-red-500/30 rounded-xl px-4 py-3">
+                    <AlertTriangle className="w-5 h-5 text-red-400 shrink-0" />
+                    <div className="text-sm text-red-300">
                         <p className="font-semibold">Changes Needed</p>
                         {profile?.approvalNote && <p className="mt-0.5">{profile.approvalNote}</p>}
                     </div>
@@ -72,14 +72,14 @@ export default function MentorProfilePage() {
             )}
 
             {/* Tab bar */}
-            <div className="flex border-b border-slate-200 gap-1">
+            <div className="flex border-b border-slate-800 gap-1">
                 {TABS.map((tab) => (
                     <button
                         key={tab}
                         onClick={() => setActiveTab(tab)}
                         className={`px-4 py-2.5 text-sm font-medium border-b-2 -mb-px transition-colors ${activeTab === tab
-                                ? 'border-blue-600 text-blue-600'
-                                : 'border-transparent text-slate-500 hover:text-slate-700'
+                                ? 'border-blue-500 text-blue-400'
+                                : 'border-transparent text-slate-500 hover:text-slate-300'
                             }`}
                     >
                         {tab}
@@ -93,7 +93,7 @@ export default function MentorProfilePage() {
                     <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin" />
                 </div>
             ) : (
-                <div className="bg-white rounded-2xl border border-slate-200 p-6">
+                <div className="bg-slate-900 rounded-2xl border border-slate-800 p-6">
                     {activeTab === 'Profile' && (
                         <ProfileStep
                             profile={profile}
