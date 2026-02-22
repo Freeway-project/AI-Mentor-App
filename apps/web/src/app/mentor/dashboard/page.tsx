@@ -66,7 +66,7 @@ export default function MentorDashboardPage() {
                 <h1 className="text-2xl font-bold text-white">
                     Welcome back, {user?.name?.split(' ')[0]} 👋
                 </h1>
-                <p className="text-slate-400 text-sm mt-1">Here's your mentor portal overview</p>
+                <p className="text-slate-400 text-sm mt-1">Here&apos;s your mentor portal overview</p>
             </div>
 
             {/* Status Banner */}
