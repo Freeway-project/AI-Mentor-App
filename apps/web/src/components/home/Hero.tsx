@@ -2,149 +2,180 @@
 
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, CheckCircle2 } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { motion, useScroll, useTransform } from 'framer-motion';
+import { useRef } from 'react';
+import { Sparkles, ArrowRight } from 'lucide-react';
 
 export function Hero() {
-    return (
-        <section className="relative overflow-hidden bg-slate-50 pt-16 md:pt-24 lg:pt-32 pb-20 md:pb-28">
-            {/* Animated Background Gradients */}
-            <div className="absolute top-0 inset-x-0 h-96 bg-gradient-to-b from-blue-50 to-transparent pointer-events-none" />
+    const containerRef = useRef<HTMLDivElement>(null);
+    const { scrollYProgress } = useScroll({
+        target: containerRef,
+        offset: ['start start', 'end center']
+    });
 
-            <div className="container mx-auto px-4 md:px-6 relative z-10">
-                <div className="grid gap-12 lg:grid-cols-2 lg:gap-12 items-center">
-                    {/* Text Content */}
+    // Animate the SVG path stroke
+    const pathLength = useTransform(scrollYProgress, [0, 0.8], [0, 1]);
+
+    // Opacity for stepping stones sequentially
+    const stone1Opacity = useTransform(scrollYProgress, [0.1, 0.2], [0.3, 1]);
+    const stone2Opacity = useTransform(scrollYProgress, [0.3, 0.4], [0.3, 1]);
+    const stone3Opacity = useTransform(scrollYProgress, [0.5, 0.6], [0.3, 1]);
+    const stone4Opacity = useTransform(scrollYProgress, [0.7, 0.8], [0.3, 1]);
+
+    // Scale for stones
+    const stone1Scale = useTransform(scrollYProgress, [0.1, 0.2], [0.8, 1]);
+    const stone2Scale = useTransform(scrollYProgress, [0.3, 0.4], [0.8, 1]);
+    const stone3Scale = useTransform(scrollYProgress, [0.5, 0.6], [0.8, 1]);
+    const stone4Scale = useTransform(scrollYProgress, [0.7, 0.8], [0.8, 1]);
+
+    // Spark position moving along the path roughly
+    const sparkY = useTransform(scrollYProgress, [0, 0.8], ['0%', '100%']);
+
+    return (
+        <section ref={containerRef} className="relative bg-slate-950 pb-32 min-h-[150vh] flex flex-col pt-24 lg:pt-32">
+            {/* Dark background base */}
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_var(--tw-gradient-stops))] from-indigo-900/20 via-slate-950 to-slate-950 pointer-events-none" />
+
+            <div className="container mx-auto px-4 md:px-6 relative z-10 sticky top-32">
+                <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-start">
+
+                    {/* Left Content Area (Sticky text) */}
                     <div className="space-y-8 text-center lg:text-left">
                         <motion.div
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.6 }}
-                            className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-100/50 text-blue-700 text-sm font-medium border border-blue-200"
+                            className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-indigo-500/10 text-indigo-300 text-sm font-medium border border-indigo-500/20"
                         >
-                            <span className="flex h-2 w-2 rounded-full bg-blue-600 animate-pulse"></span>
-                            Now accepting new mentees
+                            <Sparkles className="w-4 h-4 text-amber-400" />
+                            Ignite your potential today
                         </motion.div>
 
                         <motion.h1
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.6, delay: 0.1 }}
-                            className="text-4xl font-extrabold tracking-tight text-slate-900 sm:text-5xl md:text-6xl/tight"
+                            className="text-4xl font-extrabold tracking-tight text-white sm:text-5xl md:text-6xl max-w-2xl mx-auto lg:mx-0 leading-tight"
                         >
-                            Talk to the right mentor in under <span className="text-blue-600 bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600">24 hours</span>
+                            The <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-amber-400 to-amber-500">lighted path</span> to your next career breakthrough
                         </motion.h1>
 
                         <motion.p
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.6, delay: 0.2 }}
-                            className="text-lg text-slate-600 sm:text-xl max-w-xl mx-auto lg:mx-0"
+                            className="text-lg text-slate-400 sm:text-xl max-w-xl mx-auto lg:mx-0 leading-relaxed"
                         >
-                            Answer a few questions, match with fully vetted industry leaders, and book 1:1 video sessions for career and startup advice.
+                            Don&apos;t wander in the dark. Match with an elite industry mentor who will illuminate the exact steps to reach your goals.
                         </motion.p>
-
-                        <motion.div
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.6, delay: 0.3 }}
-                            className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start"
-                        >
-                            <Button size="lg" className="bg-blue-600 hover:bg-blue-700 text-white gap-2 shadow-lg shadow-blue-200 transition-all hover:scale-105" asChild>
-                                <Link href="/find-mentor">
-                                    Find a mentor <ArrowRight className="h-4 w-4" />
-                                </Link>
-                            </Button>
-                            <Button size="lg" variant="outline" className="border-slate-300 text-slate-700 hover:bg-slate-100 transition-all hover:scale-105" asChild>
-                                <Link href="/mentors">Browse mentors</Link>
-                            </Button>
-                        </motion.div>
-
-                        <motion.div
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            transition={{ duration: 0.8, delay: 0.6 }}
-                            className="flex flex-wrap items-center justify-center lg:justify-start gap-4 sm:gap-6 text-sm text-slate-500 font-medium pt-4"
-                        >
-                            <div className="flex items-center gap-2">
-                                <CheckCircle2 className="h-5 w-5 text-green-500" />
-                                <span>Vetted Experts</span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                                <CheckCircle2 className="h-5 w-5 text-green-500" />
-                                <span>On-demand booking</span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                                <CheckCircle2 className="h-5 w-5 text-green-500" />
-                                <span>Secure video calls</span>
-                            </div>
-                        </motion.div>
                     </div>
 
-                    {/* Interactive Visual Container */}
-                    <motion.div
-                        initial={{ opacity: 0, scale: 0.95 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ duration: 0.8, delay: 0.2, type: 'spring' }}
-                        className="relative mx-auto w-full max-w-[500px] lg:max-w-none mt-8 lg:mt-0"
-                    >
-                        <div className="relative rounded-2xl bg-white shadow-2xl shadow-indigo-100 overflow-hidden border border-slate-200 aspect-[4/3] flex flex-col group">
-                            {/* Mock Browser Header */}
-                            <div className="flex items-center gap-2 border-b bg-slate-50/80 backdrop-blur px-4 py-3 shrink-0">
-                                <div className="flex gap-1.5">
-                                    <div className="h-3 w-3 rounded-full bg-red-400"></div>
-                                    <div className="h-3 w-3 rounded-full bg-amber-400"></div>
-                                    <div className="h-3 w-3 rounded-full bg-green-400"></div>
-                                </div>
-                                <div className="ml-4 h-4 rounded-md bg-white border border-slate-200 flex-1 max-w-[200px]" />
-                            </div>
+                    {/* Right Interactive Visual Area */}
+                    <div className="relative h-[600px] w-full max-w-lg mx-auto lg:ml-auto">
+                        {/* The Spark (Mentor) */}
+                        <motion.div
+                            style={{ top: sparkY }}
+                            className="absolute left-1/2 -ml-[2px] w-1 h-32 bg-gradient-to-b from-transparent via-amber-400 to-transparent z-10 shadow-[0_0_30px_rgba(251,191,36,0.8)]"
+                        />
+                        <motion.div
+                            style={{ top: sparkY }}
+                            className="absolute left-[calc(50%-12px)] -mt-3 w-6 h-6 bg-amber-400 rounded-full blur-sm opacity-50 z-10"
+                        />
+                        <motion.div
+                            style={{ top: sparkY }}
+                            className="absolute left-[calc(50%-4px)] -mt-1 w-2 h-2 bg-white rounded-full shadow-[0_0_15px_#fcd34d] z-20"
+                        />
 
-                            {/* Mock Content */}
-                            <div className="p-6 space-y-6 flex-1 bg-slate-50/30 relative overflow-hidden">
-                                <div className="flex items-center justify-between mb-2">
-                                    <div>
-                                        <div className="h-8 w-32 bg-slate-200 rounded-md mb-3 animate-pulse"></div>
-                                        <div className="h-4 w-48 bg-slate-300 rounded animate-pulse delay-75"></div>
-                                    </div>
-                                </div>
+                        {/* Winding SVG Path */}
+                        <svg className="absolute inset-0 w-full h-full" viewBox="0 0 400 600" fill="none" preserveAspectRatio="xMidYMin slice">
+                            {/* Faint background path */}
+                            <path
+                                d="M200 0 C200 100, 300 150, 300 250 C300 350, 100 400, 100 500 C100 550, 200 580, 200 600"
+                                stroke="rgba(51, 65, 85, 0.4)"
+                                strokeWidth="4"
+                                strokeLinecap="round"
+                                strokeDasharray="8 8"
+                            />
+                            {/* Glowing drawn path */}
+                            <motion.path
+                                d="M200 0 C200 100, 300 150, 300 250 C300 350, 100 400, 100 500 C100 550, 200 580, 200 600"
+                                stroke="url(#glowGradient)"
+                                strokeWidth="6"
+                                strokeLinecap="round"
+                                style={{ pathLength }}
+                                className="drop-shadow-[0_0_8px_rgba(251,191,36,0.6)]"
+                            />
+                            <defs>
+                                <linearGradient id="glowGradient" x1="0" y1="0" x2="0" y2="1">
+                                    <stop offset="0%" stopColor="#fde68a" />
+                                    <stop offset="50%" stopColor="#f59e0b" />
+                                    <stop offset="100%" stopColor="#d97706" />
+                                </linearGradient>
+                            </defs>
+                        </svg>
 
-                                {/* Floating Mentor Cards */}
-                                <div className="absolute top-24 left-6 right-6 space-y-4">
-                                    <motion.div
-                                        animate={{ y: [0, -8, 0] }}
-                                        transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-                                        className="bg-white p-4 rounded-xl shadow-md shadow-slate-200/50 border border-slate-100 flex items-center gap-4 relative z-20"
-                                    >
-                                        <div className="h-12 w-12 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold shrink-0 text-lg border-2 border-white shadow-sm ring-2 ring-blue-50">SJ</div>
-                                        <div className="flex-1 space-y-2">
-                                            <div className="h-4 w-1/2 bg-slate-200 rounded"></div>
-                                            <div className="h-3 w-3/4 bg-slate-100 rounded"></div>
-                                        </div>
-                                        <div className="px-3 py-1 bg-green-50 text-green-700 text-xs font-semibold rounded-full border border-green-100">Available</div>
-                                    </motion.div>
+                        {/* Stepping Stones */}
+                        <div className="absolute inset-0 w-full h-full pointer-events-none">
+                            {/* Stone 1: Clarity */}
+                            <motion.div
+                                style={{ opacity: stone1Opacity, scale: stone1Scale }}
+                                className="absolute top-[80px] right-[40px] md:right-[20px] lg:right-[60px] flex items-center gap-3 backdrop-blur-md bg-slate-900/60 border border-slate-700/50 p-3 rounded-2xl shadow-xl"
+                            >
+                                <div className="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center border border-amber-500/30 text-amber-400 font-bold shadow-[0_0_15px_rgba(245,158,11,0.2)]">1</div>
+                                <div className="text-white font-medium pr-2">Clarity</div>
+                            </motion.div>
 
-                                    <motion.div
-                                        animate={{ y: [0, 8, 0] }}
-                                        transition={{ duration: 5, repeat: Infinity, ease: "easeInOut", delay: 1 }}
-                                        className="bg-white/90 backdrop-blur-sm p-4 rounded-xl shadow border border-slate-100 flex items-center gap-4 relative z-10 scale-[0.98] opacity-90 translate-y-2"
-                                    >
-                                        <div className="h-12 w-12 rounded-full bg-purple-100 flex items-center justify-center text-purple-600 font-bold shrink-0 text-lg ring-2 ring-purple-50">MK</div>
-                                        <div className="flex-1 space-y-2">
-                                            <div className="h-4 w-1/2 bg-slate-200 rounded"></div>
-                                            <div className="h-3 w-3/4 bg-slate-100 rounded"></div>
-                                        </div>
-                                        <div className="px-3 py-1 bg-slate-50 text-slate-500 text-xs font-semibold rounded-full border border-slate-200">Busy</div>
-                                    </motion.div>
-                                </div>
-                            </div>
+                            {/* Stone 2: Skills */}
+                            <motion.div
+                                style={{ opacity: stone2Opacity, scale: stone2Scale }}
+                                className="absolute top-[220px] right-[10px] md:-right-[20px] lg:right-[10px] flex items-center gap-3 backdrop-blur-md bg-slate-900/60 border border-slate-700/50 p-3 rounded-2xl shadow-xl"
+                            >
+                                <div className="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center border border-amber-500/30 text-amber-400 font-bold shadow-[0_0_15px_rgba(245,158,11,0.2)]">2</div>
+                                <div className="text-white font-medium pr-2">Skills</div>
+                            </motion.div>
+
+                            {/* Stone 3: Confidence */}
+                            <motion.div
+                                style={{ opacity: stone3Opacity, scale: stone3Scale }}
+                                className="absolute top-[380px] flex items-center gap-3 backdrop-blur-md bg-slate-900/60 border border-slate-700/50 p-3 rounded-2xl shadow-xl"
+                            >
+                                <div className="text-white font-medium pl-2">Confidence</div>
+                                <div className="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center border border-amber-500/30 text-amber-400 font-bold shadow-[0_0_15px_rgba(245,158,11,0.2)]">3</div>
+                            </motion.div>
+
+                            {/* Stone 4: Success / CTA */}
+                            <motion.div
+                                style={{ opacity: stone4Opacity, scale: stone4Scale }}
+                                className="absolute bottom-[20px] left-1/2 -translate-x-1/2 flex flex-col items-center gap-4 pointer-events-auto"
+                            >
+                                <div className="text-amber-400 font-bold tracking-widest uppercase text-sm drop-shadow-[0_0_8px_rgba(245,158,11,0.8)]">Success</div>
+                                <Button size="lg" className="bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-lg px-8 py-6 rounded-full shadow-[0_0_30px_rgba(245,158,11,0.4)] transition-all hover:scale-105 hover:shadow-[0_0_40px_rgba(245,158,11,0.6)] gap-2 group" asChild>
+                                    <Link href="/find-mentor">
+                                        Book Your Session
+                                        <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                                    </Link>
+                                </Button>
+                            </motion.div>
                         </div>
+                    </div>
 
-                        {/* Background Blob Effects */}
-                        <div className="absolute -z-10 -top-12 -right-12 h-64 w-64 rounded-full bg-blue-400/20 blur-3xl mix-blend-multiply animate-pulse"></div>
-                        <div className="absolute -z-10 -bottom-12 -left-12 h-64 w-64 rounded-full bg-indigo-400/20 blur-3xl mix-blend-multiply animate-pulse delay-700"></div>
-                        <div className="absolute -z-10 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-64 w-64 rounded-full bg-purple-300/20 blur-3xl mix-blend-multiply"></div>
-                    </motion.div>
                 </div>
             </div>
+
+            {/* Scroll instruction marker */}
+            <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 1, duration: 1 }}
+                className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-slate-500 text-sm"
+            >
+                Scroll to explore the path
+                <motion.div
+                    animate={{ y: [0, 8, 0] }}
+                    transition={{ repeat: Infinity, duration: 2 }}
+                    className="w-px h-12 bg-gradient-to-b from-slate-500 to-transparent"
+                />
+            </motion.div>
         </section>
     );
 }
