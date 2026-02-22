@@ -93,7 +93,7 @@ export default function VerifyOtpPage() {
       await apiPost('verify-otp', { type: 'email', code }, token);
       toast.success('Email verified!');
       setDone(true);
-      setTimeout(() => router.push('/mentor/dashboard'), 1500);
+      setTimeout(() => { window.location.href = '/mentor/dashboard'; }, 1500);
     } catch (err: any) {
       toast.error(err.message || 'Invalid code');
     } finally {

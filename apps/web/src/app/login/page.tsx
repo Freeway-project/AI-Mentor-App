@@ -4,16 +4,20 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google';
+import { useDispatch } from 'react-redux';
+import { login } from '@/store/slices/auth.slice';
 import { useAuth } from '@/lib/auth-context';
 import { Navbar } from '@/components/layout/Navbar';
 import { Button } from '@/components/ui/button';
+import type { AppDispatch } from '@/store';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const { login, loginWithGoogle } = useAuth();
+  const dispatch = useDispatch<AppDispatch>();
+  const { login: ctxLogin, loginWithGoogle } = useAuth();
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -22,10 +26,20 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      await login(email, password);
-      router.push('/');
+      // Update both auth-context (Navbar) and Redux store (admin/service layer)
+      const result = await dispatch(login({ email, password })).unwrap();
+      await ctxLogin(email, password);
+
+      // Redirect based on role
+      if (result.user.roles.includes('admin')) {
+        router.push('/admin');
+      } else if (result.user.roles.includes('mentor')) {
+        router.push('/onboarding');
+      } else {
+        router.push('/browse');
+      }
     } catch (err: any) {
-      setError(err.message || 'Login failed');
+      setError(err.message || err || 'Login failed');
     } finally {
       setLoading(false);
     }
@@ -36,7 +50,7 @@ export default function LoginPage() {
     setLoading(true);
     try {
       await loginWithGoogle(credentialResponse.credential);
-      router.push('/');
+      router.push('/browse');
     } catch (err: any) {
       setError(err.message || 'Google sign-in failed');
     } finally {

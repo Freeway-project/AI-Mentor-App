@@ -21,7 +21,7 @@ async function seedAdmin() {
   const admin = await userRepo.create({
     email,
     name: 'Admin',
-    passwordHash,
+    password: passwordHash,
     roles: ['admin'],
     emailVerified: true,
   });
