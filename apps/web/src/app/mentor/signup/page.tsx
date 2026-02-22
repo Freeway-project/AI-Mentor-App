@@ -66,9 +66,9 @@ export default function MentorSignupPage() {
   };
 
   return (
-    <>
+    <div className="h-screen flex flex-col overflow-hidden">
       <Navbar />
-      <div className="min-h-screen flex items-center justify-center bg-slate-50 px-4 py-12">
+      <div className="flex-1 overflow-y-auto flex items-center justify-center bg-slate-50 px-4 py-8">
         <div className="w-full max-w-md space-y-8">
           <div className="text-center">
             <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-blue-100 mb-4">
@@ -206,6 +206,6 @@ export default function MentorSignupPage() {
           </p>
         </div>
       </div>
-    </>
+    </div>
   );
 }

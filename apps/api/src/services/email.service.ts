@@ -2,26 +2,28 @@ import nodemailer from 'nodemailer';
 import { logger } from '@owl-mentors/utils';
 
 function createTransport() {
-    const { SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS } = process.env;
+  const { SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS } = process.env;
 
-    if (!SMTP_HOST || !SMTP_USER || !SMTP_PASS) {
-        // Dev fallback: log to console
-        return null;
-    }
+  if (!SMTP_HOST || !SMTP_USER || !SMTP_PASS) {
+    // Dev fallback: log to console
+    return null;
+  }
 
-    return nodemailer.createTransport({
-        host: SMTP_HOST,
-        port: Number(SMTP_PORT) || 587,
-        secure: Number(SMTP_PORT) === 465,
-        auth: { user: SMTP_USER, pass: SMTP_PASS },
-    });
+  return nodemailer.createTransport({
+    host: SMTP_HOST,
+    port: Number(SMTP_PORT) || 587,
+    secure: Number(SMTP_PORT) === 465,
+    auth: { user: SMTP_USER, pass: SMTP_PASS },
+  });
 }
 
 export const EmailService = {
-    async sendOtp(to: string, code: string): Promise<void> {
-        const from = process.env.SMTP_FROM || 'OWLMentors <noreply@owlmentors.com>';
-        const subject = 'Your OWLMentors verification code';
-        const html = `
+  async sendOtp(to: string, code: string): Promise<void> {
+    const fromName = process.env.SMTP_FROM_NAME || 'OWLMentors';
+    const fromEmail = process.env.SMTP_FROM_EMAIL || process.env.SMTP_FROM || 'noreply@owlmentors.com';
+    const from = `${fromName} <${fromEmail}>`;
+    const subject = 'Your OWLMentors verification code';
+    const html = `
       <div style="font-family:sans-serif;max-width:480px;margin:auto;padding:32px">
         <h2 style="color:#1e40af;font-size:24px;margin-bottom:8px">Verify your email</h2>
         <p style="color:#475569;margin-bottom:24px">
@@ -37,19 +39,21 @@ export const EmailService = {
       </div>
     `;
 
-        const transport = createTransport();
+    const transport = createTransport();
 
-        if (!transport) {
-            logger.info(`[OTP EMAIL] To: ${to} | Code: ${code} | Expires: 10 min`);
-            return;
-        }
+    if (!transport) {
+      logger.info(`[OTP EMAIL] To: ${to} | Code: ${code} | Expires: 10 min`);
+      return;
+    }
 
-        try {
-            await transport.sendMail({ from, to, subject, html });
-            logger.info(`[OTP EMAIL] Sent to ${to}`);
-        } catch (error) {
-            logger.error(`[OTP EMAIL] Failed to send to ${to}: ${(error as Error).message}`);
-            throw error;
-        }
-    },
+    try {
+      await transport.sendMail({ from, to, subject, html });
+      logger.info(`[OTP EMAIL] Sent to ${to}`);
+    } catch (error) {
+      // SMTP failed — log the code so dev/staging can still verify
+      logger.error(`[OTP EMAIL] SMTP failed to ${to}: ${(error as Error).message}`);
+      logger.warn(`[OTP EMAIL FALLBACK] To: ${to} | Code: ${code} | Expires: 10 min`);
+      // Don't re-throw — email failure should not block registration
+    }
+  },
 };

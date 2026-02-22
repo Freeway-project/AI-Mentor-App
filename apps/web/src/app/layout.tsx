@@ -20,8 +20,8 @@ export default function RootLayout({
         <AppProviders>
           {children}
         </AppProviders>
-        <Analytics />
-        <SpeedInsights />
+        {/* <Analytics /> */}
+        {/* <SpeedInsights /> */}
       </body>
     </html>
   );
