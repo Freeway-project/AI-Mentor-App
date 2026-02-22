@@ -65,9 +65,10 @@ class ApiClient {
 
   // Auth
   async register(email: string, password: string, name: string, role: string) {
-    return this.request<{ user: any; token: string }>('/auth/register', {
+    const endpoint = role === 'mentor' ? '/mentor-auth/register' : '/auth/register';
+    return this.request<{ user: any; token: string; nextStep?: string }>(endpoint, {
       method: 'POST',
-      body: JSON.stringify({ email, password, name, role }),
+      body: JSON.stringify({ email, password, name, role, phone: role === 'mentor' ? '0000000000' : undefined }),
     });
   }
 

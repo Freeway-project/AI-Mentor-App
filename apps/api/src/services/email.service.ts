@@ -1,14 +1,24 @@
 import nodemailer from 'nodemailer';
 import { logger } from '@owl-mentors/utils';
 
+let _devTransport: nodemailer.Transporter | null = null;
+
+async function getDevTransport(): Promise<nodemailer.Transporter> {
+  if (_devTransport) return _devTransport;
+  const testAccount = await nodemailer.createTestAccount();
+  _devTransport = nodemailer.createTransport({
+    host: 'smtp.ethereal.email',
+    port: 587,
+    auth: { user: testAccount.user, pass: testAccount.pass },
+  });
+  logger.info(`[EMAIL DEV] Ethereal SMTP ready — preview emails at https://ethereal.email/messages`);
+  logger.info(`[EMAIL DEV] Login: ${testAccount.user} / ${testAccount.pass}`);
+  return _devTransport;
+}
+
 function createTransport() {
   const { SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS } = process.env;
-
-  if (!SMTP_HOST || !SMTP_USER || !SMTP_PASS) {
-    // Dev fallback: log to console
-    return null;
-  }
-
+  if (!SMTP_HOST || !SMTP_USER || !SMTP_PASS) return null;
   return nodemailer.createTransport({
     host: SMTP_HOST,
     port: Number(SMTP_PORT) || 587,
@@ -39,23 +49,31 @@ export const EmailService = {
       </div>
     `;
 
+    // Try real SMTP first
     const transport = createTransport();
-
-    if (!transport) {
-      logger.info(`[OTP EMAIL] To: ${to} | Code: ${code} | Expires: 10 min`);
-      return;
+    if (transport) {
+      try {
+        await transport.sendMail({ from, to, subject, html });
+        logger.info(`[OTP EMAIL] Sent to ${to}`);
+        return;
+      } catch (error) {
+        logger.error(`[OTP EMAIL] SMTP failed to ${to}: ${(error as Error).message}`);
+        logger.warn(`[OTP EMAIL] Falling back to Ethereal dev transport...`);
+      }
     }
 
+    // Fallback: Ethereal (dev only — captures email, viewable in browser)
     try {
-      await transport.sendMail({ from, to, subject, html });
-      logger.info(`[OTP EMAIL] Sent to ${to}`);
-    } catch (error) {
-      // SMTP failed — log the code so dev/staging can still verify
-      logger.error(`[OTP EMAIL] SMTP failed to ${to}: ${(error as Error).message}`);
+      const devTransport = await getDevTransport();
+      const info = await devTransport.sendMail({ from, to, subject, html });
+      const previewUrl = nodemailer.getTestMessageUrl(info);
+      logger.info(`[OTP EMAIL DEV] Code: ${code} | Preview: ${previewUrl}`);
+    } catch (err) {
+      // Last resort — just log the code
       logger.warn(`[OTP EMAIL FALLBACK] To: ${to} | Code: ${code} | Expires: 10 min`);
-      // Don't re-throw — email failure should not block registration
     }
   },
+
 
   async notifyAdminNewMentor(mentor: { name: string; email: string }): Promise<void> {
     const adminEmail = process.env.ADMIN_NOTIFICATION_EMAIL;
