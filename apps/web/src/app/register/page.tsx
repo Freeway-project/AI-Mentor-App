@@ -64,11 +64,11 @@ export default function RegisterPage() {
   const content = (
     <>
       <Navbar />
-      <div className="min-h-screen flex items-center justify-center bg-slate-50 px-4 py-12">
+      <div className="min-h-screen flex items-center justify-center bg-slate-950 px-4 py-12">
         <div className="w-full max-w-md space-y-8">
           <div className="text-center">
-            <h1 className="text-3xl font-bold text-slate-900">Create your account</h1>
-            <p className="mt-2 text-slate-600">Start your mentoring journey</p>
+            <h1 className="text-3xl font-bold text-white">Create your account</h1>
+            <p className="mt-2 text-slate-400">Start your mentoring journey</p>
           </div>
 
           {error && (
@@ -79,7 +79,7 @@ export default function RegisterPage() {
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label htmlFor="name" className="block text-sm font-medium text-slate-700 mb-1">
+              <label htmlFor="name" className="block text-sm font-medium text-slate-300 mb-1">
                 Full name
               </label>
               <input
@@ -88,13 +88,13 @@ export default function RegisterPage() {
                 required
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-900 bg-white placeholder:text-slate-400"
+                className="w-full px-3 py-2 border border-slate-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-white bg-slate-900 placeholder:text-slate-500"
                 placeholder="Your name"
               />
             </div>
 
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-slate-700 mb-1">
+              <label htmlFor="email" className="block text-sm font-medium text-slate-300 mb-1">
                 Email
               </label>
               <input
@@ -103,13 +103,13 @@ export default function RegisterPage() {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-900 bg-white placeholder:text-slate-400"
+                className="w-full px-3 py-2 border border-slate-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-white bg-slate-900 placeholder:text-slate-500"
                 placeholder="you@example.com"
               />
             </div>
 
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-slate-700 mb-1">
+              <label htmlFor="password" className="block text-sm font-medium text-slate-300 mb-1">
                 Password
               </label>
               <input
@@ -119,13 +119,13 @@ export default function RegisterPage() {
                 minLength={8}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-900 bg-white placeholder:text-slate-400"
+                className="w-full px-3 py-2 border border-slate-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-white bg-slate-900 placeholder:text-slate-500"
                 placeholder="Min 8 characters"
               />
             </div>
 
             <div>
-              <label htmlFor="confirmPassword" className="block text-sm font-medium text-slate-700 mb-1">
+              <label htmlFor="confirmPassword" className="block text-sm font-medium text-slate-300 mb-1">
                 Confirm password
               </label>
               <input
@@ -134,13 +134,13 @@ export default function RegisterPage() {
                 required
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
-                className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-900 bg-white placeholder:text-slate-400"
+                className="w-full px-3 py-2 border border-slate-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-white bg-slate-900 placeholder:text-slate-500"
                 placeholder="Repeat your password"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-2">
+              <label className="block text-sm font-medium text-slate-300 mb-2">
                 I am a...
               </label>
               <div className="grid grid-cols-2 gap-3">
@@ -148,13 +148,13 @@ export default function RegisterPage() {
                 <button
                   type="button"
                   onClick={() => setRole('mentee')}
-                  className={`p-4 border-2 rounded-xl text-left transition-all ${role === 'mentee'
-                    ? 'border-blue-500 bg-blue-50'
-                    : 'border-slate-200 bg-white hover:border-blue-300 hover:bg-blue-50/40'
+                  className={`p-4 border border-slate-800 rounded-xl text-left transition-all ${role === 'mentee'
+                    ? 'border-blue-500 bg-blue-500/10'
+                    : 'bg-slate-900 hover:border-blue-500/50 hover:bg-slate-800/80'
                     }`}
                 >
                   <div className={`text-xl mb-1`}>🎓</div>
-                  <div className={`text-sm font-semibold ${role === 'mentee' ? 'text-blue-700' : 'text-slate-700'}`}>
+                  <div className={`text-sm font-semibold ${role === 'mentee' ? 'text-blue-400' : 'text-white'}`}>
                     Learner
                   </div>
                   <div className={`text-xs mt-0.5 ${role === 'mentee' ? 'text-blue-500' : 'text-slate-400'}`}>
@@ -166,13 +166,13 @@ export default function RegisterPage() {
                 <button
                   type="button"
                   onClick={() => setRole('mentor')}
-                  className={`p-4 border-2 rounded-xl text-left transition-all ${role === 'mentor'
-                    ? 'border-purple-500 bg-purple-50'
-                    : 'border-slate-200 bg-white hover:border-purple-300 hover:bg-purple-50/40'
+                  className={`p-4 border border-slate-800 rounded-xl text-left transition-all ${role === 'mentor'
+                    ? 'border-purple-500 bg-purple-500/10'
+                    : 'bg-slate-900 hover:border-purple-500/50 hover:bg-slate-800/80'
                     }`}
                 >
                   <div className={`text-xl mb-1`}>🏆</div>
-                  <div className={`text-sm font-semibold ${role === 'mentor' ? 'text-purple-700' : 'text-slate-700'}`}>
+                  <div className={`text-sm font-semibold ${role === 'mentor' ? 'text-purple-400' : 'text-white'}`}>
                     Mentor
                   </div>
                   <div className={`text-xs mt-0.5 ${role === 'mentor' ? 'text-purple-500' : 'text-slate-400'}`}>
@@ -195,10 +195,10 @@ export default function RegisterPage() {
             <>
               <div className="relative">
                 <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t border-slate-300" />
+                  <div className="w-full border-t border-slate-800" />
                 </div>
                 <div className="relative flex justify-center text-sm">
-                  <span className="bg-slate-50 px-2 text-slate-600">Or continue with</span>
+                  <span className="bg-slate-950 px-2 text-slate-500">Or continue with</span>
                 </div>
               </div>
 
@@ -211,9 +211,9 @@ export default function RegisterPage() {
             </>
           )}
 
-          <p className="text-center text-sm text-slate-600">
+          <p className="text-center text-sm text-slate-400">
             Already have an account?{' '}
-            <Link href="/login" className="text-blue-600 hover:underline font-medium">
+            <Link href="/login" className="text-blue-400 hover:underline font-medium">
               Sign in
             </Link>
           </p>

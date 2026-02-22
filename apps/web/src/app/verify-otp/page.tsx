@@ -137,14 +137,14 @@ function VerifyOtpContent() {
     return (
         <>
             <Navbar />
-            <div className="min-h-screen flex items-center justify-center bg-slate-50 px-4 py-12">
-                <div className="w-full max-w-md space-y-8 bg-white p-8 rounded-2xl shadow-sm border border-slate-100">
+            <div className="min-h-screen flex items-center justify-center bg-slate-950 px-4 py-12">
+                <div className="w-full max-w-md space-y-8 bg-slate-900 p-8 rounded-2xl shadow-sm border border-slate-800">
                     <div className="text-center">
-                        <h1 className="text-2xl font-bold text-slate-900">Verify your email</h1>
-                        <p className="mt-2 text-slate-600 text-sm">
+                        <h1 className="text-2xl font-bold text-white">Verify your email</h1>
+                        <p className="mt-2 text-slate-400 text-sm">
                             We&apos;ve sent a 6-digit verification code to
                             <br />
-                            <span className="font-medium text-slate-900">{email}</span>
+                            <span className="font-medium text-white">{email}</span>
                         </p>
                     </div>
 
@@ -174,7 +174,7 @@ function VerifyOtpContent() {
                                     onChange={(e) => handleChange(index, e.target.value)}
                                     onKeyDown={(e) => handleKeyDown(index, e)}
                                     onPaste={handlePaste}
-                                    className="w-10 h-12 sm:w-12 sm:h-14 text-center text-xl font-semibold border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                                    className="w-10 h-12 sm:w-12 sm:h-14 text-center text-xl font-semibold border border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-950 text-white"
                                     autoFocus={index === 0}
                                 />
                             ))}
@@ -190,13 +190,13 @@ function VerifyOtpContent() {
                     </form>
 
                     <div className="text-center mt-6">
-                        <p className="text-sm text-slate-600">
+                        <p className="text-sm text-slate-400">
                             Didn&apos;t receive the code?{' '}
                             <button
                                 type="button"
                                 onClick={handleResend}
                                 disabled={resending}
-                                className="text-blue-600 hover:text-blue-700 hover:underline font-medium disabled:opacity-50"
+                                className="text-blue-400 hover:text-blue-300 hover:underline font-medium disabled:opacity-50"
                             >
                                 {resending ? 'Sending...' : 'Click to resend'}
                             </button>

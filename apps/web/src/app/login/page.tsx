@@ -72,18 +72,18 @@ export default function LoginPage() {
   const content = (
     <>
       <Navbar />
-      <div className="min-h-screen flex items-center justify-center bg-slate-50 px-4">
+      <div className="min-h-screen flex items-center justify-center bg-slate-950 px-4">
         <div className="w-full max-w-md space-y-8">
           <div className="text-center">
-            <h1 className="text-3xl font-bold text-slate-900">Welcome back</h1>
-            <p className="mt-2 text-slate-600">Sign in to your account</p>
+            <h1 className="text-3xl font-bold text-white">Welcome back</h1>
+            <p className="mt-2 text-slate-400">Sign in to your account</p>
           </div>
 
 
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-slate-700 mb-1">
+              <label htmlFor="email" className="block text-sm font-medium text-slate-300 mb-1">
                 Email
               </label>
               <input
@@ -92,13 +92,13 @@ export default function LoginPage() {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-900 bg-white placeholder:text-slate-400"
+                className="w-full px-3 py-2 border border-slate-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-white bg-slate-900 placeholder:text-slate-500"
                 placeholder="you@example.com"
               />
             </div>
 
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-slate-700 mb-1">
+              <label htmlFor="password" className="block text-sm font-medium text-slate-300 mb-1">
                 Password
               </label>
               <input
@@ -107,7 +107,7 @@ export default function LoginPage() {
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-900 bg-white placeholder:text-slate-400"
+                className="w-full px-3 py-2 border border-slate-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-white bg-slate-900 placeholder:text-slate-500"
                 placeholder="Enter your password"
               />
             </div>
@@ -126,10 +126,10 @@ export default function LoginPage() {
           {googleClientId && (
             <div className="relative">
               <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-slate-300" />
+                <div className="w-full border-t border-slate-800" />
               </div>
               <div className="relative flex justify-center text-sm">
-                <span className="bg-slate-50 px-2 text-slate-600">Or continue with</span>
+                <span className="bg-slate-950 px-2 text-slate-500">Or continue with</span>
               </div>
             </div>
           )}
@@ -143,9 +143,9 @@ export default function LoginPage() {
             </div>
           )}
 
-          <p className="text-center text-sm text-slate-600">
+          <p className="text-center text-sm text-slate-400">
             Don&apos;t have an account?{' '}
-            <Link href="/register" className="text-blue-600 hover:underline font-medium">
+            <Link href="/register" className="text-blue-400 hover:underline font-medium">
               Sign up
             </Link>
           </p>
