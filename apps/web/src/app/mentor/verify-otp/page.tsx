@@ -3,8 +3,8 @@
 import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Navbar } from '@/components/layout/Navbar';
-import { Button } from '@/components/ui/button';
 import { Mail } from 'lucide-react';
+import { toast } from 'sonner';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 
@@ -70,8 +70,6 @@ function OtpInput({ onComplete }: { onComplete: (code: string) => void }) {
 
 export default function VerifyOtpPage() {
   const router = useRouter();
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
   const [resendCooldown, setResendCooldown] = useState(0);
   const [done, setDone] = useState(false);
@@ -90,16 +88,14 @@ export default function VerifyOtpPage() {
 
   const handleCode = async (code: string) => {
     if (!token) return;
-    setError('');
-    setSuccess('');
     setLoading(true);
     try {
       await apiPost('verify-otp', { type: 'email', code }, token);
-      setSuccess('Email verified!');
+      toast.success('Email verified!');
       setDone(true);
-      setTimeout(() => router.push('/onboarding'), 1500);
+      setTimeout(() => { window.location.href = '/mentor/dashboard'; }, 1500);
     } catch (err: any) {
-      setError(err.message || 'Invalid code');
+      toast.error(err.message || 'Invalid code');
     } finally {
       setLoading(false);
     }
@@ -107,14 +103,12 @@ export default function VerifyOtpPage() {
 
   const handleResend = async () => {
     if (!token || resendCooldown > 0) return;
-    setError('');
     try {
       await apiPost('resend-otp', { type: 'email' }, token);
       setResendCooldown(60);
-      setSuccess('New code sent to your email');
-      setTimeout(() => setSuccess(''), 3000);
+      toast.success('New code sent to your email');
     } catch (err: any) {
-      setError(err.message || 'Failed to resend');
+      toast.error(err.message || 'Failed to resend');
     }
   };
 
@@ -162,17 +156,7 @@ export default function VerifyOtpPage() {
             </div>
           </div>
 
-          {error && (
-            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm text-center">
-              {error}
-            </div>
-          )}
 
-          {success && (
-            <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg text-sm text-center">
-              {success}
-            </div>
-          )}
 
           <div className="space-y-6">
             <OtpInput key="email" onComplete={handleCode} />

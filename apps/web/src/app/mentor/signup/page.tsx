@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Navbar } from '@/components/layout/Navbar';
 import { Button } from '@/components/ui/button';
-import { apiClient } from '@/lib/api-client';
+import { toast } from 'sonner';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 
@@ -28,7 +28,6 @@ async function mentorRegister(data: {
 export default function MentorSignupPage() {
   const router = useRouter();
   const [form, setForm] = useState({ name: '', email: '', phone: '', password: '', confirmPassword: '' });
-  const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -37,10 +36,9 @@ export default function MentorSignupPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
 
     if (form.password !== form.confirmPassword) {
-      setError('Passwords do not match');
+      toast.error('Passwords do not match');
       return;
     }
 
@@ -53,13 +51,11 @@ export default function MentorSignupPage() {
         password: form.password,
       });
 
-      // Store token
       localStorage.setItem('auth_token', data.token);
-
-      // Redirect to OTP verification
+      toast.success('Account created! Check your email for the verification code.');
       router.push('/mentor/verify-otp');
     } catch (err: any) {
-      setError(err.message || 'Registration failed');
+      toast.error(err.message || 'Registration failed');
     } finally {
       setLoading(false);
     }
@@ -100,11 +96,6 @@ export default function MentorSignupPage() {
             </span>
           </div>
 
-          {error && (
-            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
-              {error}
-            </div>
-          )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>

@@ -40,19 +40,6 @@ services:
       mongo:
         condition: service_healthy
 
-  # ── Web (Next.js) ────────────────────────────────────────────────────────────
-  web:
-    build:
-      context: ..
-      dockerfile: docker/web.Dockerfile
-      args:
-        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-https://ladyfinger.ca/owl-api}
-    restart: unless-stopped
-    ports:
-      - '3000:3000'
-    depends_on:
-      api:
-        condition: service_started
 
 volumes:
   mongo_data:

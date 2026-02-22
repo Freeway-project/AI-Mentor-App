@@ -128,6 +128,9 @@ router.post('/verify-otp', authenticate, async (req: Request, res: Response, nex
     await getUserRepo().markEmailVerified(userId);
     const user = await getUserRepo().findById(userId);
 
+    // Notify admin of new verified mentor signup (non-blocking)
+    EmailService.notifyAdminNewMentor({ name: user.name, email: user.email }).catch(() => { });
+
     res.json({
       success: true,
       data: {
