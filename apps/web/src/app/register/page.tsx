@@ -62,10 +62,10 @@ export default function RegisterPage() {
   const googleClientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
 
   const content = (
-    <>
+    <div className="min-h-screen flex flex-col bg-slate-950">
       <Navbar />
-      <div className="min-h-screen flex items-center justify-center bg-slate-950 px-4 py-12">
-        <div className="w-full max-w-md space-y-8">
+      <div className="flex-1 flex items-center justify-center px-4 py-8">
+        <div className="w-full max-w-md space-y-6">
           <div className="text-center">
             <h1 className="text-3xl font-bold text-white">Create your account</h1>
             <p className="mt-2 text-slate-400">Start your mentoring journey</p>
@@ -211,7 +211,7 @@ export default function RegisterPage() {
             </>
           )}
 
-          <p className="text-center text-sm text-slate-400">
+          <p className="text-center text-sm text-slate-400 mt-4">
             Already have an account?{' '}
             <Link href="/login" className="text-blue-400 hover:underline font-medium">
               Sign in
@@ -219,7 +219,7 @@ export default function RegisterPage() {
           </p>
         </div>
       </div>
-    </>
+    </div>
   );
 
   if (googleClientId) {

@@ -135,10 +135,10 @@ function VerifyOtpContent() {
     if (!email) return null;
 
     return (
-        <>
+        <div className="min-h-screen flex flex-col bg-slate-950">
             <Navbar />
-            <div className="min-h-screen flex items-center justify-center bg-slate-950 px-4 py-12">
-                <div className="w-full max-w-md space-y-8 bg-slate-900 p-8 rounded-2xl shadow-sm border border-slate-800">
+            <div className="flex-1 flex items-center justify-center px-4 py-8">
+                <div className="w-full max-w-md space-y-6 bg-slate-900 p-8 rounded-2xl shadow-sm border border-slate-800">
                     <div className="text-center">
                         <h1 className="text-2xl font-bold text-white">Verify your email</h1>
                         <p className="mt-2 text-slate-400 text-sm">
@@ -204,7 +204,7 @@ function VerifyOtpContent() {
                     </div>
                 </div>
             </div>
-        </>
+        </div>
     );
 }
 
