@@ -31,8 +31,10 @@ export default function RegisterPage() {
     setLoading(true);
     try {
       await register(email, password, name, role);
+      // At this point we are somewhat logged in based on the context, but let's
+      // push them to verify-otp if they're a mentor so they can't skip it.
       if (role === 'mentor') {
-        router.push('/onboarding');
+        router.push('/mentor/verify-otp');
       } else {
         router.push('/browse');
       }
@@ -146,8 +148,8 @@ export default function RegisterPage() {
                   type="button"
                   onClick={() => setRole('mentee')}
                   className={`p-4 border-2 rounded-xl text-left transition-all ${role === 'mentee'
-                      ? 'border-blue-500 bg-blue-50'
-                      : 'border-slate-200 bg-white hover:border-blue-300 hover:bg-blue-50/40'
+                    ? 'border-blue-500 bg-blue-50'
+                    : 'border-slate-200 bg-white hover:border-blue-300 hover:bg-blue-50/40'
                     }`}
                 >
                   <div className={`text-xl mb-1`}>🎓</div>
@@ -164,8 +166,8 @@ export default function RegisterPage() {
                   type="button"
                   onClick={() => setRole('mentor')}
                   className={`p-4 border-2 rounded-xl text-left transition-all ${role === 'mentor'
-                      ? 'border-purple-500 bg-purple-50'
-                      : 'border-slate-200 bg-white hover:border-purple-300 hover:bg-purple-50/40'
+                    ? 'border-purple-500 bg-purple-50'
+                    : 'border-slate-200 bg-white hover:border-purple-300 hover:bg-purple-50/40'
                     }`}
                 >
                   <div className={`text-xl mb-1`}>🏆</div>

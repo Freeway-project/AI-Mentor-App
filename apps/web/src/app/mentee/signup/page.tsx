@@ -5,11 +5,13 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Rocket } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useAuth } from '@/lib/auth-context';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 
 export default function MenteeSignupPage() {
   const router = useRouter();
+  const { loginWithToken } = useAuth();
   const [form, setForm] = useState({ name: '', email: '', password: '', confirmPassword: '' });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -40,13 +42,8 @@ export default function MenteeSignupPage() {
       const json = await res.json();
       if (!json.success) throw new Error(json.error?.message || 'Registration failed');
 
-      localStorage.setItem('auth_token', json.data.token);
-
-      if (json.data.nextStep === 'verify-email') {
-        router.push('/mentee/verify-otp');
-      } else {
-        router.push('/browse');
-      }
+      await loginWithToken(json.data.token);
+      router.push('/browse');
     } catch (err: any) {
       setError(err.message);
     } finally {

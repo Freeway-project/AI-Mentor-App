@@ -68,9 +68,8 @@ router.post('/register', authRateLimit, validate(registerSchema), async (req: Re
       if (existingUser.emailVerified) {
         throw new AppError(409, 'USER_EXISTS', 'User with this email already exists');
       }
-      // Unverified user — just resend OTP with a fresh token
-      const emailCode = await getOtpRepo().createOtp(existingUser.id, 'email', existingUser.email);
-      await EmailService.sendOtp(existingUser.email, emailCode);
+      // Return the token outright and mark them verified from now on
+      await getUserRepo().markEmailVerified(existingUser.id);
       const token = generateToken(existingUser.id, existingUser.email, existingUser.roles);
       return res.status(200).json({
         success: true,
@@ -80,10 +79,9 @@ router.post('/register', authRateLimit, validate(registerSchema), async (req: Re
             email: existingUser.email,
             name: existingUser.name,
             roles: existingUser.roles,
-            emailVerified: false,
+            emailVerified: true,
           },
           token,
-          nextStep: 'verify-email',
         },
       });
     }
@@ -96,12 +94,8 @@ router.post('/register', authRateLimit, validate(registerSchema), async (req: Re
       name,
       roles: [role],
       timezone,
-      emailVerified: false,
+      emailVerified: true,
     });
-
-    // Generate and send email OTP
-    const emailCode = await getOtpRepo().createOtp(user.id, 'email', email);
-    await EmailService.sendOtp(email, emailCode);
 
     const token = generateToken(user.id, user.email, user.roles);
 
@@ -113,76 +107,11 @@ router.post('/register', authRateLimit, validate(registerSchema), async (req: Re
           email: user.email,
           name: user.name,
           roles: user.roles,
-          emailVerified: false,
+          emailVerified: true,
         },
         token,
-        nextStep: 'verify-email',
       },
     });
-  } catch (error) {
-    next(error);
-  }
-});
-
-// Verify email OTP (mentee)
-router.post('/verify-otp', authenticate, async (req: Request, res: Response, next: NextFunction) => {
-  try {
-    const parsed = verifyOtpSchema.safeParse(req.body);
-    if (!parsed.success) {
-      throw new AppError(400, 'VALIDATION_ERROR', parsed.error.errors[0].message);
-    }
-
-    const { type, code } = parsed.data;
-    if (type !== 'email') {
-      throw new AppError(400, 'INVALID_TYPE', 'Only email OTP verification is supported');
-    }
-
-    const userId = req.userId!;
-    const valid = await getOtpRepo().verifyOtp(userId, type, code);
-    if (!valid) {
-      throw new AppError(400, 'INVALID_OTP', 'Invalid or expired OTP code');
-    }
-
-    await getUserRepo().markEmailVerified(userId);
-    const user = await getUserRepo().findById(userId);
-
-    res.json({
-      success: true,
-      data: {
-        verified: true,
-        emailVerified: user.emailVerified,
-        nextStep: 'browse',
-      },
-    });
-  } catch (error) {
-    next(error);
-  }
-});
-
-// Resend email OTP (mentee)
-router.post('/resend-otp', authRateLimit, authenticate, async (req: Request, res: Response, next: NextFunction) => {
-  try {
-    const parsed = sendOtpSchema.safeParse(req.body);
-    if (!parsed.success) {
-      throw new AppError(400, 'VALIDATION_ERROR', parsed.error.errors[0].message);
-    }
-
-    const { type } = parsed.data;
-    if (type !== 'email') {
-      throw new AppError(400, 'INVALID_TYPE', 'Only email OTP is supported');
-    }
-
-    const userId = req.userId!;
-    const user = await getUserRepo().findById(userId);
-
-    if (user.emailVerified) {
-      throw new AppError(400, 'ALREADY_VERIFIED', 'Email already verified');
-    }
-
-    const code = await getOtpRepo().createOtp(userId, 'email', user.email);
-    await EmailService.sendOtp(user.email, code);
-
-    res.json({ success: true, data: { message: 'OTP sent to your email' } });
   } catch (error) {
     next(error);
   }
