@@ -35,7 +35,7 @@ export default function LoginPage() {
       } else if (result.user.roles.includes('mentor')) {
         window.location.href = '/mentor/dashboard';
       } else {
-        router.push('/browse');
+        router.push('/mentee/dashboard');
       }
     } catch (err: any) {
       // Handle unverified email — backend sends a token + nextStep in the error body
@@ -59,7 +59,7 @@ export default function LoginPage() {
     setLoading(true);
     try {
       await loginWithGoogle(credentialResponse.credential);
-      router.push('/browse');
+      router.push('/mentee/dashboard');
     } catch (err: any) {
       toast.error(err.message || 'Google sign-in failed');
     } finally {

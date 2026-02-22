@@ -72,11 +72,7 @@ export function Navbar() {
                                     <Link href="/admin">Admin</Link>
                                 </Button>
                             )}
-                            {!isMentor && !isAdmin && (
-                                <Button variant="outline" size="sm" className="border-slate-700 text-slate-300 hover:bg-slate-800 hover:text-white" asChild>
-                                    <Link href="/onboarding">Become a Mentor</Link>
-                                </Button>
-                            )}
+
                             <Button variant="ghost" size="sm" className="text-slate-300 hover:text-white hover:bg-slate-800" onClick={handleLogout}>
                                 <LogOut className="h-4 w-4 mr-1" />
                                 Log out
@@ -88,7 +84,7 @@ export function Navbar() {
                                 <Link href="/login">Log in</Link>
                             </Button>
                             <Button className="bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold shadow-[0_0_15px_rgba(245,158,11,0.3)] transition-all hover:shadow-[0_0_20px_rgba(245,158,11,0.5)]" asChild>
-                                <Link href="/mentee/signup">Find a Mentor</Link>
+                                <Link href="/register">Find a Mentor</Link>
                             </Button>
                         </>
                     )}
@@ -133,13 +129,7 @@ export function Navbar() {
                                         <Link href="/admin" onClick={toggleMenu}>Admin Panel</Link>
                                     </Button>
                                 )}
-                                {!isMentor && !isAdmin && (
-                                    <Button variant="outline" className="w-full border-slate-700 text-slate-300 hover:bg-slate-800 hover:text-white" asChild>
-                                        <Link href="/onboarding" onClick={toggleMenu}>
-                                            Become a Mentor
-                                        </Link>
-                                    </Button>
-                                )}
+
                                 <Button variant="ghost" className="w-full justify-start text-slate-300 hover:text-white hover:bg-slate-800" onClick={() => { handleLogout(); toggleMenu(); }}>
                                     Log out
                                 </Button>
@@ -152,7 +142,7 @@ export function Navbar() {
                                     </Link>
                                 </Button>
                                 <Button className="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold" asChild>
-                                    <Link href="/mentee/signup" onClick={toggleMenu}>
+                                    <Link href="/register" onClick={toggleMenu}>
                                         Find a Mentor
                                     </Link>
                                 </Button>

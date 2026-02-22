@@ -83,7 +83,7 @@ router.post('/register', authRateLimit, validate(registerSchema), async (req: Re
             emailVerified: false,
           },
           token,
-          nextStep: 'verify-email',
+          nextStep: 'verify-otp',
         },
       });
     }
@@ -116,7 +116,7 @@ router.post('/register', authRateLimit, validate(registerSchema), async (req: Re
           emailVerified: false,
         },
         token,
-        nextStep: 'verify-email',
+        nextStep: 'verify-otp',
       },
     });
   } catch (error) {

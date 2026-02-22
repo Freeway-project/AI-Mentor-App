@@ -78,7 +78,7 @@ export default function MenteeVerifyOtpPage() {
     const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : null;
 
     useEffect(() => {
-        if (!token) router.replace('/mentee/signup');
+        if (!token) router.replace('/register');
     }, [token, router]);
 
     useEffect(() => {
@@ -176,7 +176,7 @@ export default function MenteeVerifyOtpPage() {
 
                     <p className="text-center text-xs text-slate-400">
                         Wrong email?{' '}
-                        <Link href="/mentee/signup" className="text-blue-600 hover:underline">
+                        <Link href="/register" className="text-blue-600 hover:underline">
                             Go back
                         </Link>
                     </p>

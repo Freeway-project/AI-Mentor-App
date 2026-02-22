@@ -14,7 +14,7 @@ export default function MentorDashboardLayout({ children }: { children: React.Re
 
     useEffect(() => {
         if (loading) return;
-        if (!user) { router.replace('/mentor/signup'); return; }
+        if (!user) { router.replace('/register'); return; }
         if (!user.emailVerified) { router.replace('/mentor/verify-otp'); return; }
         if (!user.roles.includes('mentor')) { router.replace('/'); return; }
 

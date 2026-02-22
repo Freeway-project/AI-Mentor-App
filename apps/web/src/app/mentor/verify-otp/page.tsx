@@ -77,7 +77,7 @@ export default function VerifyOtpPage() {
   const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : null;
 
   useEffect(() => {
-    if (!token) router.replace('/mentor/signup');
+    if (!token) router.replace('/register');
   }, [token, router]);
 
   useEffect(() => {

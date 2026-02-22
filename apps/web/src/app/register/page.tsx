@@ -37,7 +37,7 @@ export default function RegisterPage() {
       } else if (role === 'mentor') {
         router.push('/onboarding');
       } else {
-        router.push('/browse');
+        router.push('/mentee/dashboard');
       }
     } catch (err: any) {
       setError(err.message || 'Registration failed');

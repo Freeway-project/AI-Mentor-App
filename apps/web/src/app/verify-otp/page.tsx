@@ -94,7 +94,7 @@ function VerifyOtpContent() {
             }
 
             // Refresh user context via getMe
-            router.push(data.data.nextStep === 'onboarding' ? '/onboarding' : '/browse');
+            router.push(data.data.nextStep === 'onboarding' ? '/onboarding' : '/mentee/dashboard');
 
         } catch (err: any) {
             setError(err.message || 'Invalid code. Please try again.');
@@ -142,7 +142,7 @@ function VerifyOtpContent() {
                     <div className="text-center">
                         <h1 className="text-2xl font-bold text-slate-900">Verify your email</h1>
                         <p className="mt-2 text-slate-600 text-sm">
-                            We've sent a 6-digit verification code to
+                            We&apos;ve sent a 6-digit verification code to
                             <br />
                             <span className="font-medium text-slate-900">{email}</span>
                         </p>
@@ -191,7 +191,7 @@ function VerifyOtpContent() {
 
                     <div className="text-center mt-6">
                         <p className="text-sm text-slate-600">
-                            Didn't receive the code?{' '}
+                            Didn&apos;t receive the code?{' '}
                             <button
                                 type="button"
                                 onClick={handleResend}
