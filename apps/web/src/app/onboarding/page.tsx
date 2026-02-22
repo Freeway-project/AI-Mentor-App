@@ -28,6 +28,11 @@ export default function OnboardingPage() {
       return;
     }
 
+    if (!user.emailVerified) {
+      router.push('/mentor/verify-otp');
+      return;
+    }
+
     const loadProfile = async () => {
       try {
         // Try to get existing mentor profile
@@ -96,25 +101,22 @@ export default function OnboardingPage() {
               <div key={label} className="flex items-center flex-1">
                 <button
                   onClick={() => goToStep(i)}
-                  className={`flex items-center justify-center w-8 h-8 rounded-full text-sm font-medium transition-colors ${
-                    i === currentStep
+                  className={`flex items-center justify-center w-8 h-8 rounded-full text-sm font-medium transition-colors ${i === currentStep
                       ? 'bg-blue-600 text-white'
                       : i < currentStep
-                      ? 'bg-green-500 text-white'
-                      : 'bg-slate-200 text-slate-500'
-                  }`}
+                        ? 'bg-green-500 text-white'
+                        : 'bg-slate-200 text-slate-500'
+                    }`}
                 >
                   {i < currentStep ? '\u2713' : i + 1}
                 </button>
-                <span className={`ml-2 text-sm hidden sm:inline ${
-                  i === currentStep ? 'font-medium text-blue-600' : 'text-slate-500'
-                }`}>
+                <span className={`ml-2 text-sm hidden sm:inline ${i === currentStep ? 'font-medium text-blue-600' : 'text-slate-500'
+                  }`}>
                   {label}
                 </span>
                 {i < STEP_LABELS.length - 1 && (
-                  <div className={`flex-1 h-0.5 mx-3 ${
-                    i < currentStep ? 'bg-green-500' : 'bg-slate-200'
-                  }`} />
+                  <div className={`flex-1 h-0.5 mx-3 ${i < currentStep ? 'bg-green-500' : 'bg-slate-200'
+                    }`} />
                 )}
               </div>
             ))}

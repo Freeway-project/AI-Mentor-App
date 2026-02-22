@@ -228,4 +228,22 @@ export class MentorRepository {
   async findPendingApproval(limit = 20, offset = 0): Promise<{ mentors: Mentor[]; total: number }> {
     return this.findAll({ approvalStatus: 'pending' }, limit, offset);
   }
+
+  async findFeatured(limit = 10): Promise<Mentor[]> {
+    const startTime = Date.now();
+    try {
+      const docs = await MentorModel.find({
+        isActive: true,
+        approvalStatus: 'approved'
+      })
+        .sort({ rating: -1, totalMeetings: -1 })
+        .limit(limit);
+
+      logger.db({ operation: 'findFeatured', collection: 'providers', duration: Date.now() - startTime });
+      return docs.map(toMentor);
+    } catch (error) {
+      logger.db({ operation: 'findFeatured', collection: 'providers', duration: Date.now() - startTime, error: (error as Error).message });
+      throw error;
+    }
+  }
 }
