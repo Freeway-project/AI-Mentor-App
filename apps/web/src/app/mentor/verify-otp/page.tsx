@@ -140,8 +140,8 @@ export default function VerifyOtpPage() {
       <div className="flex-1 overflow-y-auto flex items-center justify-center bg-slate-50 px-4">
         <div className="w-full max-w-md space-y-8">
           <div className="text-center">
-            <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-blue-100 mb-4">
-              <Mail className="w-6 h-6 text-blue-600" />
+            <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-amber-100 mb-4">
+              <Mail className="w-6 h-6 text-amber-600" />
             </div>
             <h1 className="text-2xl font-bold text-slate-900">Verify your email</h1>
             <p className="mt-2 text-slate-600 text-sm">
@@ -151,8 +151,8 @@ export default function VerifyOtpPage() {
 
           {/* Step indicator */}
           <div className="flex items-center justify-center gap-2">
-            <div className="flex items-center gap-1.5 text-sm text-blue-600 font-medium">
-              <span className="w-5 h-5 rounded-full flex items-center justify-center text-xs bg-blue-600 text-white">2</span>
+            <div className="flex items-center gap-1.5 text-sm text-amber-600 font-medium">
+              <span className="w-5 h-5 rounded-full flex items-center justify-center text-xs bg-amber-600 text-slate-900">2</span>
               Verify email
             </div>
             <span className="w-8 h-px bg-slate-300" />
@@ -174,14 +174,14 @@ export default function VerifyOtpPage() {
             </div>
           )}
 
-          <div className="space-y-6">
+          <div className="space-y-6 flex flex-col items-center">
             <OtpInput key="email" onComplete={handleCode} />
 
             {loading && (
               <p className="text-center text-sm text-slate-500">Verifying...</p>
             )}
 
-            <div className="text-center">
+            <div className="text-center mt-4">
               <p className="text-sm text-slate-500">
                 Didn&apos;t receive the code?{' '}
                 {resendCooldown > 0 ? (
@@ -190,7 +190,7 @@ export default function VerifyOtpPage() {
                   <button
                     type="button"
                     onClick={handleResend}
-                    className="text-blue-600 hover:underline font-medium"
+                    className="text-amber-600 hover:text-amber-500 hover:underline font-medium transition-colors"
                   >
                     Resend
                   </button>

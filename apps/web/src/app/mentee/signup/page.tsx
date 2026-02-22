@@ -41,7 +41,12 @@ export default function MenteeSignupPage() {
       if (!json.success) throw new Error(json.error?.message || 'Registration failed');
 
       localStorage.setItem('auth_token', json.data.token);
-      router.push('/mentee/verify-otp');
+
+      if (json.data.nextStep === 'verify-email') {
+        router.push('/mentee/verify-otp');
+      } else {
+        router.push('/browse');
+      }
     } catch (err: any) {
       setError(err.message);
     } finally {
