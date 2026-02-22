@@ -135,6 +135,12 @@ router.get('/credits', async (req: Request, res: Response, next: NextFunction) =
 router.get('/users', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { role, isActive, search, limit, offset } = req.query;
+
+    // Never show admin accounts in user management
+    if (role === 'admin') {
+      return res.json({ success: true, data: { users: [], total: 0 } });
+    }
+
     const result = await getUserRepo().findAll(
       {
         roles: role as any,
@@ -145,10 +151,13 @@ router.get('/users', async (req: Request, res: Response, next: NextFunction) => 
       Number(offset) || 0,
     );
 
+    // Strip out any admin accounts that slipped through
+    const nonAdminUsers = result.users.filter(u => !u.roles.includes('admin'));
+
     res.json({
       success: true,
       data: {
-        users: result.users.map(u => ({
+        users: nonAdminUsers.map(u => ({
           id: u.id,
           email: u.email,
           name: u.name,
@@ -157,7 +166,9 @@ router.get('/users', async (req: Request, res: Response, next: NextFunction) => 
           emailVerified: u.emailVerified,
           createdAt: u.createdAt,
         })),
-        total: result.total,
+        total: nonAdminUsers.length < result.users.length
+          ? result.total - (result.users.length - nonAdminUsers.length)
+          : result.total,
       },
     });
   } catch (error) {

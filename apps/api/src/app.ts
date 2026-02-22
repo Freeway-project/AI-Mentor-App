@@ -16,6 +16,20 @@ app.use(helmet());
 const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(',').map((o) => o.trim()) || [];
 const isDev = process.env.NODE_ENV !== 'production';
 
+function isOriginAllowed(origin: string): boolean {
+  // Exact match
+  if (allowedOrigins.includes(origin)) return true;
+  // Wildcard pattern: *.vercel.app matches https://foo.vercel.app
+  // Patterns may be stored with or without protocol prefix
+  const hostname = origin.replace(/^https?:\/\//, '');
+  return allowedOrigins.some((pattern) => {
+    const p = pattern.replace(/^https?:\/\//, ''); // strip protocol if present
+    if (!p.startsWith('*.')) return false;
+    const suffix = p.slice(1); // ".vercel.app"
+    return hostname === suffix.slice(1) || hostname.endsWith(suffix);
+  });
+}
+
 app.use(
   cors({
     origin: (origin, callback) => {
@@ -25,8 +39,8 @@ app.use(
       if (isDev && /^https?:\/\/localhost(:\d+)?$/.test(origin)) {
         return callback(null, true);
       }
-      // Allow explicitly listed origins
-      if (allowedOrigins.includes(origin)) {
+      // Allow explicitly listed origins (supports *.domain.com wildcards)
+      if (isOriginAllowed(origin)) {
         return callback(null, true);
       }
       return callback(new Error(`CORS: origin '${origin}' not allowed`));

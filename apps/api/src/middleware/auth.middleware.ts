@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
+import { UserRepository } from '@owl-mentors/database';
 import { AppError } from './error.middleware';
 
 interface JWTPayload {
@@ -62,4 +63,27 @@ export function authorize(...roles: string[]) {
       next(error);
     }
   };
+}
+
+let userRepo: UserRepository;
+function getUserRepo() {
+  if (!userRepo) userRepo = new UserRepository();
+  return userRepo;
+}
+
+/**
+ * Middleware that enforces email verification.
+ * Must be placed AFTER authenticate().
+ * Blocks the request with 403 EMAIL_NOT_VERIFIED if the user's email is not verified.
+ */
+export async function requireEmailVerified(req: Request, res: Response, next: NextFunction) {
+  try {
+    const user = await getUserRepo().findById(req.userId!);
+    if (!user?.emailVerified) {
+      throw new AppError(403, 'EMAIL_NOT_VERIFIED', 'Please verify your email address before continuing');
+    }
+    next();
+  } catch (error) {
+    next(error);
+  }
 }

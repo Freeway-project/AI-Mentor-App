@@ -2,7 +2,7 @@ import { Router, Request, Response, NextFunction } from 'express';
 import { MentorRepository, OfferRepository } from '@owl-mentors/database';
 import { createOfferSchema, updateOfferSchema } from '@owl-mentors/types';
 import { validate } from '../middleware/validation.middleware';
-import { authenticate, authorize } from '../middleware/auth.middleware';
+import { authenticate, authorize, requireEmailVerified } from '../middleware/auth.middleware';
 import { AppError } from '../middleware/error.middleware';
 
 const router: Router = Router();
@@ -20,7 +20,7 @@ function getOfferRepo() {
 }
 
 // List own offers
-router.get('/', authenticate, authorize('mentor'), async (req: Request, res: Response, next: NextFunction) => {
+router.get('/', authenticate, requireEmailVerified, authorize('mentor'), async (req: Request, res: Response, next: NextFunction) => {
   try {
     const mentor = await getMentorRepo().findByUserId(req.userId!);
     if (!mentor) {
@@ -39,7 +39,7 @@ router.get('/', authenticate, authorize('mentor'), async (req: Request, res: Res
 });
 
 // Create offer
-router.post('/', authenticate, authorize('mentor'), validate(createOfferSchema), async (req: Request, res: Response, next: NextFunction) => {
+router.post('/', authenticate, requireEmailVerified, authorize('mentor'), validate(createOfferSchema), async (req: Request, res: Response, next: NextFunction) => {
   try {
     const mentor = await getMentorRepo().findByUserId(req.userId!);
     if (!mentor) {
@@ -63,7 +63,7 @@ router.post('/', authenticate, authorize('mentor'), validate(createOfferSchema),
 });
 
 // Update offer
-router.put('/:offerId', authenticate, authorize('mentor'), validate(updateOfferSchema), async (req: Request, res: Response, next: NextFunction) => {
+router.put('/:offerId', authenticate, requireEmailVerified, authorize('mentor'), validate(updateOfferSchema), async (req: Request, res: Response, next: NextFunction) => {
   try {
     const mentor = await getMentorRepo().findByUserId(req.userId!);
     if (!mentor) {
@@ -87,7 +87,7 @@ router.put('/:offerId', authenticate, authorize('mentor'), validate(updateOfferS
 });
 
 // Delete offer
-router.delete('/:offerId', authenticate, authorize('mentor'), async (req: Request, res: Response, next: NextFunction) => {
+router.delete('/:offerId', authenticate, requireEmailVerified, authorize('mentor'), async (req: Request, res: Response, next: NextFunction) => {
   try {
     const mentor = await getMentorRepo().findByUserId(req.userId!);
     if (!mentor) {

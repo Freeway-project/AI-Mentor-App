@@ -1,8 +1,7 @@
 import type { Metadata } from 'next';
 import './globals.css';
 import { AppProviders } from './providers';
-import { Analytics } from '@vercel/analytics/next';
-import { SpeedInsights } from '@vercel/speed-insights/next';
+import { Toaster } from 'sonner';
 
 export const metadata: Metadata = {
   title: 'OWLMentors',
@@ -20,8 +19,7 @@ export default function RootLayout({
         <AppProviders>
           {children}
         </AppProviders>
-        {/* <Analytics /> */}
-        {/* <SpeedInsights /> */}
+        <Toaster position="top-center" richColors closeButton />
       </body>
     </html>
   );
