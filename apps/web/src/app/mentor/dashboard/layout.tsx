@@ -10,6 +10,7 @@ export default function MentorDashboardLayout({ children }: { children: React.Re
     const { user, loading } = useAuth();
     const router = useRouter();
     const [approvalStatus, setApprovalStatus] = useState<string>('pending');
+    const [profileLoaded, setProfileLoaded] = useState(false);
 
     useEffect(() => {
         if (loading) return;

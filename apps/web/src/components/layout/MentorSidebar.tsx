@@ -2,12 +2,13 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { Rocket, LayoutDashboard, User, Calendar, Settings, LogOut, Clock } from 'lucide-react';
+import { Rocket, LayoutDashboard, User, Calendar, Settings, LogOut, Clock, CalendarCheck } from 'lucide-react';
 import { useAuth } from '@/lib/auth-context';
 
 const NAV = [
     { href: '/mentor/dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { href: '/mentor/dashboard/profile', label: 'My Profile', icon: User },
+    { href: '/mentor/bookings', label: 'Bookings', icon: CalendarCheck },
     { href: '/mentor/dashboard/availability', label: 'Availability', icon: Calendar },
     { href: '/mentor/dashboard/settings', label: 'Settings', icon: Settings },
 ];
@@ -57,8 +58,8 @@ export function MentorSidebar({ approvalStatus }: MentorSidebarProps) {
                             key={href}
                             href={href}
                             className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${isActive
-                                    ? 'bg-gradient-to-r from-blue-600 to-emerald-600 text-white shadow-md shadow-blue-900/40'
-                                    : 'text-slate-400 hover:text-white hover:bg-white/8'
+                                ? 'bg-gradient-to-r from-blue-600 to-emerald-600 text-white shadow-md shadow-blue-900/40'
+                                : 'text-slate-400 hover:text-white hover:bg-white/8'
                                 }`}
                         >
                             <Icon className="w-4 h-4 shrink-0" />
