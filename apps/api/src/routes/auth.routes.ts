@@ -2,25 +2,32 @@ import { Router, Request, Response, NextFunction } from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
-import { UserRepository } from '@owl-mentors/database';
+import { UserRepository, OtpRepository } from '@owl-mentors/database';
 import {
   registerSchema, loginSchema, forgotPasswordSchema,
   resetPasswordSchema, verifyEmailSchema, googleAuthSchema,
+  verifyOtpSchema, sendOtpSchema,
 } from '@owl-mentors/types';
 import { logger } from '@owl-mentors/utils';
 import { validate } from '../middleware/validation.middleware';
 import { authenticate } from '../middleware/auth.middleware';
 import { authRateLimit } from '../middleware/rateLimit.middleware';
 import { AppError } from '../middleware/error.middleware';
+import { EmailService } from '../services/email.service';
 
 const router: Router = Router();
 
 let userRepo: UserRepository;
+let otpRepo: OtpRepository;
 function getUserRepo() {
   if (!userRepo) {
     userRepo = new UserRepository();
   }
   return userRepo;
+}
+function getOtpRepo() {
+  if (!otpRepo) otpRepo = new OtpRepository();
+  return otpRepo;
 }
 
 function generateToken(userId: string, email: string, roles: string[]) {
@@ -61,7 +68,6 @@ router.post('/register', authRateLimit, validate(registerSchema), async (req: Re
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
-    const verifyToken = crypto.randomBytes(32).toString('hex');
 
     const user = await getUserRepo().create({
       email,
@@ -69,10 +75,12 @@ router.post('/register', authRateLimit, validate(registerSchema), async (req: Re
       name,
       roles: [role],
       timezone,
-      verifyToken,
+      emailVerified: false,
     });
 
-    logger.info(`Email verification URL: /auth/verify-email?token=${verifyToken}`);
+    // Generate and send email OTP
+    const emailCode = await getOtpRepo().createOtp(user.id, 'email', email);
+    await EmailService.sendOtp(email, emailCode);
 
     const token = generateToken(user.id, user.email, user.roles);
 
@@ -84,10 +92,76 @@ router.post('/register', authRateLimit, validate(registerSchema), async (req: Re
           email: user.email,
           name: user.name,
           roles: user.roles,
+          emailVerified: false,
         },
         token,
+        nextStep: 'verify-email',
       },
     });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// Verify email OTP (mentee)
+router.post('/verify-otp', authenticate, async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const parsed = verifyOtpSchema.safeParse(req.body);
+    if (!parsed.success) {
+      throw new AppError(400, 'VALIDATION_ERROR', parsed.error.errors[0].message);
+    }
+
+    const { type, code } = parsed.data;
+    if (type !== 'email') {
+      throw new AppError(400, 'INVALID_TYPE', 'Only email OTP verification is supported');
+    }
+
+    const userId = req.userId!;
+    const valid = await getOtpRepo().verifyOtp(userId, type, code);
+    if (!valid) {
+      throw new AppError(400, 'INVALID_OTP', 'Invalid or expired OTP code');
+    }
+
+    await getUserRepo().markEmailVerified(userId);
+    const user = await getUserRepo().findById(userId);
+
+    res.json({
+      success: true,
+      data: {
+        verified: true,
+        emailVerified: user.emailVerified,
+        nextStep: 'browse',
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// Resend email OTP (mentee)
+router.post('/resend-otp', authRateLimit, authenticate, async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const parsed = sendOtpSchema.safeParse(req.body);
+    if (!parsed.success) {
+      throw new AppError(400, 'VALIDATION_ERROR', parsed.error.errors[0].message);
+    }
+
+    const { type } = parsed.data;
+    if (type !== 'email') {
+      throw new AppError(400, 'INVALID_TYPE', 'Only email OTP is supported');
+    }
+
+    const userId = req.userId!;
+    const user = await getUserRepo().findById(userId);
+
+    if (user.emailVerified) {
+      throw new AppError(400, 'ALREADY_VERIFIED', 'Email already verified');
+    }
+
+    const code = await getOtpRepo().createOtp(userId, 'email', user.email);
+    await EmailService.sendOtp(user.email, code);
+
+    res.json({ success: true, data: { message: 'OTP sent to your email' } });
   } catch (error) {
     next(error);
   }

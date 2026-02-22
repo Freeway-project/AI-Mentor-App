@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Navbar } from '@/components/layout/Navbar';
 import { Button } from '@/components/ui/button';
+import { Mail } from 'lucide-react';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 
@@ -60,22 +61,20 @@ function OtpInput({ onComplete }: { onComplete: (code: string) => void }) {
           value={d}
           onChange={(e) => handleChange(i, e.target.value)}
           onKeyDown={(e) => handleKeyDown(i, e)}
-          className="w-12 h-12 text-center text-xl font-bold border-2 border-slate-300 rounded-lg focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+          className="w-12 h-12 text-center text-xl font-bold border-2 border-slate-300 rounded-lg focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 text-slate-900 bg-white"
         />
       ))}
     </div>
   );
 }
 
-type Step = 'email' | 'phone' | 'done';
-
 export default function VerifyOtpPage() {
   const router = useRouter();
-  const [step, setStep] = useState<Step>('email');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
   const [resendCooldown, setResendCooldown] = useState(0);
+  const [done, setDone] = useState(false);
 
   const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : null;
 
@@ -89,25 +88,16 @@ export default function VerifyOtpPage() {
     return () => clearTimeout(t);
   }, [resendCooldown]);
 
-  const handleCode = async (type: 'email' | 'phone', code: string) => {
+  const handleCode = async (code: string) => {
     if (!token) return;
     setError('');
     setSuccess('');
     setLoading(true);
     try {
-      const data = await apiPost('verify-otp', { type, code }, token);
-      if (data.verified) {
-        setSuccess(`${type === 'email' ? 'Email' : 'Phone'} verified!`);
-        setTimeout(() => {
-          setSuccess('');
-          if (data.bothVerified) {
-            setStep('done');
-            setTimeout(() => router.push('/onboarding'), 1500);
-          } else if (type === 'email') {
-            setStep('phone');
-          }
-        }, 1000);
-      }
+      await apiPost('verify-otp', { type: 'email', code }, token);
+      setSuccess('Email verified!');
+      setDone(true);
+      setTimeout(() => router.push('/onboarding'), 1500);
     } catch (err: any) {
       setError(err.message || 'Invalid code');
     } finally {
@@ -115,20 +105,20 @@ export default function VerifyOtpPage() {
     }
   };
 
-  const handleResend = async (type: 'email' | 'phone') => {
+  const handleResend = async () => {
     if (!token || resendCooldown > 0) return;
     setError('');
     try {
-      await apiPost('resend-otp', { type }, token);
+      await apiPost('resend-otp', { type: 'email' }, token);
       setResendCooldown(60);
-      setSuccess(`New code sent to your ${type}`);
+      setSuccess('New code sent to your email');
       setTimeout(() => setSuccess(''), 3000);
     } catch (err: any) {
       setError(err.message || 'Failed to resend');
     }
   };
 
-  if (step === 'done') {
+  if (done) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-50">
         <div className="text-center space-y-3">
@@ -137,14 +127,12 @@ export default function VerifyOtpPage() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
             </svg>
           </div>
-          <h2 className="text-2xl font-bold text-slate-900">Identity Verified!</h2>
+          <h2 className="text-2xl font-bold text-slate-900">Email Verified!</h2>
           <p className="text-slate-600">Taking you to your profile setup...</p>
         </div>
       </div>
     );
   }
-
-  const currentType = step;
 
   return (
     <>
@@ -152,39 +140,25 @@ export default function VerifyOtpPage() {
       <div className="min-h-screen flex items-center justify-center bg-slate-50 px-4">
         <div className="w-full max-w-md space-y-8">
           <div className="text-center">
-            <div className={`inline-flex items-center justify-center w-12 h-12 rounded-full mb-4 ${currentType === 'email' ? 'bg-blue-100' : 'bg-purple-100'}`}>
-              {currentType === 'email' ? (
-                <svg className="w-6 h-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                </svg>
-              ) : (
-                <svg className="w-6 h-6 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-                </svg>
-              )}
+            <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-blue-100 mb-4">
+              <Mail className="w-6 h-6 text-blue-600" />
             </div>
-            <h1 className="text-2xl font-bold text-slate-900">
-              Verify your {currentType === 'email' ? 'email' : 'phone'}
-            </h1>
-            <p className="mt-2 text-slate-600">
-              {currentType === 'email'
-                ? "We've sent a 6-digit code to your email address"
-                : "We've sent a 6-digit code to your phone number"}
+            <h1 className="text-2xl font-bold text-slate-900">Verify your email</h1>
+            <p className="mt-2 text-slate-600 text-sm">
+              We&apos;ve sent a 6-digit code to your email address
             </p>
           </div>
 
           {/* Step indicator */}
           <div className="flex items-center justify-center gap-2">
-            <div className={`flex items-center gap-1.5 text-sm ${step === 'email' ? 'text-blue-600 font-medium' : 'text-slate-400 line-through'}`}>
-              <span className={`w-5 h-5 rounded-full flex items-center justify-center text-xs ${step === 'email' ? 'bg-blue-600 text-white' : 'bg-slate-200 text-slate-500'}`}>
-                {step === 'email' ? '1' : '✓'}
-              </span>
-              Email
+            <div className="flex items-center gap-1.5 text-sm text-blue-600 font-medium">
+              <span className="w-5 h-5 rounded-full flex items-center justify-center text-xs bg-blue-600 text-white">2</span>
+              Verify email
             </div>
             <span className="w-8 h-px bg-slate-300" />
-            <div className={`flex items-center gap-1.5 text-sm ${step === 'phone' ? 'text-purple-600 font-medium' : 'text-slate-400'}`}>
-              <span className={`w-5 h-5 rounded-full flex items-center justify-center text-xs ${step === 'phone' ? 'bg-purple-600 text-white' : 'bg-slate-200 text-slate-500'}`}>2</span>
-              Phone
+            <div className="flex items-center gap-1.5 text-sm text-slate-400">
+              <span className="w-5 h-5 rounded-full flex items-center justify-center text-xs bg-slate-200 text-slate-500">3</span>
+              Complete profile
             </div>
           </div>
 
@@ -201,10 +175,7 @@ export default function VerifyOtpPage() {
           )}
 
           <div className="space-y-6">
-            <OtpInput
-              key={step}
-              onComplete={(code) => handleCode(currentType, code)}
-            />
+            <OtpInput key="email" onComplete={handleCode} />
 
             {loading && (
               <p className="text-center text-sm text-slate-500">Verifying...</p>
@@ -218,7 +189,7 @@ export default function VerifyOtpPage() {
                 ) : (
                   <button
                     type="button"
-                    onClick={() => handleResend(currentType)}
+                    onClick={handleResend}
                     className="text-blue-600 hover:underline font-medium"
                   >
                     Resend
