@@ -15,11 +15,27 @@ services:
     ports:
       - '27018:27017'
     healthcheck:
-      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      test: [ "CMD", "mongosh", "--eval", "db.adminCommand('ping')" ]
       interval: 10s
       timeout: 5s
       retries: 5
       start_period: 10s
+
+  # ── Redis ───────────────────────────────────────────────────────────────────
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    # Port exposed only for local dev/debugging. Remove in production.
+    ports:
+      - '6379:6379'
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
 
   # ── API ─────────────────────────────────────────────────────────────────────
   api:
@@ -28,18 +44,21 @@ services:
       dockerfile: docker/api.Dockerfile
     restart: unless-stopped
     env_file:
-      - .env          # docker/.env  (copy from .env.example and fill in)
+      - .env # docker/.env  (copy from .env.example and fill in)
     environment:
       NODE_ENV: production
       PORT: 3001
       MONGODB_URI: mongodb://mongo:27017/mentor-app
       MONGODB_DB_NAME: mentor-app
+      REDIS_URL: redis://redis:6379
     ports:
       - '6001:3001'
     depends_on:
       mongo:
         condition: service_healthy
-
+      redis:
+        condition: service_healthy
 
 volumes:
   mongo_data:
+  redis_data:
