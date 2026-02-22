@@ -11,9 +11,6 @@ const nextConfig = {
       { protocol: 'https', hostname: 'i.pravatar.cc' },
     ],
   },
-  experimental: {
-    instrumentationHook: true,
-  },
 };
 
 export default nextConfig;
