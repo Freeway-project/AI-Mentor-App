@@ -77,7 +77,9 @@ router.put('/me', authenticate, authorize('mentor'), validate(updateMentorSchema
       throw new AppError(404, 'NOT_FOUND', 'Mentor profile not found');
     }
 
-    const updated = await getMentorRepo().update(mentor.id, req.body);
+    // Any profile change resets approval to pending (requires re-review)
+    const updatePayload = { ...req.body, approvalStatus: 'pending' };
+    await getMentorRepo().update(mentor.id, updatePayload);
 
     // Advance onboarding step if on profile step
     if (mentor.onboardingStep === 'profile') {

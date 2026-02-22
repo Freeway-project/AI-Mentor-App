@@ -82,6 +82,9 @@ router.post('/register', authRateLimit, async (req: Request, res: Response, next
     const emailCode = await getOtpRepo().createOtp(user.id, 'email', email);
     await EmailService.sendOtp(email, emailCode);
 
+    // Notify admin of new mentor signup (non-blocking)
+    EmailService.notifyAdminNewMentor({ name: user.name, email: user.email }).catch(() => { });
+
     const token = generateToken(user.id, user.email, user.roles);
 
     res.status(201).json({
