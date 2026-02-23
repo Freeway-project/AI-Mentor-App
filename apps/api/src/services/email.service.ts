@@ -301,6 +301,65 @@ export const EmailService = {
     }
   },
 
+  async notifyAdminReviewReply(params: {
+    mentorName: string;
+    mentorEmail: string;
+    mentorId: string;
+    message: string;
+  }): Promise<void> {
+    const adminEmail = process.env.ADMIN_NOTIFICATION_EMAIL;
+    if (!adminEmail) {
+      logger.info(`[ADMIN REVIEW REPLY] ${params.mentorName} <${params.mentorEmail}> replied (no admin email configured)`);
+      return;
+    }
+
+    const fromName = process.env.SMTP_FROM_NAME || 'OWLMentors';
+    const fromEmail = process.env.SMTP_FROM_EMAIL || process.env.SMTP_FROM || 'noreply@owlmentors.com';
+    const from = `${fromName} <${fromEmail}>`;
+    const adminUrl = process.env.ADMIN_URL || 'http://localhost:3000/admin';
+    const reviewUrl = `${adminUrl}/coaches/${params.mentorId}`;
+    const messagePreview = escapeHtml(params.message.trim()).slice(0, 280);
+
+    const subject = `Mentor replied in review chat: ${params.mentorName}`;
+    const html = `
+      <div style="font-family:sans-serif;max-width:540px;margin:auto;padding:32px">
+        <h2 style="color:#0f172a;font-size:22px;margin-bottom:6px">Mentor replied to review feedback</h2>
+        <p style="color:#475569;margin-bottom:18px">
+          <strong>${escapeHtml(params.mentorName)}</strong> (${escapeHtml(params.mentorEmail)}) sent a new message in the profile review chat.
+        </p>
+        <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:14px 16px;margin-bottom:20px">
+          <p style="color:#64748b;font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:0.4px;margin:0 0 8px">Mentor message</p>
+          <p style="color:#0f172a;font-size:14px;line-height:1.6;margin:0;white-space:pre-wrap">${messagePreview}</p>
+        </div>
+        <a href="${reviewUrl}"
+          style="display:inline-block;padding:12px 24px;background:#2563eb;color:#fff;border-radius:8px;text-decoration:none;font-weight:600;font-size:14px">
+          Open admin review page →
+        </a>
+      </div>
+    `;
+
+    const transport = createTransport();
+    if (transport) {
+      try {
+        await transport.sendMail({ from, to: adminEmail, subject, html });
+        logger.info(`[ADMIN REVIEW REPLY] Sent to ${adminEmail} for mentor ${params.mentorEmail}`);
+        return;
+      } catch (error) {
+        logger.error(`[ADMIN REVIEW REPLY] SMTP failed: ${(error as Error).message}`);
+        logger.warn('[ADMIN REVIEW REPLY] Falling back to Ethereal dev transport...');
+      }
+    }
+
+    try {
+      const devTransport = await getDevTransport();
+      const info = await devTransport.sendMail({ from, to: adminEmail, subject, html });
+      const previewUrl = nodemailer.getTestMessageUrl(info);
+      logger.info(`[ADMIN REVIEW REPLY DEV] Sent to ${adminEmail} | Preview: ${previewUrl}`);
+    } catch (err) {
+      logger.warn(`[ADMIN REVIEW REPLY FALLBACK] Could not send to ${adminEmail}: ${(err as Error).message}`);
+    }
+  },
+
   /**
    * Send a marketing email to a recipient, wrapping the body in a mandatory
    * professional header + footer with CTA buttons for mentor/mentee signup.

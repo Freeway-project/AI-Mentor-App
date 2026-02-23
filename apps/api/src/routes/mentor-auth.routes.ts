@@ -8,6 +8,7 @@ import { AppError } from '../middleware/error.middleware';
 import { authRateLimit } from '../middleware/rateLimit.middleware';
 import { EmailService } from '../services/email.service';
 import { ReviewMessageModel, toReviewMessage } from '../../../../packages/database/src/models/review-message.model';
+import { logger } from '@owl-mentors/utils';
 
 const router: Router = Router();
 
@@ -18,6 +19,13 @@ let otpRepo: OtpRepository;
 function getUserRepo() { if (!userRepo) userRepo = new UserRepository(); return userRepo; }
 function getMentorRepo() { if (!mentorRepo) mentorRepo = new MentorRepository(); return mentorRepo; }
 function getOtpRepo() { if (!otpRepo) otpRepo = new OtpRepository(); return otpRepo; }
+
+async function requireOwnMentorThread(userId: string, mentorId: string) {
+  const mentor = await getMentorRepo().findByUserId(userId);
+  if (!mentor) throw new AppError(404, 'NOT_FOUND', 'Mentor profile not found');
+  if (mentor.id !== mentorId) throw new AppError(403, 'FORBIDDEN', 'You can only access your own review thread');
+  return mentor;
+}
 
 function generateToken(userId: string, email: string, roles: string[]) {
   const secret = process.env.JWT_SECRET;
@@ -198,6 +206,7 @@ router.get('/verification-status', authenticate, async (req: Request, res: Respo
 // GET /mentor-auth/review-messages/:mentorId — get the review thread for this mentor
 router.get('/review-messages/:mentorId', authenticate, async (req: Request, res: Response, next: NextFunction) => {
   try {
+    await requireOwnMentorThread(req.userId!, req.params.mentorId);
     const msgs = await ReviewMessageModel
       .find({ mentorId: req.params.mentorId })
       .sort({ createdAt: 1 })
@@ -209,16 +218,38 @@ router.get('/review-messages/:mentorId', authenticate, async (req: Request, res:
 // POST /mentor-auth/review-messages/:mentorId — mentor sends a reply
 router.post('/review-messages/:mentorId', authenticate, async (req: Request, res: Response, next: NextFunction) => {
   try {
+    const mentor = await requireOwnMentorThread(req.userId!, req.params.mentorId);
     const { content } = req.body;
     if (!content?.trim()) throw new AppError(400, 'VALIDATION_ERROR', 'Message content is required');
+    const trimmedContent = content.trim();
     const msg = await ReviewMessageModel.create({
       mentorId: req.params.mentorId,
       senderId: req.userId!,
       senderRole: 'mentor',
-      content: content.trim(),
+      content: trimmedContent,
       readByMentor: true,
       readByAdmin: false,
     });
+
+    // Notify admin by email (non-blocking) that the mentor replied
+    (async () => {
+      try {
+        const user = await getUserRepo().findById(req.userId!);
+        await EmailService.notifyAdminReviewReply({
+          mentorName: mentor.name || user.name,
+          mentorEmail: user.email,
+          mentorId: mentor.id,
+          message: trimmedContent,
+        });
+      } catch (err) {
+        logger.warn('Mentor review reply email notification failed', {
+          mentorId: req.params.mentorId,
+          userId: req.userId,
+          error: err instanceof Error ? err.message : String(err),
+        });
+      }
+    })();
+
     res.status(201).json({ success: true, data: toReviewMessage(msg) });
   } catch (error) { next(error); }
 });
@@ -226,6 +257,7 @@ router.post('/review-messages/:mentorId', authenticate, async (req: Request, res
 // PATCH /mentor-auth/review-messages/:mentorId/read — mark all admin messages as read
 router.patch('/review-messages/:mentorId/read', authenticate, async (_req: Request, res: Response, next: NextFunction) => {
   try {
+    await requireOwnMentorThread(_req.userId!, _req.params.mentorId);
     await ReviewMessageModel.updateMany(
       { mentorId: _req.params.mentorId, readByMentor: false },
       { $set: { readByMentor: true } }
