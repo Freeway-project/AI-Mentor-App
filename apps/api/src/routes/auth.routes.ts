@@ -385,6 +385,7 @@ router.post('/google', validate(googleAuthSchema), async (req: Request, res: Res
         email,
         name: name || email.split('@')[0],
         roles: ['mentee'],
+        avatar: picture,
         emailVerified: true,
         oauthProviders: [{ provider: 'google', providerId: googleId! }],
       });
@@ -400,7 +401,7 @@ router.post('/google', validate(googleAuthSchema), async (req: Request, res: Res
           email: user.email,
           name: user.name,
           roles: user.roles,
-          avatar: user.avatar || picture,
+          avatar: user.avatar,
         },
         token,
       },

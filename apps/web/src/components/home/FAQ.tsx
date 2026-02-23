@@ -35,14 +35,20 @@ export function FAQ() {
     };
 
     return (
-        <section id="faq" className="py-16 md:py-24 bg-slate-900 border-t border-slate-800">
-            <div className="container mx-auto px-4 md:px-6 max-w-3xl">
-                <div className="text-center mb-12 space-y-4">
+        <section id="faq" className="py-20 md:py-28 relative overflow-hidden"
+            style={{ background: 'linear-gradient(180deg, #0d0f1e 0%, #0a0a1a 100%)' }}
+        >
+            <div className="absolute inset-0 pointer-events-none">
+                <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-indigo-500/30 to-transparent" />
+            </div>
+            <div className="container mx-auto px-4 md:px-6 max-w-3xl relative z-10">
+                <div className="text-center mb-12 space-y-3">
+                    <p className="text-violet-400 text-sm font-semibold uppercase tracking-widest">FAQ</p>
                     <h2 className="text-3xl font-bold tracking-tight text-white sm:text-4xl">
                         Frequently Asked Questions
                     </h2>
                     <p className="text-lg text-slate-400">
-                        Everything you need to know about the product and billing.
+                        Everything you need to know about the platform.
                     </p>
                 </div>
 
@@ -50,7 +56,10 @@ export function FAQ() {
                     {faqs.map((faq, index) => (
                         <div
                             key={index}
-                            className="border border-slate-700 bg-slate-800/50 rounded-lg overflow-hidden transition-all duration-200 hover:border-slate-600 hover:shadow-sm"
+                            className={`border rounded-xl overflow-hidden transition-all duration-200 ${openIndex === index
+                                    ? 'border-violet-500/40 bg-violet-500/5 shadow-[0_0_20px_rgba(139,92,246,0.07)]'
+                                    : 'border-slate-800/80 bg-slate-900/40 hover:border-slate-700'
+                                }`}
                         >
                             <button
                                 onClick={() => toggleFAQ(index)}

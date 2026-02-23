@@ -2,12 +2,18 @@ import { User, UserRole, UpdateUserInput } from '@owl-mentors/types';
 import { logger } from '@owl-mentors/utils';
 import { UserModel, IUserDocument, toUser } from '../models/user.model';
 
+function defaultAvatar(name: string): string {
+  const seed = encodeURIComponent(name);
+  return `https://api.dicebear.com/9.x/initials/svg?seed=${seed}&backgroundColor=1e40af`;
+}
+
 export class UserRepository {
   async create(data: {
     email: string;
     password?: string;
     name: string;
     roles: UserRole[];
+    avatar?: string;
     timezone?: string;
     phone?: string;
     emailVerified?: boolean;
@@ -22,6 +28,7 @@ export class UserRepository {
         password: data.password,
         name: data.name,
         roles: data.roles,
+        avatar: data.avatar ?? defaultAvatar(data.name),
         timezone: data.timezone || 'UTC',
         phone: data.phone,
         emailVerified: data.emailVerified || false,

@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { useRef } from 'react';
-import { Sparkles, ArrowRight } from 'lucide-react';
+import { Sparkles, ArrowRight, Star } from 'lucide-react';
 
 export function Hero() {
     const containerRef = useRef<HTMLDivElement>(null);
@@ -32,9 +32,25 @@ export function Hero() {
     const sparkY = useTransform(scrollYProgress, [0, 0.8], ['0%', '100%']);
 
     return (
-        <section ref={containerRef} className="relative bg-slate-950 pb-32 min-h-[150vh] flex flex-col pt-24 lg:pt-32">
-            {/* Dark background base */}
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_var(--tw-gradient-stops))] from-indigo-900/20 via-slate-950 to-slate-950 pointer-events-none" />
+        <section ref={containerRef} className="relative overflow-hidden pb-32 min-h-[150vh] flex flex-col pt-24 lg:pt-32"
+            style={{
+                background: 'linear-gradient(135deg, #0a0a1a 0%, #0d1117 30%, #0f0b1e 60%, #0a0e1a 100%)'
+            }}
+        >
+            {/* Deep space base */}
+            <div className="absolute inset-0 pointer-events-none">
+                {/* Subtle dot grid */}
+                <div className="absolute inset-0 opacity-[0.15]" style={{ backgroundImage: 'radial-gradient(circle, #475569 1px, transparent 1px)', backgroundSize: '36px 36px' }} />
+
+                {/* Aurora blob 1 - violet */}
+                <div className="absolute -top-40 -left-40 w-[700px] h-[700px] rounded-full bg-violet-600/10 blur-[120px] animate-pulse" />
+                {/* Aurora blob 2 - indigo */}
+                <div className="absolute top-1/3 -right-40 w-[600px] h-[600px] rounded-full bg-indigo-500/10 blur-[100px]" style={{ animationDelay: '1s' }} />
+                {/* Aurora blob 3 - amber accent bottom */}
+                <div className="absolute -bottom-20 left-1/3 w-[500px] h-[400px] rounded-full bg-amber-500/5 blur-[100px]" />
+                {/* Thin top accent line */}
+                <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-indigo-500/40 to-transparent" />
+            </div>
 
             <div className="container mx-auto px-4 md:px-6 relative z-10 sticky top-32">
                 <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-start">
@@ -45,7 +61,7 @@ export function Hero() {
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.6 }}
-                            className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-indigo-500/10 text-indigo-300 text-sm font-medium border border-indigo-500/20"
+                            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-violet-500/10 text-violet-300 text-sm font-medium border border-violet-500/20 shadow-[0_0_20px_rgba(139,92,246,0.1)]"
                         >
                             <Sparkles className="w-4 h-4 text-amber-400" />
                             Ignite your potential today
@@ -55,9 +71,9 @@ export function Hero() {
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.6, delay: 0.1 }}
-                            className="text-4xl font-extrabold tracking-tight text-white sm:text-5xl md:text-6xl max-w-2xl mx-auto lg:mx-0 leading-tight"
+                            className="text-4xl font-extrabold tracking-tight text-white sm:text-5xl md:text-6xl max-w-2xl mx-auto lg:mx-0 leading-[1.15]"
                         >
-                            The <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-amber-400 to-amber-500">lighted path</span> to your next career breakthrough
+                            The <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-300 via-amber-300 to-amber-500">lighted path</span> to your next career breakthrough
                         </motion.h1>
 
                         <motion.p
@@ -68,6 +84,39 @@ export function Hero() {
                         >
                             Don&apos;t wander in the dark. Match with an elite industry mentor who will illuminate the exact steps to reach your goals.
                         </motion.p>
+
+                        {/* CTA Buttons */}
+                        <motion.div
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.6, delay: 0.35 }}
+                            className="flex flex-col sm:flex-row gap-3 justify-center lg:justify-start"
+                        >
+                            <Button size="lg" className="bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold px-7 rounded-full shadow-[0_0_30px_rgba(245,158,11,0.3)] hover:shadow-[0_0_40px_rgba(245,158,11,0.5)] transition-all gap-2 group" asChild>
+                                <Link href="/browse">
+                                    Find a Mentor
+                                    <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                                </Link>
+                            </Button>
+                            <Button size="lg" variant="outline" className="border-slate-700 text-slate-300 hover:text-white hover:border-slate-500 hover:bg-slate-800/50 rounded-full" asChild>
+                                <Link href="/register">Become a Mentor</Link>
+                            </Button>
+                        </motion.div>
+
+                        {/* Trust signal */}
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            transition={{ delay: 0.6 }}
+                            className="flex items-center gap-2 justify-center lg:justify-start text-sm text-slate-500"
+                        >
+                            <Star className="w-4 h-4 text-amber-500 fill-amber-500" />
+                            <Star className="w-4 h-4 text-amber-500 fill-amber-500" />
+                            <Star className="w-4 h-4 text-amber-500 fill-amber-500" />
+                            <Star className="w-4 h-4 text-amber-500 fill-amber-500" />
+                            <Star className="w-4 h-4 text-amber-500 fill-amber-500" />
+                            <span className="ml-1"><strong className="text-slate-300">4.9/5</strong> from 2,400+ sessions</span>
+                        </motion.div>
                     </div>
 
                     {/* Right Interactive Visual Area */}
