@@ -4,12 +4,16 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { apiClient } from '@/lib/api-client';
 import { useAuth } from '@/lib/auth-context';
+import { useDispatch } from 'react-redux';
+import { login as reduxLogin } from '@/store/slices/auth.slice';
+import type { AppDispatch } from '@/store';
 import { toast } from 'sonner';
 import { Shield } from 'lucide-react';
 
 export default function AdminLoginPage() {
     const router = useRouter();
-    const { user, loading } = useAuth();
+    const { login: ctxLogin, user, loading } = useAuth();
+    const dispatch = useDispatch<AppDispatch>();
     const [form, setForm] = useState({ email: '', password: '' });
     const [submitting, setSubmitting] = useState(false);
 
@@ -24,13 +28,18 @@ export default function AdminLoginPage() {
         e.preventDefault();
         setSubmitting(true);
         try {
-            const data = await apiClient.login(form.email, form.password);
-            if (!data.user?.roles?.includes('admin')) {
+            // Update both Redux store and auth-context so a refresh isn't needed
+            const result = await dispatch(reduxLogin({ email: form.email, password: form.password })).unwrap();
+
+            if (!result.user?.roles?.includes('admin')) {
                 toast.error('Access denied: admin account required');
                 apiClient.clearToken();
                 return;
             }
-            apiClient.setToken(data.token);
+
+            // Sync with Provider
+            await ctxLogin(form.email, form.password);
+
             toast.success('Welcome, admin!');
             router.push('/admin');
         } catch (err: any) {
