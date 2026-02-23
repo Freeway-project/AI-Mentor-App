@@ -72,10 +72,10 @@ export function ReviewChat({ mentorId, viewAs, contextLabel }: ReviewChatProps) 
     };
 
     return (
-        <div className="flex flex-col h-full bg-white rounded-xl border border-slate-200 overflow-hidden">
+        <div className="flex flex-col h-full bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
 
             {/* Header */}
-            <div className="px-4 py-3 border-b border-slate-100 bg-slate-50">
+            <div className="px-4 py-2.5 border-b border-slate-100 bg-slate-50">
                 <p className="text-sm font-semibold text-slate-800">
                     {viewAs === 'admin' ? 'Review Chat with Mentor' : 'Chat with OWLMentors Admin'}
                 </p>
@@ -85,7 +85,7 @@ export function ReviewChat({ mentorId, viewAs, contextLabel }: ReviewChatProps) 
             </div>
 
             {/* Messages */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-3 min-h-0">
+            <div className="flex-1 overflow-y-auto p-3 space-y-2.5 min-h-0 bg-slate-50/60">
                 {isLoading ? (
                     <div className="flex justify-center py-8">
                         <div className="w-6 h-6 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
@@ -105,9 +105,9 @@ export function ReviewChat({ mentorId, viewAs, contextLabel }: ReviewChatProps) 
                         return (
                             <div key={msg.id} className={`flex ${isMe ? 'justify-end' : 'justify-start'}`}>
                                 <div
-                                    className={`max-w-[80%] rounded-2xl px-4 py-2.5 text-sm leading-relaxed ${isMe
-                                            ? 'bg-blue-600 text-white rounded-br-none'
-                                            : 'bg-slate-100 text-slate-800 rounded-bl-none'
+                                    className={`max-w-[85%] rounded-2xl px-3.5 py-2 text-sm leading-relaxed border ${isMe
+                                            ? 'bg-blue-600 text-white rounded-br-none border-blue-600'
+                                            : 'bg-white text-slate-800 rounded-bl-none border-slate-200'
                                         }`}
                                 >
                                     <p>{msg.content}</p>
@@ -128,22 +128,22 @@ export function ReviewChat({ mentorId, viewAs, contextLabel }: ReviewChatProps) 
             {/* Input */}
             <form
                 onSubmit={handleSend}
-                className="flex items-end gap-2 px-4 py-3 border-t border-slate-100 bg-slate-50"
+                className="flex items-end gap-2 px-3 py-2.5 border-t border-slate-100 bg-white"
             >
                 <textarea
-                    rows={2}
+                    rows={1}
                     value={text}
                     onChange={(e) => setText(e.target.value)}
                     onKeyDown={(e) => {
                         if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); }
                     }}
-                    placeholder="Type a message… (Enter to send)"
-                    className="flex-1 resize-none px-3 py-2 text-sm text-slate-900 bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 placeholder:text-slate-400"
+                    placeholder="Reply… (Enter to send)"
+                    className="flex-1 resize-none px-3 py-2 text-sm text-slate-900 bg-slate-50 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 placeholder:text-slate-400 min-h-[40px] max-h-28"
                 />
                 <button
                     type="submit"
                     disabled={!text.trim() || send.isPending}
-                    className="w-9 h-9 rounded-lg bg-blue-600 text-white flex items-center justify-center disabled:opacity-40 hover:bg-blue-700 transition-colors shrink-0"
+                    className="w-10 h-10 rounded-lg bg-blue-600 text-white flex items-center justify-center disabled:opacity-40 hover:bg-blue-700 transition-colors shrink-0"
                 >
                     <Send className="w-4 h-4" />
                 </button>

@@ -8,19 +8,28 @@ import { StatusBadge } from '@/components/admin/StatusBadge';
 import { Button } from '@/components/ui/button';
 import {
     ArrowLeft, Star, Globe, DollarSign, Clock,
-    CheckCircle2, XCircle, FileText, Video, User, Mail, Phone,
+    CheckCircle2, XCircle, FileText, Video, User, Mail, Phone, Circle,
 } from 'lucide-react';
 import Link from 'next/link';
 import { ReviewChat } from '@/components/admin/ReviewChat';
 
 const DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+const REVIEW_STEPS = [
+    { key: 'overview', label: 'Overview' },
+    { key: 'profile', label: 'Profile' },
+    { key: 'availability', label: 'Availability' },
+    { key: 'policies', label: 'Policies' },
+    { key: 'offers', label: 'Offers' },
+    { key: 'verification', label: 'Verification' },
+] as const;
+type ReviewStepKey = (typeof REVIEW_STEPS)[number]['key'];
 
-function Section({ title, children }: { title: string; children: React.ReactNode }) {
+function Section({ title, children, id }: { title: string; children: React.ReactNode; id?: string }) {
     return (
-        <div className="bg-white rounded-xl border border-slate-200 p-5 space-y-3">
+        <section id={id} className="bg-white rounded-xl border border-slate-200 p-5 space-y-3 scroll-mt-24">
             <h2 className="font-semibold text-slate-500 text-xs uppercase tracking-wider mb-3">{title}</h2>
             {children}
-        </div>
+        </section>
     );
 }
 
@@ -41,6 +50,23 @@ function Row({ label, value }: { label: string; value: React.ReactNode }) {
     );
 }
 
+function ReviewChecklistItem({ label, done }: { label: string; done: boolean }) {
+    return (
+        <div className="flex items-center justify-between gap-2 py-2">
+            <span className="text-sm text-slate-700">{label}</span>
+            {done ? (
+                <span className="inline-flex items-center gap-1 text-emerald-700 text-xs font-semibold">
+                    <CheckCircle2 className="w-3.5 h-3.5" /> Done
+                </span>
+            ) : (
+                <span className="inline-flex items-center gap-1 text-slate-400 text-xs font-medium">
+                    <Circle className="w-3.5 h-3.5" /> Missing
+                </span>
+            )}
+        </div>
+    );
+}
+
 export default function MentorReviewPage() {
     const { id } = useParams<{ id: string }>();
     const router = useRouter();
@@ -48,6 +74,7 @@ export default function MentorReviewPage() {
 
     const [rejectNote, setRejectNote] = useState('');
     const [showRejectForm, setShowRejectForm] = useState(false);
+    const [activeReviewStep, setActiveReviewStep] = useState<ReviewStepKey>('overview');
 
     const { data: mentor, isLoading, isError } = useQuery({
         queryKey: ['admin-coach-detail', id],
@@ -108,6 +135,16 @@ export default function MentorReviewPage() {
             ? mentor.availability.slots
             : [];
     const dataWarnings: string[] = Array.isArray(mentor.dataWarnings) ? mentor.dataWarnings : [];
+    const checklist = [
+        { label: 'Profile basics', done: Boolean(mentor.headline || mentor.bio) },
+        { label: 'Specialties / expertise', done: Boolean((mentor.specialties?.length || 0) + (mentor.expertise?.length || 0)) },
+        { label: 'Availability', done: schedule.length > 0 },
+        { label: 'Policies', done: Boolean(policy) },
+        { label: 'Session offers', done: offers.length > 0 },
+        { label: 'Verification assets', done: certs.length > 0 || Boolean(mentor.introVideoUrl) },
+    ];
+    const currentStepIndex = REVIEW_STEPS.findIndex((s) => s.key === activeReviewStep);
+    const currentStep = REVIEW_STEPS[currentStepIndex] || REVIEW_STEPS[0];
 
     return (
         <div className="p-6 md:p-8 max-w-5xl mx-auto space-y-6">
@@ -227,52 +264,104 @@ export default function MentorReviewPage() {
                 </div>
             )}
 
+            {/* Step-style review navigation */}
+            <div className="bg-white rounded-xl border border-slate-200 p-3">
+                <div className="flex flex-wrap gap-2">
+                    {REVIEW_STEPS.map((step, idx) => (
+                        <button
+                            key={step.key}
+                            type="button"
+                            onClick={() => setActiveReviewStep(step.key)}
+                            className={`inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-medium transition-colors ${activeReviewStep === step.key
+                                ? 'border-blue-200 bg-blue-50 text-blue-700'
+                                : 'border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100'
+                                }`}
+                        >
+                            <span className={`inline-flex h-5 w-5 items-center justify-center rounded-full border text-[10px] ${activeReviewStep === step.key
+                                ? 'bg-white border-blue-200 text-blue-600'
+                                : 'bg-white border-slate-200 text-slate-500'
+                                }`}>
+                                {idx + 1}
+                            </span>
+                            {step.label}
+                        </button>
+                    ))}
+                </div>
+                <div className="mt-3 flex items-center justify-between border-t border-slate-100 pt-3">
+                    <p className="text-xs text-slate-500">
+                        Step {currentStepIndex + 1} of {REVIEW_STEPS.length}: <span className="font-semibold text-slate-700">{currentStep.label}</span>
+                    </p>
+                    <div className="flex gap-2">
+                        <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            disabled={currentStepIndex <= 0}
+                            onClick={() => setActiveReviewStep(REVIEW_STEPS[Math.max(0, currentStepIndex - 1)].key)}
+                        >
+                            Previous
+                        </Button>
+                        <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            disabled={currentStepIndex >= REVIEW_STEPS.length - 1}
+                            onClick={() => setActiveReviewStep(REVIEW_STEPS[Math.min(REVIEW_STEPS.length - 1, currentStepIndex + 1)].key)}
+                        >
+                            Next
+                        </Button>
+                    </div>
+                </div>
+            </div>
+
             <div className="grid lg:grid-cols-3 gap-6">
                 {/* Left col: all profile data */}
                 <div className="lg:col-span-2 space-y-5">
 
-                    {/* Overview stats */}
-                    <Section title="Overview">
-                        <Row label="Onboarding step" value={mentor.onboardingStep} />
-                        <Row label="Approval status" value={mentor.approvalStatus} />
-                        <Row label="Active / Live" value={mentor.isActive ? 'Yes' : 'No'} />
-                        <Row label="Hourly rate" value={mentor.hourlyRate != null ? `$${mentor.hourlyRate} / hr` : null} />
-                        <Row label="Timezone" value={mentor.availability?.timezone} />
-                        <Row label="Rating" value={mentor.rating != null ? `${mentor.rating.toFixed(1)} ★ (${mentor.totalReviews} reviews)` : null} />
-                        <Row label="Sessions" value={mentor.totalMeetings ?? 0} />
-                        <Row label="Joined" value={mentor.createdAt ? new Date(mentor.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : null} />
-                    </Section>
-
-                    {/* Bio */}
-                    <Section title="Bio">
-                        {mentor.bio
-                            ? <p className="text-sm text-slate-700 leading-relaxed whitespace-pre-wrap">{mentor.bio}</p>
-                            : <p className="text-sm italic text-slate-300">No bio provided</p>}
-                    </Section>
-
-                    {/* Specialties + Expertise */}
-                    <div className="grid md:grid-cols-2 gap-5">
-                        <Section title="Specialties">
-                            {mentor.specialties?.length > 0
-                                ? <div className="flex flex-wrap gap-2">{mentor.specialties.map((s: string) => <Tag key={s} label={s} />)}</div>
-                                : <p className="text-sm italic text-slate-300">None listed</p>}
+                    {activeReviewStep === 'overview' && (
+                        <Section id="overview" title="Overview">
+                            <Row label="Onboarding step" value={mentor.onboardingStep} />
+                            <Row label="Approval status" value={mentor.approvalStatus} />
+                            <Row label="Active / Live" value={mentor.isActive ? 'Yes' : 'No'} />
+                            <Row label="Hourly rate" value={mentor.hourlyRate != null ? `$${mentor.hourlyRate} / hr` : null} />
+                            <Row label="Timezone" value={mentor.availability?.timezone} />
+                            <Row label="Rating" value={mentor.rating != null ? `${mentor.rating.toFixed(1)} ★ (${mentor.totalReviews} reviews)` : null} />
+                            <Row label="Sessions" value={mentor.totalMeetings ?? 0} />
+                            <Row label="Joined" value={mentor.createdAt ? new Date(mentor.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : null} />
                         </Section>
-                        <Section title="Expertise">
-                            {mentor.expertise?.length > 0
-                                ? <div className="flex flex-wrap gap-2">{mentor.expertise.map((e: string) => <Tag key={e} label={e} />)}</div>
-                                : <p className="text-sm italic text-slate-300">None listed</p>}
-                        </Section>
-                    </div>
+                    )}
 
-                    {/* Languages */}
-                    <Section title="Languages">
-                        {mentor.languages?.length > 0
-                            ? <div className="flex flex-wrap gap-2">{mentor.languages.map((l: string) => <Tag key={l} label={l} />)}</div>
-                            : <p className="text-sm italic text-slate-300">None listed</p>}
-                    </Section>
+                    {activeReviewStep === 'profile' && (
+                        <>
+                            <Section id="profile" title="Bio">
+                                {mentor.bio
+                                    ? <p className="text-sm text-slate-700 leading-relaxed whitespace-pre-wrap">{mentor.bio}</p>
+                                    : <p className="text-sm italic text-slate-300">No bio provided</p>}
+                            </Section>
 
-                    {/* Availability */}
-                    <Section title="Weekly Availability">
+                            <div className="grid md:grid-cols-2 gap-5">
+                                <Section title="Specialties">
+                                    {mentor.specialties?.length > 0
+                                        ? <div className="flex flex-wrap gap-2">{mentor.specialties.map((s: string) => <Tag key={s} label={s} />)}</div>
+                                        : <p className="text-sm italic text-slate-300">None listed</p>}
+                                </Section>
+                                <Section title="Expertise">
+                                    {mentor.expertise?.length > 0
+                                        ? <div className="flex flex-wrap gap-2">{mentor.expertise.map((e: string) => <Tag key={e} label={e} />)}</div>
+                                        : <p className="text-sm italic text-slate-300">None listed</p>}
+                                </Section>
+                            </div>
+
+                            <Section title="Languages">
+                                {mentor.languages?.length > 0
+                                    ? <div className="flex flex-wrap gap-2">{mentor.languages.map((l: string) => <Tag key={l} label={l} />)}</div>
+                                    : <p className="text-sm italic text-slate-300">None listed</p>}
+                            </Section>
+                        </>
+                    )}
+
+                    {activeReviewStep === 'availability' && (
+                        <Section id="availability" title="Weekly Availability">
                         {schedule.length > 0 ? (
                             <div className="space-y-1.5">
                                 {mentor.availability?.timezone && (
@@ -289,10 +378,11 @@ export default function MentorReviewPage() {
                                 ))}
                             </div>
                         ) : <p className="text-sm italic text-slate-300">No availability set</p>}
-                    </Section>
+                        </Section>
+                    )}
 
-                    {/* Policies */}
-                    <Section title="Cancellation Policies">
+                    {activeReviewStep === 'policies' && (
+                        <Section id="policies" title="Cancellation Policies">
                         {policy ? (
                             <div>
                                 <Row label="Cancellation" value={`${policy.cancellationHours}h notice`} />
@@ -301,10 +391,11 @@ export default function MentorReviewPage() {
                                 {policy.customTerms && <Row label="Custom terms" value={policy.customTerms} />}
                             </div>
                         ) : <p className="text-sm italic text-slate-300">No policies configured</p>}
-                    </Section>
+                        </Section>
+                    )}
 
-                    {/* Session Offers */}
-                    <Section title={`Session Offers (${offers.length})`}>
+                    {activeReviewStep === 'offers' && (
+                        <Section id="offers" title={`Session Offers (${offers.length})`}>
                         {offers.length > 0 ? (
                             <div className="space-y-3">
                                 {offers.map((offer: any) => (
@@ -325,55 +416,69 @@ export default function MentorReviewPage() {
                                 ))}
                             </div>
                         ) : <p className="text-sm italic text-slate-300">No session offers added</p>}
-                    </Section>
+                        </Section>
+                    )}
 
-                    {/* Certifications */}
-                    <Section title={`Certifications (${certs.length})`}>
-                        {certs.length > 0 ? (
-                            <ul className="space-y-2">
-                                {certs.map((cert: any) => (
-                                    <li key={cert.fileKey} className="flex items-center gap-3">
-                                        <FileText className="w-4 h-4 text-slate-400 shrink-0" />
-                                        <span className="flex-1 text-sm text-slate-700 font-medium">{cert.name}</span>
-                                        <a
-                                            href={cert.fileUrl}
-                                            target="_blank"
-                                            rel="noreferrer"
-                                            className="text-blue-600 hover:underline text-xs shrink-0 font-medium"
-                                        >
-                                            View ↗
-                                        </a>
-                                    </li>
-                                ))}
-                            </ul>
-                        ) : <p className="text-sm italic text-slate-300">No certifications uploaded</p>}
-                    </Section>
+                    {activeReviewStep === 'verification' && (
+                        <>
+                            <Section id="verification" title={`Certifications (${certs.length})`}>
+                                {certs.length > 0 ? (
+                                    <ul className="space-y-2">
+                                        {certs.map((cert: any) => (
+                                            <li key={cert.fileKey} className="flex items-center gap-3">
+                                                <FileText className="w-4 h-4 text-slate-400 shrink-0" />
+                                                <span className="flex-1 text-sm text-slate-700 font-medium">{cert.name}</span>
+                                                <a
+                                                    href={cert.fileUrl}
+                                                    target="_blank"
+                                                    rel="noreferrer"
+                                                    className="text-blue-600 hover:underline text-xs shrink-0 font-medium"
+                                                >
+                                                    View ↗
+                                                </a>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                ) : <p className="text-sm italic text-slate-300">No certifications uploaded</p>}
+                            </Section>
 
-                    {/* Intro Video */}
-                    <Section title="Intro Video">
-                        {mentor.introVideoUrl ? (
-                            <div className="space-y-2">
-                                <video
-                                    src={mentor.introVideoUrl}
-                                    controls
-                                    className="w-full max-h-64 rounded-lg bg-slate-100 border border-slate-200 object-contain"
-                                />
-                                <p className="text-xs text-emerald-600 flex items-center gap-1">
-                                    <Video className="w-3.5 h-3.5" /> Video uploaded
-                                </p>
-                            </div>
-                        ) : <p className="text-sm italic text-slate-300">No intro video uploaded</p>}
-                    </Section>
+                            <Section title="Intro Video">
+                                {mentor.introVideoUrl ? (
+                                    <div className="space-y-2">
+                                        <video
+                                            src={mentor.introVideoUrl}
+                                            controls
+                                            className="w-full max-h-64 rounded-lg bg-slate-100 border border-slate-200 object-contain"
+                                        />
+                                        <p className="text-xs text-emerald-600 flex items-center gap-1">
+                                            <Video className="w-3.5 h-3.5" /> Video uploaded
+                                        </p>
+                                    </div>
+                                ) : <p className="text-sm italic text-slate-300">No intro video uploaded</p>}
+                            </Section>
+                        </>
+                    )}
 
                 </div>
 
-                {/* Right col: Review Chat */}
-                <div className="lg:col-span-1 flex flex-col" style={{ minHeight: '560px' }}>
-                    <ReviewChat
-                        mentorId={id}
-                        viewAs="admin"
-                        contextLabel={`Reviewing: ${mentor.name}${mentor.headline ? ` — ${mentor.headline}` : ''}`}
-                    />
+                {/* Right col: Review sidebar */}
+                <div className="lg:col-span-1 space-y-4 lg:sticky lg:top-6 self-start">
+                    <div className="bg-white rounded-xl border border-slate-200 p-4">
+                        <p className="text-xs uppercase tracking-wider text-slate-500 font-semibold mb-2">Review Steps</p>
+                        <div className="divide-y divide-slate-100">
+                            {checklist.map((item) => (
+                                <ReviewChecklistItem key={item.label} label={item.label} done={item.done} />
+                            ))}
+                        </div>
+                    </div>
+
+                    <div className="h-[440px] lg:h-[520px]">
+                        <ReviewChat
+                            mentorId={id}
+                            viewAs="admin"
+                            contextLabel={`Reviewing: ${mentor.name}${mentor.headline ? ` — ${mentor.headline}` : ''}`}
+                        />
+                    </div>
                 </div>
             </div>
         </div>
