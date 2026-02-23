@@ -44,26 +44,26 @@ function ResetPasswordForm() {
   };
 
   return (
-    <div className="w-full max-w-md space-y-8">
+    <div className="w-full max-w-md space-y-6 bg-slate-900 p-8 rounded-2xl shadow-sm border border-slate-800">
       <div className="text-center">
-        <h1 className="text-3xl font-bold">Set new password</h1>
-        <p className="mt-2 text-slate-600">Enter your new password below</p>
+        <h1 className="text-2xl font-bold text-white">Set new password</h1>
+        <p className="mt-2 text-slate-400">Enter your new password below</p>
       </div>
 
       {error && (
-        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
+        <div className="bg-red-900/30 border border-red-800 text-red-400 px-4 py-3 rounded-lg text-sm">
           {error}
         </div>
       )}
 
       {success ? (
-        <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg text-sm">
+        <div className="bg-green-900/30 border border-green-800 text-green-400 px-4 py-3 rounded-lg text-sm">
           Password reset successfully! Redirecting to login...
         </div>
       ) : (
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label htmlFor="password" className="block text-sm font-medium text-slate-700 mb-1">
+            <label htmlFor="password" className="block text-sm font-medium text-slate-300 mb-1">
               New password
             </label>
             <input
@@ -73,13 +73,13 @@ function ResetPasswordForm() {
               minLength={8}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-900 bg-white placeholder:text-slate-400"
+              className="w-full px-3 py-2 border border-slate-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-900 text-white placeholder:text-slate-500"
               placeholder="Min 8 characters"
             />
           </div>
 
           <div>
-            <label htmlFor="confirmPassword" className="block text-sm font-medium text-slate-700 mb-1">
+            <label htmlFor="confirmPassword" className="block text-sm font-medium text-slate-300 mb-1">
               Confirm new password
             </label>
             <input
@@ -88,7 +88,7 @@ function ResetPasswordForm() {
               required
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
-              className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-900 bg-white placeholder:text-slate-400"
+              className="w-full px-3 py-2 border border-slate-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-900 text-white placeholder:text-slate-500"
               placeholder="Repeat your password"
             />
           </div>
@@ -99,8 +99,8 @@ function ResetPasswordForm() {
         </form>
       )}
 
-      <p className="text-center text-sm text-slate-600">
-        <Link href="/login" className="text-blue-600 hover:underline font-medium">
+      <p className="text-center text-sm text-slate-400">
+        <Link href="/login" className="text-blue-400 hover:underline font-medium">
           Back to sign in
         </Link>
       </p>
@@ -110,13 +110,13 @@ function ResetPasswordForm() {
 
 export default function ResetPasswordPage() {
   return (
-    <>
+    <div className="min-h-screen flex flex-col bg-slate-950">
       <Navbar />
-      <div className="min-h-screen flex items-center justify-center bg-slate-50 px-4">
-        <Suspense fallback={<div>Loading...</div>}>
+      <div className="flex-1 flex items-center justify-center px-4 py-8">
+        <Suspense fallback={<div className="text-slate-400">Loading...</div>}>
           <ResetPasswordForm />
         </Suspense>
       </div>
-    </>
+    </div>
   );
 }

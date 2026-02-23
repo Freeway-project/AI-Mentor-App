@@ -75,6 +75,53 @@ export const EmailService = {
   },
 
 
+  async sendPasswordResetEmail(to: string, resetUrl: string): Promise<void> {
+    const fromName = process.env.SMTP_FROM_NAME || 'OWLMentors';
+    const fromEmail = process.env.SMTP_FROM_EMAIL || process.env.SMTP_FROM || 'noreply@owlmentors.com';
+    const from = `${fromName} <${fromEmail}>`;
+    const subject = 'Reset your OWLMentors password';
+    const html = `
+      <div style="font-family:sans-serif;max-width:480px;margin:auto;padding:32px">
+        <h2 style="color:#1e40af;font-size:24px;margin-bottom:8px">Reset your password</h2>
+        <p style="color:#475569;margin-bottom:24px">
+          Click the button below to reset your OWLMentors password.
+          This link expires in <strong>1 hour</strong>.
+        </p>
+        <a href="${resetUrl}"
+           style="display:inline-block;padding:12px 24px;background:#2563eb;color:#fff;border-radius:8px;text-decoration:none;font-weight:600;font-size:14px">
+          Reset password →
+        </a>
+        <p style="color:#94a3b8;font-size:12px;margin-top:24px">
+          If you didn't request a password reset, you can safely ignore this email.
+        </p>
+      </div>
+    `;
+
+    // Try real SMTP first
+    const transport = createTransport();
+    if (transport) {
+      try {
+        await transport.sendMail({ from, to, subject, html });
+        logger.info(`[RESET EMAIL] Sent to ${to}`);
+        return;
+      } catch (error) {
+        logger.error(`[RESET EMAIL] SMTP failed to ${to}: ${(error as Error).message}`);
+        logger.warn(`[RESET EMAIL] Falling back to Ethereal dev transport...`);
+      }
+    }
+
+    // Fallback: Ethereal (dev only)
+    try {
+      const devTransport = await getDevTransport();
+      const info = await devTransport.sendMail({ from, to, subject, html });
+      const previewUrl = nodemailer.getTestMessageUrl(info);
+      logger.info(`[RESET EMAIL DEV] Preview: ${previewUrl}`);
+    } catch (err) {
+      // Last resort — just log the reset URL
+      logger.warn(`[RESET EMAIL FALLBACK] To: ${to} | URL: ${resetUrl}`);
+    }
+  },
+
   async notifyAdminNewMentor(mentor: { name: string; email: string }): Promise<void> {
     const adminEmail = process.env.ADMIN_NOTIFICATION_EMAIL;
     if (!adminEmail) {

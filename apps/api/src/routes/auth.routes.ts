@@ -283,7 +283,9 @@ router.post('/forgot-password', authRateLimit, validate(forgotPasswordSchema), a
       const resetToken = crypto.randomBytes(32).toString('hex');
       const expiresAt = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
       await getUserRepo().setResetToken(user.id, resetToken, expiresAt);
-      logger.info(`Password reset URL: /auth/reset-password?token=${resetToken}`);
+      const appUrl = process.env.APP_URL || 'http://localhost:3000';
+      const resetUrl = `${appUrl}/reset-password?token=${resetToken}`;
+      await EmailService.sendPasswordResetEmail(user.email, resetUrl);
     }
 
     // Always return success to prevent email enumeration
