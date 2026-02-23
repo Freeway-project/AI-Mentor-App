@@ -48,9 +48,9 @@ router.post('/', authenticate, requireEmailVerified, authorize('mentor'), valida
 
     const offer = await getOfferRepo().create(mentor.id, req.body);
 
-    // Advance onboarding step
+    // Advance onboarding step (policies merged into availability step)
     if (mentor.onboardingStep === 'offers') {
-      await getMentorRepo().updateOnboardingStep(mentor.id, 'policies');
+      await getMentorRepo().updateOnboardingStep(mentor.id, 'availability');
     }
 
     res.status(201).json({

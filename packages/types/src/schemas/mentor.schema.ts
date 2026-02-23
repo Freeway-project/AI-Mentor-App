@@ -12,9 +12,10 @@ export const availabilitySchema = z.object({
 });
 
 export const onboardingStepEnum = z.enum([
-  'profile',
+  'basics',
+  'expertise',
+  'verification',
   'offers',
-  'policies',
   'availability',
   'review',
   'published',
@@ -51,7 +52,7 @@ export const mentorSchema = z.object({
   totalReviews: z.number().int().nonnegative().default(0),
   verified: z.boolean().default(false),
   isActive: z.boolean().default(true),
-  onboardingStep: onboardingStepEnum.default('profile'),
+  onboardingStep: onboardingStepEnum.default('basics'),
   approvalStatus: approvalStatusEnum.default('pending'),
   approvalNote: z.string().optional(),
   approvedAt: z.date().optional(),

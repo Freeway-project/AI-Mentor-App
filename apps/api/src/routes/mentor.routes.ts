@@ -82,9 +82,14 @@ router.put('/me', authenticate, requireEmailVerified, authorize('mentor'), valid
     const updatePayload = { ...req.body, approvalStatus: 'pending' };
     await getMentorRepo().update(mentor.id, updatePayload);
 
-    // Advance onboarding step if on profile step
-    if (mentor.onboardingStep === 'profile') {
-      await getMentorRepo().updateOnboardingStep(mentor.id, 'offers');
+    // Advance onboarding step through the profile-building steps
+    const profileStepNext: Record<string, string> = {
+      basics: 'expertise',
+      expertise: 'verification',
+      verification: 'offers',
+    };
+    if (profileStepNext[mentor.onboardingStep]) {
+      await getMentorRepo().updateOnboardingStep(mentor.id, profileStepNext[mentor.onboardingStep]);
     }
 
     res.json({

@@ -18,7 +18,7 @@ export class MentorRepository {
         totalReviews: 0,
         verified: false,
         isActive: false,
-        onboardingStep: 'profile',
+        onboardingStep: 'basics',
         approvalStatus: 'pending',
       });
       logger.db({ operation: 'insert', collection: 'providers', duration: Date.now() - startTime });
@@ -124,9 +124,10 @@ export class MentorRepository {
   async publish(id: string): Promise<Mentor> {
     const startTime = Date.now();
     try {
+      // Mark as submitted for review — isActive stays false until admin approves
       const doc = await MentorModel.findByIdAndUpdate(
         id,
-        { $set: { isActive: true, onboardingStep: 'published' } },
+        { $set: { isActive: false, onboardingStep: 'published', approvalStatus: 'pending' } },
         { new: true }
       );
       logger.db({ operation: 'update', collection: 'providers', duration: Date.now() - startTime });
@@ -226,7 +227,20 @@ export class MentorRepository {
   }
 
   async findPendingApproval(limit = 20, offset = 0): Promise<{ mentors: Mentor[]; total: number }> {
-    return this.findAll({ approvalStatus: 'pending' }, limit, offset);
+    const startTime = Date.now();
+    try {
+      // Only show mentors who have fully submitted (onboardingStep === 'published') and await admin review
+      const query = { onboardingStep: 'published', approvalStatus: 'pending' };
+      const [docs, total] = await Promise.all([
+        MentorModel.find(query).skip(offset).limit(limit),
+        MentorModel.countDocuments(query),
+      ]);
+      logger.db({ operation: 'find', collection: 'providers', duration: Date.now() - startTime });
+      return { mentors: docs.map(toMentor), total };
+    } catch (error) {
+      logger.db({ operation: 'find', collection: 'providers', duration: Date.now() - startTime, error: (error as Error).message });
+      throw error;
+    }
   }
 
   async addCertification(

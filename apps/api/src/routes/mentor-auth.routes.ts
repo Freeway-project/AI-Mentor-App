@@ -184,7 +184,7 @@ router.get('/verification-status', authenticate, async (req: Request, res: Respo
       success: true,
       data: {
         emailVerified: user.emailVerified,
-        onboardingStep: mentor?.onboardingStep || 'profile',
+        onboardingStep: mentor?.onboardingStep || 'basics',
         approvalStatus: mentor?.approvalStatus || 'pending',
       },
     });

@@ -76,7 +76,8 @@ const navItems = [
 export function AdminSidebar() {
   const pathname = usePathname();
   const router = useRouter();
-  const { logout } = useAuth();
+  const { logout, user } = useAuth();
+  const isMentor = user?.roles?.includes('mentor');
 
   const { data: stats } = useQuery({
     queryKey: ['admin-stats'],
@@ -126,8 +127,19 @@ export function AdminSidebar() {
         })}
       </nav>
 
-      {/* Logout */}
-      <div className="px-3 py-4 border-t border-slate-700">
+      {/* Bottom actions */}
+      <div className="px-3 py-4 border-t border-slate-700 space-y-1">
+        {isMentor && (
+          <Link
+            href="/mentor/dashboard"
+            className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-violet-400 hover:text-violet-200 hover:bg-violet-900/30 w-full transition-colors"
+          >
+            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+            </svg>
+            Mentor Dashboard
+          </Link>
+        )}
         <button
           onClick={handleLogout}
           className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-slate-400 hover:text-slate-100 hover:bg-slate-800 w-full transition-colors"

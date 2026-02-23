@@ -81,8 +81,8 @@ const mentorSchema = new Schema<IMentorDocument>(
     isActive: { type: Boolean, default: false },
     onboardingStep: {
       type: String,
-      enum: ['profile', 'offers', 'policies', 'availability', 'review', 'published'],
-      default: 'profile',
+      enum: ['basics', 'expertise', 'verification', 'offers', 'availability', 'review', 'published'],
+      default: 'basics',
     },
     approvalStatus: {
       type: String,

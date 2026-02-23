@@ -30,7 +30,7 @@ export function ReviewStep({ profile, onPublish }: ReviewStepProps) {
     try {
       await onPublish();
     } catch (err: any) {
-      setError(err.message || 'Failed to publish profile');
+      setError(err.message || 'Failed to submit profile');
     } finally {
       setLoading(false);
     }
@@ -42,8 +42,8 @@ export function ReviewStep({ profile, onPublish }: ReviewStepProps) {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-xl font-bold text-white">Review & Publish</h2>
-        <p className="text-sm text-slate-400 mt-1">Review your details before going live on OWLMentors.</p>
+        <h2 className="text-xl font-bold text-white">Review & Submit</h2>
+        <p className="text-sm text-slate-400 mt-1">Review your details — your profile will be sent to our team for approval before going live.</p>
       </div>
 
       {error && (
@@ -135,16 +135,18 @@ export function ReviewStep({ profile, onPublish }: ReviewStepProps) {
         )}
       </div>
 
-      {/* Publish CTA */}
-      <div className="pt-2">
+      {/* Submit CTA */}
+      <div className="pt-2 space-y-3">
         <Button
           onClick={handlePublish}
           disabled={loading}
           className="w-full h-12 bg-violet-600 hover:bg-violet-700 text-white font-semibold text-base shadow-[0_0_20px_rgba(139,92,246,0.3)] hover:shadow-[0_0_25px_rgba(139,92,246,0.4)] transition-all"
         >
-          {loading ? 'Publishing…' : '🚀 Publish My Profile'}
+          {loading ? 'Submitting…' : 'Submit for Approval →'}
         </Button>
-        <p className="text-xs text-slate-600 text-center mt-3">Your profile will be visible to mentees immediately after publishing.</p>
+        <p className="text-xs text-slate-500 text-center">
+          Our team will review your profile and notify you once it&apos;s approved and visible to mentees.
+        </p>
       </div>
     </div>
   );

@@ -48,10 +48,7 @@ router.put('/', authenticate, requireEmailVerified, authorize('mentor'), validat
 
     const policy = await getPolicyRepo().upsert(mentor.id, req.body);
 
-    // Advance onboarding step
-    if (mentor.onboardingStep === 'policies') {
-      await getMentorRepo().updateOnboardingStep(mentor.id, 'availability');
-    }
+    // Policies are now part of the combined availability step — no separate step to advance
 
     res.json({
       success: true,
