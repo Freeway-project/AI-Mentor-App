@@ -135,10 +135,16 @@ function VerifyOtpContent() {
     if (!email) return null;
 
     return (
-        <div className="min-h-screen flex flex-col bg-slate-950">
+        <div className="min-h-screen flex flex-col relative overflow-hidden" style={{ background: 'linear-gradient(135deg, #0a0a1a 0%, #0d1117 30%, #0f0b1e 60%, #0a0e1a 100%)' }}>
+            {/* Background elements */}
+            <div className="absolute inset-0 pointer-events-none">
+                <div className="absolute inset-0 opacity-[0.1]" style={{ backgroundImage: 'radial-gradient(circle, #475569 1px, transparent 1px)', backgroundSize: '32px 32px' }} />
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full bg-violet-600/5 blur-[120px]" />
+            </div>
+
             <Navbar />
-            <div className="flex-1 flex items-center justify-center px-4 py-8">
-                <div className="w-full max-w-md space-y-6 bg-slate-900 p-8 rounded-2xl shadow-sm border border-slate-800">
+            <div className="flex-1 flex items-center justify-center px-4 py-12 relative z-10 w-full">
+                <div className="w-full max-w-md space-y-6 bg-slate-900/50 backdrop-blur-md border border-slate-800/80 p-8 rounded-2xl shadow-2xl">
                     <div className="text-center">
                         <h1 className="text-2xl font-bold text-white">Verify your email</h1>
                         <p className="mt-2 text-slate-400 text-sm">
@@ -174,7 +180,7 @@ function VerifyOtpContent() {
                                     onChange={(e) => handleChange(index, e.target.value)}
                                     onKeyDown={(e) => handleKeyDown(index, e)}
                                     onPaste={handlePaste}
-                                    className="w-10 h-12 sm:w-12 sm:h-14 text-center text-xl font-semibold border border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-950 text-white"
+                                    className="w-10 h-12 sm:w-12 sm:h-14 text-center text-xl font-semibold border border-slate-700/50 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500/50 bg-slate-950/50 text-white transition-colors"
                                     autoFocus={index === 0}
                                 />
                             ))}
@@ -182,7 +188,7 @@ function VerifyOtpContent() {
 
                         <Button
                             type="submit"
-                            className="w-full h-12 text-base font-medium"
+                            className="w-full h-12 text-base font-medium bg-violet-600 hover:bg-violet-500 text-white"
                             disabled={loading || otp.join('').length !== 6}
                         >
                             {loading ? 'Verifying...' : 'Verify Email'}
@@ -196,7 +202,7 @@ function VerifyOtpContent() {
                                 type="button"
                                 onClick={handleResend}
                                 disabled={resending}
-                                className="text-blue-400 hover:text-blue-300 hover:underline font-medium disabled:opacity-50"
+                                className="text-violet-400 hover:text-violet-300 hover:underline font-medium disabled:opacity-50 transition-colors"
                             >
                                 {resending ? 'Sending...' : 'Click to resend'}
                             </button>

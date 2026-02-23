@@ -122,6 +122,64 @@ export const EmailService = {
     }
   },
 
+  async notifyAdminProfileComplete(mentor: { name: string; email: string; mentorId: string }): Promise<void> {
+    const adminEmail = process.env.ADMIN_NOTIFICATION_EMAIL;
+    if (!adminEmail) {
+      logger.info(`[ADMIN NOTIFY] Mentor profile complete: ${mentor.name} <${mentor.email}>`);
+      return;
+    }
+
+    const fromName = process.env.SMTP_FROM_NAME || 'OWLMentors';
+    const fromEmail = process.env.SMTP_FROM_EMAIL || process.env.SMTP_FROM || 'noreply@owlmentors.com';
+    const from = `${fromName} <${fromEmail}>`;
+    const adminUrl = process.env.ADMIN_URL || 'http://localhost:3000/admin';
+    const reviewUrl = `${adminUrl}/coaches/${mentor.mentorId}`;
+
+    const subject = `Mentor profile ready for review: ${mentor.name}`;
+    const html = `
+      <div style="font-family:sans-serif;max-width:540px;margin:auto;padding:32px">
+        <h2 style="color:#0f172a;font-size:22px;margin-bottom:4px">Mentor profile completed</h2>
+        <p style="color:#64748b;margin-bottom:24px">
+          A mentor has filled in all required details and submitted their profile for approval.
+        </p>
+        <table style="width:100%;border-collapse:collapse;margin-bottom:24px">
+          <tr>
+            <td style="padding:10px 12px;background:#f8fafc;border:1px solid #e2e8f0;color:#64748b;width:110px;font-size:13px">Name</td>
+            <td style="padding:10px 12px;background:#fff;border:1px solid #e2e8f0;color:#0f172a;font-weight:600;font-size:13px">${mentor.name}</td>
+          </tr>
+          <tr>
+            <td style="padding:10px 12px;background:#f8fafc;border:1px solid #e2e8f0;color:#64748b;font-size:13px">Email</td>
+            <td style="padding:10px 12px;background:#fff;border:1px solid #e2e8f0;color:#0f172a;font-size:13px">${mentor.email}</td>
+          </tr>
+          <tr>
+            <td style="padding:10px 12px;background:#f8fafc;border:1px solid #e2e8f0;color:#64748b;font-size:13px">Submitted</td>
+            <td style="padding:10px 12px;background:#fff;border:1px solid #e2e8f0;color:#0f172a;font-size:13px">${new Date().toUTCString()}</td>
+          </tr>
+        </table>
+        <a href="${reviewUrl}"
+           style="display:inline-block;padding:12px 24px;background:#2563eb;color:#fff;border-radius:8px;text-decoration:none;font-weight:600;font-size:14px">
+          Review profile →
+        </a>
+        <p style="color:#94a3b8;font-size:11px;margin-top:24px">
+          This is an automated notification from OWLMentors.
+        </p>
+      </div>
+    `;
+
+    const transport = createTransport();
+    if (!transport) {
+      logger.info(`[ADMIN NOTIFY] Profile complete: ${mentor.name} <${mentor.email}> (SMTP not configured)`);
+      return;
+    }
+
+    try {
+      await transport.sendMail({ from, to: adminEmail, subject, html });
+      logger.info(`[ADMIN NOTIFY] Profile-complete email sent to ${adminEmail} for mentor ${mentor.email}`);
+    } catch (error) {
+      logger.error(`[ADMIN NOTIFY] Failed to send profile-complete email: ${(error as Error).message}`);
+    }
+  },
+
   async notifyAdminNewMentor(mentor: { name: string; email: string }): Promise<void> {
     const adminEmail = process.env.ADMIN_NOTIFICATION_EMAIL;
     if (!adminEmail) {
