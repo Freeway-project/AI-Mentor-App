@@ -264,7 +264,7 @@ router.get('/coaches/:id/messages', async (req: Request, res: Response, next: Ne
       .find({ mentorId: req.params.id })
       .sort({ createdAt: 1 })
       .lean();
-    res.json({ success: true, data: msgs.map(toReviewMessage) });
+    res.json({ success: true, data: (msgs as any[]).map(toReviewMessage) });
   } catch (error) { next(error); }
 });
 

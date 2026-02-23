@@ -7,6 +7,7 @@ import { authenticate } from '../middleware/auth.middleware';
 import { AppError } from '../middleware/error.middleware';
 import { authRateLimit } from '../middleware/rateLimit.middleware';
 import { EmailService } from '../services/email.service';
+import { ReviewMessageModel, toReviewMessage } from '../../../../packages/database/src/models/review-message.model';
 
 const router: Router = Router();
 
@@ -190,6 +191,47 @@ router.get('/verification-status', authenticate, async (req: Request, res: Respo
   } catch (error) {
     next(error);
   }
+});
+
+// ─── Review Chat (Mentor reads and replies to Admin) ──────────────────────────────────
+
+// GET /mentor-auth/review-messages/:mentorId — get the review thread for this mentor
+router.get('/review-messages/:mentorId', authenticate, async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const msgs = await ReviewMessageModel
+      .find({ mentorId: req.params.mentorId })
+      .sort({ createdAt: 1 })
+      .lean();
+    res.json({ success: true, data: (msgs as any[]).map(toReviewMessage) });
+  } catch (error) { next(error); }
+});
+
+// POST /mentor-auth/review-messages/:mentorId — mentor sends a reply
+router.post('/review-messages/:mentorId', authenticate, async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { content } = req.body;
+    if (!content?.trim()) throw new AppError(400, 'VALIDATION_ERROR', 'Message content is required');
+    const msg = await ReviewMessageModel.create({
+      mentorId: req.params.mentorId,
+      senderId: req.userId!,
+      senderRole: 'mentor',
+      content: content.trim(),
+      readByMentor: true,
+      readByAdmin: false,
+    });
+    res.status(201).json({ success: true, data: toReviewMessage(msg) });
+  } catch (error) { next(error); }
+});
+
+// PATCH /mentor-auth/review-messages/:mentorId/read — mark all admin messages as read
+router.patch('/review-messages/:mentorId/read', authenticate, async (_req: Request, res: Response, next: NextFunction) => {
+  try {
+    await ReviewMessageModel.updateMany(
+      { mentorId: _req.params.mentorId, readByMentor: false },
+      { $set: { readByMentor: true } }
+    );
+    res.json({ success: true });
+  } catch (error) { next(error); }
 });
 
 export default router;

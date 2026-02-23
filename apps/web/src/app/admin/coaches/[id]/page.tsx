@@ -8,6 +8,7 @@ import { StatusBadge } from '@/components/admin/StatusBadge';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Star, Globe, DollarSign, Clock, CheckCircle2, XCircle } from 'lucide-react';
 import Link from 'next/link';
+import { ReviewChat } from '@/components/admin/ReviewChat';
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
     return (
@@ -157,89 +158,102 @@ export default function MentorReviewPage() {
                 </div>
             )}
 
-            <div className="grid md:grid-cols-2 gap-6">
+            <div className="grid lg:grid-cols-3 gap-6">
+                {/* Left: profile details (2/3 width on large screens) */}
+                <div className="lg:col-span-2 grid md:grid-cols-2 gap-6">
 
-                {/* Bio */}
-                {mentor.bio && (
-                    <div className="md:col-span-2">
-                        <Section title="Bio">
-                            <p className="text-sm text-slate-700 leading-relaxed whitespace-pre-wrap">{mentor.bio}</p>
+                    {/* Bio */}
+                    {mentor.bio && (
+                        <div className="md:col-span-2">
+                            <Section title="Bio">
+                                <p className="text-sm text-slate-700 leading-relaxed whitespace-pre-wrap">{mentor.bio}</p>
+                            </Section>
+                        </div>
+                    )}
+
+                    {/* Stats */}
+                    <Section title="Overview">
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="flex items-center gap-2 text-sm text-slate-700">
+                                <Star className="w-4 h-4 text-amber-500" />
+                                <span><strong>{mentor.rating?.toFixed(1) ?? '—'}</strong> rating ({mentor.totalReviews ?? 0} reviews)</span>
+                            </div>
+                            <div className="flex items-center gap-2 text-sm text-slate-700">
+                                <Clock className="w-4 h-4 text-blue-500" />
+                                <span><strong>{mentor.totalMeetings ?? 0}</strong> sessions</span>
+                            </div>
+                            {mentor.hourlyRate && (
+                                <div className="flex items-center gap-2 text-sm text-slate-700">
+                                    <DollarSign className="w-4 h-4 text-green-500" />
+                                    <span><strong>${mentor.hourlyRate}</strong> / hour</span>
+                                </div>
+                            )}
+                            {mentor.timezone && (
+                                <div className="flex items-center gap-2 text-sm text-slate-700">
+                                    <Globe className="w-4 h-4 text-slate-400" />
+                                    <span>{mentor.timezone}</span>
+                                </div>
+                            )}
+                        </div>
+                        <div className="pt-2 border-t border-slate-100 text-xs text-slate-400 space-y-0.5">
+                            <p>Applied: {mentor.createdAt ? new Date(mentor.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : '—'}</p>
+                            <p>Onboarding Step: <span className="font-medium text-slate-600">{mentor.onboardingStep ?? '—'}</span></p>
+                        </div>
+                    </Section>
+
+                    {/* Specialties */}
+                    {mentor.specialties?.length > 0 && (
+                        <Section title="Specialties">
+                            <div className="flex flex-wrap gap-2">
+                                {mentor.specialties.map((s: string) => <Tag key={s} label={s} />)}
+                            </div>
                         </Section>
-                    </div>
-                )}
+                    )}
 
-                {/* Stats */}
-                <Section title="Overview">
-                    <div className="grid grid-cols-2 gap-4">
-                        <div className="flex items-center gap-2 text-sm text-slate-700">
-                            <Star className="w-4 h-4 text-amber-500" />
-                            <span><strong>{mentor.rating?.toFixed(1) ?? '—'}</strong> rating ({mentor.totalReviews ?? 0} reviews)</span>
-                        </div>
-                        <div className="flex items-center gap-2 text-sm text-slate-700">
-                            <Clock className="w-4 h-4 text-blue-500" />
-                            <span><strong>{mentor.totalMeetings ?? 0}</strong> sessions</span>
-                        </div>
-                        {mentor.hourlyRate && (
-                            <div className="flex items-center gap-2 text-sm text-slate-700">
-                                <DollarSign className="w-4 h-4 text-green-500" />
-                                <span><strong>${mentor.hourlyRate}</strong> / hour</span>
+                    {/* Expertise */}
+                    {mentor.expertise?.length > 0 && (
+                        <Section title="Areas of Expertise">
+                            <div className="flex flex-wrap gap-2">
+                                {mentor.expertise.map((e: string) => <Tag key={e} label={e} />)}
                             </div>
-                        )}
-                        {mentor.timezone && (
-                            <div className="flex items-center gap-2 text-sm text-slate-700">
-                                <Globe className="w-4 h-4 text-slate-400" />
-                                <span>{mentor.timezone}</span>
+                        </Section>
+                    )}
+
+                    {/* Languages */}
+                    {mentor.languages?.length > 0 && (
+                        <Section title="Languages">
+                            <div className="flex flex-wrap gap-2">
+                                {mentor.languages.map((l: string) => <Tag key={l} label={l} />)}
                             </div>
-                        )}
-                    </div>
-                    <div className="pt-2 border-t border-slate-100 text-xs text-slate-400 space-y-0.5">
-                        <p>Applied: {mentor.createdAt ? new Date(mentor.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : '—'}</p>
-                        <p>Onboarding Step: <span className="font-medium text-slate-600">{mentor.onboardingStep ?? '—'}</span></p>
-                    </div>
-                </Section>
+                        </Section>
+                    )}
 
-                {/* Specialties */}
-                {mentor.specialties?.length > 0 && (
-                    <Section title="Specialties">
-                        <div className="flex flex-wrap gap-2">
-                            {mentor.specialties.map((s: string) => <Tag key={s} label={s} />)}
-                        </div>
-                    </Section>
-                )}
+                    {/* Availability */}
+                    {mentor.availability && Object.keys(mentor.availability).length > 0 && (
+                        <Section title="Availability">
+                            <div className="space-y-1.5">
+                                {Object.entries(mentor.availability).map(([day, slots]: [string, any]) => (
+                                    Array.isArray(slots) && slots.length > 0 && (
+                                        <div key={day} className="flex items-start gap-2 text-sm text-slate-700">
+                                            <span className="w-24 font-medium capitalize shrink-0">{day}:</span>
+                                            <span className="text-slate-500">{slots.join(', ')}</span>
+                                        </div>
+                                    )
+                                ))}
+                            </div>
+                        </Section>
+                    )}
 
-                {/* Expertise */}
-                {mentor.expertise?.length > 0 && (
-                    <Section title="Areas of Expertise">
-                        <div className="flex flex-wrap gap-2">
-                            {mentor.expertise.map((e: string) => <Tag key={e} label={e} />)}
-                        </div>
-                    </Section>
-                )}
+                </div>
 
-                {/* Languages */}
-                {mentor.languages?.length > 0 && (
-                    <Section title="Languages">
-                        <div className="flex flex-wrap gap-2">
-                            {mentor.languages.map((l: string) => <Tag key={l} label={l} />)}
-                        </div>
-                    </Section>
-                )}
-
-                {/* Availability */}
-                {mentor.availability && Object.keys(mentor.availability).length > 0 && (
-                    <Section title="Availability">
-                        <div className="space-y-1.5">
-                            {Object.entries(mentor.availability).map(([day, slots]: [string, any]) => (
-                                Array.isArray(slots) && slots.length > 0 && (
-                                    <div key={day} className="flex items-start gap-2 text-sm text-slate-700">
-                                        <span className="w-24 font-medium capitalize shrink-0">{day}:</span>
-                                        <span className="text-slate-500">{slots.join(', ')}</span>
-                                    </div>
-                                )
-                            ))}
-                        </div>
-                    </Section>
-                )}
+                {/* Right: Review Chat panel */}
+                <div className="lg:col-span-1 flex flex-col" style={{ minHeight: '520px' }}>
+                    <ReviewChat
+                        mentorId={id}
+                        viewAs="admin"
+                        contextLabel={`Reviewing: ${mentor.name}${mentor.headline ? ` — ${mentor.headline}` : ''}`}
+                    />
+                </div>
 
             </div>
         </div>
