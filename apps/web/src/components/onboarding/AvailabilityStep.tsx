@@ -38,12 +38,8 @@ export function AvailabilityStep({ profile, onComplete }: AvailabilityStepProps)
   const handleSubmit = async () => {
     setError('');
     setLoading(true);
-
     try {
-      await apiClient.updateMyAvailability({
-        timezone,
-        schedule: slots,
-      });
+      await apiClient.updateMyAvailability({ timezone, schedule: slots });
       onComplete();
     } catch (err: any) {
       setError(err.message || 'Failed to save availability');
@@ -52,24 +48,29 @@ export function AvailabilityStep({ profile, onComplete }: AvailabilityStepProps)
     }
   };
 
+  const inputCls = 'w-full px-3 py-2.5 border border-slate-700/60 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500/50 bg-slate-800/60 text-white placeholder:text-slate-500 text-sm';
+  const labelCls = 'block text-xs font-semibold text-slate-400 mb-1.5 uppercase tracking-wider';
+
   return (
-    <div className="space-y-4">
-      <h2 className="text-xl font-semibold">Availability</h2>
-      <p className="text-sm text-slate-500">Set your weekly availability for sessions.</p>
+    <div className="space-y-5">
+      <div>
+        <h2 className="text-xl font-bold text-white">Availability</h2>
+        <p className="text-sm text-slate-400 mt-1">Set your weekly recurring time slots for mentoring sessions.</p>
+      </div>
 
       {error && (
-        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">{error}</div>
+        <div className="bg-red-900/30 border border-red-700/50 text-red-400 px-4 py-3 rounded-xl text-sm">{error}</div>
       )}
 
       <div>
-        <label className="block text-sm font-medium text-slate-700 mb-1">Timezone</label>
+        <label className={labelCls}>Your Timezone</label>
         <select
           value={timezone}
           onChange={(e) => setTimezone(e.target.value)}
-          className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-900 bg-white placeholder:text-slate-400"
+          className={`${inputCls} cursor-pointer`}
         >
           {Intl.supportedValuesOf('timeZone').map((tz) => (
-            <option key={tz} value={tz}>{tz}</option>
+            <option key={tz} value={tz} className="bg-slate-900">{tz}</option>
           ))}
         </select>
       </div>
@@ -77,13 +78,17 @@ export function AvailabilityStep({ profile, onComplete }: AvailabilityStepProps)
       {/* Current slots */}
       {slots.length > 0 && (
         <div className="space-y-2">
+          <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Scheduled Slots</p>
           {slots.map((slot, i) => (
-            <div key={i} className="flex items-center justify-between p-3 border rounded-lg">
-              <span className="text-sm">
-                <span className="font-medium">{DAYS[slot.dayOfWeek]}</span>{' '}
-                {slot.startTime} - {slot.endTime}
-              </span>
-              <button onClick={() => removeSlot(i)} className="text-red-500 hover:text-red-700 p-1">
+            <div key={i} className="flex items-center justify-between p-3.5 bg-slate-800/40 border border-slate-700/50 rounded-xl">
+              <div className="flex items-center gap-3">
+                <span className="text-xs font-bold text-violet-400 w-24">{DAYS[slot.dayOfWeek]}</span>
+                <span className="text-sm text-slate-300">{slot.startTime} – {slot.endTime}</span>
+              </div>
+              <button
+                onClick={() => removeSlot(i)}
+                className="text-slate-600 hover:text-red-400 transition-colors p-1 rounded-lg hover:bg-red-900/20"
+              >
                 <Trash2 className="h-4 w-4" />
               </button>
             </div>
@@ -92,48 +97,57 @@ export function AvailabilityStep({ profile, onComplete }: AvailabilityStepProps)
       )}
 
       {/* Add slot */}
-      <div className="border-t pt-4 space-y-3">
-        <h3 className="text-sm font-medium text-slate-700">Add a time slot</h3>
+      <div className="border-t border-slate-700/50 pt-4 space-y-3">
+        <h3 className="text-sm font-semibold text-slate-300">Add a time slot</h3>
         <div className="grid grid-cols-3 gap-3">
           <div>
-            <label className="block text-xs text-slate-500 mb-1">Day</label>
+            <label className={labelCls}>Day</label>
             <select
               value={newDay}
               onChange={(e) => setNewDay(Number(e.target.value))}
-              className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-900 bg-white placeholder:text-slate-400"
+              className={`${inputCls} cursor-pointer`}
             >
               {DAYS.map((day, i) => (
-                <option key={i} value={i}>{day}</option>
+                <option key={i} value={i} className="bg-slate-900">{day}</option>
               ))}
             </select>
           </div>
           <div>
-            <label className="block text-xs text-slate-500 mb-1">Start</label>
+            <label className={labelCls}>Start</label>
             <input
               type="time"
               value={newStart}
               onChange={(e) => setNewStart(e.target.value)}
-              className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-900 bg-white placeholder:text-slate-400"
+              className={inputCls}
             />
           </div>
           <div>
-            <label className="block text-xs text-slate-500 mb-1">End</label>
+            <label className={labelCls}>End</label>
             <input
               type="time"
               value={newEnd}
               onChange={(e) => setNewEnd(e.target.value)}
-              className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-900 bg-white placeholder:text-slate-400"
+              className={inputCls}
             />
           </div>
         </div>
-        <Button type="button" variant="outline" onClick={addSlot}>
-          Add Slot
+        <Button
+          type="button"
+          variant="outline"
+          onClick={addSlot}
+          className="border-slate-700 text-slate-300 hover:bg-slate-800"
+        >
+          + Add Slot
         </Button>
       </div>
 
-      <div className="flex justify-end">
-        <Button onClick={handleSubmit} disabled={loading || slots.length === 0}>
-          {loading ? 'Saving...' : 'Save & Continue'}
+      <div className="flex justify-end pt-1">
+        <Button
+          onClick={handleSubmit}
+          disabled={loading || slots.length === 0}
+          className="bg-violet-600 hover:bg-violet-700 text-white"
+        >
+          {loading ? 'Saving…' : 'Save & Continue →'}
         </Button>
       </div>
     </div>
