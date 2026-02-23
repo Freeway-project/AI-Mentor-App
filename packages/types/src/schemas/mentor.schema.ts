@@ -22,6 +22,15 @@ export const onboardingStepEnum = z.enum([
 
 export const approvalStatusEnum = z.enum(['pending', 'approved', 'rejected']);
 
+export const mentorCertificationSchema = z.object({
+  name: z.string(),
+  fileUrl: z.string(),
+  fileKey: z.string(),
+  uploadedAt: z.date(),
+});
+
+export type MentorCertification = z.infer<typeof mentorCertificationSchema>;
+
 export const mentorSchema = z.object({
   id: z.string(),
   userId: z.string(),
@@ -34,6 +43,9 @@ export const mentorSchema = z.object({
   languages: z.array(z.string()).default(['English']),
   hourlyRate: z.number().positive().optional(),
   availability: availabilitySchema.optional(),
+  certifications: z.array(mentorCertificationSchema).default([]),
+  introVideoUrl: z.string().optional(),
+  introVideoKey: z.string().optional(),
   rating: z.number().min(0).max(5).optional(),
   totalMeetings: z.number().int().nonnegative().default(0),
   totalReviews: z.number().int().nonnegative().default(0),

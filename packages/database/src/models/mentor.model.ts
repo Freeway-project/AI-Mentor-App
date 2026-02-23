@@ -1,5 +1,5 @@
 import mongoose, { Schema } from 'mongoose';
-import { Mentor } from '@owl-mentors/types';
+import { Mentor, MentorCertification } from '@owl-mentors/types';
 
 const availabilitySlotSchema = new Schema(
   {
@@ -32,6 +32,9 @@ export interface IMentorDocument extends mongoose.Document {
     timezone: string;
     schedule: { dayOfWeek: number; startTime: string; endTime: string }[];
   };
+  certifications: { name: string; fileUrl: string; fileKey: string; uploadedAt: Date }[];
+  introVideoUrl?: string;
+  introVideoKey?: string;
   rating?: number;
   totalMeetings: number;
   totalReviews: number;
@@ -46,6 +49,16 @@ export interface IMentorDocument extends mongoose.Document {
   updatedAt: Date;
 }
 
+const certificationSubSchema = new Schema(
+  {
+    name: { type: String, required: true },
+    fileUrl: { type: String, required: true },
+    fileKey: { type: String, required: true },
+    uploadedAt: { type: Date, default: Date.now },
+  },
+  { _id: false }
+);
+
 const mentorSchema = new Schema<IMentorDocument>(
   {
     userId: { type: Schema.Types.ObjectId, ref: 'User', required: true, unique: true },
@@ -58,6 +71,9 @@ const mentorSchema = new Schema<IMentorDocument>(
     languages: { type: [String], default: ['English'] },
     hourlyRate: { type: Number },
     availability: { type: availabilitySchema },
+    certifications: { type: [certificationSubSchema], default: [] },
+    introVideoUrl: { type: String },
+    introVideoKey: { type: String },
     rating: { type: Number },
     totalMeetings: { type: Number, default: 0 },
     totalReviews: { type: Number, default: 0 },
@@ -103,6 +119,14 @@ export function toMentor(doc: IMentorDocument): Mentor {
     languages: doc.languages,
     hourlyRate: doc.hourlyRate,
     availability: doc.availability,
+    certifications: (doc.certifications || []).map(c => ({
+      name: c.name,
+      fileUrl: c.fileUrl,
+      fileKey: c.fileKey,
+      uploadedAt: c.uploadedAt,
+    })),
+    introVideoUrl: doc.introVideoUrl,
+    introVideoKey: doc.introVideoKey,
     rating: doc.rating,
     totalMeetings: doc.totalMeetings,
     totalReviews: doc.totalReviews,
