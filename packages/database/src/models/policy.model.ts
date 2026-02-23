@@ -30,7 +30,7 @@ export function toPolicy(doc: IPolicyDocument): Policy {
     mentorId: doc.mentorId.toString(),
     cancellationHours: doc.cancellationHours,
     rescheduleHours: doc.rescheduleHours,
-    noShowPolicy: doc.noShowPolicy,
+    noShowPolicy: doc.noShowPolicy ?? 'No refund for no-shows',
     customTerms: doc.customTerms,
     createdAt: doc.createdAt,
     updatedAt: doc.updatedAt,

@@ -3,8 +3,10 @@ import { Rocket, Github, Twitter, Linkedin } from 'lucide-react';
 
 export function Footer() {
     return (
-        <footer className="border-t border-slate-900 bg-slate-950">
-            <div className="container mx-auto px-4 py-12 md:px-6 md:py-16">
+        <footer className="border-t border-slate-800/60 bg-[#0a0e1a] relative overflow-hidden">
+            {/* Subtle glow */}
+            <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-violet-500/20 to-transparent" />
+            <div className="container mx-auto px-4 py-12 md:px-6 md:py-16 relative z-10">
                 <div className="grid grid-cols-1 gap-8 md:grid-cols-4">
                     <div className="space-y-4">
                         <Link href="/" className="flex items-center space-x-2">

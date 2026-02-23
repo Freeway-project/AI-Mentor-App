@@ -6,6 +6,7 @@ import { authenticate, authorize, requireEmailVerified } from '../middleware/aut
 import { createLLMClient, buildProviderRankingPrompt } from '@owl-mentors/llm';
 import { logger } from '@owl-mentors/utils';
 import { AppError } from '../middleware/error.middleware';
+import { EmailService } from '../services/email.service';
 
 const router: Router = Router();
 
@@ -146,6 +147,14 @@ router.post('/me/publish', authenticate, requireEmailVerified, authorize('mentor
     }
 
     const published = await getMentorRepo().publish(mentor.id);
+
+    // Notify admin — non-blocking, failure must not affect the response
+    const user = await getUserRepo().findById(req.userId!);
+    EmailService.notifyAdminProfileComplete({
+      name: user.name,
+      email: user.email,
+      mentorId: mentor.id,
+    }).catch(() => {});
 
     res.json({
       success: true,

@@ -24,26 +24,26 @@ export default function ForgotPasswordPage() {
   };
 
   return (
-    <>
+    <div className="min-h-screen flex flex-col bg-slate-950">
       <Navbar />
-      <div className="min-h-screen flex items-center justify-center bg-slate-50 px-4">
-        <div className="w-full max-w-md space-y-8">
+      <div className="flex-1 flex items-center justify-center px-4 py-8">
+        <div className="w-full max-w-md space-y-6 bg-slate-900 p-8 rounded-2xl shadow-sm border border-slate-800">
           <div className="text-center">
-            <h1 className="text-3xl font-bold">Reset your password</h1>
-            <p className="mt-2 text-slate-600">
+            <h1 className="text-2xl font-bold text-white">Reset your password</h1>
+            <p className="mt-2 text-slate-400">
               Enter your email and we&apos;ll send you a reset link
             </p>
           </div>
 
           {submitted ? (
-            <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg text-sm">
+            <div className="bg-green-900/30 border border-green-800 text-green-400 px-4 py-3 rounded-lg text-sm">
               If an account exists with that email, a password reset link has been sent.
-              Check your email (or console in development).
+              Check your inbox.
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label htmlFor="email" className="block text-sm font-medium text-slate-700 mb-1">
+                <label htmlFor="email" className="block text-sm font-medium text-slate-300 mb-1">
                   Email
                 </label>
                 <input
@@ -52,7 +52,7 @@ export default function ForgotPasswordPage() {
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-900 bg-white placeholder:text-slate-400"
+                  className="w-full px-3 py-2 border border-slate-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-900 text-white placeholder:text-slate-500"
                   placeholder="you@example.com"
                 />
               </div>
@@ -63,13 +63,13 @@ export default function ForgotPasswordPage() {
             </form>
           )}
 
-          <p className="text-center text-sm text-slate-600">
-            <Link href="/login" className="text-blue-600 hover:underline font-medium">
+          <p className="text-center text-sm text-slate-400">
+            <Link href="/login" className="text-blue-400 hover:underline font-medium">
               Back to sign in
             </Link>
           </p>
         </div>
       </div>
-    </>
+    </div>
   );
 }

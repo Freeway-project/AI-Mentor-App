@@ -1,5 +1,6 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import { UserRepository, MentorRepository, MeetingRepository, CreditRepository } from '@owl-mentors/database';
+import { ReviewMessageModel, toReviewMessage } from '../../../../packages/database/src/models/review-message.model';
 import { authenticate, authorize } from '../middleware/auth.middleware';
 import { AppError } from '../middleware/error.middleware';
 
@@ -254,4 +255,46 @@ router.put('/mentors/:id/unpublish', async (req: Request, res: Response, next: N
   }
 });
 
+// ─── Review Chat (Admin ↔ Mentor) ────────────────────────────────────────────────────
+
+// GET /admin/coaches/:id/messages  — list review thread for a mentor
+router.get('/coaches/:id/messages', async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const msgs = await ReviewMessageModel
+      .find({ mentorId: req.params.id })
+      .sort({ createdAt: 1 })
+      .lean();
+    res.json({ success: true, data: (msgs as any[]).map(toReviewMessage) });
+  } catch (error) { next(error); }
+});
+
+// POST /admin/coaches/:id/messages  — admin sends a message
+router.post('/coaches/:id/messages', async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { content } = req.body;
+    if (!content?.trim()) throw new AppError(400, 'VALIDATION_ERROR', 'Message content is required');
+    const msg = await ReviewMessageModel.create({
+      mentorId: req.params.id,
+      senderId: req.userId!,
+      senderRole: 'admin',
+      content: content.trim(),
+      readByAdmin: true,
+      readByMentor: false,
+    });
+    res.status(201).json({ success: true, data: toReviewMessage(msg) });
+  } catch (error) { next(error); }
+});
+
+// PATCH /admin/coaches/:id/messages/read  — mark all messages as read by admin
+router.patch('/coaches/:id/messages/read', async (_req: Request, res: Response, next: NextFunction) => {
+  try {
+    await ReviewMessageModel.updateMany(
+      { mentorId: _req.params.id, readByAdmin: false },
+      { $set: { readByAdmin: true } }
+    );
+    res.json({ success: true });
+  } catch (error) { next(error); }
+});
+
 export default router;
+

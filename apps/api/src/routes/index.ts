@@ -7,6 +7,7 @@ import adminRoutes from './admin.routes';
 import creditRoutes from './credit.routes';
 import topicRoutes from './topic.routes';
 import mentorAuthRoutes from './mentor-auth.routes';
+import uploadRoutes from './upload.routes';
 
 const router: Router = Router();
 
@@ -19,5 +20,6 @@ router.use('/admin', adminRoutes);
 router.use('/credits', creditRoutes);
 router.use('/topics', topicRoutes);
 router.use('/mentor-auth', mentorAuthRoutes);
+router.use('/upload', uploadRoutes);
 
 export default router;
