@@ -1,24 +1,37 @@
 import multer, { FileFilterCallback } from 'multer';
 import { Request } from 'express';
 
-const ALLOWED_MIME_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
-const MAX_SIZE_BYTES = 5 * 1024 * 1024; // 5 MB
+const IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+const DOC_TYPES   = [...IMAGE_TYPES, 'application/pdf'];
+const VIDEO_TYPES = ['video/mp4', 'video/webm', 'video/quicktime', 'video/x-msvideo'];
 
-function fileFilter(_req: Request, file: Express.Multer.File, cb: FileFilterCallback) {
-  if (ALLOWED_MIME_TYPES.includes(file.mimetype)) {
-    cb(null, true);
-  } else {
-    cb(new Error('Only JPEG, PNG, WebP, and GIF images are allowed'));
-  }
+function makeFilter(allowed: string[]) {
+  return (_req: Request, file: Express.Multer.File, cb: FileFilterCallback) => {
+    if (allowed.includes(file.mimetype)) {
+      cb(null, true);
+    } else {
+      cb(new Error(`File type ${file.mimetype} is not allowed`));
+    }
+  };
 }
 
-/**
- * Single-file upload middleware — stores file in memory as a Buffer.
- * Use `upload.single('image')` or `upload.single('avatar')` in routes.
- * Access the file via `req.file`.
- */
+/** Profile photo / general image — 5 MB, JPEG/PNG/WebP/GIF */
 export const upload = multer({
   storage: multer.memoryStorage(),
-  limits: { fileSize: MAX_SIZE_BYTES },
-  fileFilter,
+  limits: { fileSize: 5 * 1024 * 1024 },
+  fileFilter: makeFilter(IMAGE_TYPES),
+});
+
+/** Certification — 10 MB, PDF or image */
+export const uploadDoc = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 10 * 1024 * 1024 },
+  fileFilter: makeFilter(DOC_TYPES),
+});
+
+/** Intro video — 200 MB, common video formats */
+export const uploadVideo = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 200 * 1024 * 1024 },
+  fileFilter: makeFilter(VIDEO_TYPES),
 });

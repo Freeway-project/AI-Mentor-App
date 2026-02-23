@@ -63,6 +63,22 @@ class ApiClient {
     return data.data as T;
   }
 
+  /** Multipart/form-data upload — does NOT set Content-Type (browser handles boundary) */
+  private async upload<T>(endpoint: string, formData: FormData, method = 'POST'): Promise<T> {
+    const headers: Record<string, string> = {};
+    if (this.token) headers.Authorization = `Bearer ${this.token}`;
+
+    const response = await fetch(`${this.baseUrl}/api${endpoint}`, {
+      method,
+      headers,
+      body: formData,
+    });
+
+    const data: ApiResponse<T> = await response.json();
+    if (!data.success) throw new Error(data.error?.message || 'Upload failed');
+    return data.data as T;
+  }
+
   // Auth
   async register(email: string, password: string, name: string, role: string) {
     const endpoint = role === 'mentor' ? '/mentor-auth/register' : '/auth/register';
@@ -193,6 +209,37 @@ class ApiClient {
       method: 'PUT',
       body: JSON.stringify(data),
     });
+  }
+
+  // Uploads
+  async uploadAvatar(file: File) {
+    const fd = new FormData();
+    fd.append('avatar', file);
+    return this.upload<{ avatarUrl: string }>('/upload/avatar', fd);
+  }
+
+  async uploadCertification(file: File, name: string) {
+    const fd = new FormData();
+    fd.append('file', file);
+    fd.append('name', name);
+    return this.upload<{ certifications: any[] }>('/upload/certification', fd);
+  }
+
+  async deleteCertification(fileKey: string) {
+    return this.request<any>('/upload/certification', {
+      method: 'DELETE',
+      body: JSON.stringify({ fileKey }),
+    });
+  }
+
+  async uploadIntroVideo(file: File) {
+    const fd = new FormData();
+    fd.append('video', file);
+    return this.upload<{ introVideoUrl: string }>('/upload/intro-video', fd);
+  }
+
+  async deleteIntroVideo() {
+    return this.request<any>('/upload/intro-video', { method: 'DELETE' });
   }
 }
 

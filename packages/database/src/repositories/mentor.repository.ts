@@ -228,4 +228,63 @@ export class MentorRepository {
   async findPendingApproval(limit = 20, offset = 0): Promise<{ mentors: Mentor[]; total: number }> {
     return this.findAll({ approvalStatus: 'pending' }, limit, offset);
   }
+
+  async addCertification(
+    mentorId: string,
+    cert: { name: string; fileUrl: string; fileKey: string },
+  ): Promise<Mentor> {
+    const startTime = Date.now();
+    try {
+      const doc = await MentorModel.findByIdAndUpdate(
+        mentorId,
+        { $push: { certifications: { ...cert, uploadedAt: new Date() } } },
+        { new: true },
+      );
+      logger.db({ operation: 'update', collection: 'providers', duration: Date.now() - startTime });
+      if (!doc) throw new Error('Mentor not found');
+      return toMentor(doc);
+    } catch (error) {
+      logger.db({ operation: 'update', collection: 'providers', duration: Date.now() - startTime, error: (error as Error).message });
+      throw error;
+    }
+  }
+
+  async removeCertification(mentorId: string, fileKey: string): Promise<Mentor> {
+    const startTime = Date.now();
+    try {
+      const doc = await MentorModel.findByIdAndUpdate(
+        mentorId,
+        { $pull: { certifications: { fileKey } } },
+        { new: true },
+      );
+      logger.db({ operation: 'update', collection: 'providers', duration: Date.now() - startTime });
+      if (!doc) throw new Error('Mentor not found');
+      return toMentor(doc);
+    } catch (error) {
+      logger.db({ operation: 'update', collection: 'providers', duration: Date.now() - startTime, error: (error as Error).message });
+      throw error;
+    }
+  }
+
+  async updateIntroVideo(mentorId: string, url: string, key: string): Promise<void> {
+    const startTime = Date.now();
+    try {
+      await MentorModel.findByIdAndUpdate(mentorId, { $set: { introVideoUrl: url, introVideoKey: key } });
+      logger.db({ operation: 'update', collection: 'providers', duration: Date.now() - startTime });
+    } catch (error) {
+      logger.db({ operation: 'update', collection: 'providers', duration: Date.now() - startTime, error: (error as Error).message });
+      throw error;
+    }
+  }
+
+  async clearIntroVideo(mentorId: string): Promise<void> {
+    const startTime = Date.now();
+    try {
+      await MentorModel.findByIdAndUpdate(mentorId, { $unset: { introVideoUrl: '', introVideoKey: '' } });
+      logger.db({ operation: 'update', collection: 'providers', duration: Date.now() - startTime });
+    } catch (error) {
+      logger.db({ operation: 'update', collection: 'providers', duration: Date.now() - startTime, error: (error as Error).message });
+      throw error;
+    }
+  }
 }

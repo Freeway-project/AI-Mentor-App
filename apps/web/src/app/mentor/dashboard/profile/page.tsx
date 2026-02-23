@@ -14,13 +14,18 @@ type Tab = typeof TABS[number];
 
 export default function MentorProfilePage() {
     const [profile, setProfile] = useState<any>(null);
+    const [userAvatar, setUserAvatar] = useState<string>('');
     const [activeTab, setActiveTab] = useState<Tab>('Profile');
     const [loading, setLoading] = useState(true);
 
     const loadProfile = async () => {
         try {
-            const p = await apiClient.getMyMentorProfile();
+            const [p, me] = await Promise.all([
+                apiClient.getMyMentorProfile(),
+                apiClient.getMe(),
+            ]);
             setProfile(p);
+            setUserAvatar(me.avatar || '');
         } catch {
             toast.error('Failed to load profile');
         } finally {
@@ -97,6 +102,7 @@ export default function MentorProfilePage() {
                     {activeTab === 'Profile' && (
                         <ProfileStep
                             profile={profile}
+                            userAvatar={userAvatar}
                             onComplete={async () => {
                                 await loadProfile();
                                 toast.success('Profile saved — submitted for review');
