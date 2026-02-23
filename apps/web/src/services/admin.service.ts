@@ -111,4 +111,26 @@ export const adminService = {
   },
 
   getCoachById: (id: string) => apiFetch<any>(`/admin/coaches/${id}`),
+
+  // ─── Marketing ────────────────────────────────────────────────────────────
+  getMarketingTemplates: () => apiFetch<any[]>('/admin/marketing/templates'),
+
+  createMarketingTemplate: (data: { name: string; subject: string; bodyHtml: string }) =>
+    apiFetch<any>('/admin/marketing/templates', { method: 'POST', body: JSON.stringify(data) }),
+
+  updateMarketingTemplate: (id: string, data: { name?: string; subject?: string; bodyHtml?: string }) =>
+    apiFetch<any>(`/admin/marketing/templates/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+
+  deleteMarketingTemplate: (id: string) =>
+    apiFetch(`/admin/marketing/templates/${id}`, { method: 'DELETE' }),
+
+  sendCampaign: (templateId: string, recipients: { name: string; email: string }[]) =>
+    apiFetch<{ campaignRunId: string; total: number }>('/admin/marketing/send', {
+      method: 'POST',
+      body: JSON.stringify({ templateId, recipients }),
+    }),
+
+  getCampaignRun: (runId: string) => apiFetch<any>(`/admin/marketing/campaigns/${runId}`),
+
+  listCampaignRuns: () => apiFetch<any[]>('/admin/marketing/campaigns'),
 };
