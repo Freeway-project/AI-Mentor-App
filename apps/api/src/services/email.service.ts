@@ -235,4 +235,70 @@ export const EmailService = {
       // non-blocking
     }
   },
+
+  /**
+   * Send a marketing email to a recipient, wrapping the body in a mandatory
+   * professional header + footer with CTA buttons for mentor/mentee signup.
+   */
+  async sendMarketing(to: string, recipientName: string, subject: string, bodyHtml: string): Promise<void> {
+    const fromName = process.env.SMTP_FROM_NAME || 'OWLMentors';
+    const fromEmail = process.env.SMTP_FROM_EMAIL || process.env.SMTP_FROM || 'noreply@owlmentors.com';
+    const from = `${fromName} <${fromEmail}>`;
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+    const mentorSignupUrl = `${appUrl}/register?role=mentor`;
+    const menteeSignupUrl = `${appUrl}/register?role=mentee`;
+
+    const header = `
+      <div style="font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;max-width:600px;margin:0 auto;background:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 1px 6px rgba(0,0,0,0.06);">
+        <div style="background:linear-gradient(135deg,#0a0a1a 0%,#0f0b1e 100%);padding:28px 36px;text-align:center;">
+          <p style="color:#f59e0b;font-size:22px;font-weight:800;letter-spacing:-0.5px;margin:0;">🦉 OWLMentors</p>
+          <p style="color:#94a3b8;font-size:12px;margin:6px 0 0;">Connect. Learn. Grow.</p>
+        </div>
+        <div style="padding:32px 36px 0;">
+          <p style="color:#0f172a;font-size:16px;margin:0 0 4px;">Hi${recipientName ? ' ' + recipientName : ''},</p>
+        </div>
+        <div style="padding:16px 36px 0;color:#334155;font-size:15px;line-height:1.7;">
+    `;
+
+    const footer = `
+        </div>
+        <div style="padding:28px 36px;text-align:center;border-top:1px solid #f1f5f9;margin-top:28px;">
+          <p style="color:#64748b;font-size:13px;margin:0 0 16px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">Get started today</p>
+          <a href="${mentorSignupUrl}" style="display:inline-block;padding:12px 28px;background:#7c3aed;color:#ffffff;border-radius:8px;text-decoration:none;font-weight:700;font-size:14px;margin:0 8px 12px;">🎓 Join as Mentor</a>
+          <a href="${menteeSignupUrl}" style="display:inline-block;padding:12px 28px;background:#f59e0b;color:#000000;border-radius:8px;text-decoration:none;font-weight:700;font-size:14px;margin:0 8px 12px;">🚀 Join as Mentee</a>
+        </div>
+        <div style="background:#f8fafc;padding:18px 36px;border-top:1px solid #e2e8f0;text-align:center;">
+          <p style="color:#94a3b8;font-size:11px;margin:0;line-height:1.6;">
+            © ${new Date().getFullYear()} OWLMentors &nbsp;|&nbsp;
+            <a href="${appUrl}" style="color:#7c3aed;text-decoration:none;">Visit our website</a><br/>
+            You are receiving this email because your contact was provided to OWLMentors for outreach.
+          </p>
+        </div>
+      </div>
+    `;
+
+    const html = header + bodyHtml + footer;
+
+    const transport = createTransport();
+    if (transport) {
+      try {
+        await transport.sendMail({ from, to, subject, html });
+        logger.info(`[MARKETING EMAIL] Sent to ${to}`);
+        return;
+      } catch (error) {
+        logger.error(`[MARKETING EMAIL] SMTP failed to ${to}: ${(error as Error).message}`);
+        logger.warn(`[MARKETING EMAIL] Falling back to Ethereal...`);
+      }
+    }
+
+    try {
+      const devTransport = await getDevTransport();
+      const info = await devTransport.sendMail({ from, to, subject, html });
+      const previewUrl = nodemailer.getTestMessageUrl(info);
+      logger.info(`[MARKETING EMAIL DEV] Sent to ${to} | Preview: ${previewUrl}`);
+    } catch (err) {
+      logger.warn(`[MARKETING EMAIL FALLBACK] Could not send to ${to}: ${(err as Error).message}`);
+    }
+  },
 };
+

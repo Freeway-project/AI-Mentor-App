@@ -12,6 +12,8 @@ export * from './models/policy.model';
 export * from './models/credit.model';
 export * from './models/topic.model';
 export * from './models/otp.model';
+export * from './models/email-template.model';
+export * from './models/campaign-run.model';
 
 // Repositories
 export { UserRepository } from './repositories/user.repository';

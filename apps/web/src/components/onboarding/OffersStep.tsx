@@ -20,14 +20,13 @@ export function OffersStep({ mentorId, onComplete }: OffersStepProps) {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    apiClient.getMyOffers().then(setOffers).catch(() => {});
+    apiClient.getMyOffers().then(setOffers).catch(() => { });
   }, []);
 
   const handleAdd = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     setLoading(true);
-
     try {
       const offer = await apiClient.createOffer({
         title,
@@ -56,31 +55,34 @@ export function OffersStep({ mentorId, onComplete }: OffersStepProps) {
     }
   };
 
+  const inputCls = 'w-full px-3 py-2.5 border border-slate-700/60 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500/50 bg-slate-800/60 text-white placeholder:text-slate-500 text-sm';
+  const labelCls = 'block text-xs font-semibold text-slate-400 mb-1.5 uppercase tracking-wider';
+
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-xl font-semibold">Session Offers</h2>
-        <p className="text-sm text-slate-500">Define what types of sessions you offer.</p>
+        <h2 className="text-xl font-bold text-white">Session Offers</h2>
+        <p className="text-sm text-slate-400 mt-1">Define what types of sessions you offer to mentees.</p>
       </div>
 
       {error && (
-        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">{error}</div>
+        <div className="bg-red-900/30 border border-red-700/50 text-red-400 px-4 py-3 rounded-xl text-sm">{error}</div>
       )}
 
       {/* Existing offers */}
       {offers.length > 0 && (
-        <div className="space-y-3">
+        <div className="space-y-2">
           {offers.map((offer) => (
-            <div key={offer.id} className="flex items-center justify-between p-4 border rounded-lg">
+            <div key={offer.id} className="flex items-center justify-between p-4 bg-slate-800/40 border border-slate-700/50 rounded-xl hover:border-violet-500/20 transition-colors">
               <div>
-                <p className="font-medium">{offer.title}</p>
-                <p className="text-sm text-slate-500">
-                  {offer.durationMinutes} min - ${offer.price}
+                <p className="font-semibold text-white text-sm">{offer.title}</p>
+                <p className="text-xs text-slate-400 mt-0.5">
+                  {offer.durationMinutes} min &middot; <span className="text-amber-400 font-medium">${offer.price}</span>
                 </p>
               </div>
               <button
                 onClick={() => handleDelete(offer.id)}
-                className="text-red-500 hover:text-red-700 p-1"
+                className="text-slate-500 hover:text-red-400 transition-colors p-1.5 rounded-lg hover:bg-red-900/20"
               >
                 <Trash2 className="h-4 w-4" />
               </button>
@@ -90,59 +92,70 @@ export function OffersStep({ mentorId, onComplete }: OffersStepProps) {
       )}
 
       {/* Add offer form */}
-      <form onSubmit={handleAdd} className="space-y-3 border-t pt-4">
-        <h3 className="text-sm font-medium text-slate-700">Add an offer</h3>
+      <form onSubmit={handleAdd} className="space-y-3 border-t border-slate-700/50 pt-5">
+        <h3 className="text-sm font-semibold text-slate-300">Add an offer</h3>
 
-        <input
-          type="text"
-          required
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-900 bg-white placeholder:text-slate-400"
-          placeholder="Session title (e.g. 1-on-1 Mentoring)"
-        />
+        <div>
+          <label className={labelCls}>Session Title</label>
+          <input
+            type="text"
+            required
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            className={inputCls}
+            placeholder="e.g. 1-on-1 Mentoring Session"
+          />
+        </div>
 
-        <textarea
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-900 bg-white placeholder:text-slate-400"
-          rows={2}
-          placeholder="Description (optional)"
-        />
+        <div>
+          <label className={labelCls}>Description (optional)</label>
+          <textarea
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            className={inputCls}
+            rows={2}
+            placeholder="What will you cover in this session?"
+          />
+        </div>
 
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <label className="block text-xs text-slate-500 mb-1">Duration (minutes)</label>
+            <label className={labelCls}>Duration (minutes)</label>
             <input
               type="number"
               required
               min="15"
               value={durationMinutes}
               onChange={(e) => setDurationMinutes(e.target.value)}
-              className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-900 bg-white placeholder:text-slate-400"
+              className={inputCls}
             />
           </div>
           <div>
-            <label className="block text-xs text-slate-500 mb-1">Price (USD)</label>
+            <label className={labelCls}>Price (USD)</label>
             <input
               type="number"
               required
               min="0"
               value={price}
               onChange={(e) => setPrice(e.target.value)}
-              className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-900 bg-white placeholder:text-slate-400"
+              className={inputCls}
+              placeholder="e.g. 75"
             />
           </div>
         </div>
 
-        <Button type="submit" variant="outline" disabled={loading}>
-          {loading ? 'Adding...' : 'Add Offer'}
+        <Button type="submit" variant="outline" disabled={loading} className="border-slate-700 text-slate-300 hover:bg-slate-800">
+          {loading ? 'Adding…' : '+ Add Offer'}
         </Button>
       </form>
 
-      <div className="flex justify-end">
-        <Button onClick={onComplete} disabled={offers.length === 0}>
-          Continue
+      <div className="flex justify-end pt-2">
+        <Button
+          onClick={onComplete}
+          disabled={offers.length === 0}
+          className="bg-violet-600 hover:bg-violet-700 text-white"
+        >
+          Continue →
         </Button>
       </div>
     </div>

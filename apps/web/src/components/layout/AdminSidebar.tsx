@@ -62,6 +62,15 @@ const navItems = [
       </svg>
     ),
   },
+  {
+    label: 'Marketing',
+    href: '/admin/marketing',
+    icon: (
+      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+      </svg>
+    ),
+  },
 ];
 
 export function AdminSidebar() {
@@ -100,11 +109,10 @@ export function AdminSidebar() {
             <Link
               key={item.href}
               href={item.href}
-              className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors ${
-                isActive
+              className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors ${isActive
                   ? 'bg-blue-600 text-white'
                   : 'text-slate-400 hover:text-slate-100 hover:bg-slate-800'
-              }`}
+                }`}
             >
               {item.icon}
               <span className="flex-1">{item.label}</span>

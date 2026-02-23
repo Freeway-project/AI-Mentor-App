@@ -296,5 +296,143 @@ router.patch('/coaches/:id/messages/read', async (_req: Request, res: Response, 
   } catch (error) { next(error); }
 });
 
+// ─── Marketing: Email Templates ───────────────────────────────────────────────
+import { EmailTemplateModel, toEmailTemplate, CampaignRunModel, toCampaignRun } from '../../../../packages/database/src/models/email-template.model';
+import { CampaignRunModel as CRModel, toCampaignRun as toCR } from '../../../../packages/database/src/models/campaign-run.model';
+import { EmailService } from '../services/email.service';
+
+const sleep = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms));
+
+// GET /admin/marketing/templates
+router.get('/marketing/templates', async (_req: Request, res: Response, next: NextFunction) => {
+  try {
+    const templates = await EmailTemplateModel.find().sort({ createdAt: -1 }).lean();
+    res.json({ success: true, data: templates.map(toEmailTemplate) });
+  } catch (error) { next(error); }
+});
+
+// POST /admin/marketing/templates
+router.post('/marketing/templates', async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { name, subject, bodyHtml } = req.body as { name?: string; subject?: string; bodyHtml?: string };
+    if (!name || !subject || !bodyHtml) throw new AppError(400, 'VALIDATION_ERROR', 'name, subject, and bodyHtml are required');
+    const doc = await EmailTemplateModel.create({ name, subject, bodyHtml });
+    res.status(201).json({ success: true, data: toEmailTemplate(doc) });
+  } catch (error) { next(error); }
+});
+
+// PUT /admin/marketing/templates/:id
+router.put('/marketing/templates/:id', async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { name, subject, bodyHtml } = req.body as { name?: string; subject?: string; bodyHtml?: string };
+    const doc = await EmailTemplateModel.findByIdAndUpdate(
+      req.params.id,
+      { ...(name && { name }), ...(subject && { subject }), ...(bodyHtml && { bodyHtml }) },
+      { new: true }
+    );
+    if (!doc) throw new AppError(404, 'NOT_FOUND', 'Template not found');
+    res.json({ success: true, data: toEmailTemplate(doc) });
+  } catch (error) { next(error); }
+});
+
+// DELETE /admin/marketing/templates/:id
+router.delete('/marketing/templates/:id', async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const doc = await EmailTemplateModel.findByIdAndDelete(req.params.id);
+    if (!doc) throw new AppError(404, 'NOT_FOUND', 'Template not found');
+    res.json({ success: true, data: { message: 'Template deleted' } });
+  } catch (error) { next(error); }
+});
+
+// ─── Marketing: Campaign Send (non-blocking background) ───────────────────────
+
+// POST /admin/marketing/send
+router.post('/marketing/send', async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { templateId, recipients } = req.body as {
+      templateId?: string;
+      recipients?: { name: string; email: string }[];
+    };
+
+    if (!templateId || !Array.isArray(recipients) || recipients.length === 0) {
+      throw new AppError(400, 'VALIDATION_ERROR', 'templateId and at least one recipient are required');
+    }
+
+    const template = await EmailTemplateModel.findById(templateId);
+    if (!template) throw new AppError(404, 'NOT_FOUND', 'Template not found');
+
+    // Create the campaign run document
+    const run = await CRModel.create({
+      templateId: template._id.toString(),
+      templateName: template.name,
+      subject: template.subject,
+      recipients: recipients.map((r) => ({ name: r.name, email: r.email, status: 'pending' })),
+      total: recipients.length,
+      sent: 0,
+      failed: 0,
+      status: 'running',
+      startedAt: new Date(),
+    });
+
+    // Respond immediately — fire and forget the background loop
+    res.status(202).json({ success: true, data: { campaignRunId: run._id.toString(), total: recipients.length } });
+
+    // ─ Background send loop (no external queue needed) ─
+    ; (async () => {
+      let sent = 0;
+      let failed = 0;
+
+      for (let i = 0; i < recipients.length; i++) {
+        const { name, email } = recipients[i];
+        try {
+          await EmailService.sendMarketing(email, name, template.subject, template.bodyHtml);
+          sent++;
+          await CRModel.findByIdAndUpdate(run._id, {
+            $set: { [`recipients.${i}.status`]: 'sent', sent, failed },
+          });
+        } catch (err) {
+          failed++;
+          await CRModel.findByIdAndUpdate(run._id, {
+            $set: {
+              [`recipients.${i}.status`]: 'failed',
+              [`recipients.${i}.errorMessage`]: (err as Error).message,
+              sent,
+              failed,
+            },
+          });
+        }
+
+        // Delay between sends to avoid SMTP throttling
+        if (i < recipients.length - 1) {
+          await sleep(1000);
+        }
+      }
+
+      // Mark campaign as complete
+      await CRModel.findByIdAndUpdate(run._id, {
+        $set: { status: 'complete', completedAt: new Date(), sent, failed },
+      });
+    })();
+  } catch (error) { next(error); }
+});
+
+// GET /admin/marketing/campaigns
+router.get('/marketing/campaigns', async (_req: Request, res: Response, next: NextFunction) => {
+  try {
+    const runs = await CRModel.find().sort({ createdAt: -1 }).limit(50).lean();
+    res.json({ success: true, data: runs.map(toCR) });
+  } catch (error) { next(error); }
+});
+
+// GET /admin/marketing/campaigns/:runId
+router.get('/marketing/campaigns/:runId', async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const run = await CRModel.findById(req.params.runId);
+    if (!run) throw new AppError(404, 'NOT_FOUND', 'Campaign run not found');
+    res.json({ success: true, data: toCR(run) });
+  } catch (error) { next(error); }
+});
+
 export default router;
+
 
