@@ -155,6 +155,7 @@ export function ProfileStep({ profile, userAvatar, onComplete }: ProfileStepProp
           <div className="relative shrink-0">
             <div className="w-20 h-20 rounded-full bg-slate-800/80 border-2 border-slate-700/60 overflow-hidden shadow-lg">
               {avatarUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element
                 <img src={avatarUrl} alt="Profile" className="w-full h-full object-cover" />
               ) : (
                 <div className="w-full h-full flex items-center justify-center text-slate-600">

@@ -27,7 +27,7 @@ export function TemplateEditor({ initialData, onSave, onDelete, saving }: Templa
         setSubject(initialData?.subject ?? '');
         setBodyHtml(initialData?.bodyHtml ?? '');
         setShowPreview(false);
-    }, [initialData?.id]);
+    }, [initialData?.id, initialData?.name, initialData?.subject, initialData?.bodyHtml]);
 
     const handleSave = async () => {
         await onSave({ name, subject, bodyHtml }, initialData?.id);
