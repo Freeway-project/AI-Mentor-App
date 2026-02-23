@@ -297,7 +297,7 @@ router.patch('/coaches/:id/messages/read', async (_req: Request, res: Response, 
 });
 
 // ─── Marketing: Email Templates ───────────────────────────────────────────────
-import { EmailTemplateModel, toEmailTemplate, CampaignRunModel, toCampaignRun } from '../../../../packages/database/src/models/email-template.model';
+import { EmailTemplateModel, toEmailTemplate } from '../../../../packages/database/src/models/email-template.model';
 import { CampaignRunModel as CRModel, toCampaignRun as toCR } from '../../../../packages/database/src/models/campaign-run.model';
 import { EmailService } from '../services/email.service';
 
@@ -306,7 +306,7 @@ const sleep = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve,
 // GET /admin/marketing/templates
 router.get('/marketing/templates', async (_req: Request, res: Response, next: NextFunction) => {
   try {
-    const templates = await EmailTemplateModel.find().sort({ createdAt: -1 }).lean();
+    const templates = await EmailTemplateModel.find().sort({ createdAt: -1 });
     res.json({ success: true, data: templates.map(toEmailTemplate) });
   } catch (error) { next(error); }
 });
@@ -419,7 +419,7 @@ router.post('/marketing/send', async (req: Request, res: Response, next: NextFun
 // GET /admin/marketing/campaigns
 router.get('/marketing/campaigns', async (_req: Request, res: Response, next: NextFunction) => {
   try {
-    const runs = await CRModel.find().sort({ createdAt: -1 }).limit(50).lean();
+    const runs = await CRModel.find().sort({ createdAt: -1 }).limit(50);
     res.json({ success: true, data: runs.map(toCR) });
   } catch (error) { next(error); }
 });
