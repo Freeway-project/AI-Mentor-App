@@ -3,7 +3,8 @@
 import { useRef, useState } from 'react';
 import { apiClient } from '@/lib/api-client';
 import { Button } from '@/components/ui/button';
-import { Trash2, Upload, FileText, Video, X, Camera } from 'lucide-react';
+import { Trash2, Upload, FileText, Video, X, Camera, CheckCircle2 } from 'lucide-react';
+import { toast } from 'sonner';
 
 interface ProfileStepProps {
   profile: any;
@@ -31,11 +32,13 @@ export function ProfileStep({ profile, userAvatar, onComplete }: ProfileStepProp
     const file = e.target.files?.[0];
     if (!file) return;
     setAvatarLoading(true);
+    const toastId = toast.loading('Uploading photo…');
     try {
       const { avatarUrl: url } = await apiClient.uploadAvatar(file);
       setAvatarUrl(url);
+      toast.success('Profile photo updated', { id: toastId });
     } catch (err: any) {
-      setError(err.message || 'Failed to upload photo');
+      toast.error(err.message || 'Failed to upload photo', { id: toastId });
     } finally {
       setAvatarLoading(false);
       if (avatarInputRef.current) avatarInputRef.current.value = '';
@@ -52,14 +55,16 @@ export function ProfileStep({ profile, userAvatar, onComplete }: ProfileStepProp
   const handleCertUpload = async () => {
     if (!certFile || !certName.trim()) return;
     setCertLoading(true);
+    const toastId = toast.loading(`Uploading "${certName.trim()}"…`);
     try {
       const { certifications } = await apiClient.uploadCertification(certFile, certName.trim());
       setCerts(certifications);
       setCertName('');
       setCertFile(null);
       if (certInputRef.current) certInputRef.current.value = '';
+      toast.success('Certification uploaded', { id: toastId });
     } catch (err: any) {
-      setError(err.message || 'Failed to upload certification');
+      toast.error(err.message || 'Failed to upload certification', { id: toastId });
     } finally {
       setCertLoading(false);
     }
@@ -67,11 +72,13 @@ export function ProfileStep({ profile, userAvatar, onComplete }: ProfileStepProp
 
   const handleCertDelete = async (fileKey: string) => {
     setCertLoading(true);
+    const toastId = toast.loading('Removing certification…');
     try {
       const result = await apiClient.deleteCertification(fileKey);
       setCerts(result.certifications);
+      toast.success('Certification removed', { id: toastId });
     } catch (err: any) {
-      setError(err.message || 'Failed to delete certification');
+      toast.error(err.message || 'Failed to delete certification', { id: toastId });
     } finally {
       setCertLoading(false);
     }
@@ -80,17 +87,23 @@ export function ProfileStep({ profile, userAvatar, onComplete }: ProfileStepProp
   // ── intro video ──────────────────────────────────────────────────────────
   const [videoUrl, setVideoUrl] = useState<string>(profile?.introVideoUrl || '');
   const [videoLoading, setVideoLoading] = useState(false);
+  const [videoProgress, setVideoProgress] = useState('');
   const videoInputRef = useRef<HTMLInputElement>(null);
 
   const handleVideoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
     setVideoLoading(true);
+    setVideoProgress('Uploading… this may take a moment for large files');
+    const toastId = toast.loading('Uploading intro video…');
     try {
       const { introVideoUrl: url } = await apiClient.uploadIntroVideo(file);
       setVideoUrl(url);
+      setVideoProgress('');
+      toast.success('Intro video uploaded', { id: toastId });
     } catch (err: any) {
-      setError(err.message || 'Failed to upload video');
+      setVideoProgress('');
+      toast.error(err.message || 'Failed to upload video', { id: toastId });
     } finally {
       setVideoLoading(false);
       if (videoInputRef.current) videoInputRef.current.value = '';
@@ -99,11 +112,13 @@ export function ProfileStep({ profile, userAvatar, onComplete }: ProfileStepProp
 
   const handleVideoDelete = async () => {
     setVideoLoading(true);
+    const toastId = toast.loading('Removing video…');
     try {
       await apiClient.deleteIntroVideo();
       setVideoUrl('');
+      toast.success('Intro video removed', { id: toastId });
     } catch (err: any) {
-      setError(err.message || 'Failed to remove video');
+      toast.error(err.message || 'Failed to remove video', { id: toastId });
     } finally {
       setVideoLoading(false);
     }
@@ -282,20 +297,35 @@ export function ProfileStep({ profile, userAvatar, onComplete }: ProfileStepProp
 
         {videoUrl ? (
           <div className="space-y-3">
-            <video src={videoUrl} controls className="w-full max-h-56 rounded-xl bg-slate-800/60 border border-slate-700/50" />
-            <Button type="button" variant="outline" size="sm" disabled={videoLoading} onClick={handleVideoDelete} className="border-slate-700/60 text-red-400 hover:bg-red-900/20">
-              <Trash2 className="w-4 h-4 mr-1.5" />
-              {videoLoading ? 'Removing…' : 'Remove video'}
-            </Button>
+            <div className="relative">
+              <video src={videoUrl} controls className="w-full max-h-56 rounded-xl bg-slate-800/60 border border-slate-700/50" />
+              <span className="absolute top-2 left-2 flex items-center gap-1 bg-green-900/80 text-green-400 text-xs font-medium px-2 py-1 rounded-full border border-green-700/50">
+                <CheckCircle2 className="w-3 h-3" /> Uploaded
+              </span>
+            </div>
+            <div className="flex items-center gap-3">
+              <input ref={videoInputRef} type="file" accept="video/mp4,video/webm,video/quicktime,video/x-msvideo" className="hidden" onChange={handleVideoChange} />
+              <Button type="button" variant="outline" size="sm" disabled={videoLoading} onClick={() => videoInputRef.current?.click()} className="border-slate-700/60 text-slate-300 hover:bg-slate-800">
+                Replace video
+              </Button>
+              <Button type="button" variant="outline" size="sm" disabled={videoLoading} onClick={handleVideoDelete} className="border-slate-700/60 text-red-400 hover:bg-red-900/20">
+                <Trash2 className="w-4 h-4 mr-1.5" />
+                {videoLoading ? 'Removing…' : 'Remove'}
+              </Button>
+            </div>
           </div>
         ) : (
-          <div>
+          <div className="space-y-2">
             <input ref={videoInputRef} type="file" accept="video/mp4,video/webm,video/quicktime,video/x-msvideo" className="hidden" onChange={handleVideoChange} />
             <button type="button" onClick={() => videoInputRef.current?.click()} disabled={videoLoading}
               className="w-full py-8 border-2 border-dashed border-slate-700/50 rounded-xl flex flex-col items-center gap-2 text-slate-500 hover:border-violet-500/30 hover:text-slate-400 transition-colors disabled:opacity-50">
               <Video className="w-8 h-8" />
-              <span className="text-sm">{videoLoading ? 'Uploading video…' : 'Click to upload intro video'}</span>
+              <span className="text-sm font-medium">{videoLoading ? 'Uploading…' : 'Click to upload intro video'}</span>
+              {!videoLoading && <span className="text-xs text-slate-600">MP4, WebM or MOV · max 200 MB</span>}
             </button>
+            {videoLoading && videoProgress && (
+              <p className="text-xs text-slate-500 text-center animate-pulse">{videoProgress}</p>
+            )}
           </div>
         )}
       </section>
