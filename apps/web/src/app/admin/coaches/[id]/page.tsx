@@ -26,8 +26,8 @@ type ReviewStepKey = (typeof REVIEW_STEPS)[number]['key'];
 
 function Section({ title, children, id }: { title: string; children: React.ReactNode; id?: string }) {
     return (
-        <section id={id} className="bg-white rounded-xl border border-slate-200 p-5 space-y-3 scroll-mt-24">
-            <h2 className="font-semibold text-slate-500 text-xs uppercase tracking-wider mb-3">{title}</h2>
+        <section id={id} className="bg-slate-900/75 rounded-xl border border-slate-700/60 p-5 space-y-3 scroll-mt-24">
+            <h2 className="font-semibold text-slate-300 text-xs uppercase tracking-wider mb-3">{title}</h2>
             {children}
         </section>
     );
@@ -35,7 +35,7 @@ function Section({ title, children, id }: { title: string; children: React.React
 
 function Tag({ label }: { label: string }) {
     return (
-        <span className="inline-block bg-slate-100 text-slate-700 text-xs font-medium px-2.5 py-1 rounded-full">
+        <span className="inline-block bg-slate-800 text-slate-200 text-xs font-medium px-2.5 py-1 rounded-full border border-slate-700">
             {label}
         </span>
     );
@@ -43,9 +43,9 @@ function Tag({ label }: { label: string }) {
 
 function Row({ label, value }: { label: string; value: React.ReactNode }) {
     return (
-        <div className="grid grid-cols-[130px_1fr] gap-2 text-sm py-1 border-b border-slate-50 last:border-0">
+        <div className="grid grid-cols-[130px_1fr] gap-2 text-sm py-1 border-b border-slate-800 last:border-0">
             <span className="text-slate-400 font-medium">{label}</span>
-            <span className="text-slate-800">{value ?? <span className="italic text-slate-300">—</span>}</span>
+            <span className="text-slate-100">{value ?? <span className="italic text-slate-500">—</span>}</span>
         </div>
     );
 }
@@ -53,7 +53,7 @@ function Row({ label, value }: { label: string; value: React.ReactNode }) {
 function ReviewChecklistItem({ label, done }: { label: string; done: boolean }) {
     return (
         <div className="flex items-center justify-between gap-2 py-2">
-            <span className="text-sm text-slate-700">{label}</span>
+            <span className="text-sm text-slate-200">{label}</span>
             {done ? (
                 <span className="inline-flex items-center gap-1 text-emerald-700 text-xs font-semibold">
                     <CheckCircle2 className="w-3.5 h-3.5" /> Done
@@ -147,40 +147,40 @@ export default function MentorReviewPage() {
     const currentStep = REVIEW_STEPS[currentStepIndex] || REVIEW_STEPS[0];
 
     return (
-        <div className="p-6 md:p-8 max-w-5xl mx-auto space-y-6">
+        <div className="p-6 md:p-8 max-w-5xl mx-auto space-y-6 text-slate-100">
 
             {/* Header */}
             <div className="flex items-start justify-between gap-4 flex-wrap">
                 <div className="flex items-center gap-3">
                     <button
                         onClick={() => router.back()}
-                        className="w-9 h-9 rounded-lg border border-slate-200 flex items-center justify-center hover:bg-slate-50 transition-colors shrink-0"
+                        className="w-9 h-9 rounded-lg border border-slate-700 bg-slate-900/70 flex items-center justify-center hover:bg-slate-800 transition-colors shrink-0"
                     >
-                        <ArrowLeft className="w-4 h-4 text-slate-600" />
+                        <ArrowLeft className="w-4 h-4 text-slate-300" />
                     </button>
 
                     {/* Avatar + name */}
                     <div className="flex items-center gap-3">
-                        <div className="w-14 h-14 rounded-full bg-slate-200 overflow-hidden border-2 border-slate-300 shrink-0">
+                        <div className="w-14 h-14 rounded-full bg-slate-800 overflow-hidden border-2 border-slate-700 shrink-0">
                             {mentor.avatarUrl ? (
                                 // eslint-disable-next-line @next/next/no-img-element
                                 <img src={mentor.avatarUrl} alt={mentor.name} className="w-full h-full object-cover" />
                             ) : (
-                                <div className="w-full h-full flex items-center justify-center text-slate-400">
+                                <div className="w-full h-full flex items-center justify-center text-slate-500">
                                     <User className="w-6 h-6" />
                                 </div>
                             )}
                         </div>
                         <div>
                             <div className="flex items-center gap-2 flex-wrap">
-                                <h1 className="text-xl font-bold text-slate-900">{mentor.name}</h1>
+                                <h1 className="text-xl font-bold text-slate-100">{mentor.name}</h1>
                                 <StatusBadge status={mentor.approvalStatus} />
                                 {mentor.isActive && (
                                     <span className="text-xs bg-emerald-100 text-emerald-700 font-semibold px-2 py-0.5 rounded-full">● Live</span>
                                 )}
                             </div>
-                            {mentor.headline && <p className="text-slate-500 text-sm mt-0.5">{mentor.headline}</p>}
-                            <div className="flex items-center gap-3 mt-1 text-xs text-slate-400">
+                            {mentor.headline && <p className="text-slate-400 text-sm mt-0.5">{mentor.headline}</p>}
+                            <div className="flex items-center gap-3 mt-1 text-xs text-slate-500">
                                 {mentor.email && (
                                     <span className="flex items-center gap-1"><Mail className="w-3 h-3" />{mentor.email}</span>
                                 )}
@@ -217,14 +217,14 @@ export default function MentorReviewPage() {
 
             {/* Rejection form */}
             {showRejectForm && (
-                <div className="bg-red-50 border border-red-200 rounded-xl p-4 space-y-3">
-                    <p className="text-sm font-medium text-red-700">Provide a reason for rejection (visible to the mentor):</p>
+                <div className="bg-red-950/25 border border-red-800/60 rounded-xl p-4 space-y-3">
+                    <p className="text-sm font-medium text-red-300">Provide a reason for rejection (visible to the mentor):</p>
                     <textarea
                         rows={3}
                         value={rejectNote}
                         onChange={(e) => setRejectNote(e.target.value)}
                         placeholder="e.g. Missing professional experience, incomplete bio..."
-                        className="w-full px-3 py-2 text-sm text-slate-900 bg-white border border-red-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-400 placeholder:text-slate-400"
+                        className="w-full px-3 py-2 text-sm text-slate-100 bg-slate-900 border border-red-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 placeholder:text-slate-500"
                     />
                     <div className="flex gap-2">
                         <Button
@@ -242,14 +242,14 @@ export default function MentorReviewPage() {
 
             {/* Prior rejection note */}
             {mentor.approvalNote && mentor.approvalStatus === 'rejected' && (
-                <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 text-sm text-amber-800">
+                <div className="bg-amber-950/20 border border-amber-800/50 rounded-xl p-4 text-sm text-amber-200">
                     <span className="font-semibold">Rejection Note:</span> {mentor.approvalNote}
                 </div>
             )}
 
             {/* Partial-load warnings from API */}
             {dataWarnings.length > 0 && (
-                <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 text-sm text-amber-800">
+                <div className="bg-amber-950/20 border border-amber-800/50 rounded-xl p-4 text-sm text-amber-200">
                     <p className="font-semibold mb-1">Some mentor profile sections could not be loaded</p>
                     <ul className="list-disc pl-5 space-y-0.5">
                         {dataWarnings.map((warning) => <li key={warning}>{warning}</li>)}
@@ -259,7 +259,7 @@ export default function MentorReviewPage() {
 
             {/* Submitted but not yet in published state warning */}
             {mentor.onboardingStep !== 'published' && (
-                <div className="bg-blue-50 border border-blue-200 rounded-xl p-3 text-sm text-blue-700">
+                <div className="bg-blue-950/20 border border-blue-800/50 rounded-xl p-3 text-sm text-blue-200">
                     ℹ️ This mentor is still completing onboarding (step: <strong>{mentor.onboardingStep}</strong>) and has not yet submitted for review.
                 </div>
             )}
