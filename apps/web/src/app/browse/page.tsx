@@ -35,13 +35,12 @@ export default function BrowsePage() {
   };
 
   return (
-  return (
     <div className="min-h-screen flex flex-col relative overflow-hidden" style={{ background: 'linear-gradient(135deg, #0a0a1a 0%, #0d1117 30%, #0f0b1e 60%, #0a0e1a 100%)' }}>
       {/* Deep space base */}
       <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute inset-0 opacity-[0.1]" style={{ backgroundImage: 'radial-gradient(circle, #475569 1px, transparent 1px)', backgroundSize: '36px 36px' }} />
-          <div className="absolute top-10 right-10 w-[500px] h-[500px] rounded-full bg-violet-600/5 blur-[120px]" />
-          <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-violet-500/30 to-transparent" />
+        <div className="absolute inset-0 opacity-[0.1]" style={{ backgroundImage: 'radial-gradient(circle, #475569 1px, transparent 1px)', backgroundSize: '36px 36px' }} />
+        <div className="absolute top-10 right-10 w-[500px] h-[500px] rounded-full bg-violet-600/5 blur-[120px]" />
+        <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-violet-500/30 to-transparent" />
       </div>
 
       <Navbar />
@@ -83,7 +82,7 @@ export default function BrowsePage() {
                   className="group block bg-slate-900/40 backdrop-blur-md rounded-2xl border border-slate-800/80 hover:border-violet-500/30 hover:shadow-[0_0_30px_rgba(139,92,246,0.08)] transition-all duration-300 p-6 relative overflow-hidden"
                 >
                   <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-violet-500/0 to-transparent group-hover:via-violet-500/50 transition-all duration-300" />
-                  
+
                   <div className="flex items-start gap-4">
                     <div className="w-12 h-12 rounded-full bg-violet-500/10 border border-violet-500/20 flex items-center justify-center text-violet-400 font-semibold text-lg flex-shrink-0 shadow-inner">
                       {mentor.name?.charAt(0)?.toUpperCase()}
@@ -128,6 +127,7 @@ export default function BrowsePage() {
               ))}
             </div>
           )}
+        </div>
       </div>
     </div>
   );
