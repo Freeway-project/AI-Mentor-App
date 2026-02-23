@@ -8,7 +8,6 @@ import { TemplateList } from '@/components/admin/marketing/TemplateList';
 import { TemplateEditor } from '@/components/admin/marketing/TemplateEditor';
 import { RecipientManager, Recipient } from '@/components/admin/marketing/RecipientManager';
 import { CampaignSender } from '@/components/admin/marketing/CampaignSender';
-import { PremadeTemplates, PremadeTemplate } from '@/components/admin/marketing/PremadeTemplates';
 
 export default function MarketingPage() {
     const qc = useQueryClient();
@@ -83,15 +82,6 @@ export default function MarketingPage() {
         setIsNew(true);
     };
 
-    // Save a pre-made template straight to the DB and open it in the editor
-    const handlePremadeSelect = useCallback(async (t: PremadeTemplate) => {
-        try {
-            const created = await createTemplate.mutateAsync(t);
-            setSelectedTemplate(created);
-            setIsNew(false);
-        } catch { /* toast already shown by mutation */ }
-    }, [createTemplate]);
-
     // ─── Helpers ─────────────────────────────────────────────────────────────────
     const saving = createTemplate.isPending || updateTemplate.isPending;
 
@@ -116,8 +106,8 @@ export default function MarketingPage() {
                             key={tab.id}
                             onClick={() => setActiveTab(tab.id)}
                             className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${activeTab === tab.id
-                                ? 'bg-white text-slate-900 shadow-sm'
-                                : 'text-slate-500 hover:text-slate-800'
+                                    ? 'bg-white text-slate-900 shadow-sm'
+                                    : 'text-slate-500 hover:text-slate-800'
                                 }`}
                         >
                             {tab.label}
@@ -151,17 +141,11 @@ export default function MarketingPage() {
                                 saving={saving}
                             />
                         ) : (
-                            <div className="flex-1 overflow-y-auto p-6">
-                                <div className="max-w-xl mx-auto">
-                                    <div className="text-center mb-6">
-                                        <p className="text-2xl mb-1">✉️</p>
-                                        <p className="font-semibold text-slate-700">Start from a pre-made template</p>
-                                        <p className="text-sm text-slate-400 mt-1">Click any template below to save and open it in the editor — or click <strong>+ New</strong> to start from scratch.</p>
-                                    </div>
-                                    <PremadeTemplates
-                                        onSelect={handlePremadeSelect}
-                                        loading={createTemplate.isPending}
-                                    />
+                            <div className="flex-1 flex items-center justify-center text-slate-400">
+                                <div className="text-center">
+                                    <p className="text-4xl mb-3">✉️</p>
+                                    <p className="font-medium">Select a template to edit</p>
+                                    <p className="text-sm mt-1">or click <strong>+ New</strong> to create one</p>
                                 </div>
                             </div>
                         )}
@@ -217,8 +201,8 @@ export default function MarketingPage() {
                                             <p className="text-sm text-slate-500 mt-0.5">{run.subject}</p>
                                         </div>
                                         <span className={`text-xs font-bold px-2.5 py-1 rounded-full ${run.status === 'complete' ? 'bg-green-100 text-green-700' :
-                                            run.status === 'running' ? 'bg-amber-100 text-amber-700' :
-                                                'bg-red-100 text-red-700'
+                                                run.status === 'running' ? 'bg-amber-100 text-amber-700' :
+                                                    'bg-red-100 text-red-700'
                                             }`}>
                                             {run.status}
                                         </span>

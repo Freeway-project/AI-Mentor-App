@@ -1,8 +1,8 @@
+'use client';
+
 import { useState, useEffect, useRef } from 'react';
 import { adminService } from '@/services/admin.service';
 import { Button } from '@/components/ui/button';
-import { toast } from 'sonner';
-import { Send, CheckCircle2, AlertCircle, Loader2 } from 'lucide-react';
 import { Recipient } from './RecipientManager';
 
 interface CampaignSenderProps {
@@ -11,160 +11,154 @@ interface CampaignSenderProps {
     recipients: Recipient[];
 }
 
+type RunStatus = 'running' | 'complete' | 'failed';
+
+interface CampaignPollData {
+    status: RunStatus;
+    sent: number;
+    failed: number;
+    total: number;
+    recipients: { name: string; email: string; status: string; errorMessage?: string }[];
+}
+
 export function CampaignSender({ selectedTemplateId, selectedTemplateName, recipients }: CampaignSenderProps) {
     const [sending, setSending] = useState(false);
     const [runId, setRunId] = useState<string | null>(null);
-    const [status, setStatus] = useState<any>(null); // from polling
-    const validRecipients = recipients.filter((r) => r.email && r.email.includes('@'));
+    const [pollData, setPollData] = useState<CampaignPollData | null>(null);
+    const [error, setError] = useState<string | null>(null);
+    const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-    // Polling mechanism
-    const timerRef = useRef<any>(null);
+    const validRecipients = recipients.filter((r) => r.name && r.email.includes('@'));
 
-    useEffect(() => {
-        if (!runId) return;
+    const stopPolling = () => {
+        if (pollRef.current) {
+            clearInterval(pollRef.current);
+            pollRef.current = null;
+        }
+    };
 
-        const poll = async () => {
+    const startPolling = (id: string) => {
+        stopPolling();
+        pollRef.current = setInterval(async () => {
             try {
-                const data = await adminService.getCampaignRun(runId);
-                setStatus(data);
+                const data = await adminService.getCampaignRun(id);
+                setPollData(data);
                 if (data.status === 'complete' || data.status === 'failed') {
-                    clearInterval(timerRef.current);
+                    stopPolling();
                     setSending(false);
-                    if (data.status === 'complete') {
-                        toast.success(`Campaign finished! Sent ${data.sent} of ${data.total}.`);
-                    }
                 }
-            } catch (e) {
-                console.error('Polling error', e);
+            } catch {
+                stopPolling();
+                setSending(false);
             }
-        };
+        }, 1500);
+    };
 
-        timerRef.current = setInterval(poll, 1500);
-        poll(); // immediate first hit
-
-        return () => clearInterval(timerRef.current);
-    }, [runId]);
+    useEffect(() => () => stopPolling(), []);
 
     const handleSend = async () => {
-        if (!selectedTemplateId) return toast.error('Select a template first.');
-        if (validRecipients.length === 0) return toast.error('Add at least one valid recipient.');
-
-        if (!confirm(`Ready to send "${selectedTemplateName}" to ${validRecipients.length} people?`)) return;
-
+        if (!selectedTemplateId || validRecipients.length === 0) return;
+        setError(null);
+        setPollData(null);
         setSending(true);
-        setStatus(null);
-        setRunId(null);
-
         try {
-            const res = await adminService.sendCampaign(selectedTemplateId, validRecipients);
-            setRunId(res.campaignRunId);
-            toast.info('Campaign queued. Monitoring progress...');
+            const result = await adminService.sendCampaign(
+                selectedTemplateId,
+                validRecipients.map(({ name, email }) => ({ name, email }))
+            );
+            setRunId(result.campaignRunId);
+            startPolling(result.campaignRunId);
         } catch (err: any) {
-            toast.error(err.message || 'Failed to start campaign');
+            setError(err.message || 'Failed to start campaign');
             setSending(false);
         }
     };
 
-    const isComplete = status?.status === 'complete';
-    const progressPct = status ? Math.round(((status.sent + status.failed) / status.total) * 100) : 0;
+    const pct = pollData && pollData.total > 0
+        ? Math.round(((pollData.sent + pollData.failed) / pollData.total) * 100)
+        : 0;
 
     return (
-        <div className="flex flex-col h-full bg-slate-900 border-l border-slate-800 text-slate-100">
-            <div className="p-6 flex-1 overflow-y-auto flex flex-col items-center justify-center text-center">
-                {!status && !sending && (
-                    <div className="space-y-6 w-full max-w-[240px]">
-                        <div className="w-16 h-16 bg-slate-800 rounded-full flex items-center justify-center mx-auto shadow-inner">
-                            <Send className="w-7 h-7 text-blue-400" />
-                        </div>
+        <div className="flex flex-col h-full">
+            <div className="px-5 py-3 border-b border-slate-200">
+                <h2 className="font-semibold text-slate-800 text-sm uppercase tracking-wider">Send Campaign</h2>
+            </div>
 
-                        <div className="space-y-2">
-                            <h3 className="font-semibold text-lg text-white">Ready to Send</h3>
-                            <div className="text-sm text-slate-400 bg-slate-800/50 p-3 rounded-xl border border-slate-700/50 space-y-2">
-                                <div className="flex justify-between">
-                                    <span>Template:</span>
-                                    <span className="text-slate-200 font-medium truncate max-w-[100px]">{selectedTemplateName || 'None'}</span>
-                                </div>
-                                <div className="flex justify-between">
-                                    <span>Recipients:</span>
-                                    <span className="text-slate-200 font-medium">{validRecipients.length}</span>
-                                </div>
-                            </div>
-                        </div>
+            <div className="flex-1 overflow-y-auto p-5 space-y-5">
+                {/* Template Summary */}
+                <div className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 space-y-1">
+                    <p className="text-xs text-slate-500 font-semibold uppercase tracking-wider">Template</p>
+                    <p className={`text-sm font-medium ${selectedTemplateName ? 'text-slate-800' : 'text-slate-400'}`}>
+                        {selectedTemplateName ?? 'None selected'}
+                    </p>
+                </div>
 
-                        <Button
-                            className="w-full bg-blue-600 hover:bg-blue-500 text-white font-semibold py-6 rounded-xl shadow-lg shadow-blue-900/20"
-                            disabled={validRecipients.length === 0 || !selectedTemplateId}
-                            onClick={handleSend}
-                        >
-                            Start Sending
-                        </Button>
+                {/* Recipient Summary */}
+                <div className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 space-y-1">
+                    <p className="text-xs text-slate-500 font-semibold uppercase tracking-wider">Recipients</p>
+                    <p className={`text-sm font-medium ${validRecipients.length > 0 ? 'text-slate-800' : 'text-slate-400'}`}>
+                        {validRecipients.length > 0 ? `${validRecipients.length} valid recipient(s)` : 'No valid recipients'}
+                    </p>
+                </div>
+
+                {/* Send Button */}
+                <Button
+                    onClick={handleSend}
+                    disabled={sending || !selectedTemplateId || validRecipients.length === 0}
+                    className="w-full bg-violet-600 hover:bg-violet-700 text-white h-11 font-semibold"
+                >
+                    {sending ? '⏳ Sending in background…' : `🚀 Send to ${validRecipients.length} recipient(s)`}
+                </Button>
+
+                {error && (
+                    <div className="text-sm text-red-600 bg-red-50 border border-red-200 px-4 py-3 rounded-xl">
+                        {error}
                     </div>
                 )}
 
-                {/* Active / Complete State */}
-                {(sending || status) && (
-                    <div className="w-full space-y-8 animate-in fade-in duration-500">
-                        {isComplete ? (
-                            <div className="w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center mx-auto border border-green-500/30">
-                                <CheckCircle2 className="w-8 h-8 text-green-400" />
-                            </div>
-                        ) : (
-                            <Loader2 className="w-12 h-12 text-blue-400 animate-spin mx-auto" />
-                        )}
-
-                        <div>
-                            <h3 className="text-xl font-bold text-white mb-1">
-                                {isComplete ? 'Campaign Complete' : 'Sending Campaign...'}
-                            </h3>
-                            <p className="text-sm text-slate-400">
-                                {status ? `Processed ${status.sent + status.failed} of ${status.total}` : 'Starting background workers...'}
-                            </p>
+                {/* Progress */}
+                {pollData && (
+                    <div className="rounded-xl border border-slate-200 bg-white p-4 space-y-3">
+                        <div className="flex items-center justify-between text-sm">
+                            <span className="font-semibold text-slate-700">
+                                {pollData.status === 'running' ? '⏳ Sending…' : pollData.status === 'complete' ? '✅ Complete' : '❌ Failed'}
+                            </span>
+                            <span className="text-slate-500 text-xs">{pollData.sent + pollData.failed} / {pollData.total}</span>
                         </div>
 
-                        {/* Progress Bar */}
-                        {status && (
-                            <div className="w-full space-y-2 text-left">
-                                <div className="flex justify-between text-xs font-medium text-slate-300">
-                                    <span>Progress</span>
-                                    <span>{progressPct}%</span>
-                                </div>
-                                <div className="h-3 w-full bg-slate-800 rounded-full overflow-hidden border border-slate-700">
-                                    <div
-                                        className="h-full bg-gradient-to-r from-blue-600 to-blue-400 transition-all duration-500"
-                                        style={{ width: `${progressPct}%` }}
-                                    />
-                                </div>
+                        {/* Progress bar */}
+                        <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
+                            <div
+                                className={`h-full rounded-full transition-all ${pollData.failed > 0 ? 'bg-amber-500' : 'bg-violet-500'}`}
+                                style={{ width: `${pct}%` }}
+                            />
+                        </div>
 
-                                <div className="grid grid-cols-2 gap-3 mt-6">
-                                    <div className="bg-slate-800 p-3 rounded-lg border border-slate-700 text-center">
-                                        <p className="text-xs text-slate-500 mb-1">Delivered</p>
-                                        <p className="text-2xl font-semibold text-green-400">{status.sent}</p>
+                        <div className="flex gap-4 text-xs text-slate-500">
+                            <span>✅ Sent: <strong className="text-green-600">{pollData.sent}</strong></span>
+                            <span>❌ Failed: <strong className="text-red-500">{pollData.failed}</strong></span>
+                            <span>⏳ Pending: <strong className="text-slate-600">{pollData.total - pollData.sent - pollData.failed}</strong></span>
+                        </div>
+
+                        {/* Per-recipient status */}
+                        {pollData.recipients.length > 0 && (
+                            <div className="max-h-48 overflow-y-auto space-y-1 border-t border-slate-100 pt-3">
+                                {pollData.recipients.map((r, i) => (
+                                    <div key={i} className="flex items-center justify-between text-xs py-1 border-b border-slate-50 last:border-0">
+                                        <span className="text-slate-600 truncate max-w-[160px]">{r.name} &lt;{r.email}&gt;</span>
+                                        <span className={`font-medium ml-2 shrink-0 ${r.status === 'sent' ? 'text-green-600' :
+                                                r.status === 'failed' ? 'text-red-500' :
+                                                    'text-slate-400'
+                                            }`}>
+                                            {r.status === 'sent' ? '✅ sent' : r.status === 'failed' ? '❌ failed' : '⏳ pending'}
+                                        </span>
                                     </div>
-                                    <div className="bg-slate-800 p-3 rounded-lg border border-slate-700 text-center">
-                                        <p className="text-xs text-slate-500 mb-1">Failed</p>
-                                        <p className="text-2xl font-semibold text-red-400">{status.failed}</p>
-                                    </div>
-                                </div>
+                                ))}
                             </div>
                         )}
                     </div>
                 )}
             </div>
-
-            {isComplete && (
-                <div className="p-6 w-full">
-                    <Button
-                        variant="outline"
-                        className="w-full border-slate-700 text-slate-300 hover:bg-slate-800"
-                        onClick={() => {
-                            setStatus(null);
-                            setRunId(null);
-                        }}
-                    >
-                        Send Another
-                    </Button>
-                </div>
-            )}
         </div>
     );
 }

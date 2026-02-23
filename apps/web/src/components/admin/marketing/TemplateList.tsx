@@ -1,9 +1,18 @@
-import { Plus, Search, FileText } from 'lucide-react';
+'use client';
+
+interface EmailTemplate {
+    id: string;
+    name: string;
+    subject: string;
+    bodyHtml: string;
+    createdAt: string;
+    updatedAt: string;
+}
 
 interface TemplateListProps {
-    templates: any[];
+    templates: EmailTemplate[];
     selectedId: string | null;
-    onSelect: (template: any) => void;
+    onSelect: (t: EmailTemplate) => void;
     onNew: () => void;
     loading?: boolean;
 }
@@ -11,39 +20,34 @@ interface TemplateListProps {
 export function TemplateList({ templates, selectedId, onSelect, onNew, loading }: TemplateListProps) {
     return (
         <div className="flex flex-col h-full">
-            <div className="p-4 border-b border-slate-200 bg-slate-50">
+            <div className="flex items-center justify-between px-4 py-3 border-b border-slate-200">
+                <h2 className="font-semibold text-slate-800 text-sm uppercase tracking-wider">Templates</h2>
                 <button
                     onClick={onNew}
-                    className="w-full flex items-center justify-center gap-2 bg-slate-900 hover:bg-slate-800 text-white py-2 rounded-lg text-sm font-medium transition-colors"
+                    className="text-xs bg-violet-600 text-white px-3 py-1.5 rounded-lg hover:bg-violet-700 transition-colors font-medium"
                 >
-                    <Plus className="w-4 h-4" /> New Template
+                    + New
                 </button>
             </div>
 
-            <div className="flex-1 overflow-y-auto p-3 space-y-2">
+            <div className="flex-1 overflow-y-auto">
                 {loading ? (
-                    <p className="text-center text-slate-400 text-sm py-4">Loading...</p>
+                    <div className="p-4 text-xs text-slate-400 text-center">Loading templates...</div>
                 ) : templates.length === 0 ? (
-                    <p className="text-center text-slate-400 text-sm py-4">No templates yet</p>
+                    <div className="p-6 text-center text-slate-400 text-sm">
+                        <p>No templates yet.</p>
+                        <p className="mt-1">Click <strong>+ New</strong> to create one.</p>
+                    </div>
                 ) : (
                     templates.map((t) => (
                         <button
                             key={t.id}
                             onClick={() => onSelect(t)}
-                            className={`w-full text-left p-3 rounded-lg border transition-all ${selectedId === t.id
-                                    ? 'bg-blue-50 border-blue-200 ring-1 ring-blue-500'
-                                    : 'bg-white border-slate-200 hover:border-slate-300 hover:shadow-sm'
+                            className={`w-full text-left px-4 py-3 border-b border-slate-100 hover:bg-slate-50 transition-colors ${selectedId === t.id ? 'bg-violet-50 border-l-4 border-l-violet-600 pl-3' : ''
                                 }`}
                         >
-                            <div className="flex items-start gap-3">
-                                <FileText className={`w-4 h-4 mt-0.5 shrink-0 ${selectedId === t.id ? 'text-blue-600' : 'text-slate-400'}`} />
-                                <div className="overflow-hidden">
-                                    <p className={`text-sm font-medium truncate ${selectedId === t.id ? 'text-blue-900' : 'text-slate-900'}`}>
-                                        {t.name}
-                                    </p>
-                                    <p className="text-xs text-slate-500 truncate mt-0.5">{t.subject}</p>
-                                </div>
-                            </div>
+                            <p className="text-sm font-medium text-slate-800 truncate">{t.name}</p>
+                            <p className="text-xs text-slate-500 mt-0.5 truncate">{t.subject}</p>
                         </button>
                     ))
                 )}

@@ -25,14 +25,13 @@ export function PoliciesStep({ mentorId, onComplete }: PoliciesStepProps) {
         setNoShowPolicy(policy.noShowPolicy || 'No refund for no-shows');
         setCustomTerms(policy.customTerms || '');
       }
-    }).catch(() => {});
+    }).catch(() => { });
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     setLoading(true);
-
     try {
       await apiClient.upsertPolicies({
         cancellationHours: Number(cancellationHours),
@@ -48,66 +47,69 @@ export function PoliciesStep({ mentorId, onComplete }: PoliciesStepProps) {
     }
   };
 
+  const inputCls = 'w-full px-3 py-2.5 border border-slate-700/60 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500/50 bg-slate-800/60 text-white placeholder:text-slate-500 text-sm';
+  const labelCls = 'block text-xs font-semibold text-slate-400 mb-1.5 uppercase tracking-wider';
+  const hintCls = 'text-xs text-slate-600 mt-1';
+
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      <h2 className="text-xl font-semibold">Session Policies</h2>
-      <p className="text-sm text-slate-500">Set your cancellation and rescheduling rules.</p>
+    <form onSubmit={handleSubmit} className="space-y-5">
+      <div>
+        <h2 className="text-xl font-bold text-white">Session Policies</h2>
+        <p className="text-sm text-slate-400 mt-1">Set your cancellation and rescheduling rules for mentees.</p>
+      </div>
 
       {error && (
-        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">{error}</div>
+        <div className="bg-red-900/30 border border-red-700/50 text-red-400 px-4 py-3 rounded-xl text-sm">{error}</div>
       )}
 
       <div>
-        <label className="block text-sm font-medium text-slate-700 mb-1">
-          Cancellation notice (hours)
-        </label>
+        <label className={labelCls}>Cancellation Notice (hours)</label>
         <input
           type="number"
           min="0"
           value={cancellationHours}
           onChange={(e) => setCancellationHours(e.target.value)}
-          className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-900 bg-white placeholder:text-slate-400"
+          className={inputCls}
         />
-        <p className="text-xs text-slate-400 mt-1">How many hours before a session can a mentee cancel?</p>
+        <p className={hintCls}>How many hours before a session can a mentee cancel?</p>
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-slate-700 mb-1">
-          Reschedule notice (hours)
-        </label>
+        <label className={labelCls}>Reschedule Notice (hours)</label>
         <input
           type="number"
           min="0"
           value={rescheduleHours}
           onChange={(e) => setRescheduleHours(e.target.value)}
-          className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-900 bg-white placeholder:text-slate-400"
+          className={inputCls}
         />
+        <p className={hintCls}>How many hours before a session can a mentee reschedule?</p>
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-slate-700 mb-1">No-show policy</label>
+        <label className={labelCls}>No-Show Policy</label>
         <input
           type="text"
           value={noShowPolicy}
           onChange={(e) => setNoShowPolicy(e.target.value)}
-          className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-900 bg-white placeholder:text-slate-400"
+          className={inputCls}
           placeholder="e.g. No refund for no-shows"
         />
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-slate-700 mb-1">Custom terms (optional)</label>
+        <label className={labelCls}>Custom Terms (optional)</label>
         <textarea
           value={customTerms}
           onChange={(e) => setCustomTerms(e.target.value)}
-          className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-900 bg-white placeholder:text-slate-400"
+          className={inputCls}
           rows={3}
-          placeholder="Any additional terms..."
+          placeholder="Any additional terms or conditions..."
         />
       </div>
 
-      <Button type="submit" disabled={loading}>
-        {loading ? 'Saving...' : 'Save & Continue'}
+      <Button type="submit" disabled={loading} className="bg-violet-600 hover:bg-violet-700 text-white w-full">
+        {loading ? 'Saving…' : 'Save & Continue →'}
       </Button>
     </form>
   );

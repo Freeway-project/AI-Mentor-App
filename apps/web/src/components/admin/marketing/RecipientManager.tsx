@@ -1,8 +1,10 @@
+'use client';
+
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Trash2, Plus, Users, Upload } from 'lucide-react';
 
 export interface Recipient {
+    id: string;           // local key for React rendering only
     name: string;
     email: string;
 }
@@ -12,122 +14,117 @@ interface RecipientManagerProps {
     onChange: (recipients: Recipient[]) => void;
 }
 
+function genId() {
+    return Math.random().toString(36).slice(2);
+}
+
 export function RecipientManager({ recipients, onChange }: RecipientManagerProps) {
-    const [bulkInput, setBulkInput] = useState('');
+    const [bulkText, setBulkText] = useState('');
     const [showBulk, setShowBulk] = useState(false);
 
-    const handleAddEmpty = () => {
-        onChange([...recipients, { name: '', email: '' }]);
+    const addRow = () => {
+        onChange([...recipients, { id: genId(), name: '', email: '' }]);
     };
 
-    const handleRemove = (index: number) => {
-        const newR = [...recipients];
-        newR.splice(index, 1);
-        onChange(newR);
+    const updateRow = (id: string, field: 'name' | 'email', value: string) => {
+        onChange(recipients.map((r) => (r.id === id ? { ...r, [field]: value } : r)));
     };
 
-    const handleUpdate = (index: number, field: 'name' | 'email', value: string) => {
-        const newR = [...recipients];
-        newR[index][field] = value;
-        onChange(newR);
+    const removeRow = (id: string) => {
+        onChange(recipients.filter((r) => r.id !== id));
     };
 
-    const parseBulk = () => {
-        const lines = bulkInput.split('\n');
-        const newRecipients: Recipient[] = [];
-        for (const line of lines) {
-            if (!line.trim()) continue;
-            // Assume "Name, Email" or "Email"
-            const parts = line.split(',').map((p) => p.trim());
-            if (parts.length >= 2) {
-                newRecipients.push({ name: parts[0], email: parts[1] });
-            } else if (parts.length === 1 && parts[0].includes('@')) {
-                newRecipients.push({ name: '', email: parts[0] });
-            }
-        }
-        if (newRecipients.length > 0) {
-            onChange([...recipients, ...newRecipients]);
-            setBulkInput('');
-            setShowBulk(false);
-        }
+    const importBulk = () => {
+        // Expected format: "Name, email@example.com" per line
+        const rows = bulkText
+            .split('\n')
+            .map((line) => line.trim())
+            .filter(Boolean)
+            .map((line) => {
+                const [name, email] = line.split(',').map((s) => s.trim());
+                return { id: genId(), name: name || '', email: email || '' };
+            });
+        onChange([...recipients, ...rows]);
+        setBulkText('');
+        setShowBulk(false);
     };
+
+    const inputCls = 'flex-1 px-3 py-2 text-sm text-slate-900 bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-400 placeholder:text-slate-400';
+
+    const validCount = recipients.filter((r) => r.name && r.email.includes('@')).length;
 
     return (
-        <div className="flex flex-col h-full bg-slate-50">
-            <div className="p-5 border-b border-slate-200 bg-white">
-                <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
-                    <Users className="w-5 h-5 text-slate-500" />
-                    Recipients ({recipients.length})
-                </h2>
-                <p className="text-sm text-slate-500 mt-1">Add the people who will receive this campaign.</p>
-
-                <div className="flex gap-2 mt-4">
+        <div className="flex flex-col h-full">
+            <div className="flex items-center justify-between px-5 py-3 border-b border-slate-200">
+                <div>
+                    <h2 className="font-semibold text-slate-800 text-sm uppercase tracking-wider">Recipients</h2>
+                    {recipients.length > 0 && (
+                        <p className="text-xs text-slate-400 mt-0.5">{validCount} valid of {recipients.length} total</p>
+                    )}
+                </div>
+                <div className="flex items-center gap-2">
                     <button
-                        onClick={handleAddEmpty}
-                        className="flex-1 bg-white border border-slate-300 hover:border-slate-400 text-slate-700 px-3 py-2 rounded-lg text-sm font-medium flex items-center justify-center gap-2 transition-colors"
+                        onClick={() => setShowBulk((v) => !v)}
+                        className="text-xs text-slate-500 hover:text-slate-800 border border-slate-300 px-3 py-1.5 rounded-lg transition-colors"
                     >
-                        <Plus className="w-4 h-4" /> Add Row
+                        {showBulk ? '✕ Close bulk' : '📋 Bulk import'}
                     </button>
                     <button
-                        onClick={() => setShowBulk(!showBulk)}
-                        className={`flex-1 border px-3 py-2 rounded-lg text-sm font-medium flex items-center justify-center gap-2 transition-colors ${showBulk ? 'bg-blue-50 border-blue-200 text-blue-700' : 'bg-white border-slate-300 hover:border-slate-400 text-slate-700'
-                            }`}
+                        onClick={addRow}
+                        className="text-xs bg-violet-600 text-white px-3 py-1.5 rounded-lg hover:bg-violet-700 transition-colors font-medium"
                     >
-                        <Upload className="w-4 h-4" /> Bulk Import
+                        + Add
                     </button>
                 </div>
             </div>
 
-            <div className="flex-1 overflow-y-auto p-5">
-                {showBulk && (
-                    <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm mb-6">
-                        <h3 className="text-sm font-semibold text-slate-700 mb-2">Paste CSV Data</h3>
-                        <p className="text-xs text-slate-500 mb-3">Format: <code className="bg-slate-100 px-1 rounded">Name, email@example.com</code> per line</p>
-                        <textarea
-                            className="w-full h-32 px-3 py-2 border border-slate-300 rounded-lg text-sm font-mono focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                            placeholder="John Doe, john@example.com&#10;Jane Smith, jane@example.com"
-                            value={bulkInput}
-                            onChange={(e) => setBulkInput(e.target.value)}
-                        />
-                        <div className="flex justify-end mt-3">
-                            <Button size="sm" onClick={parseBulk} disabled={!bulkInput.trim()}>Import Lines</Button>
-                        </div>
-                    </div>
-                )}
+            {showBulk && (
+                <div className="mx-5 mt-4 p-4 bg-amber-50 border border-amber-200 rounded-xl space-y-3">
+                    <p className="text-xs text-amber-700 font-medium">Paste one recipient per line: <code>Name, email@example.com</code></p>
+                    <textarea
+                        rows={5}
+                        className="w-full px-3 py-2 text-xs text-slate-900 bg-white border border-amber-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-400 font-mono"
+                        placeholder="Alice Smith, alice@example.com&#10;Bob Jones, bob@example.com"
+                        value={bulkText}
+                        onChange={(e) => setBulkText(e.target.value)}
+                    />
+                    <Button size="sm" onClick={importBulk} disabled={!bulkText.trim()} className="bg-amber-500 hover:bg-amber-600 text-white text-xs">
+                        Import lines
+                    </Button>
+                </div>
+            )}
 
-                <div className="space-y-3">
-                    {recipients.length === 0 && !showBulk && (
-                        <div className="text-center py-10 bg-white border border-dashed border-slate-300 rounded-xl">
-                            <p className="text-slate-500 text-sm">No recipients added yet.</p>
-                        </div>
-                    )}
-                    {recipients.map((r, i) => (
-                        <div key={i} className="flex gap-2 items-start bg-white p-2 rounded-lg border border-slate-200 shadow-sm">
+            <div className="flex-1 overflow-y-auto p-5 space-y-2">
+                {recipients.length === 0 ? (
+                    <div className="text-center text-slate-400 text-sm py-8">
+                        <p>No recipients added yet.</p>
+                        <p className="mt-1 text-xs">Use <strong>+ Add</strong> or <strong>Bulk import</strong>.</p>
+                    </div>
+                ) : (
+                    recipients.map((r) => (
+                        <div key={r.id} className="flex items-center gap-2">
                             <input
-                                type="text"
+                                className={inputCls}
                                 placeholder="Name"
                                 value={r.name}
-                                onChange={(e) => handleUpdate(i, 'name', e.target.value)}
-                                className="flex-1 px-3 py-1.5 border border-transparent hover:border-slate-200 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded text-sm outline-none transition-all bg-slate-50 focus:bg-white"
+                                onChange={(e) => updateRow(r.id, 'name', e.target.value)}
                             />
                             <input
-                                type="email"
-                                placeholder="Email address *"
-                                required
+                                className={inputCls}
+                                placeholder="email@example.com"
                                 value={r.email}
-                                onChange={(e) => handleUpdate(i, 'email', e.target.value)}
-                                className="flex-[1.5] px-3 py-1.5 border border-transparent hover:border-slate-200 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded text-sm outline-none transition-all bg-slate-50 focus:bg-white"
+                                onChange={(e) => updateRow(r.id, 'email', e.target.value)}
                             />
                             <button
-                                onClick={() => handleRemove(i)}
-                                className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors"
+                                onClick={() => removeRow(r.id)}
+                                className="text-slate-400 hover:text-red-500 transition-colors px-1.5 py-1 rounded"
                                 title="Remove"
                             >
-                                <Trash2 className="w-4 h-4" />
+                                ✕
                             </button>
                         </div>
-                    ))}
-                </div>
+                    ))
+                )}
             </div>
         </div>
     );
