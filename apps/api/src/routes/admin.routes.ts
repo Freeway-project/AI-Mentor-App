@@ -198,6 +198,17 @@ router.put('/users/:id/activate', async (req: Request, res: Response, next: Next
 
 // ─── Mentors/Coaches ─────────────────────────────────────────────────────────
 
+// GET /admin/coaches/:id — full mentor profile for the admin review page
+router.get('/coaches/:id', async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const mentor = await getMentorRepo().findById(req.params.id);
+    if (!mentor) throw new AppError(404, 'NOT_FOUND', 'Mentor not found');
+    res.json({ success: true, data: mentor });
+  } catch (error) {
+    next(error);
+  }
+});
+
 // GET /admin/mentors (legacy) + /admin/coaches
 router.get('/mentors', async (req: Request, res: Response, next: NextFunction) => {
   try {

@@ -5,6 +5,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { adminService, AdminCoach } from '@/services/admin.service';
 import { StatusBadge } from '@/components/admin/StatusBadge';
 import { Button } from '@/components/ui/button';
+import Link from 'next/link';
 
 type Tab = 'pending' | 'all';
 
@@ -25,10 +26,18 @@ function CoachCard({ coach, onApprove, onReject }: {
             <StatusBadge status={coach.approvalStatus} />
           </div>
           {coach.headline && <p className="text-sm text-slate-500 mt-0.5">{coach.headline}</p>}
-          {coach.bio && <p className="text-sm text-slate-400 mt-1 line-clamp-3">{coach.bio}</p>}
-          <p className="text-xs text-slate-400 mt-2">
-            Applied {new Date(coach.createdAt).toLocaleDateString()}
-          </p>
+          {coach.bio && <p className="text-sm text-slate-400 mt-1 line-clamp-2">{coach.bio}</p>}
+          <div className="flex items-center gap-3 mt-2">
+            <p className="text-xs text-slate-400">
+              Applied {new Date(coach.createdAt).toLocaleDateString()}
+            </p>
+            <Link
+              href={`/admin/coaches/${coach.id}`}
+              className="text-xs text-blue-600 hover:underline font-medium"
+            >
+              View Full Profile →
+            </Link>
+          </div>
         </div>
       </div>
 
@@ -129,11 +138,10 @@ export default function CoachesPage() {
           <button
             key={t}
             onClick={() => { setTab(t); setOffset(0); }}
-            className={`px-4 py-2 text-sm font-medium capitalize border-b-2 transition-colors ${
-              tab === t
+            className={`px-4 py-2 text-sm font-medium capitalize border-b-2 transition-colors ${tab === t
                 ? 'border-blue-600 text-blue-600'
                 : 'border-transparent text-slate-500 hover:text-slate-800'
-            }`}
+              }`}
           >
             {t === 'pending' ? 'Pending Approval' : 'All Coaches'}
             {t === 'pending' && (pending?.total ?? 0) > 0 && (

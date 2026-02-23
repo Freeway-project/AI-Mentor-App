@@ -109,4 +109,6 @@ export const adminService = {
     if (params?.offset !== undefined) q.set('offset', String(params.offset));
     return apiFetch<{ transactions: AdminTransaction[]; total: number; stats: any }>(`/admin/credits?${q}`);
   },
+
+  getCoachById: (id: string) => apiFetch<any>(`/admin/coaches/${id}`),
 };
