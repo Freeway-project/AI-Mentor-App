@@ -1,5 +1,5 @@
 import { Router, Request, Response, NextFunction } from 'express';
-import { UserRepository, MentorRepository, MeetingRepository, CreditRepository } from '@owl-mentors/database';
+import { UserRepository, MentorRepository, MeetingRepository, CreditRepository, OfferRepository, PolicyRepository } from '@owl-mentors/database';
 import { ReviewMessageModel, toReviewMessage } from '../../../../packages/database/src/models/review-message.model';
 import { authenticate, authorize } from '../middleware/auth.middleware';
 import { AppError } from '../middleware/error.middleware';
@@ -10,11 +10,15 @@ let userRepo: UserRepository;
 let mentorRepo: MentorRepository;
 let meetingRepo: MeetingRepository;
 let creditRepo: CreditRepository;
+let offerRepo: OfferRepository;
+let policyRepo: PolicyRepository;
 
 function getUserRepo() { if (!userRepo) userRepo = new UserRepository(); return userRepo; }
 function getMentorRepo() { if (!mentorRepo) mentorRepo = new MentorRepository(); return mentorRepo; }
 function getMeetingRepo() { if (!meetingRepo) meetingRepo = new MeetingRepository(); return meetingRepo; }
 function getCreditRepo() { if (!creditRepo) creditRepo = new CreditRepository(); return creditRepo; }
+function getOfferRepo() { if (!offerRepo) offerRepo = new OfferRepository(); return offerRepo; }
+function getPolicyRepo() { if (!policyRepo) policyRepo = new PolicyRepository(); return policyRepo; }
 
 // All admin routes require admin role
 router.use(authenticate, authorize('admin'));
