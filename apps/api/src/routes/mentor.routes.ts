@@ -78,8 +78,8 @@ router.put('/me', authenticate, requireEmailVerified, authorize('mentor'), valid
       throw new AppError(404, 'NOT_FOUND', 'Mentor profile not found');
     }
 
-    // Any profile change resets approval to pending (requires re-review)
-    const updatePayload = { ...req.body, approvalStatus: 'pending' };
+    // Any profile change requires re-review and should not stay live until approved again
+    const updatePayload = { ...req.body, approvalStatus: 'pending', isActive: false };
     await getMentorRepo().update(mentor.id, updatePayload);
 
     // Advance onboarding step through the profile-building steps
@@ -110,6 +110,7 @@ router.put('/me/availability', authenticate, requireEmailVerified, authorize('me
     }
 
     await getMentorRepo().updateAvailability(mentor.id, req.body);
+    await getMentorRepo().update(mentor.id, { approvalStatus: 'pending', isActive: false } as any);
 
     if (mentor.onboardingStep === 'availability') {
       await getMentorRepo().updateOnboardingStep(mentor.id, 'review');
@@ -159,7 +160,7 @@ router.post('/me/publish', authenticate, requireEmailVerified, authorize('mentor
       name: user.name,
       email: user.email,
       mentorId: mentor.id,
-    }).catch(() => {});
+    }).catch(() => { });
 
     res.json({
       success: true,

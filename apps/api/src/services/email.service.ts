@@ -27,6 +27,15 @@ function createTransport() {
   });
 }
 
+function escapeHtml(input: string): string {
+  return input
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
 export const EmailService = {
   async sendOtp(to: string, code: string): Promise<void> {
     const fromName = process.env.SMTP_FROM_NAME || 'OWLMentors';
@@ -236,6 +245,62 @@ export const EmailService = {
     }
   },
 
+  async notifyMentorReviewMessage(params: {
+    mentorName: string;
+    mentorEmail: string;
+    mentorId: string;
+    message: string;
+  }): Promise<void> {
+    const fromName = process.env.SMTP_FROM_NAME || 'OWLMentors';
+    const fromEmail = process.env.SMTP_FROM_EMAIL || process.env.SMTP_FROM || 'noreply@owlmentors.com';
+    const from = `${fromName} <${fromEmail}>`;
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+    const profileUrl = `${appUrl}/mentor/dashboard/profile`;
+    const messagePreview = escapeHtml(params.message.trim()).slice(0, 280);
+
+    const subject = 'Admin left feedback on your mentor profile';
+    const html = `
+      <div style="font-family:sans-serif;max-width:540px;margin:auto;padding:32px">
+        <h2 style="color:#0f172a;font-size:22px;margin-bottom:6px">You have new profile feedback</h2>
+        <p style="color:#475569;margin-bottom:18px">
+          Hi ${escapeHtml(params.mentorName)}, an OWLMentors admin sent a review message about your mentor profile.
+        </p>
+        <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:14px 16px;margin-bottom:20px">
+          <p style="color:#64748b;font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:0.4px;margin:0 0 8px">Admin message</p>
+          <p style="color:#0f172a;font-size:14px;line-height:1.6;margin:0;white-space:pre-wrap">${messagePreview}</p>
+        </div>
+        <a href="${profileUrl}"
+          style="display:inline-block;padding:12px 24px;background:#2563eb;color:#fff;border-radius:8px;text-decoration:none;font-weight:600;font-size:14px">
+          Open profile review chat →
+        </a>
+        <p style="color:#94a3b8;font-size:11px;margin-top:20px">
+          Mentor ID: ${escapeHtml(params.mentorId)}
+        </p>
+      </div>
+    `;
+
+    const transport = createTransport();
+    if (transport) {
+      try {
+        await transport.sendMail({ from, to: params.mentorEmail, subject, html });
+        logger.info(`[REVIEW EMAIL] Sent to mentor ${params.mentorEmail}`);
+        return;
+      } catch (error) {
+        logger.error(`[REVIEW EMAIL] SMTP failed to ${params.mentorEmail}: ${(error as Error).message}`);
+        logger.warn('[REVIEW EMAIL] Falling back to Ethereal dev transport...');
+      }
+    }
+
+    try {
+      const devTransport = await getDevTransport();
+      const info = await devTransport.sendMail({ from, to: params.mentorEmail, subject, html });
+      const previewUrl = nodemailer.getTestMessageUrl(info);
+      logger.info(`[REVIEW EMAIL DEV] Sent to ${params.mentorEmail} | Preview: ${previewUrl}`);
+    } catch (err) {
+      logger.warn(`[REVIEW EMAIL FALLBACK] Could not send to ${params.mentorEmail}: ${(err as Error).message}`);
+    }
+  },
+
   /**
    * Send a marketing email to a recipient, wrapping the body in a mandatory
    * professional header + footer with CTA buttons for mentor/mentee signup.
@@ -301,4 +366,3 @@ export const EmailService = {
     }
   },
 };
-

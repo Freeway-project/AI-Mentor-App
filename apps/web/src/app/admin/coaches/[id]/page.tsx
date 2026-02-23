@@ -95,10 +95,19 @@ export default function MentorReviewPage() {
     }
 
     const isPending = mentor.approvalStatus === 'pending' && mentor.onboardingStep === 'published';
-    const offers: any[] = mentor.offers || [];
-    const policy = mentor.policy || null;
-    const certs: any[] = mentor.certifications || [];
-    const schedule = mentor.availability?.schedule || [];
+    const offers: any[] = Array.isArray(mentor.offers)
+        ? mentor.offers
+        : Array.isArray(mentor.sessionOffers)
+            ? mentor.sessionOffers
+            : [];
+    const policy = mentor.policy || mentor.policies || null;
+    const certs: any[] = Array.isArray(mentor.certifications) ? mentor.certifications : [];
+    const schedule = Array.isArray(mentor.availability?.schedule)
+        ? mentor.availability.schedule
+        : Array.isArray(mentor.availability?.slots)
+            ? mentor.availability.slots
+            : [];
+    const dataWarnings: string[] = Array.isArray(mentor.dataWarnings) ? mentor.dataWarnings : [];
 
     return (
         <div className="p-6 md:p-8 max-w-5xl mx-auto space-y-6">
@@ -198,6 +207,16 @@ export default function MentorReviewPage() {
             {mentor.approvalNote && mentor.approvalStatus === 'rejected' && (
                 <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 text-sm text-amber-800">
                     <span className="font-semibold">Rejection Note:</span> {mentor.approvalNote}
+                </div>
+            )}
+
+            {/* Partial-load warnings from API */}
+            {dataWarnings.length > 0 && (
+                <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 text-sm text-amber-800">
+                    <p className="font-semibold mb-1">Some mentor profile sections could not be loaded</p>
+                    <ul className="list-disc pl-5 space-y-0.5">
+                        {dataWarnings.map((warning) => <li key={warning}>{warning}</li>)}
+                    </ul>
                 </div>
             )}
 

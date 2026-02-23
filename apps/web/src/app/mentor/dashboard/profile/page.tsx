@@ -6,10 +6,11 @@ import { ProfileStep } from '@/components/onboarding/ProfileStep';
 import { OffersStep } from '@/components/onboarding/OffersStep';
 import { PoliciesStep } from '@/components/onboarding/PoliciesStep';
 import { AvailabilityStep } from '@/components/onboarding/AvailabilityStep';
+import { ReviewChat } from '@/components/admin/ReviewChat';
 import { toast } from 'sonner';
 import { Clock, CheckCircle2, AlertTriangle } from 'lucide-react';
 
-const TABS = ['Profile', 'Offers', 'Policies', 'Availability'] as const;
+const TABS = ['Profile', 'Offers', 'Policies', 'Availability', 'Review Chat'] as const;
 type Tab = typeof TABS[number];
 
 export default function MentorProfilePage() {
@@ -135,6 +136,15 @@ export default function MentorProfilePage() {
                                 toast.success('Availability saved — submitted for review');
                             }}
                         />
+                    )}
+                    {activeTab === 'Review Chat' && profile?.id && (
+                        <div className="h-[560px]">
+                            <ReviewChat
+                                mentorId={profile.id}
+                                viewAs="mentor"
+                                contextLabel="Discuss profile feedback with the admin reviewer"
+                            />
+                        </div>
                     )}
                 </div>
             )}

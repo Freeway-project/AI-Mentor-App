@@ -123,6 +123,7 @@ router.post(
         fileUrl: url,
         fileKey: key,
       });
+      await getMentorRepo().update(mentor.id, { approvalStatus: 'pending', isActive: false } as any);
 
       res.status(201).json({ success: true, data: { certifications: updated.certifications } });
     } catch (error) { next(error); }
@@ -155,6 +156,7 @@ router.delete(
 
       await R2Service.delete(fileKey);
       const updated = await getMentorRepo().removeCertification(mentor.id, fileKey);
+      await getMentorRepo().update(mentor.id, { approvalStatus: 'pending', isActive: false } as any);
 
       res.json({ success: true, data: { certifications: updated.certifications } });
     } catch (error) { next(error); }
@@ -193,6 +195,7 @@ router.post(
       const { url } = await R2Service.upload(req.file.buffer, key, req.file.mimetype);
 
       await getMentorRepo().updateIntroVideo(mentor.id, url, key);
+      await getMentorRepo().update(mentor.id, { approvalStatus: 'pending', isActive: false } as any);
 
       res.json({ success: true, data: { introVideoUrl: url } });
     } catch (error) { next(error); }
@@ -220,6 +223,7 @@ router.delete(
 
       await R2Service.delete(mentor.introVideoKey);
       await getMentorRepo().clearIntroVideo(mentor.id);
+      await getMentorRepo().update(mentor.id, { approvalStatus: 'pending', isActive: false } as any);
 
       res.json({ success: true, data: { message: 'Intro video removed' } });
     } catch (error) { next(error); }

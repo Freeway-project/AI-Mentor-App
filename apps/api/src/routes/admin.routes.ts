@@ -3,6 +3,7 @@ import { UserRepository, MentorRepository, MeetingRepository, CreditRepository, 
 import { ReviewMessageModel, toReviewMessage } from '../../../../packages/database/src/models/review-message.model';
 import { authenticate, authorize } from '../middleware/auth.middleware';
 import { AppError } from '../middleware/error.middleware';
+import { logger } from '@owl-mentors/utils';
 
 const router: Router = Router();
 
@@ -209,11 +210,47 @@ router.get('/coaches/:id', async (req: Request, res: Response, next: NextFunctio
     const mentor = await getMentorRepo().findById(req.params.id);
     if (!mentor) throw new AppError(404, 'NOT_FOUND', 'Mentor not found');
 
-    const [offers, policy, user] = await Promise.all([
-      getOfferRepo().findByMentorId(mentor.id).catch(() => []),
-      getPolicyRepo().findByMentorId(mentor.id).catch(() => null),
-      getUserRepo().findById(mentor.userId).catch(() => null),
+    const [offersResult, policyResult, userResult] = await Promise.allSettled([
+      getOfferRepo().findByMentorId(mentor.id),
+      getPolicyRepo().findByMentorId(mentor.id),
+      getUserRepo().findById(mentor.userId),
     ]);
+
+    const dataWarnings: string[] = [];
+
+    const offers = offersResult.status === 'fulfilled'
+      ? offersResult.value
+      : (() => {
+          logger.warn('Admin coach detail: failed to load offers', {
+            mentorId: mentor.id,
+            error: offersResult.reason instanceof Error ? offersResult.reason.message : String(offersResult.reason),
+          });
+          dataWarnings.push('Session offers could not be loaded');
+          return [];
+        })();
+
+    const policy = policyResult.status === 'fulfilled'
+      ? policyResult.value
+      : (() => {
+          logger.warn('Admin coach detail: failed to load policy', {
+            mentorId: mentor.id,
+            error: policyResult.reason instanceof Error ? policyResult.reason.message : String(policyResult.reason),
+          });
+          dataWarnings.push('Cancellation policy could not be loaded');
+          return null;
+        })();
+
+    const user = userResult.status === 'fulfilled'
+      ? userResult.value
+      : (() => {
+          logger.warn('Admin coach detail: failed to load linked user', {
+            mentorId: mentor.id,
+            userId: mentor.userId,
+            error: userResult.reason instanceof Error ? userResult.reason.message : String(userResult.reason),
+          });
+          dataWarnings.push('Linked account contact details could not be loaded');
+          return null;
+        })();
 
     res.json({
       success: true,
@@ -224,6 +261,7 @@ router.get('/coaches/:id', async (req: Request, res: Response, next: NextFunctio
         avatarUrl: user?.avatar || null,
         email: user?.email || null,
         phone: user?.phone || null,
+        dataWarnings,
       },
     });
   } catch (error) {
@@ -294,14 +332,35 @@ router.post('/coaches/:id/messages', async (req: Request, res: Response, next: N
   try {
     const { content } = req.body;
     if (!content?.trim()) throw new AppError(400, 'VALIDATION_ERROR', 'Message content is required');
+    const trimmedContent = content.trim();
     const msg = await ReviewMessageModel.create({
       mentorId: req.params.id,
       senderId: req.userId!,
       senderRole: 'admin',
-      content: content.trim(),
+      content: trimmedContent,
       readByAdmin: true,
       readByMentor: false,
     });
+
+    // Notify mentor by email (non-blocking) so they know there is review feedback to address
+    (async () => {
+      try {
+        const mentor = await getMentorRepo().findById(req.params.id);
+        const user = await getUserRepo().findById(mentor.userId);
+        await EmailService.notifyMentorReviewMessage({
+          mentorName: mentor.name || user.name,
+          mentorEmail: user.email,
+          mentorId: mentor.id,
+          message: trimmedContent,
+        });
+      } catch (err) {
+        logger.warn('Admin review message email notification failed', {
+          mentorId: req.params.id,
+          error: err instanceof Error ? err.message : String(err),
+        });
+      }
+    })();
+
     res.status(201).json({ success: true, data: toReviewMessage(msg) });
   } catch (error) { next(error); }
 });
@@ -455,5 +514,3 @@ router.get('/marketing/campaigns/:runId', async (req: Request, res: Response, ne
 });
 
 export default router;
-
-
