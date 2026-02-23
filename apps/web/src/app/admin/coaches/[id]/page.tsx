@@ -265,7 +265,7 @@ export default function MentorReviewPage() {
             )}
 
             {/* Step-style review navigation */}
-            <div className="bg-white rounded-xl border border-slate-200 p-3">
+            <div className="bg-slate-900/75 rounded-xl border border-slate-700/60 p-3">
                 <div className="flex flex-wrap gap-2">
                     {REVIEW_STEPS.map((step, idx) => (
                         <button
@@ -273,13 +273,13 @@ export default function MentorReviewPage() {
                             type="button"
                             onClick={() => setActiveReviewStep(step.key)}
                             className={`inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-medium transition-colors ${activeReviewStep === step.key
-                                ? 'border-blue-200 bg-blue-50 text-blue-700'
-                                : 'border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100'
+                                ? 'border-blue-700 bg-blue-900/30 text-blue-200'
+                                : 'border-slate-700 bg-slate-800/80 text-slate-200 hover:bg-slate-800'
                                 }`}
                         >
                             <span className={`inline-flex h-5 w-5 items-center justify-center rounded-full border text-[10px] ${activeReviewStep === step.key
-                                ? 'bg-white border-blue-200 text-blue-600'
-                                : 'bg-white border-slate-200 text-slate-500'
+                                ? 'bg-slate-900 border-blue-700 text-blue-300'
+                                : 'bg-slate-900 border-slate-700 text-slate-400'
                                 }`}>
                                 {idx + 1}
                             </span>
@@ -287,9 +287,9 @@ export default function MentorReviewPage() {
                         </button>
                     ))}
                 </div>
-                <div className="mt-3 flex items-center justify-between border-t border-slate-100 pt-3">
-                    <p className="text-xs text-slate-500">
-                        Step {currentStepIndex + 1} of {REVIEW_STEPS.length}: <span className="font-semibold text-slate-700">{currentStep.label}</span>
+                <div className="mt-3 flex items-center justify-between border-t border-slate-800 pt-3">
+                    <p className="text-xs text-slate-400">
+                        Step {currentStepIndex + 1} of {REVIEW_STEPS.length}: <span className="font-semibold text-slate-200">{currentStep.label}</span>
                     </p>
                     <div className="flex gap-2">
                         <Button
@@ -335,27 +335,27 @@ export default function MentorReviewPage() {
                         <>
                             <Section id="profile" title="Bio">
                                 {mentor.bio
-                                    ? <p className="text-sm text-slate-700 leading-relaxed whitespace-pre-wrap">{mentor.bio}</p>
-                                    : <p className="text-sm italic text-slate-300">No bio provided</p>}
+                                    ? <p className="text-sm text-slate-200 leading-relaxed whitespace-pre-wrap">{mentor.bio}</p>
+                                    : <p className="text-sm italic text-slate-500">No bio provided</p>}
                             </Section>
 
                             <div className="grid md:grid-cols-2 gap-5">
                                 <Section title="Specialties">
                                     {mentor.specialties?.length > 0
                                         ? <div className="flex flex-wrap gap-2">{mentor.specialties.map((s: string) => <Tag key={s} label={s} />)}</div>
-                                        : <p className="text-sm italic text-slate-300">None listed</p>}
+                                        : <p className="text-sm italic text-slate-500">None listed</p>}
                                 </Section>
                                 <Section title="Expertise">
                                     {mentor.expertise?.length > 0
                                         ? <div className="flex flex-wrap gap-2">{mentor.expertise.map((e: string) => <Tag key={e} label={e} />)}</div>
-                                        : <p className="text-sm italic text-slate-300">None listed</p>}
+                                        : <p className="text-sm italic text-slate-500">None listed</p>}
                                 </Section>
                             </div>
 
                             <Section title="Languages">
                                 {mentor.languages?.length > 0
                                     ? <div className="flex flex-wrap gap-2">{mentor.languages.map((l: string) => <Tag key={l} label={l} />)}</div>
-                                    : <p className="text-sm italic text-slate-300">None listed</p>}
+                                    : <p className="text-sm italic text-slate-500">None listed</p>}
                             </Section>
                         </>
                     )}
@@ -372,12 +372,12 @@ export default function MentorReviewPage() {
                                 )}
                                 {schedule.map((slot: any, i: number) => (
                                     <div key={i} className="flex items-center gap-3 text-sm">
-                                        <span className="w-24 font-medium text-slate-700">{DAYS[slot.dayOfWeek]}</span>
-                                        <span className="text-slate-500">{slot.startTime} – {slot.endTime}</span>
+                                        <span className="w-24 font-medium text-slate-200">{DAYS[slot.dayOfWeek]}</span>
+                                        <span className="text-slate-400">{slot.startTime} – {slot.endTime}</span>
                                     </div>
                                 ))}
                             </div>
-                        ) : <p className="text-sm italic text-slate-300">No availability set</p>}
+                        ) : <p className="text-sm italic text-slate-500">No availability set</p>}
                         </Section>
                     )}
 
@@ -390,7 +390,7 @@ export default function MentorReviewPage() {
                                 <Row label="No-show" value={policy.noShowPolicy} />
                                 {policy.customTerms && <Row label="Custom terms" value={policy.customTerms} />}
                             </div>
-                        ) : <p className="text-sm italic text-slate-300">No policies configured</p>}
+                        ) : <p className="text-sm italic text-slate-500">No policies configured</p>}
                         </Section>
                     )}
 
@@ -399,13 +399,13 @@ export default function MentorReviewPage() {
                         {offers.length > 0 ? (
                             <div className="space-y-3">
                                 {offers.map((offer: any) => (
-                                    <div key={offer.id} className="flex items-start justify-between gap-4 py-2.5 border-b border-slate-100 last:border-0">
+                                    <div key={offer.id} className="flex items-start justify-between gap-4 py-2.5 border-b border-slate-800 last:border-0">
                                         <div>
-                                            <p className="text-sm font-semibold text-slate-800">{offer.title}</p>
+                                            <p className="text-sm font-semibold text-slate-100">{offer.title}</p>
                                             {offer.description && (
-                                                <p className="text-xs text-slate-500 mt-0.5">{offer.description}</p>
+                                                <p className="text-xs text-slate-400 mt-0.5">{offer.description}</p>
                                             )}
-                                            <p className="text-xs text-slate-400 mt-1 flex items-center gap-1">
+                                            <p className="text-xs text-slate-500 mt-1 flex items-center gap-1">
                                                 <Clock className="w-3 h-3" />{offer.durationMinutes} min
                                             </p>
                                         </div>
@@ -415,7 +415,7 @@ export default function MentorReviewPage() {
                                     </div>
                                 ))}
                             </div>
-                        ) : <p className="text-sm italic text-slate-300">No session offers added</p>}
+                        ) : <p className="text-sm italic text-slate-500">No session offers added</p>}
                         </Section>
                     )}
 
@@ -426,20 +426,20 @@ export default function MentorReviewPage() {
                                     <ul className="space-y-2">
                                         {certs.map((cert: any) => (
                                             <li key={cert.fileKey} className="flex items-center gap-3">
-                                                <FileText className="w-4 h-4 text-slate-400 shrink-0" />
-                                                <span className="flex-1 text-sm text-slate-700 font-medium">{cert.name}</span>
+                                                <FileText className="w-4 h-4 text-slate-500 shrink-0" />
+                                                <span className="flex-1 text-sm text-slate-100 font-medium">{cert.name}</span>
                                                 <a
                                                     href={cert.fileUrl}
                                                     target="_blank"
                                                     rel="noreferrer"
-                                                    className="text-blue-600 hover:underline text-xs shrink-0 font-medium"
+                                                    className="text-blue-300 hover:underline text-xs shrink-0 font-medium"
                                                 >
                                                     View ↗
                                                 </a>
                                             </li>
                                         ))}
                                     </ul>
-                                ) : <p className="text-sm italic text-slate-300">No certifications uploaded</p>}
+                                ) : <p className="text-sm italic text-slate-500">No certifications uploaded</p>}
                             </Section>
 
                             <Section title="Intro Video">
@@ -448,13 +448,13 @@ export default function MentorReviewPage() {
                                         <video
                                             src={mentor.introVideoUrl}
                                             controls
-                                            className="w-full max-h-64 rounded-lg bg-slate-100 border border-slate-200 object-contain"
+                                            className="w-full max-h-64 rounded-lg bg-slate-950 border border-slate-700 object-contain"
                                         />
                                         <p className="text-xs text-emerald-600 flex items-center gap-1">
                                             <Video className="w-3.5 h-3.5" /> Video uploaded
                                         </p>
                                     </div>
-                                ) : <p className="text-sm italic text-slate-300">No intro video uploaded</p>}
+                                ) : <p className="text-sm italic text-slate-500">No intro video uploaded</p>}
                             </Section>
                         </>
                     )}
@@ -463,9 +463,9 @@ export default function MentorReviewPage() {
 
                 {/* Right col: Review sidebar */}
                 <div className="lg:col-span-1 space-y-4 lg:sticky lg:top-6 self-start">
-                    <div className="bg-white rounded-xl border border-slate-200 p-4">
-                        <p className="text-xs uppercase tracking-wider text-slate-500 font-semibold mb-2">Review Steps</p>
-                        <div className="divide-y divide-slate-100">
+                    <div className="bg-slate-900/75 rounded-xl border border-slate-700/60 p-4">
+                        <p className="text-xs uppercase tracking-wider text-slate-400 font-semibold mb-2">Review Steps</p>
+                        <div className="divide-y divide-slate-800">
                             {checklist.map((item) => (
                                 <ReviewChecklistItem key={item.label} label={item.label} done={item.done} />
                             ))}
