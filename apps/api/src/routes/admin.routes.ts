@@ -204,7 +204,13 @@ router.get('/coaches/:id', async (req: Request, res: Response, next: NextFunctio
   try {
     const mentor = await getMentorRepo().findById(req.params.id);
     if (!mentor) throw new AppError(404, 'NOT_FOUND', 'Mentor not found');
-    res.json({ success: true, data: mentor });
+
+    const [offers, policy] = await Promise.all([
+      getOfferRepo().findByMentorId(mentor.id).catch(() => []),
+      getPolicyRepo().findByMentorId(mentor.id).catch(() => null),
+    ]);
+
+    res.json({ success: true, data: { ...mentor, offers, policy } });
   } catch (error) {
     next(error);
   }
