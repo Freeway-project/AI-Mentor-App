@@ -11,6 +11,7 @@ import { VerificationStep } from '@/components/onboarding/VerificationStep';
 import { OffersStep } from '@/components/onboarding/OffersStep';
 import { AvailabilityStep } from '@/components/onboarding/AvailabilityStep';
 import { ReviewStep } from '@/components/onboarding/ReviewStep';
+import { TermsAcceptanceModal } from '@/components/onboarding/TermsAcceptanceModal';
 
 const STEPS = ['basics', 'expertise', 'verification', 'offers', 'availability', 'review'] as const;
 const STEP_LABELS = ['Basics', 'Expertise', 'Verification', 'Offers', 'Schedule', 'Review'];
@@ -22,6 +23,7 @@ export default function OnboardingPage() {
   const [userAvatar, setUserAvatar] = useState<string>('');
   const [currentStep, setCurrentStep] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [showTermsModal, setShowTermsModal] = useState(false);
 
   useEffect(() => {
     if (authLoading) return;
@@ -58,6 +60,12 @@ export default function OnboardingPage() {
             }
           }
         }
+
+        // Show terms modal if the user has not accepted yet
+        const termsKey = `owl-terms-accepted-${user.id}`;
+        if (!localStorage.getItem(termsKey)) {
+          setShowTermsModal(true);
+        }
       } finally {
         setLoading(false);
       }
@@ -65,6 +73,13 @@ export default function OnboardingPage() {
 
     loadProfile();
   }, [user, authLoading, router]);
+
+  const handleTermsAccepted = () => {
+    if (user?.id) {
+      localStorage.setItem(`owl-terms-accepted-${user.id}`, 'true');
+    }
+    setShowTermsModal(false);
+  };
 
   const refreshProfile = async () => {
     const profile = await apiClient.getMyMentorProfile();
@@ -91,6 +106,8 @@ export default function OnboardingPage() {
       </div>
 
       <Navbar />
+
+      <TermsAcceptanceModal open={showTermsModal} onAccept={handleTermsAccepted} />
 
       <div className="flex-1 relative z-10 w-full py-10 pb-16">
         <div className="container mx-auto max-w-2xl px-4">
