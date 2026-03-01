@@ -61,7 +61,7 @@ export default function AdminLoginPage() {
                     </div>
                     <div>
                         <h1 className="text-2xl font-bold text-white">Admin Portal</h1>
-                        <p className="text-slate-400 text-sm mt-1">OWLMentors administration</p>
+                        <p className="text-slate-400 text-sm mt-1">OWL Mentor administration</p>
                     </div>
                 </div>
 
@@ -74,7 +74,7 @@ export default function AdminLoginPage() {
                             required
                             value={form.email}
                             onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
-                            placeholder="admin@owlmentors.com"
+                            placeholder="admin@owlmentor.com"
                             className="w-full px-3 py-2.5 bg-slate-800 border border-slate-700 rounded-lg text-sm text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                         />
                     </div>

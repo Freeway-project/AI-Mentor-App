@@ -37,7 +37,7 @@ export const CloudinaryService = {
     configure();
 
     const defaultOptions: UploadApiOptions = {
-      folder: `owlmentors/${folder}`,
+      folder: `owlmentor/${folder}`,
       resource_type: 'image',
       allowed_formats: ['jpg', 'jpeg', 'png', 'webp', 'gif'],
       max_bytes: 5 * 1024 * 1024, // 5 MB
@@ -100,7 +100,7 @@ export const CloudinaryService = {
    * Useful for on-the-fly resizing/format conversion.
    *
    * @example
-   * getOptimizedUrl('owlmentors/avatars/user_abc', { width: 100, height: 100, crop: 'fill' })
+   * getOptimizedUrl('owlmentor/avatars/user_abc', { width: 100, height: 100, crop: 'fill' })
    */
   getOptimizedUrl(
     publicId: string,

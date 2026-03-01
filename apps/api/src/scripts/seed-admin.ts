@@ -7,7 +7,7 @@ async function seedAdmin() {
 
   const userRepo = new UserRepository();
 
-  const email = 'admin@owlmentors.com';
+  const email = 'admin@owlmentor.com';
   const password = 'Admin@123456';
 
   const existing = await userRepo.findByEmail(email);
