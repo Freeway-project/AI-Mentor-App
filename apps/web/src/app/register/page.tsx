@@ -50,8 +50,14 @@ export default function RegisterPage() {
     setError('');
     setLoading(true);
     try {
-      await loginWithGoogle(credentialResponse.credential);
-      router.push('/');
+      const result = await loginWithGoogle(credentialResponse.credential, role);
+      if (result.isNew && role === 'mentor') {
+        router.push('/onboarding');
+      } else if (role === 'mentor') {
+        window.location.href = '/mentor/dashboard';
+      } else {
+        router.push('/mentee/dashboard');
+      }
     } catch (err: any) {
       setError(err.message || 'Google sign-up failed');
     } finally {

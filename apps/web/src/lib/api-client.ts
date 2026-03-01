@@ -120,10 +120,10 @@ class ApiClient {
     });
   }
 
-  async googleAuth(idToken: string) {
-    return this.request<{ user: any; token: string }>('/auth/google', {
+  async googleAuth(idToken: string, role?: 'mentee' | 'mentor') {
+    return this.request<{ user: any; token: string; isNew: boolean }>('/auth/google', {
       method: 'POST',
-      body: JSON.stringify({ idToken }),
+      body: JSON.stringify({ idToken, role }),
     });
   }
 

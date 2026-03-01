@@ -247,4 +247,17 @@ export class UserRepository {
       throw error;
     }
   }
+
+  async linkOAuthProvider(userId: string, provider: string, providerId: string): Promise<void> {
+    const startTime = Date.now();
+    try {
+      await UserModel.findByIdAndUpdate(userId, {
+        $addToSet: { oauthProviders: { provider, providerId } },
+      });
+      logger.db({ operation: 'update', collection: 'users', duration: Date.now() - startTime });
+    } catch (error) {
+      logger.db({ operation: 'update', collection: 'users', duration: Date.now() - startTime, error: (error as Error).message });
+      throw error;
+    }
+  }
 }

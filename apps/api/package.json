@@ -3,9 +3,9 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "dev": "bun --watch src/server.ts",
-    "build": "bun build src/server.ts --outdir dist --target bun",
-    "start": "bun dist/server.js",
+    "dev": "bun --env-file ../../.env --watch src/server.ts",
+    "build": "bun --env-file ../../.env build src/server.ts --outdir dist --target bun",
+    "start": "bun --env-file ../../.env dist/server.js",
     "type-check": "tsc --noEmit",
     "clean": "rm -rf dist"
   },

@@ -352,7 +352,7 @@ router.post('/logout', (req: Request, res: Response) => {
 // Google OAuth
 router.post('/google', validate(googleAuthSchema), async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { idToken } = req.body;
+    const { idToken, role } = req.body;
 
     const clientId = process.env.GOOGLE_CLIENT_ID;
     if (!clientId) {
@@ -375,16 +375,19 @@ router.post('/google', validate(googleAuthSchema), async (req: Request, res: Res
     const { email, name, picture, sub: googleId } = payload;
 
     let user = await getUserRepo().findByEmail(email);
+    const isNew = !user;
 
     if (user) {
       if (!user.isActive) {
         throw new AppError(403, 'ACCOUNT_SUSPENDED', 'Your account has been suspended');
       }
+      // Link Google provider if not already linked
+      await getUserRepo().linkOAuthProvider(user.id, 'google', googleId!);
     } else {
       user = await getUserRepo().create({
         email,
         name: name || email.split('@')[0],
-        roles: ['mentee'],
+        roles: [role === 'mentor' ? 'mentor' : 'mentee'],
         avatar: picture,
         emailVerified: true,
         oauthProviders: [{ provider: 'google', providerId: googleId! }],
@@ -404,6 +407,7 @@ router.post('/google', validate(googleAuthSchema), async (req: Request, res: Res
           avatar: user.avatar,
         },
         token,
+        isNew,
       },
     });
   } catch (error) {

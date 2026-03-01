@@ -69,6 +69,7 @@ export const verifyEmailSchema = z.object({
 
 export const googleAuthSchema = z.object({
   idToken: z.string().min(1),
+  role: z.enum(['mentee', 'mentor']).optional(),
 });
 
 export type RegisterInput = z.infer<typeof registerSchema>;

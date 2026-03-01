@@ -21,6 +21,8 @@ export function GoogleCalendarConnect({ onStatusChange }: Props) {
       })
       .catch(() => {})
       .finally(() => setLoading(false));
+  // onStatusChange is intentionally excluded — it's a callback prop that runs once on mount
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleConnect = () => {

@@ -7,6 +7,7 @@ import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google';
 import { useDispatch } from 'react-redux';
 import { login } from '@/store/slices/auth.slice';
 import { useAuth } from '@/lib/auth-context';
+import { apiClient } from '@/lib/api-client';
 import { Navbar } from '@/components/layout/Navbar';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
@@ -58,8 +59,21 @@ export default function LoginPage() {
   const handleGoogleSuccess = async (credentialResponse: any) => {
     setLoading(true);
     try {
-      await loginWithGoogle(credentialResponse.credential);
-      router.push('/mentee/dashboard');
+      const { isNew } = await loginWithGoogle(credentialResponse.credential);
+      if (isNew) {
+        // No account existed — send them to register to pick a role
+        toast.info('No account found. Please sign up and choose your role.');
+        router.push('/register');
+        return;
+      }
+      const me = await apiClient.getMe();
+      if (me.roles.includes('admin')) {
+        router.push('/admin');
+      } else if (me.roles.includes('mentor')) {
+        window.location.href = '/mentor/dashboard';
+      } else {
+        router.push('/mentee/dashboard');
+      }
     } catch (err: any) {
       toast.error(err.message || 'Google sign-in failed');
     } finally {
