@@ -77,7 +77,7 @@ export function ReviewChat({ mentorId, viewAs, contextLabel }: ReviewChatProps) 
             {/* Header */}
             <div className="px-4 py-2.5 border-b border-slate-800 bg-slate-900/90">
                 <p className="text-sm font-semibold text-slate-100">
-                    {viewAs === 'admin' ? 'Review Chat with Mentor' : 'Chat with OWLMentors Admin'}
+                    {viewAs === 'admin' ? 'Review Chat with Mentor' : 'Chat with OWL Mentor Admin'}
                 </p>
                 {contextLabel && (
                     <p className="text-xs text-slate-400 mt-0.5 truncate">{contextLabel}</p>
@@ -106,8 +106,8 @@ export function ReviewChat({ mentorId, viewAs, contextLabel }: ReviewChatProps) 
                             <div key={msg.id} className={`flex ${isMe ? 'justify-end' : 'justify-start'}`}>
                                 <div
                                     className={`max-w-[85%] rounded-2xl px-3.5 py-2 text-sm leading-relaxed border ${isMe
-                                            ? 'bg-blue-600 text-white rounded-br-none border-blue-600'
-                                            : 'bg-slate-900 text-slate-100 rounded-bl-none border-slate-700'
+                                        ? 'bg-blue-600 text-white rounded-br-none border-blue-600'
+                                        : 'bg-slate-900 text-slate-100 rounded-bl-none border-slate-700'
                                         }`}
                                 >
                                     <p>{msg.content}</p>

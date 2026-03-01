@@ -45,7 +45,7 @@ export default function MenteeLoginPage() {
         {/* Logo */}
         <div className="flex items-center justify-center gap-2 mb-8">
           <Rocket className="h-7 w-7 text-blue-600" />
-          <span className="text-2xl font-bold tracking-tight">OWLMentors</span>
+          <span className="text-2xl font-bold tracking-tight">OWL Mentor</span>
         </div>
 
         <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-8 space-y-6">

@@ -44,7 +44,7 @@ export function MentorSidebar({ approvalStatus }: MentorSidebarProps) {
                     <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-emerald-500 flex items-center justify-center">
                         <Rocket className="w-4 h-4 text-white" />
                     </div>
-                    <span className="text-lg font-bold tracking-tight">OWLMentors</span>
+                    <span className="text-lg font-bold tracking-tight">OWL Mentor</span>
                 </Link>
                 <p className="mt-1 text-xs text-slate-400 pl-0.5">Mentor Portal</p>
             </div>
