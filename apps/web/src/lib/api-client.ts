@@ -241,6 +241,68 @@ class ApiClient {
   async deleteIntroVideo() {
     return this.request<any>('/upload/intro-video', { method: 'DELETE' });
   }
+
+  // Google Calendar Integration
+  startGoogleCalendarOAuth(): void {
+    if (typeof window !== 'undefined') {
+      // Pass token as query param since this is a browser redirect (no Authorization header)
+      const token = this.token;
+      const url = token
+        ? `${this.baseUrl}/api/integrations/google/start?token=${encodeURIComponent(token)}`
+        : `${this.baseUrl}/api/integrations/google/start`;
+      window.location.href = url;
+    }
+  }
+
+  async getGoogleCalendarStatus(): Promise<{ connected: boolean }> {
+    return this.request<{ connected: boolean }>('/integrations/google/status');
+  }
+
+  async getGoogleCalendars(): Promise<{ calendars: { id: string; summary: string }[]; selectedCalendarIds: string[]; writeCalendarId: string }> {
+    return this.request<any>('/integrations/google/calendars');
+  }
+
+  async saveSelectedCalendars(selectedCalendarIds: string[], writeCalendarId?: string): Promise<any> {
+    return this.request<any>('/integrations/google/calendars/selected', {
+      method: 'POST',
+      body: JSON.stringify({ selectedCalendarIds, writeCalendarId }),
+    });
+  }
+
+  async disconnectGoogleCalendar(): Promise<any> {
+    return this.request<any>('/integrations/google/disconnect', { method: 'POST' });
+  }
+
+  // Booking / Slots
+  async getAvailableSlots(mentorId: string, from: string, to: string, duration: number): Promise<{ slots: { start: string; end: string }[] }> {
+    const params = new URLSearchParams({ from, to, duration: String(duration) });
+    return this.request<{ slots: { start: string; end: string }[] }>(`/mentors/${mentorId}/slots?${params.toString()}`);
+  }
+
+  async createBooking(data: { mentorId: string; offerId?: string; scheduledAt: string; duration: number; title?: string; description?: string }): Promise<any> {
+    return this.request<any>('/bookings', { method: 'POST', body: JSON.stringify(data) });
+  }
+
+  async getMyBookings(params?: { status?: string; startDate?: string; endDate?: string }): Promise<{ meetings: any[] }> {
+    const qs = new URLSearchParams(params as any).toString();
+    return this.request<{ meetings: any[] }>(`/bookings/me${qs ? '?' + qs : ''}`);
+  }
+
+  async getBooking(id: string): Promise<any> {
+    return this.request<any>(`/bookings/${id}`);
+  }
+
+  async cancelBooking(id: string, reason?: string): Promise<any> {
+    return this.request<any>(`/bookings/${id}/cancel`, { method: 'POST', body: JSON.stringify({ reason }) });
+  }
+
+  async rescheduleBooking(id: string, scheduledAt: string): Promise<any> {
+    return this.request<any>(`/bookings/${id}/reschedule`, { method: 'POST', body: JSON.stringify({ scheduledAt }) });
+  }
+
+  async getMentorOffers(mentorId: string): Promise<any[]> {
+    return this.request<any[]>(`/mentors/${mentorId}/offers`);
+  }
 }
 
 export const apiClient = new ApiClient(API_URL);

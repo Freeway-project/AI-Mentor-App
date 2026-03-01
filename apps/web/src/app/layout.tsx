@@ -4,7 +4,7 @@ import { AppProviders } from './providers';
 import { Toaster } from 'sonner';
 
 export const metadata: Metadata = {
-  title: 'OWLMentors',
+  title: 'OWL Mentor',
   description: 'Find and connect with expert mentors',
 };
 

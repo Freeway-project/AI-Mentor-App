@@ -4,8 +4,10 @@ import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import { apiClient } from '@/lib/api-client';
 import { Navbar } from '@/components/layout/Navbar';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { SlotPicker } from '@/components/booking/SlotPicker';
+import { BookingConfirmation } from '@/components/booking/BookingConfirmation';
+import { toast } from 'sonner';
 
 const DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
@@ -15,13 +17,49 @@ export default function MentorProfilePage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
+  // Booking state
+  const [offers, setOffers] = useState<any[]>([]);
+  const [selectedOfferId, setSelectedOfferId] = useState('');
+  const [selectedSlot, setSelectedSlot] = useState<{ start: string; end: string } | null>(null);
+  const [booking, setBooking] = useState(false);
+  const [confirmedBooking, setConfirmedBooking] = useState<any>(null);
+  const [showBooking, setShowBooking] = useState(false);
+
   useEffect(() => {
     const id = params.id as string;
     apiClient.getMentor(id)
-      .then(setMentor)
+      .then(data => {
+        setMentor(data);
+        // Load offers for booking flow
+        return apiClient.getMentorOffers(id);
+      })
+      .then(data => setOffers(data))
       .catch((err) => setError(err.message || 'Mentor not found'))
       .finally(() => setLoading(false));
   }, [params.id]);
+
+  const selectedOffer = offers.find(o => o.id === selectedOfferId);
+  const durationMin = selectedOffer?.durationMinutes ?? 30;
+
+  const handleBook = async () => {
+    if (!selectedSlot) return;
+    setBooking(true);
+    try {
+      const result = await apiClient.createBooking({
+        mentorId: mentor.id,
+        offerId: selectedOfferId || undefined,
+        scheduledAt: selectedSlot.start,
+        duration: durationMin,
+        title: selectedOffer?.title,
+      });
+      setConfirmedBooking(result);
+      setShowBooking(false);
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to book session');
+    } finally {
+      setBooking(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -100,7 +138,12 @@ export default function MentorProfilePage() {
                 )}
               </div>
 
-              <Button size="lg" className="w-full md:w-auto bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold px-8 shadow-[0_0_20px_rgba(245,158,11,0.2)]">Book Session</Button>
+              <button
+                onClick={() => setShowBooking(s => !s)}
+                className="w-full md:w-auto bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold px-8 py-2.5 rounded-lg shadow-[0_0_20px_rgba(245,158,11,0.2)] transition-colors text-sm"
+              >
+                {showBooking ? 'Hide Booking' : 'Book Session'}
+              </button>
             </div>
           </div>
 
@@ -157,6 +200,70 @@ export default function MentorProfilePage() {
               )}
             </div>
           </div>
+
+          {/* Confirmed booking */}
+          {confirmedBooking && (
+            <div className="mt-6">
+              <BookingConfirmation
+                booking={confirmedBooking}
+                onClose={() => setConfirmedBooking(null)}
+              />
+            </div>
+          )}
+
+          {/* Booking panel */}
+          {showBooking && !confirmedBooking && (
+            <div className="mt-6 bg-slate-900/40 backdrop-blur-md rounded-2xl border border-slate-800/80 p-6 md:p-8 space-y-6">
+              <h2 className="text-lg font-semibold text-white">Book a Session</h2>
+
+              {/* Offer selector */}
+              {offers.length > 0 && (
+                <div>
+                  <label className="block text-sm text-slate-400 mb-2">Session type</label>
+                  <select
+                    value={selectedOfferId}
+                    onChange={e => setSelectedOfferId(e.target.value)}
+                    className="w-full bg-slate-800 border border-slate-700 text-slate-200 text-sm rounded-lg px-3 py-2 focus:outline-none focus:border-violet-500"
+                  >
+                    <option value="">Pick a session type...</option>
+                    {offers.map((o: any) => (
+                      <option key={o.id} value={o.id}>
+                        {o.title} — {o.durationMinutes} min ({o.price} credits)
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
+
+              {/* Slot picker */}
+              <div>
+                <label className="block text-sm text-slate-400 mb-3">Choose a time slot</label>
+                <SlotPicker
+                  mentorId={mentor.id}
+                  durationMin={durationMin}
+                  onSlotSelect={setSelectedSlot}
+                />
+              </div>
+
+              {/* Confirm button */}
+              {selectedSlot && (
+                <div className="pt-2 border-t border-slate-800">
+                  <p className="text-sm text-slate-400 mb-3">
+                    Selected: <span className="text-white font-medium">
+                      {new Date(selectedSlot.start).toLocaleString([], { weekday: 'short', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                    </span>
+                  </p>
+                  <button
+                    onClick={handleBook}
+                    disabled={booking}
+                    className="w-full py-3 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-lg transition-colors disabled:opacity-50"
+                  >
+                    {booking ? 'Booking...' : 'Confirm Booking'}
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </div>
     </div>
