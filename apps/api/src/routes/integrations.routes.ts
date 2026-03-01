@@ -24,9 +24,28 @@ function getCalSettingsRepo() {
 const gcalService = new GoogleCalendarService();
 
 // GET /api/integrations/google/start
-// Redirects the authenticated user to Google OAuth consent screen
-router.get('/google/start', authenticate, requireEmailVerified, (req: Request, res: Response, next: NextFunction) => {
+// Redirects the authenticated user to Google OAuth consent screen.
+// Accepts token as query param (for browser redirects) or Authorization header.
+router.get('/google/start', async (req: Request, res: Response, next: NextFunction) => {
   try {
+    // Support ?token= query param for browser-initiated OAuth redirects
+    const queryToken = req.query.token as string | undefined;
+    if (queryToken) {
+      const jwt = await import('jsonwebtoken');
+      const secret = process.env.JWT_SECRET;
+      if (!secret) throw new Error('JWT_SECRET not configured');
+      const decoded = jwt.default.verify(queryToken, secret) as { userId: string };
+      req.userId = decoded.userId;
+    } else {
+      // Fall through to header-based auth
+      await new Promise<void>((resolve, reject) => {
+        authenticate(req, res, (err?: any) => {
+          if (err) reject(err);
+          else resolve();
+        });
+      });
+    }
+
     const state = req.userId!;
     const url = gcalService.getAuthUrl(state);
     res.redirect(url);

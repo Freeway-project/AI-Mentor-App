@@ -243,14 +243,14 @@ class ApiClient {
   }
 
   // Google Calendar Integration
-  getGoogleCalendarOAuthUrl(): string {
-    return `${this.baseUrl}/api/integrations/google/start`;
-  }
-
   startGoogleCalendarOAuth(): void {
     if (typeof window !== 'undefined') {
-      // Attach token as a query param since this is a redirect, not a fetch
-      window.location.href = `${this.baseUrl}/api/integrations/google/start`;
+      // Pass token as query param since this is a browser redirect (no Authorization header)
+      const token = this.token;
+      const url = token
+        ? `${this.baseUrl}/api/integrations/google/start?token=${encodeURIComponent(token)}`
+        : `${this.baseUrl}/api/integrations/google/start`;
+      window.location.href = url;
     }
   }
 

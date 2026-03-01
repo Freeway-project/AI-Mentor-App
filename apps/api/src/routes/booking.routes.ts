@@ -67,8 +67,8 @@ router.get('/mentors/:coachId/slots', async (req: Request, res: Response, next: 
     const policy = await policyRepo.findByMentorId(coachId);
     const minNoticeHours = policy?.cancellationHours ?? 1;
 
-    // Load existing bookings in range
-    const existingMeetings = await meetingRepo.list(mentor.userId, {
+    // Load existing bookings in range (use mentor.id = Mentor doc _id, not userId)
+    const existingMeetings = await meetingRepo.list(mentor.id, {
       startDate: fromDate.toISOString(),
       endDate: new Date(toDate.getTime() + 24 * 60 * 60 * 1000).toISOString(),
       limit: 200,
@@ -156,8 +156,8 @@ router.post('/bookings', authenticate, requireEmailVerified, async (req: Request
       }
     }
 
-    // Race condition guard: re-check the slot is free
-    const nearbyMeetings = await meetingRepo.list(mentor.userId, {
+    // Race condition guard: re-check the slot is free (use mentor.id = Mentor doc _id)
+    const nearbyMeetings = await meetingRepo.list(mentor.id, {
       startDate: slotStart.toISOString(),
       endDate: slotEnd.toISOString(),
       limit: 50,
