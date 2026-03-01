@@ -28,7 +28,7 @@ export function Navbar() {
                 {/* Logo */}
                 <Link href="/" className="flex items-center space-x-2">
                     <Rocket className="h-6 w-6 text-amber-500" />
-                    <span className="text-xl font-bold tracking-tight text-white">OWLMentors</span>
+                    <span className="text-xl font-bold tracking-tight text-white">OWL Mentor</span>
                 </Link>
 
                 {/* Desktop Navigation */}

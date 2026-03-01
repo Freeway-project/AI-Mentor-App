@@ -11,7 +11,7 @@ export function Footer() {
                     <div className="space-y-4">
                         <Link href="/" className="flex items-center space-x-2">
                             <Rocket className="h-6 w-6 text-amber-500" />
-                            <span className="text-xl font-bold tracking-tight text-white">OWLMentors</span>
+                            <span className="text-xl font-bold tracking-tight text-white">OWL Mentor</span>
                         </Link>
                         <p className="text-sm text-slate-400 max-w-xs">
                             Connect with expert mentors to accelerate your career and personal growth.
@@ -56,7 +56,7 @@ export function Footer() {
 
                 <div className="mt-12 flex flex-col items-center justify-between space-y-4 border-t border-slate-900 pt-8 md:flex-row md:space-y-0">
                     <p className="text-sm text-slate-500">
-                        © {new Date().getFullYear()} OWLMentors. All rights reserved.
+                        © {new Date().getFullYear()} OWL Mentor by Jaddpi. All rights reserved.
                     </p>
                     <div className="flex space-x-6">
                         <Link href="#" className="text-slate-500 hover:text-amber-500 transition-colors">
