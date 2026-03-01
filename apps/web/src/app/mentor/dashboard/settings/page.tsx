@@ -1,15 +1,30 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useAuth } from '@/lib/auth-context';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { toast } from 'sonner';
 import { LogOut, Trash2, ShieldCheck } from 'lucide-react';
+import { GoogleCalendarConnect } from '@/components/mentor/GoogleCalendarConnect';
+import { CalendarSelector } from '@/components/mentor/CalendarSelector';
+
+function CalendarOAuthToast() {
+    const searchParams = useSearchParams();
+    useEffect(() => {
+        if (searchParams.get('calendarConnected') === '1') {
+            toast.success('Google Calendar connected successfully');
+        } else if (searchParams.get('calendarError')) {
+            toast.error('Failed to connect Google Calendar');
+        }
+    }, [searchParams]);
+    return null;
+}
 
 export default function MentorSettingsPage() {
     const { user, logout } = useAuth();
     const router = useRouter();
     const [showDelete, setShowDelete] = useState(false);
+    const [calendarConnected, setCalendarConnected] = useState(false);
 
     const handleLogout = () => {
         logout();
@@ -19,6 +34,9 @@ export default function MentorSettingsPage() {
 
     return (
         <div className="p-8 max-w-2xl mx-auto space-y-6">
+            <Suspense fallback={null}>
+                <CalendarOAuthToast />
+            </Suspense>
             <div>
                 <h1 className="text-2xl font-bold text-white">Settings</h1>
                 <p className="text-slate-400 text-sm mt-1">Manage your account preferences</p>
@@ -56,6 +74,23 @@ export default function MentorSettingsPage() {
                         Sign out
                     </button>
                 </div>
+            </div>
+
+            {/* Google Calendar */}
+            <div className="bg-slate-900 rounded-2xl border border-slate-800 divide-y divide-slate-800">
+                <div className="px-5 py-4">
+                    <h2 className="font-semibold text-white mb-1">Google Calendar</h2>
+                    <p className="text-sm text-slate-500 mb-4">
+                        Connect your Google Calendar to automatically block busy times and add Meet links to bookings.
+                    </p>
+                    <GoogleCalendarConnect onStatusChange={setCalendarConnected} />
+                </div>
+                {calendarConnected && (
+                    <div className="px-5 py-4">
+                        <h3 className="text-sm font-medium text-slate-300 mb-3">Calendar Settings</h3>
+                        <CalendarSelector />
+                    </div>
+                )}
             </div>
 
             {/* Danger zone */}

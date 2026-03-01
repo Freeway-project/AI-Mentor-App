@@ -1,4 +1,4 @@
-# AI Mentor Platform
+# OWL Mentor
 
 A monorepo for an AI-powered mentor/provider platform built with Bun, Next.js, Express, and MongoDB.
 
@@ -113,7 +113,7 @@ See `.env.example` files for required configuration.
 
 ## Organization
 
-Built by BlueOcean Codes
+Built by Jaddpi
 
 ## License
 
