@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/lib/auth-context';
 import { apiClient } from '@/lib/api-client';
-import { Calendar, Clock, CreditCard, ArrowRight, BookOpen, Video, X, RotateCcw } from 'lucide-react';
+import { Calendar, Clock, CreditCard, ArrowRight, BookOpen, Video, X, RotateCcw, Plus, Search } from 'lucide-react';
 import Link from 'next/link';
 import { toast } from 'sonner';
 import { SlotPicker } from '@/components/booking/SlotPicker';
