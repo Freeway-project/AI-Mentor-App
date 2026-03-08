@@ -27,10 +27,10 @@ export function BookingConfirmation({ booking, onClose }: Props) {
   const meetLink = booking.meetUrl || booking.meetingLink;
 
   return (
-    <div className="bg-slate-900 rounded-2xl border border-emerald-500/30 p-6 space-y-4">
+    <div className="bg-slate-900 rounded-2xl border border-purple-500/30 p-6 space-y-4">
       <div className="flex items-center gap-3">
-        <div className="w-10 h-10 rounded-full bg-emerald-500/10 flex items-center justify-center">
-          <span className="text-emerald-400 text-xl">&#10003;</span>
+        <div className="w-10 h-10 rounded-full bg-purple-500/10 flex items-center justify-center">
+          <span className="text-purple-400 text-xl">&#10003;</span>
         </div>
         <div>
           <h3 className="font-semibold text-white">Session booked!</h3>

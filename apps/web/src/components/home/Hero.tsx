@@ -44,12 +44,12 @@ export function Hero() {
 
                 {/* Aurora blob 1 - violet */}
                 <div className="absolute -top-40 -left-40 w-[700px] h-[700px] rounded-full bg-violet-600/10 blur-[120px] animate-pulse" />
-                {/* Aurora blob 2 - indigo */}
-                <div className="absolute top-1/3 -right-40 w-[600px] h-[600px] rounded-full bg-indigo-500/10 blur-[100px]" style={{ animationDelay: '1s' }} />
+                {/* Aurora blob 2 - fuchsia */}
+                <div className="absolute top-1/3 -right-40 w-[600px] h-[600px] rounded-full bg-fuchsia-500/10 blur-[100px]" style={{ animationDelay: '1s' }} />
                 {/* Aurora blob 3 - amber accent bottom */}
                 <div className="absolute -bottom-20 left-1/3 w-[500px] h-[400px] rounded-full bg-amber-500/5 blur-[100px]" />
                 {/* Thin top accent line */}
-                <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-indigo-500/40 to-transparent" />
+                <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-fuchsia-500/40 to-transparent" />
             </div>
 
             <div className="container mx-auto px-4 md:px-6 relative z-10 sticky top-32">

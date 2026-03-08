@@ -176,7 +176,7 @@ export function MentorHighlights() {
                                         </p>
                                         <div className="flex flex-wrap gap-2">
                                             {mentor.tags.map((tag) => (
-                                                <Badge key={tag} variant="secondary" className="bg-slate-800 text-slate-300 border border-slate-700 hover:bg-emerald-500/10 hover:text-emerald-400 hover:border-emerald-500/30 transition-colors">
+                                                <Badge key={tag} variant="secondary" className="bg-slate-800 text-slate-300 border border-slate-700 hover:bg-purple-500/10 hover:text-purple-400 hover:border-purple-500/30 transition-colors">
                                                     {tag}
                                                 </Badge>
                                             ))}

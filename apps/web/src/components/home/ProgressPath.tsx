@@ -29,7 +29,7 @@ export function ProgressPath() {
     // Step 3: Book & Learn
     const step3Opacity = useTransform(scrollYProgress, [0.7, 0.8], [0.3, 1]);
     const step3Scale = useTransform(scrollYProgress, [0.7, 0.8], [0.8, 1]);
-    const step3Color = useTransform(scrollYProgress, [0.7, 0.8], ['#1e293b', '#10b981']); // slate-800 to emerald-500
+    const step3Color = useTransform(scrollYProgress, [0.7, 0.8], ['#1e293b', '#10b981']); // slate-800 to purple-500
 
     // Final CTA Button
     const ctaScale = useTransform(scrollYProgress, [0.8, 0.9], [0, 1]);
@@ -156,14 +156,14 @@ export function ProgressPath() {
                                 <p className="text-slate-400 md:hidden">Confirm your session to instantly get a Google Meet link. Join the call and start accelerating your growth.</p>
                                 {/* Visual Card */}
                                 <div className="p-4 bg-slate-900 border border-slate-800 rounded-xl shadow-sm md:w-[90%] md:ml-auto flex items-center gap-3">
-                                    <div className="w-10 h-10 rounded-lg bg-emerald-500/20 flex items-center justify-center shrink-0 text-emerald-500">
+                                    <div className="w-10 h-10 rounded-lg bg-purple-500/20 flex items-center justify-center shrink-0 text-purple-500">
                                         <Video className="w-5 h-5" />
                                     </div>
                                     <div className="flex-1">
                                         <div className="h-3 w-1/2 bg-slate-700 rounded mb-2"></div>
                                         <div className="h-2 w-1/3 bg-slate-800 rounded"></div>
                                     </div>
-                                    <div className="px-2 py-1 bg-emerald-500/10 text-emerald-400 text-[10px] border border-emerald-500/20 font-bold rounded uppercase">Confirmed</div>
+                                    <div className="px-2 py-1 bg-purple-500/10 text-purple-400 text-[10px] border border-purple-500/20 font-bold rounded uppercase">Confirmed</div>
                                 </div>
                             </div>
                         </motion.div>

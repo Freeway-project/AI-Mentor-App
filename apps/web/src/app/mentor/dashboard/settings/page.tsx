@@ -57,7 +57,7 @@ export default function MentorSettingsPage() {
                         </div>
                         <div className="flex justify-between items-center">
                             <span className="text-slate-500">Email verified</span>
-                            <span className="flex items-center gap-1.5 text-emerald-400 font-medium">
+                            <span className="flex items-center gap-1.5 text-purple-400 font-medium">
                                 <ShieldCheck className="w-4 h-4" />
                                 Verified
                             </span>

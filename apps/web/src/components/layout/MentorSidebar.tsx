@@ -19,7 +19,7 @@ interface MentorSidebarProps {
 
 const statusConfig = {
     pending: { label: 'Under Review', classes: 'bg-amber-100 text-amber-700 border-amber-200' },
-    approved: { label: 'Approved', classes: 'bg-emerald-100 text-emerald-700 border-emerald-200' },
+    approved: { label: 'Approved', classes: 'bg-purple-100 text-purple-700 border-purple-200' },
     rejected: { label: 'Rejected', classes: 'bg-red-100 text-red-700 border-red-200' },
 };
 
@@ -41,7 +41,7 @@ export function MentorSidebar({ approvalStatus }: MentorSidebarProps) {
             {/* Logo */}
             <div className="px-5 py-5 border-b border-white/10">
                 <Link href="/" className="flex items-center gap-2.5">
-                    <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-emerald-500 flex items-center justify-center">
+                    <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-violet-500 to-purple-500 flex items-center justify-center">
                         <Rocket className="w-4 h-4 text-white" />
                     </div>
                     <span className="text-lg font-bold tracking-tight">OWL Mentor</span>
@@ -58,7 +58,7 @@ export function MentorSidebar({ approvalStatus }: MentorSidebarProps) {
                             key={href}
                             href={href}
                             className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${isActive
-                                ? 'bg-gradient-to-r from-blue-600 to-emerald-600 text-white shadow-md shadow-blue-900/40'
+                                ? 'bg-gradient-to-r from-violet-600 to-purple-600 text-white shadow-md shadow-violet-900/40'
                                 : 'text-slate-400 hover:text-white hover:bg-white/8'
                                 }`}
                         >
@@ -81,7 +81,7 @@ export function MentorSidebar({ approvalStatus }: MentorSidebarProps) {
 
                 {/* User info */}
                 <div className="flex items-center gap-3 px-2">
-                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-emerald-500 flex items-center justify-center text-xs font-bold shrink-0">
+                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-violet-500 to-purple-500 flex items-center justify-center text-xs font-bold shrink-0">
                         {user?.name?.charAt(0)?.toUpperCase() || 'M'}
                     </div>
                     <div className="min-w-0">

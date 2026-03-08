@@ -20,8 +20,8 @@ function formatDateTime(iso: string | Date) {
 
 function StatusBadge({ status }: { status: string }) {
   const styles: Record<string, string> = {
-    booked: 'bg-blue-500/10 text-blue-400 border-blue-500/20',
-    confirmed: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
+    booked: 'bg-violet-500/10 text-violet-400 border-violet-500/20',
+    confirmed: 'bg-purple-500/10 text-purple-400 border-purple-500/20',
     completed: 'bg-slate-700/50 text-slate-400 border-slate-700',
     cancelled: 'bg-red-500/10 text-red-400 border-red-500/20',
     in_progress: 'bg-amber-500/10 text-amber-400 border-amber-500/20',
@@ -133,8 +133,8 @@ export default function MenteeDashboardPage() {
           </div>
         </div>
         <div className="bg-slate-900 rounded-xl border border-slate-800 p-5 flex items-center gap-4">
-          <div className="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center">
-            <Calendar className="w-5 h-5 text-blue-400" />
+          <div className="w-10 h-10 rounded-xl bg-violet-500/10 flex items-center justify-center">
+            <Calendar className="w-5 h-5 text-violet-400" />
           </div>
           <div>
             <p className="text-xs text-slate-500 uppercase tracking-wide">Upcoming</p>
@@ -154,12 +154,12 @@ export default function MenteeDashboardPage() {
 
       {/* Banner */}
       {nextSession ? (
-        <div className="rounded-2xl border border-blue-500/30 bg-blue-500/10 p-5 flex items-start gap-4">
-          <div className="p-2.5 rounded-xl bg-blue-500/10">
-            <Clock className="w-6 h-6 text-blue-400" />
+        <div className="rounded-2xl border border-violet-500/30 bg-violet-500/10 p-5 flex items-start gap-4">
+          <div className="p-2.5 rounded-xl bg-violet-500/10">
+            <Clock className="w-6 h-6 text-violet-400" />
           </div>
           <div className="flex-1">
-            <h2 className="font-semibold text-blue-400">Next session</h2>
+            <h2 className="font-semibold text-violet-400">Next session</h2>
             <p className="text-white font-medium mt-0.5">{nextSession.title}</p>
             <p className="text-sm text-slate-400 mt-1">
               {formatDateTime(nextSession.scheduledAt)} · {nextSession.duration} min
@@ -177,18 +177,18 @@ export default function MenteeDashboardPage() {
           </div>
         </div>
       ) : (
-        <div className="rounded-2xl border border-blue-500/30 bg-blue-500/10 p-5 flex items-start gap-4">
-          <div className="p-2.5 rounded-xl bg-blue-500/10">
-            <Clock className="w-6 h-6 text-blue-400" />
+        <div className="rounded-2xl border border-violet-500/30 bg-violet-500/10 p-5 flex items-start gap-4">
+          <div className="p-2.5 rounded-xl bg-violet-500/10">
+            <Clock className="w-6 h-6 text-violet-400" />
           </div>
           <div>
-            <h2 className="font-semibold text-blue-400">Find your first mentor</h2>
+            <h2 className="font-semibold text-violet-400">Find your first mentor</h2>
             <p className="text-sm text-slate-400 mt-0.5">
               You haven&apos;t booked any sessions yet. Browse our list of expert mentors to get started.
             </p>
             <Link
               href="/browse"
-              className="inline-flex items-center gap-1.5 mt-3 text-sm font-medium text-blue-400 hover:underline"
+              className="inline-flex items-center gap-1.5 mt-3 text-sm font-medium text-violet-400 hover:underline"
             >
               Browse mentors <ArrowRight className="w-3.5 h-3.5" />
             </Link>

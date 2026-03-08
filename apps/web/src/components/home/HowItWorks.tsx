@@ -17,9 +17,9 @@ const steps = [
         title: 'Get matched',
         description: 'Our system connects you with industry experts whose experience aligns perfectly with your specific growth needs.',
         icon: Search,
-        color: 'text-emerald-500',
-        bgColor: 'bg-emerald-500/10',
-        borderColor: 'border-emerald-500/20',
+        color: 'text-purple-500',
+        bgColor: 'bg-purple-500/10',
+        borderColor: 'border-purple-500/20',
     },
     {
         title: 'Schedule Session',
@@ -33,9 +33,9 @@ const steps = [
         title: 'Learn & Iterate',
         description: 'Get actionable advice, apply it, and book follow-ups to track your progress and tackle new challenges.',
         icon: Repeat,
-        color: 'text-emerald-500',
-        bgColor: 'bg-emerald-500/10',
-        borderColor: 'border-emerald-500/20',
+        color: 'text-purple-500',
+        bgColor: 'bg-purple-500/10',
+        borderColor: 'border-purple-500/20',
     },
 ];
 
@@ -63,7 +63,7 @@ export function HowItWorks() {
         <section id="how-it-works" className="py-20 md:py-32 bg-slate-900 relative overflow-hidden">
             {/* Background Decorations */}
             <div className="absolute top-0 right-0 -mt-20 -mr-20 w-96 h-96 bg-amber-500/10 rounded-full blur-3xl opacity-50 pointer-events-none"></div>
-            <div className="absolute bottom-0 left-0 -mb-20 -ml-20 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl opacity-50 pointer-events-none"></div>
+            <div className="absolute bottom-0 left-0 -mb-20 -ml-20 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl opacity-50 pointer-events-none"></div>
 
             <div className="container mx-auto px-4 md:px-6 relative z-10">
                 <motion.div
@@ -111,7 +111,7 @@ export function HowItWorks() {
                                 transition={{ duration: 40, repeat: Infinity, ease: "linear" }}
                                 className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[450px] h-[450px] rounded-full border border-slate-800 z-0"
                             >
-                                <div className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2 w-6 h-6 rounded-full bg-emerald-500 shadow-[0_0_15px_rgba(16,185,129,0.5)] flex items-center justify-center">
+                                <div className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2 w-6 h-6 rounded-full bg-purple-500 shadow-[0_0_15px_rgba(16,185,129,0.5)] flex items-center justify-center">
                                     <div className="w-2 h-2 rounded-full bg-slate-900"></div>
                                 </div>
                                 <div className="absolute top-1/2 right-0 translate-x-1/2 -translate-y-1/2 w-3 h-3 rounded-full bg-amber-400 shadow-md"></div>
@@ -123,8 +123,8 @@ export function HowItWorks() {
                                 transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
                                 className="absolute top-12 right-0 bg-slate-800 p-3 rounded-xl shadow-lg border border-slate-700 flex items-center gap-3 z-30"
                             >
-                                <div className="w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center">
-                                    <span className="text-emerald-400 text-xs font-bold">1:1</span>
+                                <div className="w-8 h-8 rounded-full bg-purple-500/20 flex items-center justify-center">
+                                    <span className="text-purple-400 text-xs font-bold">1:1</span>
                                 </div>
                                 <div className="space-y-1">
                                     <div className="h-2 w-16 bg-slate-600 rounded"></div>
@@ -141,13 +141,13 @@ export function HowItWorks() {
                                     <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-slate-700 shadow-sm ring-2 ring-slate-800 bg-slate-900">
                                         <Image src="https://i.pravatar.cc/150?img=11" alt="Student" width={48} height={48} className="w-full h-full object-cover opacity-80" />
                                     </div>
-                                    <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-emerald-500 rounded-full border-2 border-slate-800 flex items-center justify-center">
+                                    <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-purple-500 rounded-full border-2 border-slate-800 flex items-center justify-center">
                                         <ArrowRight className="w-3 h-3 text-slate-900 -rotate-45" />
                                     </div>
                                 </div>
                                 <div>
                                     <p className="text-sm font-bold text-white">Career breakthrough</p>
-                                    <p className="text-xs text-emerald-400">Achieved in 3 months</p>
+                                    <p className="text-xs text-purple-400">Achieved in 3 months</p>
                                 </div>
                             </motion.div>
                         </div>

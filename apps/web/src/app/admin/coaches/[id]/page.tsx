@@ -55,7 +55,7 @@ function ReviewChecklistItem({ label, done }: { label: string; done: boolean }) 
         <div className="flex items-center justify-between gap-2 py-2">
             <span className="text-sm text-slate-200">{label}</span>
             {done ? (
-                <span className="inline-flex items-center gap-1 text-emerald-700 text-xs font-semibold">
+                <span className="inline-flex items-center gap-1 text-purple-700 text-xs font-semibold">
                     <CheckCircle2 className="w-3.5 h-3.5" /> Done
                 </span>
             ) : (
@@ -107,7 +107,7 @@ export default function MentorReviewPage() {
     if (isLoading) {
         return (
             <div className="flex items-center justify-center h-full py-32">
-                <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" />
+                <div className="w-8 h-8 border-4 border-violet-600 border-t-transparent rounded-full animate-spin" />
             </div>
         );
     }
@@ -116,7 +116,7 @@ export default function MentorReviewPage() {
         return (
             <div className="p-8 text-center text-slate-500">
                 <p>Mentor not found or could not be loaded.</p>
-                <Link href="/admin/coaches" className="text-blue-600 hover:underline text-sm mt-2 inline-block">← Back to Coaches</Link>
+                <Link href="/admin/coaches" className="text-violet-600 hover:underline text-sm mt-2 inline-block">← Back to Coaches</Link>
             </div>
         );
     }
@@ -176,7 +176,7 @@ export default function MentorReviewPage() {
                                 <h1 className="text-xl font-bold text-slate-100">{mentor.name}</h1>
                                 <StatusBadge status={mentor.approvalStatus} />
                                 {mentor.isActive && (
-                                    <span className="text-xs bg-emerald-100 text-emerald-700 font-semibold px-2 py-0.5 rounded-full">● Live</span>
+                                    <span className="text-xs bg-purple-100 text-purple-700 font-semibold px-2 py-0.5 rounded-full">● Live</span>
                                 )}
                             </div>
                             {mentor.headline && <p className="text-slate-400 text-sm mt-0.5">{mentor.headline}</p>}
@@ -259,7 +259,7 @@ export default function MentorReviewPage() {
 
             {/* Submitted but not yet in published state warning */}
             {mentor.onboardingStep !== 'published' && (
-                <div className="bg-blue-950/20 border border-blue-800/50 rounded-xl p-3 text-sm text-blue-200">
+                <div className="bg-violet-950/20 border border-violet-800/50 rounded-xl p-3 text-sm text-violet-200">
                     ℹ️ This mentor is still completing onboarding (step: <strong>{mentor.onboardingStep}</strong>) and has not yet submitted for review.
                 </div>
             )}
@@ -273,12 +273,12 @@ export default function MentorReviewPage() {
                             type="button"
                             onClick={() => setActiveReviewStep(step.key)}
                             className={`inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-medium transition-colors ${activeReviewStep === step.key
-                                ? 'border-blue-700 bg-blue-900/30 text-blue-200'
+                                ? 'border-violet-700 bg-violet-900/30 text-violet-200'
                                 : 'border-slate-700 bg-slate-800/80 text-slate-200 hover:bg-slate-800'
                                 }`}
                         >
                             <span className={`inline-flex h-5 w-5 items-center justify-center rounded-full border text-[10px] ${activeReviewStep === step.key
-                                ? 'bg-slate-900 border-blue-700 text-blue-300'
+                                ? 'bg-slate-900 border-violet-700 text-violet-300'
                                 : 'bg-slate-900 border-slate-700 text-slate-400'
                                 }`}>
                                 {idx + 1}
@@ -432,7 +432,7 @@ export default function MentorReviewPage() {
                                                     href={cert.fileUrl}
                                                     target="_blank"
                                                     rel="noreferrer"
-                                                    className="text-blue-300 hover:underline text-xs shrink-0 font-medium"
+                                                    className="text-violet-300 hover:underline text-xs shrink-0 font-medium"
                                                 >
                                                     View ↗
                                                 </a>
@@ -450,7 +450,7 @@ export default function MentorReviewPage() {
                                             controls
                                             className="w-full max-h-64 rounded-lg bg-slate-950 border border-slate-700 object-contain"
                                         />
-                                        <p className="text-xs text-emerald-600 flex items-center gap-1">
+                                        <p className="text-xs text-purple-600 flex items-center gap-1">
                                             <Video className="w-3.5 h-3.5" /> Video uploaded
                                         </p>
                                     </div>

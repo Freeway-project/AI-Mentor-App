@@ -59,9 +59,9 @@ export default function MentorProfilePage() {
                 </div>
             )}
             {status === 'approved' && (
-                <div className="flex items-center gap-3 bg-emerald-500/10 border border-emerald-500/30 rounded-xl px-4 py-3">
-                    <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />
-                    <p className="text-sm text-emerald-300">
+                <div className="flex items-center gap-3 bg-purple-500/10 border border-purple-500/30 rounded-xl px-4 py-3">
+                    <CheckCircle2 className="w-5 h-5 text-purple-400 shrink-0" />
+                    <p className="text-sm text-purple-300">
                         <span className="font-semibold">Live — </span>
                         Your profile is approved and visible to mentees. Saving changes will re-submit for approval.
                     </p>
@@ -84,7 +84,7 @@ export default function MentorProfilePage() {
                         key={tab}
                         onClick={() => setActiveTab(tab)}
                         className={`px-4 py-2.5 text-sm font-medium border-b-2 -mb-px transition-colors ${activeTab === tab
-                                ? 'border-blue-500 text-blue-400'
+                                ? 'border-violet-500 text-violet-400'
                                 : 'border-transparent text-slate-500 hover:text-slate-300'
                             }`}
                     >
@@ -96,7 +96,7 @@ export default function MentorProfilePage() {
             {/* Tab content */}
             {loading ? (
                 <div className="flex justify-center py-12">
-                    <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin" />
+                    <div className="w-8 h-8 border-4 border-violet-500 border-t-transparent rounded-full animate-spin" />
                 </div>
             ) : (
                 <div className="bg-slate-900 rounded-2xl border border-slate-800 p-6">

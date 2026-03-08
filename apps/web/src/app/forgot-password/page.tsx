@@ -52,7 +52,7 @@ export default function ForgotPasswordPage() {
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full px-3 py-2 border border-slate-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-900 text-white placeholder:text-slate-500"
+                  className="w-full px-3 py-2 border border-slate-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-500 bg-slate-900 text-white placeholder:text-slate-500"
                   placeholder="you@example.com"
                 />
               </div>
@@ -64,7 +64,7 @@ export default function ForgotPasswordPage() {
           )}
 
           <p className="text-center text-sm text-slate-400">
-            <Link href="/login" className="text-blue-400 hover:underline font-medium">
+            <Link href="/login" className="text-violet-400 hover:underline font-medium">
               Back to sign in
             </Link>
           </p>

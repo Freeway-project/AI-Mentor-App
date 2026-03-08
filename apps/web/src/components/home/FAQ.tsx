@@ -39,7 +39,7 @@ export function FAQ() {
             style={{ background: 'linear-gradient(180deg, #0d0f1e 0%, #0a0a1a 100%)' }}
         >
             <div className="absolute inset-0 pointer-events-none">
-                <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-indigo-500/30 to-transparent" />
+                <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-fuchsia-500/30 to-transparent" />
             </div>
             <div className="container mx-auto px-4 md:px-6 max-w-3xl relative z-10">
                 <div className="text-center mb-12 space-y-3">

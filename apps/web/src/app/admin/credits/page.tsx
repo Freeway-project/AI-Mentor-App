@@ -27,7 +27,7 @@ const TX_TYPE_COLORS: Record<string, string> = {
   purchase: 'bg-green-100 text-green-700',
   hold: 'bg-amber-100 text-amber-700',
   deduct: 'bg-red-100 text-red-700',
-  refund: 'bg-blue-100 text-blue-700',
+  refund: 'bg-violet-100 text-violet-700',
   return: 'bg-purple-100 text-purple-700',
 };
 
@@ -103,7 +103,7 @@ export default function CreditsPage() {
       <div className="bg-white rounded-xl border border-slate-200 overflow-hidden overflow-x-auto">
         {isLoading ? (
           <div className="flex justify-center py-12">
-            <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" />
+            <div className="w-8 h-8 border-4 border-violet-600 border-t-transparent rounded-full animate-spin" />
           </div>
         ) : !data?.transactions.length ? (
           <div className="text-center py-12 text-slate-500">No transactions found</div>
