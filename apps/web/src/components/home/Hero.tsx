@@ -32,22 +32,19 @@ export function Hero() {
     const sparkY = useTransform(scrollYProgress, [0, 0.8], ['0%', '100%']);
 
     return (
-        <section ref={containerRef} className="relative overflow-hidden pb-32 min-h-[150vh] flex flex-col pt-24 lg:pt-32"
-            style={{
-                background: 'linear-gradient(135deg, #0a0a1a 0%, #0d1117 30%, #0f0b1e 60%, #0a0e1a 100%)'
-            }}
+        <section ref={containerRef} className="relative overflow-hidden pb-32 min-h-[150vh] flex flex-col pt-24 lg:pt-32 bg-slate-50"
         >
-            {/* Deep space base */}
+            {/* White base with subtle dots */}
             <div className="absolute inset-0 pointer-events-none">
                 {/* Subtle dot grid */}
-                <div className="absolute inset-0 opacity-[0.15]" style={{ backgroundImage: 'radial-gradient(circle, #475569 1px, transparent 1px)', backgroundSize: '36px 36px' }} />
+                <div className="absolute inset-0 opacity-[0.4]" style={{ backgroundImage: 'radial-gradient(circle, #cbd5e1 1px, transparent 1px)', backgroundSize: '36px 36px' }} />
 
                 {/* Aurora blob 1 - violet */}
-                <div className="absolute -top-40 -left-40 w-[700px] h-[700px] rounded-full bg-violet-600/10 blur-[120px] animate-pulse" />
+                <div className="absolute -top-40 -left-40 w-[700px] h-[700px] rounded-full bg-violet-300/40 blur-[120px] animate-pulse" />
                 {/* Aurora blob 2 - fuchsia */}
-                <div className="absolute top-1/3 -right-40 w-[600px] h-[600px] rounded-full bg-fuchsia-500/10 blur-[100px]" style={{ animationDelay: '1s' }} />
-                {/* Aurora blob 3 - amber accent bottom */}
-                <div className="absolute -bottom-20 left-1/3 w-[500px] h-[400px] rounded-full bg-amber-500/5 blur-[100px]" />
+                <div className="absolute top-1/3 -right-40 w-[600px] h-[600px] rounded-full bg-fuchsia-300/30 blur-[100px]" style={{ animationDelay: '1s' }} />
+                {/* Aurora blob 3 - violet accent bottom */}
+                <div className="absolute -bottom-20 left-1/3 w-[500px] h-[400px] rounded-full bg-violet-300/40 blur-[100px]" />
                 {/* Thin top accent line */}
                 <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-fuchsia-500/40 to-transparent" />
             </div>
@@ -61,9 +58,9 @@ export function Hero() {
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.6 }}
-                            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-violet-500/10 text-violet-300 text-sm font-medium border border-violet-500/20 shadow-[0_0_20px_rgba(139,92,246,0.1)]"
+                            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-violet-100/50 text-violet-700 text-sm font-medium border border-violet-200 shadow-sm"
                         >
-                            <Sparkles className="w-4 h-4 text-amber-400" />
+                            <Sparkles className="w-4 h-4 text-violet-600" />
                             Ignite your potential today
                         </motion.div>
 
@@ -71,16 +68,16 @@ export function Hero() {
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.6, delay: 0.1 }}
-                            className="text-4xl font-extrabold tracking-tight text-white sm:text-5xl md:text-6xl max-w-2xl mx-auto lg:mx-0 leading-[1.15]"
+                            className="text-4xl font-extrabold tracking-tight text-slate-900 sm:text-5xl md:text-6xl max-w-2xl mx-auto lg:mx-0 leading-[1.15]"
                         >
-                            The <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-300 via-amber-300 to-amber-500">lighted path</span> to your next career breakthrough
+                            The <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-600 via-purple-600 to-fuchsia-600">lighted path</span> to your next career breakthrough
                         </motion.h1>
 
                         <motion.p
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.6, delay: 0.2 }}
-                            className="text-lg text-slate-400 sm:text-xl max-w-xl mx-auto lg:mx-0 leading-relaxed"
+                            className="text-lg text-slate-600 sm:text-xl max-w-xl mx-auto lg:mx-0 leading-relaxed"
                         >
                             Don&apos;t wander in the dark. Match with an elite industry mentor who will illuminate the exact steps to reach your goals.
                         </motion.p>
@@ -92,13 +89,13 @@ export function Hero() {
                             transition={{ duration: 0.6, delay: 0.35 }}
                             className="flex flex-col sm:flex-row gap-3 justify-center lg:justify-start"
                         >
-                            <Button size="lg" className="bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold px-7 rounded-full shadow-[0_0_30px_rgba(245,158,11,0.3)] hover:shadow-[0_0_40px_rgba(245,158,11,0.5)] transition-all gap-2 group" asChild>
+                            <Button size="lg" className="bg-violet-600 hover:bg-violet-700 text-white font-bold px-7 rounded-full shadow-[0_0_30px_rgba(139,92,246,0.2)] hover:shadow-[0_0_40px_rgba(139,92,246,0.4)] transition-all gap-2 group" asChild>
                                 <Link href="/browse">
                                     Find a Mentor
                                     <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                                 </Link>
                             </Button>
-                            <Button size="lg" variant="outline" className="border-slate-700 text-slate-300 hover:text-white hover:border-slate-500 hover:bg-slate-800/50 rounded-full" asChild>
+                            <Button size="lg" variant="outline" className="border-slate-300 text-slate-700 hover:text-slate-900 hover:border-slate-400 hover:bg-slate-100 rounded-full" asChild>
                                 <Link href="/register">Become a Mentor</Link>
                             </Button>
                         </motion.div>
@@ -108,14 +105,14 @@ export function Hero() {
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                             transition={{ delay: 0.6 }}
-                            className="flex items-center gap-2 justify-center lg:justify-start text-sm text-slate-500"
+                            className="flex items-center gap-2 justify-center lg:justify-start text-sm text-slate-600"
                         >
-                            <Star className="w-4 h-4 text-amber-500 fill-amber-500" />
-                            <Star className="w-4 h-4 text-amber-500 fill-amber-500" />
-                            <Star className="w-4 h-4 text-amber-500 fill-amber-500" />
-                            <Star className="w-4 h-4 text-amber-500 fill-amber-500" />
-                            <Star className="w-4 h-4 text-amber-500 fill-amber-500" />
-                            <span className="ml-1"><strong className="text-slate-300">4.9/5</strong> from 2,400+ sessions</span>
+                            <Star className="w-4 h-4 text-violet-500 fill-violet-500" />
+                            <Star className="w-4 h-4 text-violet-500 fill-violet-500" />
+                            <Star className="w-4 h-4 text-violet-500 fill-violet-500" />
+                            <Star className="w-4 h-4 text-violet-500 fill-violet-500" />
+                            <Star className="w-4 h-4 text-violet-500 fill-violet-500" />
+                            <span className="ml-1"><strong className="text-slate-900">4.9/5</strong> from 2,400+ sessions</span>
                         </motion.div>
                     </div>
 
@@ -124,15 +121,15 @@ export function Hero() {
                         {/* The Spark (Mentor) */}
                         <motion.div
                             style={{ top: sparkY }}
-                            className="absolute left-1/2 -ml-[2px] w-1 h-32 bg-gradient-to-b from-transparent via-amber-400 to-transparent z-10 shadow-[0_0_30px_rgba(251,191,36,0.8)]"
+                            className="absolute left-1/2 -ml-[2px] w-1 h-32 bg-gradient-to-b from-transparent via-violet-600 to-transparent z-10 shadow-[0_0_20px_rgba(139,92,246,0.4)]"
                         />
                         <motion.div
                             style={{ top: sparkY }}
-                            className="absolute left-[calc(50%-12px)] -mt-3 w-6 h-6 bg-amber-400 rounded-full blur-sm opacity-50 z-10"
+                            className="absolute left-[calc(50%-12px)] -mt-3 w-6 h-6 bg-violet-400 rounded-full blur-sm opacity-60 z-10"
                         />
                         <motion.div
                             style={{ top: sparkY }}
-                            className="absolute left-[calc(50%-4px)] -mt-1 w-2 h-2 bg-white rounded-full shadow-[0_0_15px_#fcd34d] z-20"
+                            className="absolute left-[calc(50%-4px)] -mt-1 w-2 h-2 bg-white rounded-full shadow-[0_0_15px_#8b5cf6] z-20"
                         />
 
                         {/* Winding SVG Path */}
@@ -140,7 +137,7 @@ export function Hero() {
                             {/* Faint background path */}
                             <path
                                 d="M200 0 C200 100, 300 150, 300 250 C300 350, 100 400, 100 500 C100 550, 200 580, 200 600"
-                                stroke="rgba(51, 65, 85, 0.4)"
+                                stroke="rgba(203, 213, 225, 0.6)"
                                 strokeWidth="4"
                                 strokeLinecap="round"
                                 strokeDasharray="8 8"
@@ -152,13 +149,13 @@ export function Hero() {
                                 strokeWidth="6"
                                 strokeLinecap="round"
                                 style={{ pathLength }}
-                                className="drop-shadow-[0_0_8px_rgba(251,191,36,0.6)]"
+                                className="drop-shadow-[0_0_8px_rgba(139,92,246,0.4)]"
                             />
                             <defs>
                                 <linearGradient id="glowGradient" x1="0" y1="0" x2="0" y2="1">
-                                    <stop offset="0%" stopColor="#fde68a" />
-                                    <stop offset="50%" stopColor="#f59e0b" />
-                                    <stop offset="100%" stopColor="#d97706" />
+                                    <stop offset="0%" stopColor="#c4b5fd" />
+                                    <stop offset="50%" stopColor="#8b5cf6" />
+                                    <stop offset="100%" stopColor="#6d28d9" />
                                 </linearGradient>
                             </defs>
                         </svg>
@@ -168,28 +165,28 @@ export function Hero() {
                             {/* Stone 1: Clarity */}
                             <motion.div
                                 style={{ opacity: stone1Opacity, scale: stone1Scale }}
-                                className="absolute top-[80px] right-[40px] md:right-[20px] lg:right-[60px] flex items-center gap-3 backdrop-blur-md bg-slate-900/60 border border-slate-700/50 p-3 rounded-2xl shadow-xl"
+                                className="absolute top-[80px] right-[40px] md:right-[20px] lg:right-[60px] flex items-center gap-3 bg-white/80 backdrop-blur-md border border-slate-200 p-3 rounded-2xl shadow-xl shadow-slate-200/50"
                             >
-                                <div className="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center border border-amber-500/30 text-amber-400 font-bold shadow-[0_0_15px_rgba(245,158,11,0.2)]">1</div>
-                                <div className="text-white font-medium pr-2">Clarity</div>
+                                <div className="w-10 h-10 rounded-full bg-violet-100 flex items-center justify-center border border-violet-200 text-violet-700 font-bold shadow-sm">1</div>
+                                <div className="text-slate-900 font-medium pr-2">Clarity</div>
                             </motion.div>
 
                             {/* Stone 2: Skills */}
                             <motion.div
                                 style={{ opacity: stone2Opacity, scale: stone2Scale }}
-                                className="absolute top-[220px] right-[10px] md:-right-[20px] lg:right-[10px] flex items-center gap-3 backdrop-blur-md bg-slate-900/60 border border-slate-700/50 p-3 rounded-2xl shadow-xl"
+                                className="absolute top-[220px] right-[10px] md:-right-[20px] lg:right-[10px] flex items-center gap-3 bg-white/80 backdrop-blur-md border border-slate-200 p-3 rounded-2xl shadow-xl shadow-slate-200/50"
                             >
-                                <div className="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center border border-amber-500/30 text-amber-400 font-bold shadow-[0_0_15px_rgba(245,158,11,0.2)]">2</div>
-                                <div className="text-white font-medium pr-2">Skills</div>
+                                <div className="w-10 h-10 rounded-full bg-violet-100 flex items-center justify-center border border-violet-200 text-violet-700 font-bold shadow-sm">2</div>
+                                <div className="text-slate-900 font-medium pr-2">Skills</div>
                             </motion.div>
 
                             {/* Stone 3: Confidence */}
                             <motion.div
                                 style={{ opacity: stone3Opacity, scale: stone3Scale }}
-                                className="absolute top-[380px] flex items-center gap-3 backdrop-blur-md bg-slate-900/60 border border-slate-700/50 p-3 rounded-2xl shadow-xl"
+                                className="absolute top-[380px] flex items-center gap-3 bg-white/80 backdrop-blur-md border border-slate-200 p-3 rounded-2xl shadow-xl shadow-slate-200/50"
                             >
-                                <div className="text-white font-medium pl-2">Confidence</div>
-                                <div className="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center border border-amber-500/30 text-amber-400 font-bold shadow-[0_0_15px_rgba(245,158,11,0.2)]">3</div>
+                                <div className="text-slate-900 font-medium pl-2">Confidence</div>
+                                <div className="w-10 h-10 rounded-full bg-violet-100 flex items-center justify-center border border-violet-200 text-violet-700 font-bold shadow-sm">3</div>
                             </motion.div>
 
                             {/* Stone 4: Success / CTA */}
@@ -197,8 +194,8 @@ export function Hero() {
                                 style={{ opacity: stone4Opacity, scale: stone4Scale }}
                                 className="absolute bottom-[20px] left-1/2 -translate-x-1/2 flex flex-col items-center gap-4 pointer-events-auto"
                             >
-                                <div className="text-amber-400 font-bold tracking-widest uppercase text-sm drop-shadow-[0_0_8px_rgba(245,158,11,0.8)]">Success</div>
-                                <Button size="lg" className="bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-lg px-8 py-6 rounded-full shadow-[0_0_30px_rgba(245,158,11,0.4)] transition-all hover:scale-105 hover:shadow-[0_0_40px_rgba(245,158,11,0.6)] gap-2 group" asChild>
+                                <div className="text-violet-600 font-bold tracking-widest uppercase text-sm drop-shadow-[0_0_4px_rgba(139,92,246,0.3)]">Success</div>
+                                <Button size="lg" className="bg-violet-600 hover:bg-violet-700 text-white font-bold text-lg px-8 py-6 rounded-full shadow-[0_0_20px_rgba(139,92,246,0.2)] transition-all hover:scale-105 hover:shadow-[0_0_30px_rgba(139,92,246,0.4)] gap-2 group" asChild>
                                     <Link href="/find-mentor">
                                         Book Your Session
                                         <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />

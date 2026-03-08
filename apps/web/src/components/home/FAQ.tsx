@@ -63,7 +63,7 @@ export function FAQ() {
                         >
                             <button
                                 onClick={() => toggleFAQ(index)}
-                                className="flex items-center justify-between w-full p-4 md:p-6 text-left bg-transparent focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:ring-inset"
+                                className="flex items-center justify-between w-full p-4 md:p-6 text-left bg-transparent focus:outline-none focus:ring-2 focus:ring-violet-500/50 focus:ring-inset"
                                 aria-expanded={openIndex === index}
                             >
                                 <span className="text-lg font-medium text-white pr-8">
