@@ -303,6 +303,11 @@ class ApiClient {
   async getMentorOffers(mentorId: string): Promise<any[]> {
     return this.request<any[]>(`/mentors/${mentorId}/offers`);
   }
+
+  // Credits
+  async getCreditsBalance(): Promise<{ balance: number; heldBalance: number }> {
+    return this.request<{ balance: number; heldBalance: number }>('/credits/balance');
+  }
 }
 
 export const apiClient = new ApiClient(API_URL);

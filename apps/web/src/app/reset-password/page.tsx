@@ -73,7 +73,7 @@ function ResetPasswordForm() {
               minLength={8}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-3 py-2 border border-slate-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-900 text-white placeholder:text-slate-500"
+              className="w-full px-3 py-2 border border-slate-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-500 bg-slate-900 text-white placeholder:text-slate-500"
               placeholder="Min 8 characters"
             />
           </div>
@@ -88,7 +88,7 @@ function ResetPasswordForm() {
               required
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
-              className="w-full px-3 py-2 border border-slate-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-900 text-white placeholder:text-slate-500"
+              className="w-full px-3 py-2 border border-slate-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-500 bg-slate-900 text-white placeholder:text-slate-500"
               placeholder="Repeat your password"
             />
           </div>
@@ -100,7 +100,7 @@ function ResetPasswordForm() {
       )}
 
       <p className="text-center text-sm text-slate-400">
-        <Link href="/login" className="text-blue-400 hover:underline font-medium">
+        <Link href="/login" className="text-violet-400 hover:underline font-medium">
           Back to sign in
         </Link>
       </p>

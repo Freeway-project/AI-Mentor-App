@@ -40,11 +40,11 @@ export default function MenteeLoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-violet-50 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         {/* Logo */}
         <div className="flex items-center justify-center gap-2 mb-8">
-          <Rocket className="h-7 w-7 text-blue-600" />
+          <Rocket className="h-7 w-7 text-violet-600" />
           <span className="text-2xl font-bold tracking-tight">OWL Mentor</span>
         </div>
 
@@ -63,7 +63,7 @@ export default function MenteeLoginPage() {
                 value={form.email}
                 onChange={set('email')}
                 placeholder="you@example.com"
-                className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-300 text-slate-900 bg-white placeholder:text-slate-400"
+                className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-violet-300 text-slate-900 bg-white placeholder:text-slate-400"
               />
             </div>
             <div>
@@ -74,12 +74,12 @@ export default function MenteeLoginPage() {
                 value={form.password}
                 onChange={set('password')}
                 placeholder="Your password"
-                className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-300 text-slate-900 bg-white placeholder:text-slate-400"
+                className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-violet-300 text-slate-900 bg-white placeholder:text-slate-400"
               />
             </div>
 
             <div className="flex justify-end">
-              <Link href="/forgot-password" className="text-sm text-blue-600 hover:underline">
+              <Link href="/forgot-password" className="text-sm text-violet-600 hover:underline">
                 Forgot password?
               </Link>
             </div>
@@ -136,14 +136,14 @@ export default function MenteeLoginPage() {
 
           <p className="text-center text-sm text-slate-500">
             Don&apos;t have an account?{' '}
-            <Link href="/register" className="text-blue-600 font-medium hover:underline">
+            <Link href="/register" className="text-violet-600 font-medium hover:underline">
               Sign up free
             </Link>
           </p>
 
           <p className="text-center text-sm text-slate-500">
             Are you a coach?{' '}
-            <Link href="/login" className="text-blue-600 font-medium hover:underline">
+            <Link href="/login" className="text-violet-600 font-medium hover:underline">
               Coach login
             </Link>
           </p>

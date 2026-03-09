@@ -56,7 +56,7 @@ export function GoogleCalendarConnect({ onStatusChange }: Props) {
   return (
     <div className="flex items-center justify-between">
       <div className="flex items-center gap-3">
-        <div className={`w-2.5 h-2.5 rounded-full ${connected ? 'bg-emerald-400' : 'bg-slate-600'}`} />
+        <div className={`w-2.5 h-2.5 rounded-full ${connected ? 'bg-purple-400' : 'bg-slate-600'}`} />
         <span className="text-sm text-slate-300">
           {connected ? 'Connected to Google Calendar' : 'Not connected'}
         </span>

@@ -62,7 +62,7 @@ function OtpInput({ onComplete }: { onComplete: (code: string) => void }) {
                     value={d}
                     onChange={(e) => handleChange(i, e.target.value)}
                     onKeyDown={(e) => handleKeyDown(i, e)}
-                    className="w-12 h-12 text-center text-xl font-bold border-2 border-slate-300 rounded-lg focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 text-slate-900 bg-white"
+                    className="w-12 h-12 text-center text-xl font-bold border-2 border-slate-300 rounded-lg focus:outline-none focus:border-violet-500 focus:ring-2 focus:ring-violet-200 text-slate-900 bg-white"
                 />
             ))}
         </div>
@@ -115,7 +115,7 @@ export default function MenteeVerifyOtpPage() {
 
     if (done) {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-blue-50">
+            <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-violet-50">
                 <div className="text-center space-y-3">
                     <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-green-100">
                         <svg className="w-8 h-8 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -130,18 +130,18 @@ export default function MenteeVerifyOtpPage() {
     }
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex items-center justify-center p-4">
+        <div className="min-h-screen bg-gradient-to-br from-slate-50 to-violet-50 flex items-center justify-center p-4">
             <div className="w-full max-w-md">
                 {/* Logo */}
                 <div className="flex items-center justify-center gap-2 mb-8">
-                    <Rocket className="h-7 w-7 text-blue-600" />
+                    <Rocket className="h-7 w-7 text-violet-600" />
                     <span className="text-2xl font-bold tracking-tight text-slate-900">OWL Mentor</span>
                 </div>
 
                 <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-8 space-y-6">
                     <div className="text-center">
-                        <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-blue-100 mb-4">
-                            <Mail className="w-6 h-6 text-blue-600" />
+                        <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-violet-100 mb-4">
+                            <Mail className="w-6 h-6 text-violet-600" />
                         </div>
                         <h1 className="text-2xl font-bold text-slate-900">Check your email</h1>
                         <p className="mt-2 text-slate-500 text-sm">
@@ -165,7 +165,7 @@ export default function MenteeVerifyOtpPage() {
                                     <button
                                         type="button"
                                         onClick={handleResend}
-                                        className="text-blue-600 hover:underline font-medium"
+                                        className="text-violet-600 hover:underline font-medium"
                                     >
                                         Resend
                                     </button>
@@ -176,7 +176,7 @@ export default function MenteeVerifyOtpPage() {
 
                     <p className="text-center text-xs text-slate-400">
                         Wrong email?{' '}
-                        <Link href="/register" className="text-blue-600 hover:underline">
+                        <Link href="/register" className="text-violet-600 hover:underline">
                             Go back
                         </Link>
                     </p>

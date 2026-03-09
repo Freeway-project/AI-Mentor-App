@@ -20,9 +20,9 @@ const STATUS_CONFIG: Record<string, { icon: any; color: string; bg: string; bord
     },
     approved: {
         icon: CheckCircle2,
-        color: 'text-emerald-400',
-        bg: 'bg-emerald-500/10',
-        border: 'border-emerald-500/30',
+        color: 'text-purple-400',
+        bg: 'bg-purple-500/10',
+        border: 'border-purple-500/30',
         title: 'Profile Approved!',
         description: 'Your profile is live. Mentees can now find and book sessions with you.',
     },
@@ -103,9 +103,9 @@ export default function MentorDashboardPage() {
                         <Link
                             key={label}
                             href={href}
-                            className="group bg-slate-900 rounded-xl border border-slate-800 p-5 hover:border-blue-500/50 hover:bg-slate-800/80 transition-all"
+                            className="group bg-slate-900 rounded-xl border border-slate-800 p-5 hover:border-violet-500/50 hover:bg-slate-800/80 transition-all"
                         >
-                            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-emerald-500 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+                            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500 to-purple-500 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
                                 <Icon className="w-5 h-5 text-white" />
                             </div>
                             <p className="font-semibold text-white text-sm">{label}</p>
@@ -127,12 +127,12 @@ export default function MentorDashboardPage() {
                             { label: 'Policies', done: false },
                         ].map(({ label, done }) => (
                             <div key={label} className="flex items-center gap-3">
-                                <div className={`w-5 h-5 rounded-full flex items-center justify-center shrink-0 ${done ? 'bg-emerald-500' : 'bg-slate-700'}`}>
+                                <div className={`w-5 h-5 rounded-full flex items-center justify-center shrink-0 ${done ? 'bg-purple-500' : 'bg-slate-700'}`}>
                                     {done && <CheckCircle2 className="w-3.5 h-3.5 text-white" />}
                                 </div>
                                 <span className={`text-sm ${done ? 'text-white font-medium' : 'text-slate-500'}`}>{label}</span>
                                 {!done && (
-                                    <Link href="/mentor/dashboard/profile" className="ml-auto text-xs text-blue-400 hover:underline">
+                                    <Link href="/mentor/dashboard/profile" className="ml-auto text-xs text-violet-400 hover:underline">
                                         Complete →
                                     </Link>
                                 )}

@@ -66,7 +66,7 @@ export default function AdminDashboard() {
           label="Total Users"
           value={statsLoading ? '...' : (stats?.totalUsers ?? 0)}
           icon={<UsersIcon />}
-          color="blue"
+          color="violet"
         />
         <StatsCard
           label="Active Coaches"
@@ -109,7 +109,7 @@ export default function AdminDashboard() {
         <div className="px-5 py-4 border-b border-slate-200 flex items-center justify-between">
           <h2 className="font-semibold text-slate-900">Pending Coach Approvals</h2>
           {(pending?.total ?? 0) > 5 && (
-            <Link href="/admin/coaches" className="text-sm text-blue-600 hover:underline">
+            <Link href="/admin/coaches" className="text-sm text-violet-600 hover:underline">
               View all {pending?.total}
             </Link>
           )}

@@ -1,7 +1,7 @@
 const statusConfig: Record<string, { label: string; className: string }> = {
   draft:        { label: 'Draft',       className: 'bg-slate-100 text-slate-600' },
-  booked:       { label: 'Booked',      className: 'bg-blue-100 text-blue-700' },
-  confirmed:    { label: 'Confirmed',   className: 'bg-indigo-100 text-indigo-700' },
+  booked:       { label: 'Booked',      className: 'bg-violet-100 text-violet-700' },
+  confirmed:    { label: 'Confirmed',   className: 'bg-fuchsia-100 text-fuchsia-700' },
   in_progress:  { label: 'In Progress', className: 'bg-purple-100 text-purple-700' },
   completed:    { label: 'Completed',   className: 'bg-green-100 text-green-700' },
   cancelled:    { label: 'Cancelled',   className: 'bg-red-100 text-red-700' },

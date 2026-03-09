@@ -97,7 +97,7 @@ export function AdminSidebar() {
       {/* Logo */}
       <div className="px-6 py-5 border-b border-slate-700">
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg bg-blue-500 flex items-center justify-center text-white font-bold text-sm">A</div>
+          <div className="w-8 h-8 rounded-lg bg-violet-500 flex items-center justify-center text-white font-bold text-sm">A</div>
           <span className="font-semibold text-lg">Admin Panel</span>
         </div>
       </div>
@@ -111,7 +111,7 @@ export function AdminSidebar() {
               key={item.href}
               href={item.href}
               className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors ${isActive
-                  ? 'bg-blue-600 text-white'
+                  ? 'bg-violet-600 text-white'
                   : 'text-slate-400 hover:text-slate-100 hover:bg-slate-800'
                 }`}
             >

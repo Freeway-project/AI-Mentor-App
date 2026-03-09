@@ -17,12 +17,12 @@ export default function Loading() {
                         repeat: Infinity,
                         ease: "easeInOut"
                     }}
-                    className="relative flex items-center justify-center h-20 w-20 rounded-full bg-blue-100 shadow-lg border border-blue-200"
+                    className="relative flex items-center justify-center h-20 w-20 rounded-full bg-violet-100 shadow-lg border border-violet-200"
                 >
-                    <GraduationCap className="h-10 w-10 text-blue-600" />
+                    <GraduationCap className="h-10 w-10 text-violet-600" />
 
                     <motion.div
-                        className="absolute inset-0 rounded-full border-4 border-blue-600 border-t-transparent"
+                        className="absolute inset-0 rounded-full border-4 border-violet-600 border-t-transparent"
                         animate={{ rotate: 360 }}
                         transition={{
                             duration: 1.5,

@@ -39,7 +39,7 @@ export function FAQ() {
             style={{ background: 'linear-gradient(180deg, #0d0f1e 0%, #0a0a1a 100%)' }}
         >
             <div className="absolute inset-0 pointer-events-none">
-                <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-indigo-500/30 to-transparent" />
+                <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-fuchsia-500/30 to-transparent" />
             </div>
             <div className="container mx-auto px-4 md:px-6 max-w-3xl relative z-10">
                 <div className="text-center mb-12 space-y-3">
@@ -63,7 +63,7 @@ export function FAQ() {
                         >
                             <button
                                 onClick={() => toggleFAQ(index)}
-                                className="flex items-center justify-between w-full p-4 md:p-6 text-left bg-transparent focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:ring-inset"
+                                className="flex items-center justify-between w-full p-4 md:p-6 text-left bg-transparent focus:outline-none focus:ring-2 focus:ring-violet-500/50 focus:ring-inset"
                                 aria-expanded={openIndex === index}
                             >
                                 <span className="text-lg font-medium text-white pr-8">

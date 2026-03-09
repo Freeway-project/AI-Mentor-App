@@ -33,7 +33,7 @@ function CoachCard({ coach, onApprove, onReject }: {
             </p>
             <Link
               href={`/admin/coaches/${coach.id}`}
-              className="text-xs text-blue-600 hover:underline font-medium"
+              className="text-xs text-violet-600 hover:underline font-medium"
             >
               View Full Profile →
             </Link>
@@ -139,7 +139,7 @@ export default function CoachesPage() {
             key={t}
             onClick={() => { setTab(t); setOffset(0); }}
             className={`px-4 py-2 text-sm font-medium capitalize border-b-2 transition-colors ${tab === t
-                ? 'border-blue-600 text-blue-600'
+                ? 'border-violet-600 text-violet-600'
                 : 'border-transparent text-slate-500 hover:text-slate-800'
               }`}
           >
@@ -155,7 +155,7 @@ export default function CoachesPage() {
 
       {loading ? (
         <div className="flex justify-center py-12">
-          <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" />
+          <div className="w-8 h-8 border-4 border-violet-600 border-t-transparent rounded-full animate-spin" />
         </div>
       ) : coaches?.length === 0 ? (
         <div className="text-center py-12 text-slate-500">
