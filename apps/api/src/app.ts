@@ -49,6 +49,18 @@ app.use(
   })
 );
 
+// Raw body capture for webhook signature verification (must be before express.json())
+app.use('/api/webhooks', (req, res, next) => {
+  let data = '';
+  req.setEncoding('utf8');
+  req.on('data', chunk => { data += chunk; });
+  req.on('end', () => {
+    (req as any).rawBody = data;
+    try { req.body = JSON.parse(data); } catch { req.body = {}; }
+    next();
+  });
+});
+
 // Body parsing
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));

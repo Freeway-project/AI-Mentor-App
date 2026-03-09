@@ -2,6 +2,8 @@ import { Router, Request, Response, NextFunction } from 'express';
 import { authenticate, requireEmailVerified } from '../middleware/auth.middleware';
 import { AppError } from '../middleware/error.middleware';
 import { GoogleCalendarService } from '../services/google-calendar.service';
+import { DailyService } from '../services/daily.service';
+import { logger } from '@owl-mentors/utils';
 import { generateSlots } from '../services/slot-generator.service';
 import { maybeRefreshTokens } from './integrations.routes';
 import {
@@ -26,6 +28,7 @@ const userRepo = new UserRepository();
 const integrationRepo = new UserIntegrationRepository();
 const calSettingsRepo = new CalendarSettingsRepository();
 const gcalService = new GoogleCalendarService();
+const dailyService = new DailyService();
 
 // GET /api/mentors/:coachId/offers (public — for booking flow)
 router.get('/mentors/:coachId/offers', async (req: Request, res: Response, next: NextFunction) => {
@@ -195,6 +198,17 @@ router.post('/bookings', authenticate, requireEmailVerified, async (req: Request
     // Hold credits
     await creditRepo.holdCredits(req.userId!, creditCost, meeting.id);
 
+    // Try to create Daily room (non-fatal)
+    let dailyRoomUrl: string | undefined;
+    try {
+      const roomExpiry = new Date(slotEnd.getTime() + 2 * 60 * 60 * 1000); // 2h after session end
+      const room = await dailyService.createRoom({ meetingId: meeting.id, expiresAt: roomExpiry });
+      await meetingRepo.update(meeting.id, { dailyRoomUrl: room.url, dailyRoomName: room.name } as any);
+      dailyRoomUrl = room.url;
+    } catch (err) {
+      logger.warn(`[Booking] Daily room creation failed: ${(err as Error).message}`);
+    }
+
     // Try to create Google Calendar event
     let meetUrl: string | undefined;
     const integration = await integrationRepo.findByUser(mentor.userId, 'google');
@@ -228,6 +242,7 @@ router.post('/bookings', authenticate, requireEmailVerified, async (req: Request
       data: {
         ...meeting,
         meetUrl,
+        dailyRoomUrl,
       },
     });
   } catch (error) {

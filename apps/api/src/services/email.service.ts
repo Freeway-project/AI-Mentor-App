@@ -360,6 +360,91 @@ export const EmailService = {
     }
   },
 
+  async sendSessionSummary(params: {
+    to: string;
+    menteeName: string;
+    mentorName: string;
+    meetingId: string;
+    scheduledAt: Date;
+    durationSeconds: number;
+    summary: string;
+    actionItems: string[];
+    keyTopics: string[];
+  }): Promise<void> {
+    const fromName = process.env.SMTP_FROM_NAME || 'OWL Mentor';
+    const fromEmail = process.env.SMTP_FROM_EMAIL || process.env.SMTP_FROM || 'noreply@owlmentor.com';
+    const from = `${fromName} <${fromEmail}>`;
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+    const sessionUrl = `${appUrl}/dashboard/sessions/${params.meetingId}`;
+
+    const durationMin = Math.round(params.durationSeconds / 60);
+    const sessionDate = params.scheduledAt.toLocaleDateString('en-US', {
+      weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
+    });
+
+    const topicPills = params.keyTopics
+      .map(t => `<span style="display:inline-block;background:#ede9fe;color:#6d28d9;border-radius:20px;padding:3px 12px;font-size:12px;font-weight:600;margin:2px 4px 2px 0">${escapeHtml(t)}</span>`)
+      .join('');
+
+    const actionList = params.actionItems
+      .map(item => `<li style="margin-bottom:8px;color:#334155">${escapeHtml(item)}</li>`)
+      .join('');
+
+    const subject = `Your session summary with ${params.mentorName}`;
+    const html = `
+      <div style="font-family:sans-serif;max-width:560px;margin:auto;padding:32px;background:#fff;border-radius:12px">
+        <h2 style="color:#0f172a;font-size:22px;margin-bottom:4px">Session Summary</h2>
+        <p style="color:#64748b;font-size:14px;margin-bottom:24px">
+          ${sessionDate} &bull; ${durationMin} min &bull; with <strong>${escapeHtml(params.mentorName)}</strong>
+        </p>
+
+        ${topicPills ? `<div style="margin-bottom:20px">${topicPills}</div>` : ''}
+
+        ${params.summary ? `
+        <div style="background:#f8fafc;border-radius:10px;padding:16px 20px;margin-bottom:20px">
+          <p style="color:#64748b;font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:0.4px;margin:0 0 8px">Summary</p>
+          <p style="color:#0f172a;font-size:14px;line-height:1.7;margin:0">${escapeHtml(params.summary)}</p>
+        </div>` : ''}
+
+        ${actionList ? `
+        <div style="margin-bottom:24px">
+          <p style="color:#64748b;font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:0.4px;margin:0 0 10px">Action Items</p>
+          <ul style="margin:0;padding-left:20px">${actionList}</ul>
+        </div>` : ''}
+
+        <a href="${sessionUrl}"
+           style="display:inline-block;padding:12px 24px;background:#7c3aed;color:#fff;border-radius:8px;text-decoration:none;font-weight:600;font-size:14px">
+          View full session →
+        </a>
+
+        <p style="color:#94a3b8;font-size:11px;margin-top:28px">
+          OWL Mentor &bull; <a href="${appUrl}" style="color:#7c3aed;text-decoration:none">owlmentor.com</a>
+        </p>
+      </div>
+    `;
+
+    const transport = createTransport();
+    if (transport) {
+      try {
+        await transport.sendMail({ from, to: params.to, subject, html });
+        logger.info(`[SESSION SUMMARY EMAIL] Sent to ${params.to}`);
+        return;
+      } catch (error) {
+        logger.error(`[SESSION SUMMARY EMAIL] SMTP failed to ${params.to}: ${(error as Error).message}`);
+        logger.warn('[SESSION SUMMARY EMAIL] Falling back to Ethereal dev transport...');
+      }
+    }
+
+    try {
+      const devTransport = await getDevTransport();
+      const info = await devTransport.sendMail({ from, to: params.to, subject, html });
+      const previewUrl = nodemailer.getTestMessageUrl(info);
+      logger.info(`[SESSION SUMMARY EMAIL DEV] Sent to ${params.to} | Preview: ${previewUrl}`);
+    } catch (err) {
+      logger.warn(`[SESSION SUMMARY EMAIL FALLBACK] Could not send to ${params.to}: ${(err as Error).message}`);
+    }
+  },
+
   /**
    * Send a marketing email to a recipient, wrapping the body in a mandatory
    * professional header + footer with CTA buttons for mentor/mentee signup.
