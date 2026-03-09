@@ -3,6 +3,7 @@ import { authenticate, requireEmailVerified } from '../middleware/auth.middlewar
 import { AppError } from '../middleware/error.middleware';
 import { GoogleCalendarService } from '../services/google-calendar.service';
 import { DailyService } from '../services/daily.service';
+import { EmailService } from '../services/email.service';
 import { logger } from '@owl-mentors/utils';
 import { generateSlots } from '../services/slot-generator.service';
 import { maybeRefreshTokens } from './integrations.routes';
@@ -235,6 +236,24 @@ router.post('/bookings', authenticate, requireEmailVerified, async (req: Request
       } catch (_) {
         // Non-fatal: proceed without Meet link
       }
+    }
+
+    // Send booking confirmation email (non-fatal)
+    try {
+      const mentee = await userRepo.findById(req.userId!);
+      await EmailService.sendBookingConfirmation({
+        to: mentee.email,
+        menteeName: mentee.name,
+        mentorName: mentor.name,
+        meetingId: meeting.id,
+        title: offerTitle,
+        scheduledAt: slotStart,
+        durationMin,
+        dailyRoomUrl,
+        meetUrl,
+      });
+    } catch (err) {
+      logger.warn(`[Booking] Confirmation email failed: ${(err as Error).message}`);
     }
 
     res.status(201).json({

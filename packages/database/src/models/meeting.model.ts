@@ -23,6 +23,7 @@ export interface IMeetingDocument extends mongoose.Document {
   googleEventId?: string;
   dailyRoomUrl?: string;
   dailyRoomName?: string;
+  reminderSentAt?: Date;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -54,6 +55,7 @@ const meetingSchema = new Schema<IMeetingDocument>(
     googleEventId: { type: String },
     dailyRoomUrl: { type: String },
     dailyRoomName: { type: String, index: true },
+    reminderSentAt: { type: Date },
   },
   { timestamps: true }
 );

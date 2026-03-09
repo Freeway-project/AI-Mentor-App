@@ -1,6 +1,7 @@
 import app from './app';
 import { connectDatabase } from '@owl-mentors/database';
 import { logger } from '@owl-mentors/utils';
+import { startReminderJob, stopReminderJob } from './jobs/reminder.job';
 
 const PORT = process.env.PORT || 3001;
 
@@ -16,6 +17,9 @@ async function startServer() {
 
     await connectDatabase(mongoUri);
     logger.info('Connected to MongoDB successfully');
+
+    // Start background jobs
+    startReminderJob();
 
     // Start Express server
     app.listen(PORT, () => {
@@ -33,11 +37,13 @@ async function startServer() {
 // Handle shutdown gracefully
 process.on('SIGTERM', () => {
   logger.info('SIGTERM received, shutting down gracefully');
+  stopReminderJob();
   process.exit(0);
 });
 
 process.on('SIGINT', () => {
   logger.info('SIGINT received, shutting down gracefully');
+  stopReminderJob();
   process.exit(0);
 });
 

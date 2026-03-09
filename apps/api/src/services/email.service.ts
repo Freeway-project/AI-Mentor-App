@@ -360,6 +360,181 @@ export const EmailService = {
     }
   },
 
+  async sendBookingConfirmation(params: {
+    to: string;
+    menteeName: string;
+    mentorName: string;
+    meetingId: string;
+    title: string;
+    scheduledAt: Date;
+    durationMin: number;
+    dailyRoomUrl?: string;
+    meetUrl?: string;
+  }): Promise<void> {
+    const fromName = process.env.SMTP_FROM_NAME || 'OWL Mentor';
+    const fromEmail = process.env.SMTP_FROM_EMAIL || process.env.SMTP_FROM || 'noreply@owlmentor.com';
+    const from = `${fromName} <${fromEmail}>`;
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+    const sessionUrl = `${appUrl}/dashboard/sessions/${params.meetingId}`;
+    const callUrl = params.dailyRoomUrl || params.meetUrl;
+
+    const dateStr = params.scheduledAt.toLocaleDateString('en-US', {
+      weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
+    });
+    const timeStr = params.scheduledAt.toLocaleTimeString('en-US', {
+      hour: '2-digit', minute: '2-digit', timeZoneName: 'short',
+    });
+
+    const callButton = callUrl
+      ? `<a href="${callUrl}" style="display:inline-block;padding:12px 28px;background:#7c3aed;color:#fff;border-radius:8px;text-decoration:none;font-weight:700;font-size:15px;margin-right:12px">Join session →</a>`
+      : '';
+
+    const subject = `Booking confirmed: ${params.title} with ${params.mentorName}`;
+    const html = `
+      <div style="font-family:sans-serif;max-width:560px;margin:auto;padding:32px;background:#fff;border-radius:12px">
+        <div style="background:#7c3aed;border-radius:10px;padding:20px 24px;margin-bottom:24px">
+          <p style="color:#fff;font-size:18px;font-weight:700;margin:0">Session Confirmed</p>
+          <p style="color:#ede9fe;font-size:13px;margin:4px 0 0">Your mentoring session is booked</p>
+        </div>
+
+        <table style="width:100%;border-collapse:collapse;margin-bottom:24px">
+          <tr>
+            <td style="padding:10px 12px;background:#f8fafc;border:1px solid #e2e8f0;color:#64748b;font-size:13px;width:90px">Session</td>
+            <td style="padding:10px 12px;background:#fff;border:1px solid #e2e8f0;color:#0f172a;font-weight:600;font-size:13px">${escapeHtml(params.title)}</td>
+          </tr>
+          <tr>
+            <td style="padding:10px 12px;background:#f8fafc;border:1px solid #e2e8f0;color:#64748b;font-size:13px">Mentor</td>
+            <td style="padding:10px 12px;background:#fff;border:1px solid #e2e8f0;color:#0f172a;font-size:13px">${escapeHtml(params.mentorName)}</td>
+          </tr>
+          <tr>
+            <td style="padding:10px 12px;background:#f8fafc;border:1px solid #e2e8f0;color:#64748b;font-size:13px">Date</td>
+            <td style="padding:10px 12px;background:#fff;border:1px solid #e2e8f0;color:#0f172a;font-size:13px">${dateStr}</td>
+          </tr>
+          <tr>
+            <td style="padding:10px 12px;background:#f8fafc;border:1px solid #e2e8f0;color:#64748b;font-size:13px">Time</td>
+            <td style="padding:10px 12px;background:#fff;border:1px solid #e2e8f0;color:#0f172a;font-size:13px">${timeStr}</td>
+          </tr>
+          <tr>
+            <td style="padding:10px 12px;background:#f8fafc;border:1px solid #e2e8f0;color:#64748b;font-size:13px">Duration</td>
+            <td style="padding:10px 12px;background:#fff;border:1px solid #e2e8f0;color:#0f172a;font-size:13px">${params.durationMin} minutes</td>
+          </tr>
+        </table>
+
+        <div style="margin-bottom:24px">
+          ${callButton}
+          <a href="${sessionUrl}" style="display:inline-block;padding:12px 28px;background:#f1f5f9;color:#334155;border-radius:8px;text-decoration:none;font-weight:600;font-size:14px">View booking</a>
+        </div>
+
+        ${callUrl ? `<p style="color:#64748b;font-size:12px;margin-bottom:24px">Call link: <a href="${callUrl}" style="color:#7c3aed">${callUrl}</a></p>` : ''}
+
+        <p style="color:#94a3b8;font-size:11px;margin-top:16px">
+          OWL Mentor &bull; <a href="${appUrl}" style="color:#7c3aed;text-decoration:none">owlmentor.com</a>
+        </p>
+      </div>
+    `;
+
+    const transport = createTransport();
+    if (transport) {
+      try {
+        await transport.sendMail({ from, to: params.to, subject, html });
+        logger.info(`[BOOKING CONFIRM EMAIL] Sent to ${params.to}`);
+        return;
+      } catch (error) {
+        logger.error(`[BOOKING CONFIRM EMAIL] SMTP failed to ${params.to}: ${(error as Error).message}`);
+        logger.warn('[BOOKING CONFIRM EMAIL] Falling back to Ethereal...');
+      }
+    }
+
+    try {
+      const devTransport = await getDevTransport();
+      const info = await devTransport.sendMail({ from, to: params.to, subject, html });
+      const previewUrl = nodemailer.getTestMessageUrl(info);
+      logger.info(`[BOOKING CONFIRM EMAIL DEV] Sent to ${params.to} | Preview: ${previewUrl}`);
+    } catch (err) {
+      logger.warn(`[BOOKING CONFIRM EMAIL FALLBACK] Could not send to ${params.to}: ${(err as Error).message}`);
+    }
+  },
+
+  async sendSessionReminder(params: {
+    to: string;
+    recipientName: string;
+    mentorName: string;
+    menteeName: string;
+    meetingId: string;
+    title: string;
+    scheduledAt: Date;
+    durationMin: number;
+    dailyRoomUrl?: string;
+    meetUrl?: string;
+  }): Promise<void> {
+    const fromName = process.env.SMTP_FROM_NAME || 'OWL Mentor';
+    const fromEmail = process.env.SMTP_FROM_EMAIL || process.env.SMTP_FROM || 'noreply@owlmentor.com';
+    const from = `${fromName} <${fromEmail}>`;
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+    const callUrl = params.dailyRoomUrl || params.meetUrl;
+
+    const timeStr = params.scheduledAt.toLocaleTimeString('en-US', {
+      hour: '2-digit', minute: '2-digit', timeZoneName: 'short',
+    });
+
+    const subject = `Your session starts in 5 minutes — ${params.title}`;
+    const html = `
+      <div style="font-family:sans-serif;max-width:560px;margin:auto;padding:32px;background:#fff;border-radius:12px">
+        <div style="background:linear-gradient(135deg,#7c3aed,#6d28d9);border-radius:10px;padding:20px 24px;margin-bottom:24px;text-align:center">
+          <p style="color:#fff;font-size:28px;font-weight:800;margin:0">⏰ 5 Minutes!</p>
+          <p style="color:#ede9fe;font-size:14px;margin:6px 0 0">Your mentoring session is about to start</p>
+        </div>
+
+        <p style="color:#0f172a;font-size:15px;margin-bottom:20px">
+          Hi <strong>${escapeHtml(params.recipientName)}</strong>, your session <strong>"${escapeHtml(params.title)}"</strong> with ${escapeHtml(params.mentorName === params.recipientName ? params.menteeName : params.mentorName)} starts at <strong>${timeStr}</strong> (${params.durationMin} min).
+        </p>
+
+        ${callUrl ? `
+        <div style="text-align:center;margin-bottom:24px">
+          <a href="${callUrl}"
+             style="display:inline-block;padding:16px 40px;background:#7c3aed;color:#fff;border-radius:10px;text-decoration:none;font-weight:800;font-size:17px;letter-spacing:-0.3px">
+            Join Now →
+          </a>
+        </div>
+        <p style="color:#64748b;font-size:12px;text-align:center;margin-bottom:24px">
+          <a href="${callUrl}" style="color:#7c3aed">${callUrl}</a>
+        </p>` : `
+        <p style="color:#ef4444;font-size:13px;margin-bottom:24px">No call link found — check your booking in the dashboard.</p>
+        <div style="text-align:center;margin-bottom:24px">
+          <a href="${appUrl}/dashboard/sessions/${params.meetingId}"
+             style="display:inline-block;padding:14px 32px;background:#7c3aed;color:#fff;border-radius:8px;text-decoration:none;font-weight:700;font-size:15px">
+            Open Session →
+          </a>
+        </div>`}
+
+        <p style="color:#94a3b8;font-size:11px;text-align:center">
+          OWL Mentor &bull; <a href="${appUrl}" style="color:#7c3aed;text-decoration:none">owlmentor.com</a>
+        </p>
+      </div>
+    `;
+
+    const transport = createTransport();
+    if (transport) {
+      try {
+        await transport.sendMail({ from, to: params.to, subject, html });
+        logger.info(`[REMINDER EMAIL] Sent to ${params.to}`);
+        return;
+      } catch (error) {
+        logger.error(`[REMINDER EMAIL] SMTP failed to ${params.to}: ${(error as Error).message}`);
+        logger.warn('[REMINDER EMAIL] Falling back to Ethereal...');
+      }
+    }
+
+    try {
+      const devTransport = await getDevTransport();
+      const info = await devTransport.sendMail({ from, to: params.to, subject, html });
+      const previewUrl = nodemailer.getTestMessageUrl(info);
+      logger.info(`[REMINDER EMAIL DEV] Sent to ${params.to} | Preview: ${previewUrl}`);
+    } catch (err) {
+      logger.warn(`[REMINDER EMAIL FALLBACK] Could not send to ${params.to}: ${(err as Error).message}`);
+    }
+  },
+
   async sendSessionSummary(params: {
     to: string;
     menteeName: string;
