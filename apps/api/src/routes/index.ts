@@ -11,6 +11,7 @@ import uploadRoutes from './upload.routes';
 import integrationRoutes from './integrations.routes';
 import bookingRoutes from './booking.routes';
 import webhookRoutes from './webhook.routes';
+import paymentRoutes from './payment.routes';
 
 const router: Router = Router();
 
@@ -26,6 +27,7 @@ router.use('/mentor-auth', mentorAuthRoutes);
 router.use('/upload', uploadRoutes);
 router.use('/integrations', integrationRoutes);
 router.use('/webhooks', webhookRoutes);
+router.use('/payments', paymentRoutes);
 router.use('/', bookingRoutes);
 
 export default router;

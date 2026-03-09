@@ -4,6 +4,7 @@ import { AppError } from '../middleware/error.middleware';
 import { GoogleCalendarService } from '../services/google-calendar.service';
 import { DailyService } from '../services/daily.service';
 import { EmailService } from '../services/email.service';
+import { StripeService } from '../services/stripe.service';
 import { logger } from '@owl-mentors/utils';
 import { generateSlots } from '../services/slot-generator.service';
 import { maybeRefreshTokens } from './integrations.routes';
@@ -30,6 +31,7 @@ const integrationRepo = new UserIntegrationRepository();
 const calSettingsRepo = new CalendarSettingsRepository();
 const gcalService = new GoogleCalendarService();
 const dailyService = new DailyService();
+const stripeService = new StripeService();
 
 // GET /api/mentors/:coachId/offers (public — for booking flow)
 router.get('/mentors/:coachId/offers', async (req: Request, res: Response, next: NextFunction) => {
@@ -126,7 +128,7 @@ router.get('/mentors/:coachId/slots', async (req: Request, res: Response, next: 
 // POST /api/bookings — create booking
 router.post('/bookings', authenticate, requireEmailVerified, async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { mentorId, offerId, scheduledAt, duration, title, description } = req.body;
+    const { mentorId, offerId, scheduledAt, duration, title, description, paymentIntentId } = req.body;
 
     if (!mentorId || !scheduledAt) {
       throw new AppError(400, 'VALIDATION_ERROR', 'mentorId and scheduledAt are required');
@@ -179,10 +181,22 @@ router.post('/bookings', authenticate, requireEmailVerified, async (req: Request
       throw new AppError(409, 'SLOT_UNAVAILABLE', 'This time slot is no longer available');
     }
 
-    // Check credit balance
-    const account = await creditRepo.getBalance(req.userId!);
-    if (account.balance < creditCost) {
-      throw new AppError(402, 'INSUFFICIENT_CREDITS', 'Not enough credits to book this session');
+    // Payment verification: Stripe (preferred) or legacy credits
+    if (paymentIntentId) {
+      const pi = await stripeService.retrievePaymentIntent(paymentIntentId);
+      if (pi.status !== 'succeeded') {
+        throw new AppError(402, 'PAYMENT_NOT_CONFIRMED', 'Stripe payment has not been completed');
+      }
+      const expectedCents = Math.round(creditCost * 100);
+      if (pi.amount !== expectedCents) {
+        throw new AppError(400, 'PAYMENT_AMOUNT_MISMATCH', 'Payment amount does not match session price');
+      }
+    } else {
+      // Legacy credit flow
+      const account = await creditRepo.getBalance(req.userId!);
+      if (account.balance < creditCost) {
+        throw new AppError(402, 'INSUFFICIENT_CREDITS', 'Not enough credits to book this session');
+      }
     }
 
     // Create meeting
@@ -196,8 +210,10 @@ router.post('/bookings', authenticate, requireEmailVerified, async (req: Request
       creditCost,
     });
 
-    // Hold credits
-    await creditRepo.holdCredits(req.userId!, creditCost, meeting.id);
+    // Hold credits (legacy flow only)
+    if (!paymentIntentId) {
+      await creditRepo.holdCredits(req.userId!, creditCost, meeting.id);
+    }
 
     // Try to create Daily room (non-fatal)
     let dailyRoomUrl: string | undefined;
