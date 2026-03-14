@@ -164,15 +164,20 @@ export default function MenteeDashboardPage() {
             <p className="text-sm text-slate-400 mt-1">
               {formatDateTime(nextSession.scheduledAt)} · {nextSession.duration} min
             </p>
-            {(nextSession.meetUrl || nextSession.meetingLink) && (
-              <a
-                href={nextSession.meetUrl || nextSession.meetingLink}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 mt-2 text-sm text-violet-400 hover:underline"
+            {(nextSession.dailyRoomUrl || nextSession.meetUrl || nextSession.meetingLink) && (
+              <Link
+                href={
+                  nextSession.dailyRoomUrl
+                    ? `/video/${nextSession.id}`
+                    : (nextSession.meetUrl || nextSession.meetingLink)
+                }
+                target={nextSession.dailyRoomUrl ? undefined : "_blank"}
+                rel={nextSession.dailyRoomUrl ? undefined : "noopener noreferrer"}
+                className="inline-flex items-center gap-1.5 mt-2 px-4 py-2 bg-violet-600 hover:bg-violet-500 text-white text-sm font-medium rounded-xl transition-all shadow-lg shadow-violet-500/20 w-fit"
               >
-                <Video className="w-3.5 h-3.5" /> Join Google Meet
-              </a>
+                <Video className="w-4 h-4" /> 
+                {nextSession.dailyRoomUrl ? 'Join Video Call' : 'Join External Meeting'}
+              </Link>
             )}
           </div>
         </div>
@@ -212,15 +217,20 @@ export default function MenteeDashboardPage() {
                     <p className="text-sm text-slate-400">
                       {formatDateTime(session.scheduledAt)} · {session.duration} min
                     </p>
-                    {(session.meetUrl || session.meetingLink) && (
-                      <a
-                        href={session.meetUrl || session.meetingLink}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1.5 text-xs text-violet-400 hover:underline"
+                    {(session.dailyRoomUrl || session.meetUrl || session.meetingLink) && (
+                      <Link
+                        href={
+                          session.dailyRoomUrl
+                            ? `/video/${session.id}`
+                            : (session.meetUrl || session.meetingLink)
+                        }
+                        target={session.dailyRoomUrl ? undefined : "_blank"}
+                        rel={session.dailyRoomUrl ? undefined : "noopener noreferrer"}
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-violet-500/10 hover:bg-violet-500/20 text-violet-400 text-xs font-medium rounded-lg transition-colors border border-violet-500/20 w-fit mt-1"
                       >
-                        <Video className="w-3 h-3" /> Join Google Meet
-                      </a>
+                        <Video className="w-3.5 h-3.5" /> 
+                        {session.dailyRoomUrl ? 'Join Video Call' : 'Join External Meeting'}
+                      </Link>
                     )}
                   </div>
                   <div className="flex gap-2 flex-shrink-0">
