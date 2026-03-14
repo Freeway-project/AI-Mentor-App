@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/lib/auth-context';
 import { apiClient } from '@/lib/api-client';
-import { Calendar, Clock, CreditCard, ArrowRight, BookOpen, Video, X, RotateCcw, Plus, Search } from 'lucide-react';
+import { Calendar, Clock, CreditCard, ArrowRight, BookOpen, Video, X, RotateCcw, Plus, Search, FileText, ChevronDown, ChevronUp, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 import { toast } from 'sonner';
 import { SlotPicker } from '@/components/booking/SlotPicker';
@@ -43,6 +43,11 @@ export default function MenteeDashboardPage() {
   // Cancel state
   const [cancellingId, setCancellingId] = useState<string | null>(null);
   const [cancelReason, setCancelReason] = useState('');
+
+  // Transcript state
+  const [viewingTranscriptId, setViewingTranscriptId] = useState<string | null>(null);
+  const [transcripts, setTranscripts] = useState<Record<string, any>>({});
+  const [transcriptLoading, setTranscriptLoading] = useState<string | null>(null);
 
   // Reschedule state
   const [reschedulingId, setReschedulingId] = useState<string | null>(null);
@@ -98,6 +103,24 @@ export default function MenteeDashboardPage() {
       toast.error(e.message || 'Failed to reschedule');
     } finally {
       setRescheduling(false);
+    }
+  };
+
+  const handleViewTranscript = async (id: string) => {
+    if (viewingTranscriptId === id) {
+      setViewingTranscriptId(null);
+      return;
+    }
+    setViewingTranscriptId(id);
+    if (transcripts[id]) return;
+    setTranscriptLoading(id);
+    try {
+      const data = await apiClient.getTranscript(id);
+      setTranscripts(prev => ({ ...prev, [id]: data }));
+    } catch {
+      setTranscripts(prev => ({ ...prev, [id]: null }));
+    } finally {
+      setTranscriptLoading(null);
     }
   };
 
@@ -333,14 +356,72 @@ export default function MenteeDashboardPage() {
         ) : (
           <div className="space-y-3">
             {past.map(session => (
-              <div key={session.id} className="bg-slate-900 rounded-xl border border-slate-800 p-4 flex items-center justify-between gap-4">
-                <div>
-                  <p className="font-medium text-slate-200 text-sm">{session.title}</p>
-                  <p className="text-xs text-slate-500 mt-0.5">
-                    {formatDateTime(session.scheduledAt)} · {session.duration} min
-                  </p>
+              <div key={session.id} className="bg-slate-900 rounded-xl border border-slate-800 p-4">
+                <div className="flex items-center justify-between gap-4">
+                  <div>
+                    <p className="font-medium text-slate-200 text-sm">{session.title}</p>
+                    <p className="text-xs text-slate-500 mt-0.5">
+                      {formatDateTime(session.scheduledAt)} · {session.duration} min
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-2 flex-shrink-0">
+                    <StatusBadge status={session.status} />
+                    <button
+                      onClick={() => handleViewTranscript(session.id)}
+                      className="text-xs px-3 py-1.5 rounded-lg border border-slate-700 text-slate-300 hover:border-violet-500 hover:text-violet-400 transition-colors flex items-center gap-1"
+                    >
+                      <FileText className="w-3 h-3" />
+                      Summary
+                      {viewingTranscriptId === session.id ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
+                    </button>
+                  </div>
                 </div>
-                <StatusBadge status={session.status} />
+
+                {viewingTranscriptId === session.id && (
+                  <div className="mt-4 pt-4 border-t border-slate-800 space-y-3">
+                    {transcriptLoading === session.id ? (
+                      <div className="flex items-center gap-2 text-slate-400 text-sm">
+                        <Loader2 className="w-4 h-4 animate-spin" /> Loading summary...
+                      </div>
+                    ) : transcripts[session.id] === null ? (
+                      <p className="text-sm text-slate-500">No summary available yet. Check your email or try again later.</p>
+                    ) : transcripts[session.id] ? (
+                      <>
+                        {transcripts[session.id].summary && (
+                          <div>
+                            <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1">Summary</p>
+                            <p className="text-sm text-slate-300 leading-relaxed">{transcripts[session.id].summary}</p>
+                          </div>
+                        )}
+                        {transcripts[session.id].actionItems?.length > 0 && (
+                          <div>
+                            <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1">Action Items</p>
+                            <ul className="space-y-1">
+                              {transcripts[session.id].actionItems.map((item: string, i: number) => (
+                                <li key={i} className="text-sm text-slate-300 flex gap-2">
+                                  <span className="text-violet-400 mt-0.5">•</span> {item}
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+                        {transcripts[session.id].keyTopics?.length > 0 && (
+                          <div>
+                            <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1">Key Topics</p>
+                            <div className="flex flex-wrap gap-2">
+                              {transcripts[session.id].keyTopics.map((topic: string, i: number) => (
+                                <span key={i} className="text-xs px-2 py-0.5 rounded-full bg-violet-500/10 text-violet-400 border border-violet-500/20">{topic}</span>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                        {transcripts[session.id].durationSeconds && (
+                          <p className="text-xs text-slate-600">Session duration: {Math.round(transcripts[session.id].durationSeconds / 60)} min recorded</p>
+                        )}
+                      </>
+                    ) : null}
+                  </div>
+                )}
               </div>
             ))}
           </div>

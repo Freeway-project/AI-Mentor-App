@@ -17,6 +17,7 @@ import {
   UserRepository,
   UserIntegrationRepository,
   CalendarSettingsRepository,
+  TranscriptRepository,
 } from '@owl-mentors/database';
 
 const router: Router = Router();
@@ -29,6 +30,7 @@ const offerRepo = new OfferRepository();
 const userRepo = new UserRepository();
 const integrationRepo = new UserIntegrationRepository();
 const calSettingsRepo = new CalendarSettingsRepository();
+const transcriptRepo = new TranscriptRepository();
 const gcalService = new GoogleCalendarService();
 const dailyService = new DailyService();
 const stripeService = new StripeService();
@@ -314,6 +316,36 @@ router.get('/bookings/:id', authenticate, async (req: Request, res: Response, ne
       }
     }
     res.json({ success: true, data: meeting });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// GET /api/bookings/:id/transcript
+router.get('/bookings/:id/transcript', authenticate, async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const meeting = await meetingRepo.findById(req.params.id);
+    // Only participants can view
+    if (meeting.menteeId !== req.userId && meeting.mentorId !== req.userId) {
+      const mentor = await mentorRepo.findById(meeting.mentorId);
+      if (mentor.userId !== req.userId) {
+        throw new AppError(403, 'FORBIDDEN', 'Access denied');
+      }
+    }
+    const transcript = await transcriptRepo.findByMeetingId(req.params.id);
+    if (!transcript) {
+      throw new AppError(404, 'NOT_FOUND', 'Transcript not available yet');
+    }
+    res.json({
+      success: true,
+      data: {
+        summary: transcript.summary,
+        actionItems: transcript.actionItems,
+        keyTopics: transcript.keyTopics,
+        status: transcript.status,
+        durationSeconds: transcript.durationSeconds,
+      },
+    });
   } catch (error) {
     next(error);
   }

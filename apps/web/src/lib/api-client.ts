@@ -304,6 +304,10 @@ class ApiClient {
     return this.request<any>(`/bookings/${id}/reschedule`, { method: 'POST', body: JSON.stringify({ scheduledAt }) });
   }
 
+  async getTranscript(meetingId: string): Promise<any> {
+    return this.request<any>(`/bookings/${meetingId}/transcript`);
+  }
+
   async getMentorOffers(mentorId: string): Promise<any[]> {
     return this.request<any[]>(`/mentors/${mentorId}/offers`);
   }
