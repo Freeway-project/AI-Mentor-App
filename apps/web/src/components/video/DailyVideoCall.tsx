@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import DailyIframe, { DailyCall } from '@daily-co/daily-js';
-import { Camera, Mic, PhoneOff, Settings, AlertCircle, Share } from 'lucide-react';
+import { AlertCircle } from 'lucide-react';
 
 interface DailyVideoCallProps {
   url: string;
