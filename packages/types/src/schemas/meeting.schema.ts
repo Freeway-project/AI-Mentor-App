@@ -35,6 +35,8 @@ export const meetingSchema = z.object({
   rescheduledFrom: z.string().optional(),
   rescheduledAt: z.date().optional(),
   googleEventId: z.string().optional(),
+  dailyRoomUrl: z.string().optional(),
+  dailyRoomName: z.string().optional(),
   createdAt: z.date(),
   updatedAt: z.date(),
 });

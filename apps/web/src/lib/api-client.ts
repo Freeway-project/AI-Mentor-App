@@ -279,7 +279,11 @@ class ApiClient {
     return this.request<{ slots: { start: string; end: string }[] }>(`/mentors/${mentorId}/slots?${params.toString()}`);
   }
 
-  async createBooking(data: { mentorId: string; offerId?: string; scheduledAt: string; duration: number; title?: string; description?: string }): Promise<any> {
+  async createPaymentIntent(data: { mentorId: string; offerId?: string; scheduledAt: string; duration: number }): Promise<{ clientSecret: string; paymentIntentId: string; amountUsd: number; sessionTitle: string }> {
+    return this.request('/payments/create-payment-intent', { method: 'POST', body: JSON.stringify(data) });
+  }
+
+  async createBooking(data: { mentorId: string; offerId?: string; scheduledAt: string; duration: number; title?: string; description?: string; paymentIntentId?: string }): Promise<any> {
     return this.request<any>('/bookings', { method: 'POST', body: JSON.stringify(data) });
   }
 
@@ -298,6 +302,10 @@ class ApiClient {
 
   async rescheduleBooking(id: string, scheduledAt: string): Promise<any> {
     return this.request<any>(`/bookings/${id}/reschedule`, { method: 'POST', body: JSON.stringify({ scheduledAt }) });
+  }
+
+  async getTranscript(meetingId: string): Promise<any> {
+    return this.request<any>(`/bookings/${meetingId}/transcript`);
   }
 
   async getMentorOffers(mentorId: string): Promise<any[]> {

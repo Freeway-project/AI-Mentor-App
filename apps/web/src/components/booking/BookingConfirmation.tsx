@@ -1,5 +1,7 @@
 'use client';
 
+import { CheckCircle } from 'lucide-react';
+
 interface Props {
   booking: {
     id: string;
@@ -8,6 +10,7 @@ interface Props {
     duration: number;
     meetUrl?: string;
     meetingLink?: string;
+    dailyRoomUrl?: string;
   };
   onClose: () => void;
 }
@@ -24,44 +27,42 @@ function formatDateTime(d: string | Date): string {
 }
 
 export function BookingConfirmation({ booking, onClose }: Props) {
-  const meetLink = booking.meetUrl || booking.meetingLink;
+  const callLink = booking.dailyRoomUrl || booking.meetUrl || booking.meetingLink;
 
   return (
-    <div className="bg-slate-900 rounded-2xl border border-purple-500/30 p-6 space-y-4">
-      <div className="flex items-center gap-3">
-        <div className="w-10 h-10 rounded-full bg-purple-500/10 flex items-center justify-center">
-          <span className="text-purple-400 text-xl">&#10003;</span>
+    <div className="space-y-5">
+      <div className="flex flex-col items-center text-center py-2">
+        <div className="w-14 h-14 rounded-full bg-violet-500/10 flex items-center justify-center mb-4">
+          <CheckCircle className="w-7 h-7 text-violet-400" />
         </div>
-        <div>
-          <h3 className="font-semibold text-white">Session booked!</h3>
-          <p className="text-sm text-slate-400">Your session has been confirmed</p>
-        </div>
+        <h3 className="text-lg font-bold text-white">Session booked!</h3>
+        <p className="text-sm text-slate-400 mt-1">A confirmation email is on its way to you.</p>
       </div>
 
-      <div className="bg-slate-800/50 rounded-xl p-4 space-y-2 text-sm">
+      <div className="bg-slate-800/50 rounded-xl p-4 space-y-2.5 text-sm">
         <div className="flex justify-between">
           <span className="text-slate-500">Session</span>
           <span className="text-slate-200 font-medium">{booking.title}</span>
         </div>
         <div className="flex justify-between">
           <span className="text-slate-500">When</span>
-          <span className="text-slate-200">{formatDateTime(booking.scheduledAt)}</span>
+          <span className="text-slate-200 text-right max-w-[60%]">{formatDateTime(booking.scheduledAt)}</span>
         </div>
         <div className="flex justify-between">
           <span className="text-slate-500">Duration</span>
           <span className="text-slate-200">{booking.duration} min</span>
         </div>
-        {meetLink && (
-          <div className="flex justify-between items-center pt-1">
-            <span className="text-slate-500">Meet link</span>
+        {callLink && (
+          <div className="pt-2 border-t border-slate-700">
             <a
-              href={meetLink}
+              href={callLink}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-violet-400 hover:text-violet-300 underline text-xs break-all"
+              className="flex items-center justify-center gap-2 w-full py-2.5 bg-violet-600 hover:bg-violet-500 text-white font-semibold rounded-lg transition-colors text-sm"
             >
-              Join Google Meet
+              Join Session →
             </a>
+            <p className="text-center text-xs text-slate-500 mt-2 break-all">{callLink}</p>
           </div>
         )}
       </div>
