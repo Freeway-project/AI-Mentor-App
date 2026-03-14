@@ -301,4 +301,70 @@ export class MentorRepository {
       throw error;
     }
   }
+
+  /**
+   * Persist a pre-computed embedding vector for a mentor profile.
+   * Called by EmbeddingService after generating the vector from OpenAI.
+   *
+   * @param id - Mentor document ID
+   * @param embedding - float[1536] from text-embedding-3-small
+   */
+  async updateEmbedding(id: string, embedding: number[]): Promise<void> {
+    const startTime = Date.now();
+    try {
+      await MentorModel.findByIdAndUpdate(id, {
+        $set: { profileEmbedding: embedding, embeddingUpdatedAt: new Date() },
+      });
+      logger.db({ operation: 'update', collection: 'providers', duration: Date.now() - startTime });
+    } catch (error) {
+      logger.db({ operation: 'update', collection: 'providers', duration: Date.now() - startTime, error: (error as Error).message });
+      throw error;
+    }
+  }
+
+  /**
+   * Atlas Vector Search — return mentors whose profileEmbedding is semantically closest
+   * to the given query vector (cosine similarity).
+   *
+   * Requires a Vector Search index named "mentor_vector_index" on the providers collection.
+   * Create it once via Atlas UI → Search → Create Index → JSON Editor:
+   * {
+   *   "name": "mentor_vector_index",
+   *   "type": "vectorSearch",
+   *   "fields": [{ "type": "vector", "path": "profileEmbedding", "numDimensions": 1536, "similarity": "cosine" }]
+   * }
+   *
+   * @param queryEmbedding - float[1536] embedding of the user's search query
+   * @param limit - max number of results to return (default: 10)
+   * @returns Mentors sorted by semantic similarity (most relevant first), with matchScore attached
+   */
+  async vectorSearch(queryEmbedding: number[], limit = 10): Promise<(Mentor & { matchScore?: number })[]> {
+    const startTime = Date.now();
+    try {
+      const docs = await MentorModel.aggregate([
+        {
+          $vectorSearch: {
+            index: 'mentor_vector_index',
+            path: 'profileEmbedding',
+            queryVector: queryEmbedding,
+            numCandidates: limit * 10, // oversample for post-filter accuracy
+            limit: limit * 2,          // fetch extra before filter
+          },
+        },
+        // Post-filter: only surface active, approved mentors
+        { $match: { isActive: true, approvalStatus: 'approved' } },
+        { $limit: limit },
+        // Attach the cosine similarity score (0.0–1.0) as matchScore
+        { $addFields: { matchScore: { $meta: 'vectorSearchScore' } } },
+        // Never return the raw embedding vector to the client
+        { $project: { profileEmbedding: 0 } },
+      ]);
+
+      logger.db({ operation: 'vectorSearch', collection: 'providers', duration: Date.now() - startTime });
+      return docs.map(doc => ({ ...toMentor(doc as any), matchScore: doc.matchScore }));
+    } catch (error) {
+      logger.db({ operation: 'vectorSearch', collection: 'providers', duration: Date.now() - startTime, error: (error as Error).message });
+      throw error;
+    }
+  }
 }

@@ -143,7 +143,7 @@ class ApiClient {
       });
     }
 
-    return this.request<{ mentors: any[]; total: number }>(`/mentors?${params.toString()}`);
+    return this.request<{ mentors: any[]; total: number; semantic?: boolean }>(`/mentors?${params.toString()}`);
   }
 
   async getMentor(id: string) {
