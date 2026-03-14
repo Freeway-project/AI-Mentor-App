@@ -3,10 +3,12 @@ import { MentorRepository, UserRepository, OfferRepository, PolicyRepository } f
 import { updateMentorSchema, updateAvailabilitySchema, searchMentorsSchema } from '@owl-mentors/types';
 import { validate, validateQuery } from '../middleware/validation.middleware';
 import { authenticate, authorize, requireEmailVerified } from '../middleware/auth.middleware';
-import { createLLMClient, buildProviderRankingPrompt } from '@owl-mentors/llm';
 import { logger } from '@owl-mentors/utils';
 import { AppError } from '../middleware/error.middleware';
 import { EmailService } from '../services/email.service';
+import { EmbeddingService } from '../services/embedding.service';
+
+const embeddingService = new EmbeddingService();
 
 const router: Router = Router();
 
@@ -92,10 +94,13 @@ router.put('/me', authenticate, requireEmailVerified, authorize('mentor'), valid
       await getMentorRepo().updateOnboardingStep(mentor.id, profileStepNext[mentor.onboardingStep]);
     }
 
-    res.json({
-      success: true,
-      data: await getMentorRepo().findById(mentor.id),
-    });
+    const updated = await getMentorRepo().findById(mentor.id);
+    res.json({ success: true, data: updated });
+
+    // Re-embed the updated profile in the background — non-blocking
+    embeddingService.embedMentor(mentor.id).catch(err =>
+      logger.error(`[Embedding] Failed to embed mentor ${mentor.id}: ${err.message}`)
+    );
   } catch (error) {
     next(error);
   }
@@ -186,63 +191,35 @@ router.get('/:id', async (req: Request, res: Response, next: NextFunction) => {
 });
 
 // Search mentors (public)
+// Supports natural language queries via Atlas Vector Search (semantic) with keyword fallback.
 router.get('/', validateQuery(searchMentorsSchema), async (req: Request, res: Response, next: NextFunction) => {
   try {
     const params = req.query as any;
+    const limit = Number(params.limit) || 20;
 
-    const mentors = await getMentorRepo().search(params);
-
-    if (params.query && mentors.length > 0) {
+    // --- Vector search path ---
+    // When a free-text query is provided, attempt semantic vector search first.
+    // Falls back to keyword search if the vector index isn't set up or the embedding fails.
+    if (params.query) {
       try {
-        const llm = createLLMClient();
-        const messages = buildProviderRankingPrompt(params.query, mentors);
-
-        const response = await llm.chat(messages, {
-          temperature: 0.3,
-          maxTokens: 1000,
-        });
-
-        const ranking = JSON.parse(response.content);
-
-        const rankedMentors = mentors
-          .map((mentor) => {
-            const rank = ranking.find((r: any) => r.providerId === mentor.id);
-            return {
-              ...mentor,
-              aiScore: rank?.score || 0,
-              aiReason: rank?.reason,
-            };
-          })
-          .sort((a, b) => (b.aiScore || 0) - (a.aiScore || 0));
-
-        res.json({
-          success: true,
-          data: {
-            mentors: rankedMentors,
-            total: mentors.length,
-            query: params.query,
-          },
-        });
-      } catch (llmError) {
-        logger.error('LLM ranking failed, returning unranked results', llmError as Error);
-        res.json({
-          success: true,
-          data: {
-            mentors,
-            total: mentors.length,
-            query: params.query,
-          },
-        });
+        const vectorMentors = await embeddingService.searchMentors(params.query, limit);
+        if (vectorMentors.length > 0) {
+          return res.json({
+            success: true,
+            data: { mentors: vectorMentors, total: vectorMentors.length, query: params.query, semantic: true },
+          });
+        }
+      } catch (vectorErr) {
+        logger.warn(`[VectorSearch] Falling back to keyword search: ${(vectorErr as Error).message}`);
       }
-    } else {
-      res.json({
-        success: true,
-        data: {
-          mentors,
-          total: mentors.length,
-        },
-      });
     }
+
+    // --- Keyword search fallback ---
+    const mentors = await getMentorRepo().search(params);
+    return res.json({
+      success: true,
+      data: { mentors, total: mentors.length, query: params.query, semantic: false },
+    });
   } catch (error) {
     next(error);
   }

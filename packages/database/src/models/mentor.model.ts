@@ -45,6 +45,10 @@ export interface IMentorDocument extends mongoose.Document {
   approvalNote?: string;
   approvedAt?: Date;
   approvedBy?: mongoose.Types.ObjectId;
+  /** Atlas Vector Search embedding (1536 floats). Excluded from normal queries via select:false. */
+  profileEmbedding?: number[];
+  /** Timestamp of last embedding generation — useful for backfill auditing. */
+  embeddingUpdatedAt?: Date;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -92,6 +96,14 @@ const mentorSchema = new Schema<IMentorDocument>(
     approvalNote: { type: String },
     approvedAt: { type: Date },
     approvedBy: { type: Schema.Types.ObjectId, ref: 'User' },
+    /**
+     * Semantic embedding for Atlas Vector Search.
+     * 1536 floats from text-embedding-3-small.
+     * select:false — never returned in normal queries, only fetched explicitly.
+     */
+    profileEmbedding: { type: [Number], select: false },
+    /** When the embedding was last (re)generated. */
+    embeddingUpdatedAt: { type: Date },
   },
   { timestamps: true }
 );
