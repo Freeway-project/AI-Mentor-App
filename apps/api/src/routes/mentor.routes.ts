@@ -3,6 +3,7 @@ import { MentorRepository, UserRepository, OfferRepository, PolicyRepository } f
 import { updateMentorSchema, updateAvailabilitySchema, searchMentorsSchema } from '@owl-mentors/types';
 import { validate, validateQuery } from '../middleware/validation.middleware';
 import { authenticate, authorize, requireEmailVerified } from '../middleware/auth.middleware';
+import { searchRateLimit } from '../middleware/rateLimit.middleware';
 import { logger } from '@owl-mentors/utils';
 import { AppError } from '../middleware/error.middleware';
 import { EmailService } from '../services/email.service';
@@ -192,7 +193,7 @@ router.get('/:id', async (req: Request, res: Response, next: NextFunction) => {
 
 // Search mentors (public)
 // Supports natural language queries via Atlas Vector Search (semantic) with keyword fallback.
-router.get('/', validateQuery(searchMentorsSchema), async (req: Request, res: Response, next: NextFunction) => {
+router.get('/', searchRateLimit, validateQuery(searchMentorsSchema), async (req: Request, res: Response, next: NextFunction) => {
   try {
     const params = req.query as any;
     const limit = Number(params.limit) || 20;
