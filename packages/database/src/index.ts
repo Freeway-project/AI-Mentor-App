@@ -16,6 +16,7 @@ export * from './models/email-template.model';
 export * from './models/campaign-run.model';
 export * from './models/user-integration.model';
 export * from './models/calendar-settings.model';
+export * from './models/transcript.model';
 
 // Repositories
 export { UserRepository } from './repositories/user.repository';
@@ -30,6 +31,7 @@ export { TopicRepository } from './repositories/topic.repository';
 export { OtpRepository } from './repositories/otp.repository';
 export { UserIntegrationRepository } from './repositories/user-integration.repository';
 export { CalendarSettingsRepository } from './repositories/calendar-settings.repository';
+export { TranscriptRepository } from './repositories/transcript.repository';
 
 // Legacy exports
 export { MentorRepository as ProviderRepository } from './repositories/mentor.repository';

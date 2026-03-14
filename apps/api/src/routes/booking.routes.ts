@@ -2,6 +2,10 @@ import { Router, Request, Response, NextFunction } from 'express';
 import { authenticate, requireEmailVerified } from '../middleware/auth.middleware';
 import { AppError } from '../middleware/error.middleware';
 import { GoogleCalendarService } from '../services/google-calendar.service';
+import { DailyService } from '../services/daily.service';
+import { EmailService } from '../services/email.service';
+import { StripeService } from '../services/stripe.service';
+import { logger } from '@owl-mentors/utils';
 import { generateSlots } from '../services/slot-generator.service';
 import { maybeRefreshTokens } from './integrations.routes';
 import {
@@ -13,6 +17,7 @@ import {
   UserRepository,
   UserIntegrationRepository,
   CalendarSettingsRepository,
+  TranscriptRepository,
 } from '@owl-mentors/database';
 
 const router: Router = Router();
@@ -25,7 +30,10 @@ const offerRepo = new OfferRepository();
 const userRepo = new UserRepository();
 const integrationRepo = new UserIntegrationRepository();
 const calSettingsRepo = new CalendarSettingsRepository();
+const transcriptRepo = new TranscriptRepository();
 const gcalService = new GoogleCalendarService();
+const dailyService = new DailyService();
+const stripeService = new StripeService();
 
 // GET /api/mentors/:coachId/offers (public — for booking flow)
 router.get('/mentors/:coachId/offers', async (req: Request, res: Response, next: NextFunction) => {
@@ -122,7 +130,7 @@ router.get('/mentors/:coachId/slots', async (req: Request, res: Response, next: 
 // POST /api/bookings — create booking
 router.post('/bookings', authenticate, requireEmailVerified, async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { mentorId, offerId, scheduledAt, duration, title, description } = req.body;
+    const { mentorId, offerId, scheduledAt, duration, title, description, paymentIntentId } = req.body;
 
     if (!mentorId || !scheduledAt) {
       throw new AppError(400, 'VALIDATION_ERROR', 'mentorId and scheduledAt are required');
@@ -175,10 +183,22 @@ router.post('/bookings', authenticate, requireEmailVerified, async (req: Request
       throw new AppError(409, 'SLOT_UNAVAILABLE', 'This time slot is no longer available');
     }
 
-    // Check credit balance
-    const account = await creditRepo.getBalance(req.userId!);
-    if (account.balance < creditCost) {
-      throw new AppError(402, 'INSUFFICIENT_CREDITS', 'Not enough credits to book this session');
+    // Payment verification: Stripe (preferred) or legacy credits
+    if (paymentIntentId) {
+      const pi = await stripeService.retrievePaymentIntent(paymentIntentId);
+      if (pi.status !== 'succeeded') {
+        throw new AppError(402, 'PAYMENT_NOT_CONFIRMED', 'Stripe payment has not been completed');
+      }
+      const expectedCents = Math.round(creditCost * 100);
+      if (pi.amount !== expectedCents) {
+        throw new AppError(400, 'PAYMENT_AMOUNT_MISMATCH', 'Payment amount does not match session price');
+      }
+    } else {
+      // Legacy credit flow
+      const account = await creditRepo.getBalance(req.userId!);
+      if (account.balance < creditCost) {
+        throw new AppError(402, 'INSUFFICIENT_CREDITS', 'Not enough credits to book this session');
+      }
     }
 
     // Create meeting
@@ -192,8 +212,21 @@ router.post('/bookings', authenticate, requireEmailVerified, async (req: Request
       creditCost,
     });
 
-    // Hold credits
-    await creditRepo.holdCredits(req.userId!, creditCost, meeting.id);
+    // Hold credits (legacy flow only)
+    if (!paymentIntentId) {
+      await creditRepo.holdCredits(req.userId!, creditCost, meeting.id);
+    }
+
+    // Try to create Daily room (non-fatal)
+    let dailyRoomUrl: string | undefined;
+    try {
+      const roomExpiry = new Date(slotEnd.getTime() + 2 * 60 * 60 * 1000); // 2h after session end
+      const room = await dailyService.createRoom({ meetingId: meeting.id, expiresAt: roomExpiry });
+      await meetingRepo.update(meeting.id, { dailyRoomUrl: room.url, dailyRoomName: room.name } as any);
+      dailyRoomUrl = room.url;
+    } catch (err) {
+      logger.warn(`[Booking] Daily room creation failed: ${(err as Error).message}`);
+    }
 
     // Try to create Google Calendar event
     let meetUrl: string | undefined;
@@ -223,11 +256,30 @@ router.post('/bookings', authenticate, requireEmailVerified, async (req: Request
       }
     }
 
+    // Send booking confirmation email (non-fatal)
+    try {
+      const mentee = await userRepo.findById(req.userId!);
+      await EmailService.sendBookingConfirmation({
+        to: mentee.email,
+        menteeName: mentee.name,
+        mentorName: mentor.name,
+        meetingId: meeting.id,
+        title: offerTitle,
+        scheduledAt: slotStart,
+        durationMin,
+        dailyRoomUrl,
+        meetUrl,
+      });
+    } catch (err) {
+      logger.warn(`[Booking] Confirmation email failed: ${(err as Error).message}`);
+    }
+
     res.status(201).json({
       success: true,
       data: {
         ...meeting,
         meetUrl,
+        dailyRoomUrl,
       },
     });
   } catch (error) {
@@ -264,6 +316,36 @@ router.get('/bookings/:id', authenticate, async (req: Request, res: Response, ne
       }
     }
     res.json({ success: true, data: meeting });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// GET /api/bookings/:id/transcript
+router.get('/bookings/:id/transcript', authenticate, async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const meeting = await meetingRepo.findById(req.params.id);
+    // Only participants can view
+    if (meeting.menteeId !== req.userId && meeting.mentorId !== req.userId) {
+      const mentor = await mentorRepo.findById(meeting.mentorId);
+      if (mentor.userId !== req.userId) {
+        throw new AppError(403, 'FORBIDDEN', 'Access denied');
+      }
+    }
+    const transcript = await transcriptRepo.findByMeetingId(req.params.id);
+    if (!transcript) {
+      throw new AppError(404, 'NOT_FOUND', 'Transcript not available yet');
+    }
+    res.json({
+      success: true,
+      data: {
+        summary: transcript.summary,
+        actionItems: transcript.actionItems,
+        keyTopics: transcript.keyTopics,
+        status: transcript.status,
+        durationSeconds: transcript.durationSeconds,
+      },
+    });
   } catch (error) {
     next(error);
   }
