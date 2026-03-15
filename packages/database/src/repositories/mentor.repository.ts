@@ -304,10 +304,10 @@ export class MentorRepository {
 
   /**
    * Persist a pre-computed embedding vector for a mentor profile.
-   * Called by EmbeddingService after generating the vector from OpenAI.
+   * Called by EmbeddingService after generating the vector from Voyage AI.
    *
    * @param id - Mentor document ID
-   * @param embedding - float[1536] from text-embedding-3-small
+   * @param embedding - float[1024] from voyage-3
    */
   async updateEmbedding(id: string, embedding: number[]): Promise<void> {
     const startTime = Date.now();
@@ -331,10 +331,10 @@ export class MentorRepository {
    * {
    *   "name": "mentor_vector_index",
    *   "type": "vectorSearch",
-   *   "fields": [{ "type": "vector", "path": "profileEmbedding", "numDimensions": 1536, "similarity": "cosine" }]
+   *   "fields": [{ "type": "vector", "path": "profileEmbedding", "numDimensions": 1024, "similarity": "cosine" }]
    * }
    *
-   * @param queryEmbedding - float[1536] embedding of the user's search query
+   * @param queryEmbedding - float[1024] embedding of the user's search query
    * @param limit - max number of results to return (default: 10)
    * @returns Mentors sorted by semantic similarity (most relevant first), with matchScore attached
    */

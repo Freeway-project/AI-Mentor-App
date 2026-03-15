@@ -45,7 +45,7 @@ export interface IMentorDocument extends mongoose.Document {
   approvalNote?: string;
   approvedAt?: Date;
   approvedBy?: mongoose.Types.ObjectId;
-  /** Atlas Vector Search embedding (1536 floats). Excluded from normal queries via select:false. */
+  /** Atlas Vector Search embedding (1024 floats from voyage-3). Excluded from normal queries via select:false. */
   profileEmbedding?: number[];
   /** Timestamp of last embedding generation — useful for backfill auditing. */
   embeddingUpdatedAt?: Date;
@@ -98,7 +98,7 @@ const mentorSchema = new Schema<IMentorDocument>(
     approvedBy: { type: Schema.Types.ObjectId, ref: 'User' },
     /**
      * Semantic embedding for Atlas Vector Search.
-     * 1536 floats from text-embedding-3-small.
+     * 1024 floats from voyage-3 (Voyage AI).
      * select:false — never returned in normal queries, only fetched explicitly.
      */
     profileEmbedding: { type: [Number], select: false },

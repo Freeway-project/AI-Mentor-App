@@ -2,8 +2,28 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ─── Design Tokens (CSS custom properties) ──────────────────────────────────
+   These mirror the values in tailwind.config.ts so non-Tailwind code (inline
+   styles, third-party components, etc.) can stay on-brand.
+   To re-theme the accent colour, change --color-brand here AND in tailwind.config.ts.
+   ─────────────────────────────────────────────────────────────────────────── */
+:root {
+  /* Brand accent — use Tailwind slash notation in classes: bg-brand/10, ring-brand/50 */
+  --color-brand:        #7c3aed; /* = brand.DEFAULT in tailwind.config.ts */
+  --color-brand-light:  #8b5cf6; /* = brand.light */
+  --color-brand-lighter:#a78bfa; /* = brand.lighter */
+
+  /* Surface / page backgrounds */
+  --color-surface:      #0f172a; /* = surface.DEFAULT (slate-900) */
+  --color-surface-deep: #020617; /* = surface.deep   (slate-950) */
+
+  /* Shared page gradient — used on auth pages & landing hero */
+  --gradient-page: linear-gradient(135deg, #0a0a1a 0%, #0d1117 30%, #0f0b1e 60%, #0a0e1a 100%);
+}
+
 body {
   color: #0f172a; /* slate-900 */
   background: #ffffff;
-  /* Make sure text is visible globally unless explicitly inverted */
+  /* Dark-themed pages override this with bg-page-gradient or bg-surface-deep */
 }
+
