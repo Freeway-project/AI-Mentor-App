@@ -189,7 +189,7 @@ export function ProfileStep({ profile, userAvatar, onComplete }: ProfileStepProp
           </div>
           <div className="space-y-1.5">
             <input ref={avatarInputRef} type="file" accept="image/jpeg,image/png,image/webp,image/gif" className="hidden" onChange={handleAvatarChange} />
-            <Button type="button" variant="outline" size="sm" disabled={avatarLoading} onClick={() => avatarInputRef.current?.click()} className="border-slate-700 text-slate-300 hover:bg-slate-800">
+            <Button type="button" variant="outline" size="sm" disabled={avatarLoading} onClick={() => avatarInputRef.current?.click()} className="bg-slate-100 border-slate-300 text-slate-900 hover:bg-slate-200">
               {avatarLoading ? 'Uploading…' : avatarUrl ? 'Change photo' : 'Upload photo'}
             </Button>
             {avatarUrl && <p className="text-xs text-green-400">✓ Photo uploaded</p>}
@@ -305,7 +305,7 @@ export function ProfileStep({ profile, userAvatar, onComplete }: ProfileStepProp
             </div>
             <div className="flex items-center gap-3">
               <input ref={videoInputRef} type="file" accept="video/mp4,video/webm,video/quicktime,video/x-msvideo" className="hidden" onChange={handleVideoChange} />
-              <Button type="button" variant="outline" size="sm" disabled={videoLoading} onClick={() => videoInputRef.current?.click()} className="border-slate-700/60 text-slate-300 hover:bg-slate-800">
+              <Button type="button" variant="outline" size="sm" disabled={videoLoading} onClick={() => videoInputRef.current?.click()} className="bg-slate-100 border-slate-300 text-slate-900 hover:bg-slate-200">
                 Replace video
               </Button>
               <Button type="button" variant="outline" size="sm" disabled={videoLoading} onClick={handleVideoDelete} className="border-slate-700/60 text-red-400 hover:bg-red-900/20">

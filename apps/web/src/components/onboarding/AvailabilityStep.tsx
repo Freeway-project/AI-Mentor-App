@@ -165,7 +165,7 @@ export function AvailabilityStep({ profile, onComplete }: AvailabilityStepProps)
             type="button"
             variant="outline"
             onClick={addSlot}
-            className="border-slate-700 text-slate-300 hover:bg-slate-800"
+            className="bg-slate-100 border-slate-300 text-slate-900 hover:bg-slate-200"
           >
             + Add Slot
           </Button>

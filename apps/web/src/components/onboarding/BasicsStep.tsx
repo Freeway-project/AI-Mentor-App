@@ -100,7 +100,7 @@ export function BasicsStep({ profile, userAvatar, onComplete }: BasicsStepProps)
           </div>
           <div className="space-y-1.5">
             <input ref={avatarInputRef} type="file" accept="image/jpeg,image/png,image/webp,image/gif" className="hidden" onChange={handleAvatarChange} />
-            <Button type="button" variant="outline" size="sm" disabled={avatarLoading} onClick={() => avatarInputRef.current?.click()} className="border-slate-700 text-slate-300 hover:bg-slate-800">
+            <Button type="button" variant="outline" size="sm" disabled={avatarLoading} onClick={() => avatarInputRef.current?.click()} className="bg-slate-100 border-slate-300 text-slate-900 hover:bg-slate-200">
               {avatarLoading ? 'Uploading…' : avatarUrl ? 'Change photo' : 'Upload photo'}
             </Button>
             {avatarUrl && <p className="text-xs text-green-400">✓ Photo uploaded</p>}

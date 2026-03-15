@@ -30,7 +30,12 @@ export default function LoginPage() {
       if (result.user.roles.includes('admin')) {
         router.push('/admin');
       } else if (result.user.roles.includes('mentor')) {
-        window.location.href = '/mentor/dashboard';
+        try {
+          const profile = await apiClient.getMyMentorProfile();
+          window.location.href = profile.onboardingStep !== 'completed' ? '/onboarding' : '/mentor/dashboard';
+        } catch {
+          window.location.href = '/onboarding';
+        }
       } else {
         router.push('/mentee/dashboard');
       }
@@ -63,7 +68,12 @@ export default function LoginPage() {
       if (me.roles.includes('admin')) {
         router.push('/admin');
       } else if (me.roles.includes('mentor')) {
-        window.location.href = '/mentor/dashboard';
+        try {
+          const profile = await apiClient.getMyMentorProfile();
+          window.location.href = profile.onboardingStep !== 'completed' ? '/onboarding' : '/mentor/dashboard';
+        } catch {
+          window.location.href = '/onboarding';
+        }
       } else {
         router.push('/mentee/dashboard');
       }

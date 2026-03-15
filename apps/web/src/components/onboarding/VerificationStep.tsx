@@ -203,7 +203,7 @@ export function VerificationStep({ profile, onComplete }: VerificationStepProps)
             </div>
             <div className="flex items-center gap-3">
               <input ref={videoInputRef} type="file" accept="video/mp4,video/webm,video/quicktime,video/x-msvideo" className="hidden" onChange={handleVideoChange} />
-              <Button type="button" variant="outline" size="sm" disabled={videoLoading} onClick={() => videoInputRef.current?.click()} className="border-slate-700/60 text-slate-300 hover:bg-slate-800">
+              <Button type="button" variant="outline" size="sm" disabled={videoLoading} onClick={() => videoInputRef.current?.click()} className="bg-slate-100 border-slate-300 text-slate-900 hover:bg-slate-200">
                 Replace video
               </Button>
               <Button type="button" variant="outline" size="sm" disabled={videoLoading} onClick={handleVideoDelete} className="border-slate-700/60 text-red-400 hover:bg-red-900/20">

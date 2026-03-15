@@ -144,7 +144,7 @@ export function OffersStep({ mentorId, onComplete }: OffersStepProps) {
           </div>
         </div>
 
-        <Button type="submit" variant="outline" disabled={loading} className="border-slate-700 text-slate-300 hover:bg-slate-800">
+        <Button type="submit" variant="outline" disabled={loading} className="bg-slate-100 border-slate-300 text-slate-900 hover:bg-slate-200">
           {loading ? 'Adding…' : '+ Add Offer'}
         </Button>
       </form>
