@@ -172,6 +172,11 @@ router.post('/me/publish', authenticate, requireEmailVerified, authorize('mentor
       success: true,
       data: published,
     });
+
+    // Embed the published profile so it's indexed and ready when admin approves — non-blocking
+    embeddingService.embedMentor(mentor.id).catch(err =>
+      logger.error(`[Embedding] Failed to embed mentor ${mentor.id} on publish: ${err.message}`)
+    );
   } catch (error) {
     next(error);
   }
