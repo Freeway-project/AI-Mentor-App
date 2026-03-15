@@ -256,11 +256,13 @@ router.post('/bookings', authenticate, requireEmailVerified, async (req: Request
       }
     }
 
-    // Send booking confirmation email (non-fatal)
+    // Send booking confirmation emails to mentee and mentor (non-fatal)
     try {
-      const mentee = await userRepo.findById(req.userId!);
-      await EmailService.sendBookingConfirmation({
-        to: mentee.email,
+      const [mentee, mentorUser] = await Promise.all([
+        userRepo.findById(req.userId!),
+        userRepo.findById(mentor.userId),
+      ]);
+      const sharedEmailParams = {
         menteeName: mentee.name,
         mentorName: mentor.name,
         meetingId: meeting.id,
@@ -269,7 +271,15 @@ router.post('/bookings', authenticate, requireEmailVerified, async (req: Request
         durationMin,
         dailyRoomUrl,
         meetUrl,
-      });
+      };
+      await Promise.all([
+        EmailService.sendBookingConfirmation({ to: mentee.email, ...sharedEmailParams }),
+        EmailService.sendBookingConfirmation({
+          to: mentorUser.email,
+          ...sharedEmailParams,
+          dashboardPath: '/mentor/dashboard',
+        }),
+      ]);
     } catch (err) {
       logger.warn(`[Booking] Confirmation email failed: ${(err as Error).message}`);
     }

@@ -1,4 +1,5 @@
 import { Router, Request, Response } from 'express';
+import Stripe from 'stripe';
 import { logger } from '@owl-mentors/utils';
 import { createLLMClient, LLMMessage } from '@owl-mentors/llm';
 import {
@@ -11,6 +12,7 @@ import {
 import { DailyService } from '../services/daily.service';
 import { WhisperService } from '../services/whisper.service';
 import { EmailService } from '../services/email.service';
+import { StripeService } from '../services/stripe.service';
 
 const router: Router = Router();
 
@@ -168,6 +170,75 @@ async function handleDailyEvent(payload: DailyWebhookPayload): Promise<void> {
   }
 
   logger.info(`[Webhook/Daily] Pipeline complete for meeting ${meetingId}`);
+}
+
+// POST /api/webhooks/stripe
+router.post('/stripe', (req: Request, res: Response) => {
+  const rawBody = (req as any).rawBody as string | undefined;
+  const signature = req.headers['stripe-signature'] as string | undefined;
+  const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
+
+  if (!rawBody || !signature) {
+    res.status(400).json({ error: 'Missing body or signature' });
+    return;
+  }
+
+  if (!webhookSecret) {
+    logger.warn('[Webhook/Stripe] STRIPE_WEBHOOK_SECRET not set — skipping verification');
+    res.status(200).json({ received: true });
+    return;
+  }
+
+  let event: Stripe.Event;
+  try {
+    const stripeService = new StripeService();
+    event = stripeService.constructWebhookEvent(rawBody, signature, webhookSecret);
+  } catch (err) {
+    logger.error(`[Webhook/Stripe] Signature verification failed: ${(err as Error).message}`);
+    res.status(400).json({ error: 'Invalid signature' });
+    return;
+  }
+
+  res.status(200).json({ received: true });
+
+  handleStripeEvent(event).catch(err => {
+    logger.error(`[Webhook/Stripe] Unhandled error: ${err.message}`, err);
+  });
+});
+
+async function handleStripeEvent(event: Stripe.Event): Promise<void> {
+  if (event.type !== 'payment_intent.succeeded') return;
+
+  const pi = event.data.object as Stripe.PaymentIntent;
+  const { mentorId, menteeId, scheduledAt } = pi.metadata ?? {};
+
+  logger.info(
+    `[Webhook/Stripe] payment_intent.succeeded: PI=${pi.id} amount=${pi.amount} ` +
+    `mentee=${menteeId} mentor=${mentorId} scheduledAt=${scheduledAt}`
+  );
+
+  if (!mentorId || !menteeId || !scheduledAt) {
+    logger.warn(`[Webhook/Stripe] PI ${pi.id} missing booking metadata — cannot reconcile`);
+    return;
+  }
+
+  // Check if the booking was already created via the synchronous flow
+  const slotStart = new Date(scheduledAt);
+  const slotEnd = new Date(slotStart.getTime() + 24 * 60 * 60 * 1000);
+  const meetings = await MeetingModel.find({
+    mentorId,
+    menteeId,
+    scheduledAt: { $gte: slotStart, $lte: slotEnd },
+  }).lean();
+
+  if (meetings.length > 0) {
+    logger.info(`[Webhook/Stripe] PI ${pi.id} → booking already exists (meeting ${meetings[0]._id})`);
+  } else {
+    logger.warn(
+      `[Webhook/Stripe] PI ${pi.id} succeeded but no booking found for mentee=${menteeId} ` +
+      `mentor=${mentorId} at ${scheduledAt} — client may have dropped off after payment`
+    );
+  }
 }
 
 // POST /api/webhooks/daily

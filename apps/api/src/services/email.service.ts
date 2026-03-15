@@ -370,12 +370,13 @@ export const EmailService = {
     durationMin: number;
     dailyRoomUrl?: string;
     meetUrl?: string;
+    dashboardPath?: string;
   }): Promise<void> {
     const fromName = process.env.SMTP_FROM_NAME || 'OWL Mentor';
     const fromEmail = process.env.SMTP_FROM_EMAIL || process.env.SMTP_FROM || 'noreply@owlmentor.com';
     const from = `${fromName} <${fromEmail}>`;
     const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
-    const sessionUrl = `${appUrl}/mentee/dashboard`;
+    const sessionUrl = `${appUrl}${params.dashboardPath ?? '/mentee/dashboard'}`;
     const callUrl = params.dailyRoomUrl || params.meetUrl;
 
     const dateStr = params.scheduledAt.toLocaleDateString('en-US', {

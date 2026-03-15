@@ -27,4 +27,9 @@ export class StripeService {
     const stripe = getStripe();
     return stripe.paymentIntents.retrieve(paymentIntentId);
   }
+
+  constructWebhookEvent(payload: string, signature: string, secret: string): Stripe.Event {
+    const stripe = getStripe();
+    return stripe.webhooks.constructEvent(payload, signature, secret);
+  }
 }
