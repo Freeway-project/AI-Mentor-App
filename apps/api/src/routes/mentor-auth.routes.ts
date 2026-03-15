@@ -84,8 +84,7 @@ router.post('/register', authRateLimit, async (req: Request, res: Response, next
       phoneVerified: false,
     });
 
-    // Create mentor profile (pending)
-    await getMentorRepo().create({ userId: user.id, name });
+    // Mentor profile is created after email verification to prevent duplicate provider records
 
     // Generate and send email OTP
     const emailCode = await getOtpRepo().createOtp(user.id, 'email', email);
@@ -136,6 +135,12 @@ router.post('/verify-otp', authenticate, async (req: Request, res: Response, nex
 
     await getUserRepo().markEmailVerified(userId);
     const user = await getUserRepo().findById(userId);
+
+    // Create mentor profile now that email is verified (idempotent — skip if already exists)
+    const existingMentor = await getMentorRepo().findByUserId(userId);
+    if (!existingMentor) {
+      await getMentorRepo().create({ userId, name: user.name });
+    }
 
     // Notify admin of new verified mentor signup (non-blocking)
     EmailService.notifyAdminNewMentor({ name: user.name, email: user.email }).catch(() => { });
