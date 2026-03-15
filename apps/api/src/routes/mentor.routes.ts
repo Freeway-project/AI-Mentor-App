@@ -186,10 +186,14 @@ router.post('/me/publish', authenticate, requireEmailVerified, authorize('mentor
 router.get('/:id', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const mentor = await getMentorRepo().findById(req.params.id);
+    const user = await getUserRepo().findById(mentor.userId).catch(() => null);
 
     res.json({
       success: true,
-      data: mentor,
+      data: {
+        ...mentor,
+        avatarUrl: user?.avatar || null,
+      },
     });
   } catch (error) {
     next(error);

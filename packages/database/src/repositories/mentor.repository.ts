@@ -72,7 +72,14 @@ export class MentorRepository {
         filter.hourlyRate = { $lte: params.maxRate };
       }
       if (params.query) {
-        filter.$text = { $search: params.query };
+        const re = new RegExp(params.query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i');
+        filter.$or = [
+          { headline: re },
+          { bio: re },
+          { specialties: re },
+          { expertise: re },
+          { name: re },
+        ];
       }
 
       const docs = await MentorModel.find(filter).skip(params.offset || 0).limit(params.limit || 20);

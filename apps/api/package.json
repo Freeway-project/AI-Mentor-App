@@ -7,7 +7,9 @@
     "build": "bun --env-file ../../.env build src/server.ts --outdir dist --target bun",
     "start": "bun --env-file ../../.env dist/server.js",
     "type-check": "tsc --noEmit",
-    "clean": "rm -rf dist"
+    "clean": "rm -rf dist",
+    "seed:admin": "bun --env-file ../../.env src/scripts/seed-admin.ts",
+    "seed:mentors": "bun --env-file ../../.env src/scripts/seed-mentors.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.995.0",
