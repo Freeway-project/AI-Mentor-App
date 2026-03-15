@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/lib/auth-context';
 import { apiClient } from '@/lib/api-client';
-import { Calendar, Clock, Video, RotateCcw, X } from 'lucide-react';
+import { Calendar, Clock, Video, RotateCcw, X, DollarSign } from 'lucide-react';
 import Link from 'next/link';
 import { toast } from 'sonner';
 
@@ -93,7 +93,7 @@ export default function MentorBookingsPage() {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div className="bg-slate-900 rounded-xl border border-slate-800 p-5 flex items-center gap-4">
           <div className="w-10 h-10 rounded-xl bg-violet-500/10 flex items-center justify-center">
             <Calendar className="w-5 h-5 text-violet-400" />
@@ -110,6 +110,17 @@ export default function MentorBookingsPage() {
           <div>
             <p className="text-xs text-slate-500 uppercase tracking-wide">Completed</p>
             <p className="text-2xl font-bold text-white">{past.length}</p>
+          </div>
+        </div>
+        <div className="bg-slate-900 rounded-xl border border-slate-800 p-5 flex items-center gap-4">
+          <div className="w-10 h-10 rounded-xl bg-emerald-500/10 flex items-center justify-center">
+            <DollarSign className="w-5 h-5 text-emerald-400" />
+          </div>
+          <div>
+            <p className="text-xs text-slate-500 uppercase tracking-wide">Total Earned</p>
+            <p className="text-2xl font-bold text-white">
+              ${past.reduce((sum: number, s: any) => sum + (s.amountPaid ?? 0), 0).toFixed(2)}
+            </p>
           </div>
         </div>
       </div>
@@ -131,6 +142,9 @@ export default function MentorBookingsPage() {
                   <div className="space-y-1.5">
                     <StatusBadge status={session.status} />
                     <p className="font-semibold text-white">{session.title}</p>
+                    {session.menteeName && (
+                      <p className="text-xs text-slate-500">with {session.menteeName}</p>
+                    )}
                     <p className="text-sm text-slate-400">
                       {formatDateTime(session.scheduledAt)} · {session.duration} min
                     </p>
@@ -214,6 +228,9 @@ export default function MentorBookingsPage() {
               <div key={session.id} className="bg-slate-900 rounded-xl border border-slate-800 p-4 flex items-center justify-between gap-4">
                 <div>
                   <p className="font-medium text-slate-200 text-sm">{session.title}</p>
+                  {session.menteeName && (
+                    <p className="text-xs text-slate-400">with {session.menteeName}</p>
+                  )}
                   <p className="text-xs text-slate-500 mt-0.5">
                     {formatDateTime(session.scheduledAt)} · {session.duration} min
                   </p>

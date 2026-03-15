@@ -169,6 +169,24 @@ async function handleDailyEvent(payload: DailyWebhookPayload): Promise<void> {
     logger.error(`[Webhook/Daily] Email failed for meeting ${meetingId}: ${(err as Error).message}`);
   }
 
+  // Email mentor
+  try {
+    const mentorUser = await userRepo.findById(mentor.userId);
+    await EmailService.sendSessionSummary({
+      to: mentorUser.email,
+      menteeName: mentee.name,
+      mentorName: mentor.name,
+      meetingId,
+      scheduledAt: meetingDoc.scheduledAt,
+      durationSeconds: Number(durationSeconds),
+      summary,
+      actionItems,
+      keyTopics,
+    });
+  } catch (err) {
+    logger.error(`[Webhook/Daily] Mentor summary email failed for meeting ${meetingId}: ${(err as Error).message}`);
+  }
+
   logger.info(`[Webhook/Daily] Pipeline complete for meeting ${meetingId}`);
 }
 

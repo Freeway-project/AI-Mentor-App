@@ -249,7 +249,6 @@ router.post('/bookings', authenticate, requireEmailVerified, async (req: Request
       const writeCalendarId = calSettings?.writeCalendarId || 'primary';
       try {
         const tokens = await maybeRefreshTokens(mentor.userId, integration);
-        const mentee = await userRepo.findById(req.userId!);
         const created = await gcalService.createEvent(tokens, {
           calendarId: writeCalendarId,
           start: slotStart.toISOString(),

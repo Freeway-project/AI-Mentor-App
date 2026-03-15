@@ -5,7 +5,7 @@ import { apiClient } from '@/lib/api-client';
 import { useAuth } from '@/lib/auth-context';
 import {
     CheckCircle2, Clock, XCircle, ArrowRight,
-    User, Calendar, BookOpen, Shield,
+    User, Calendar, BookOpen, Shield, Video,
 } from 'lucide-react';
 import Link from 'next/link';
 
@@ -47,12 +47,21 @@ export default function MentorDashboardPage() {
     const { user } = useAuth();
     const [profile, setProfile] = useState<any>(null);
     const [loading, setLoading] = useState(true);
+    const [upcomingBookings, setUpcomingBookings] = useState<any[]>([]);
 
     useEffect(() => {
         apiClient.getMyMentorProfile()
             .then(setProfile)
             .catch(() => { })
             .finally(() => setLoading(false));
+        apiClient.getMyBookings({ status: 'booked' })
+            .then(data => {
+                const sorted = [...data.meetings].sort(
+                    (a: any, b: any) => new Date(a.scheduledAt).getTime() - new Date(b.scheduledAt).getTime()
+                );
+                setUpcomingBookings(sorted);
+            })
+            .catch(() => {});
     }, []);
 
     const status = profile?.approvalStatus || 'pending';
@@ -129,6 +138,42 @@ export default function MentorDashboardPage() {
                     ))}
                 </div>
             </div>
+
+            {/* Next Session widget */}
+            {upcomingBookings.length > 0 && (() => {
+                const next = upcomingBookings[0];
+                return (
+                    <div className="bg-slate-900 rounded-2xl border border-slate-800 p-6">
+                        <h2 className="text-xs font-semibold text-slate-500 uppercase tracking-widest mb-4">Next Session</h2>
+                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                            <div className="space-y-1">
+                                <p className="font-semibold text-white">{next.title}</p>
+                                {next.menteeName && <p className="text-sm text-slate-400">with {next.menteeName}</p>}
+                                <p className="text-sm text-slate-400">
+                                    {new Date(next.scheduledAt).toLocaleString([], {
+                                        weekday: 'short', month: 'short', day: 'numeric',
+                                        hour: '2-digit', minute: '2-digit',
+                                    })} · {next.duration} min
+                                </p>
+                            </div>
+                            {(next.dailyRoomUrl || next.meetingLink) && (
+                                <Link
+                                    href={next.dailyRoomUrl ? `/video/${next.id}` : next.meetingLink}
+                                    target={next.dailyRoomUrl ? undefined : '_blank'}
+                                    className="inline-flex items-center gap-2 px-4 py-2 bg-violet-600 hover:bg-violet-500 text-white text-sm font-medium rounded-xl transition-all w-fit"
+                                >
+                                    <Video className="w-4 h-4" /> Join Call
+                                </Link>
+                            )}
+                        </div>
+                        {upcomingBookings.length > 1 && (
+                            <Link href="/mentor/bookings" className="mt-4 inline-flex items-center gap-1 text-xs text-violet-400 hover:underline">
+                                View all {upcomingBookings.length} upcoming <ArrowRight className="w-3 h-3" />
+                            </Link>
+                        )}
+                    </div>
+                );
+            })()}
 
             {/* Profile completion */}
             {profile && (
