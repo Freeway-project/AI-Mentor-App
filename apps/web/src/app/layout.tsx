@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import './globals.css';
 import { AppProviders } from './providers';
 import { Toaster } from 'sonner';
+import { RouteTransition } from '@/components/ui/route-transition';
 
 export const metadata: Metadata = {
   title: 'OWL Mentor',
@@ -15,9 +16,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body>
+      <body className="min-h-screen bg-surface-deep text-white antialiased">
         <AppProviders>
-          {children}
+          <RouteTransition>{children}</RouteTransition>
         </AppProviders>
         <Toaster position="top-center" richColors closeButton />
       </body>

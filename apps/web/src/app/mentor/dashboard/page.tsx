@@ -8,29 +8,31 @@ import {
     User, Calendar, BookOpen, Shield, Video,
 } from 'lucide-react';
 import Link from 'next/link';
+import {
+    AppPageHeader,
+    AppPanel,
+    AppSectionLabel,
+    appTheme,
+    getToneClasses,
+} from '@/components/ui/app-theme';
+import { cn } from '@/lib/utils';
 
-const STATUS_CONFIG: Record<string, { icon: any; color: string; bg: string; border: string; title: string; description: string }> = {
+const STATUS_CONFIG: Record<string, { icon: any; tone: 'amber' | 'purple' | 'red'; title: string; description: string }> = {
     pending: {
         icon: Clock,
-        color: 'text-amber-400',
-        bg: 'bg-amber-500/10',
-        border: 'border-amber-500/30',
+        tone: 'amber',
         title: 'Profile Under Review',
         description: "Your profile has been submitted and is pending admin approval. We'll notify you once reviewed.",
     },
     approved: {
         icon: CheckCircle2,
-        color: 'text-purple-400',
-        bg: 'bg-purple-500/10',
-        border: 'border-purple-500/30',
+        tone: 'purple',
         title: 'Profile Approved!',
         description: 'Your profile is live. Mentees can now find and book sessions with you.',
     },
     rejected: {
         icon: XCircle,
-        color: 'text-red-400',
-        bg: 'bg-red-500/10',
-        border: 'border-red-500/30',
+        tone: 'red',
         title: 'Profile Needs Changes',
         description: 'Your profile was not approved. Please review the feedback below and update your profile.',
     },
@@ -67,14 +69,15 @@ export default function MentorDashboardPage() {
     const status = profile?.approvalStatus || 'pending';
     const cfg = STATUS_CONFIG[status] ?? STATUS_CONFIG.pending;
     const StatusIcon = cfg.icon;
+    const tone = getToneClasses(cfg.tone);
     const isPendingReview = profile?.onboardingStep === 'published' && profile?.approvalStatus === 'pending';
 
     if (!loading && isPendingReview) {
         return (
             <div className="min-h-screen flex items-center justify-center p-8">
-                <div className="text-center max-w-md">
-                    <div className="w-16 h-16 rounded-full bg-amber-500/10 flex items-center justify-center mx-auto mb-4">
-                        <Clock className="w-8 h-8 text-amber-400" />
+                <div className="max-w-md text-center">
+                    <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full border border-amber-500/20 bg-amber-500/10">
+                        <Clock className="h-8 w-8 text-amber-300" />
                     </div>
                     <h1 className="text-xl font-bold text-white mb-2">Profile Under Review</h1>
                     <p className="text-slate-400 text-sm">Your profile has been submitted and is awaiting admin approval. We&apos;ll notify you once it&apos;s reviewed.</p>
@@ -85,51 +88,47 @@ export default function MentorDashboardPage() {
 
     return (
         <div className="p-8 max-w-5xl mx-auto space-y-8">
-            {/* Header */}
-            <div>
-                <h1 className="text-2xl font-bold text-white">
-                    Welcome back, {user?.name?.split(' ')[0]} 👋
-                </h1>
-                <p className="text-slate-400 text-sm mt-1">Here&apos;s your mentor portal overview</p>
-            </div>
+            <AppPageHeader
+                title={`Welcome back, ${user?.name?.split(' ')[0] ?? 'Mentor'}`}
+                description="Here’s your mentor portal overview, aligned to the same shared dashboard system as the rest of the app."
+                titleClassName="text-2xl md:text-3xl"
+            />
 
-            {/* Status Banner */}
             {!loading && (
-                <div className={`rounded-2xl border p-5 flex items-start gap-4 ${cfg.bg} ${cfg.border}`}>
-                    <div className={`p-2.5 rounded-xl ${cfg.bg}`}>
-                        <StatusIcon className={`w-6 h-6 ${cfg.color}`} />
+                <AppPanel className={cn('flex items-start gap-4 border p-5', tone.panel)}>
+                    <div className={cn('rounded-xl border p-2.5', tone.icon)}>
+                        <StatusIcon className="h-6 w-6" />
                     </div>
                     <div className="flex-1 min-w-0">
-                        <h2 className={`font-semibold text-base ${cfg.color}`}>{cfg.title}</h2>
+                        <h2 className={cn('text-base font-semibold', tone.text)}>{cfg.title}</h2>
                         <p className="text-sm text-slate-400 mt-0.5">{cfg.description}</p>
                         {status === 'rejected' && profile?.approvalNote && (
-                            <div className="mt-3 bg-red-950/40 rounded-lg px-4 py-2.5 text-sm text-red-300 border border-red-500/30">
+                            <div className="mt-3 rounded-lg border border-red-500/30 bg-red-950/40 px-4 py-2.5 text-sm text-red-300">
                                 <span className="font-medium">Admin note: </span>{profile.approvalNote}
                             </div>
                         )}
                         {status === 'rejected' && (
                             <Link
                                 href="/mentor/dashboard/profile"
-                                className="inline-flex items-center gap-1.5 mt-3 text-sm font-medium text-red-400 hover:underline"
+                                className="mt-3 inline-flex items-center gap-1.5 text-sm font-medium text-red-300 hover:text-white"
                             >
                                 Update profile <ArrowRight className="w-3.5 h-3.5" />
                             </Link>
                         )}
                     </div>
-                </div>
+                </AppPanel>
             )}
 
-            {/* Quick actions grid */}
             <div>
-                <h2 className="text-xs font-semibold text-slate-500 uppercase tracking-widest mb-4">Quick Actions</h2>
+                <AppSectionLabel className="mb-4">Quick Actions</AppSectionLabel>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                     {QUICK_ACTIONS.map(({ href, icon: Icon, label, description }) => (
                         <Link
                             key={label}
                             href={href}
-                            className="group bg-slate-900 rounded-xl border border-slate-800 p-5 hover:border-violet-500/50 hover:bg-slate-800/80 transition-all"
+                            className={appTheme.actionTile}
                         >
-                            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500 to-purple-500 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+                            <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-brand to-brand-light transition-transform group-hover:scale-110">
                                 <Icon className="w-5 h-5 text-white" />
                             </div>
                             <p className="font-semibold text-white text-sm">{label}</p>
@@ -143,8 +142,8 @@ export default function MentorDashboardPage() {
             {upcomingBookings.length > 0 && (() => {
                 const next = upcomingBookings[0];
                 return (
-                    <div className="bg-slate-900 rounded-2xl border border-slate-800 p-6">
-                        <h2 className="text-xs font-semibold text-slate-500 uppercase tracking-widest mb-4">Next Session</h2>
+                    <AppPanel className="p-6">
+                        <AppSectionLabel className="mb-4">Next Session</AppSectionLabel>
                         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                             <div className="space-y-1">
                                 <p className="font-semibold text-white">{next.title}</p>
@@ -160,24 +159,23 @@ export default function MentorDashboardPage() {
                                 <Link
                                     href={next.dailyRoomUrl ? `/video/${next.id}` : next.meetingLink}
                                     target={next.dailyRoomUrl ? undefined : '_blank'}
-                                    className="inline-flex items-center gap-2 px-4 py-2 bg-violet-600 hover:bg-violet-500 text-white text-sm font-medium rounded-xl transition-all w-fit"
+                                    className="inline-flex w-fit items-center gap-2 rounded-xl bg-brand px-4 py-2 text-sm font-medium text-white transition-all hover:bg-brand-light"
                                 >
                                     <Video className="w-4 h-4" /> Join Call
                                 </Link>
                             )}
                         </div>
                         {upcomingBookings.length > 1 && (
-                            <Link href="/mentor/bookings" className="mt-4 inline-flex items-center gap-1 text-xs text-violet-400 hover:underline">
+                            <Link href="/mentor/bookings" className="mt-4 inline-flex items-center gap-1 text-xs text-brand-lighter hover:text-white">
                                 View all {upcomingBookings.length} upcoming <ArrowRight className="w-3 h-3" />
                             </Link>
                         )}
-                    </div>
+                    </AppPanel>
                 );
             })()}
 
-            {/* Profile completion */}
             {profile && (
-                <div className="bg-slate-900 rounded-2xl border border-slate-800 p-6">
+                <AppPanel className="p-6">
                     <h2 className="font-semibold text-white mb-4">Profile Completeness</h2>
                     <div className="space-y-3">
                         {[
@@ -187,19 +185,19 @@ export default function MentorDashboardPage() {
                             { label: 'Policies', done: false },
                         ].map(({ label, done }) => (
                             <div key={label} className="flex items-center gap-3">
-                                <div className={`w-5 h-5 rounded-full flex items-center justify-center shrink-0 ${done ? 'bg-purple-500' : 'bg-slate-700'}`}>
+                                <div className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full ${done ? 'bg-brand' : 'bg-slate-700'}`}>
                                     {done && <CheckCircle2 className="w-3.5 h-3.5 text-white" />}
                                 </div>
                                 <span className={`text-sm ${done ? 'text-white font-medium' : 'text-slate-500'}`}>{label}</span>
                                 {!done && (
-                                    <Link href="/mentor/dashboard/profile" className="ml-auto text-xs text-violet-400 hover:underline">
+                                    <Link href="/mentor/dashboard/profile" className="ml-auto text-xs text-brand-lighter hover:text-white">
                                         Complete →
                                     </Link>
                                 )}
                             </div>
                         ))}
                     </div>
-                </div>
+                </AppPanel>
             )}
         </div>
     );

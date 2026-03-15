@@ -60,10 +60,9 @@ const itemVariants: Variants = {
 
 export function HowItWorks() {
     return (
-        <section id="how-it-works" className="py-20 md:py-32 bg-white relative overflow-hidden">
-            {/* Background Decorations */}
-            <div className="absolute top-0 right-0 -mt-20 -mr-20 w-96 h-96 bg-violet-300/40 rounded-full blur-3xl opacity-50 pointer-events-none"></div>
-            <div className="absolute bottom-0 left-0 -mb-20 -ml-20 w-96 h-96 bg-purple-300/40 rounded-full blur-3xl opacity-50 pointer-events-none"></div>
+        <section id="how-it-works" className="relative overflow-hidden bg-transparent py-20 md:py-32">
+            <div className="pointer-events-none absolute right-0 top-0 -mr-20 -mt-20 h-96 w-96 rounded-full bg-brand/10 blur-3xl opacity-70"></div>
+            <div className="pointer-events-none absolute bottom-0 left-0 -mb-20 -ml-20 h-96 w-96 rounded-full bg-brand-light/10 blur-3xl opacity-60"></div>
 
             <div className="container mx-auto px-4 md:px-6 relative z-10">
                 <motion.div
@@ -73,10 +72,10 @@ export function HowItWorks() {
                     transition={{ duration: 0.6 }}
                     className="text-center mb-16 md:mb-24 space-y-4"
                 >
-                    <h2 className="text-3xl font-extrabold tracking-tight text-slate-900 sm:text-4xl md:text-5xl">
+                    <h2 className="text-3xl font-extrabold tracking-tight text-white sm:text-4xl md:text-5xl">
                         Your Journey to Mastery
                     </h2>
-                    <p className="text-lg text-slate-600 max-w-2xl mx-auto">
+                    <p className="mx-auto max-w-2xl text-lg text-slate-400">
                         We&apos;ve streamlined the mentorship process. Getting expert guidance has never been this simple and effective.
                     </p>
                 </motion.div>
@@ -93,61 +92,61 @@ export function HowItWorks() {
                     >
                         <div className="relative aspect-square md:aspect-auto md:h-[600px] w-full max-w-md mx-auto">
                             {/* Central Orbit Anchor */}
-                            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 bg-white rounded-full flex items-center justify-center shadow-lg shadow-violet-200 z-20 border border-slate-200">
-                                <span className="text-slate-900 font-bold text-xl text-center leading-tight">Growth<br />Engine</span>
+                            <div className="absolute top-1/2 left-1/2 z-20 flex h-32 w-32 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-white/10 bg-slate-900/70 shadow-lg shadow-slate-950/40">
+                                <span className="text-center text-xl font-bold leading-tight text-white">Growth<br />Engine</span>
                             </div>
 
                             {/* Animated Rings */}
                             <motion.div
                                 animate={{ rotate: 360 }}
                                 transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
-                                className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px] rounded-full border border-dashed border-slate-300 z-10"
+                                className="absolute top-1/2 left-1/2 z-10 h-[300px] w-[300px] -translate-x-1/2 -translate-y-1/2 rounded-full border border-dashed border-slate-700"
                             >
-                                <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 w-4 h-4 rounded-full bg-violet-500 shadow-[0_0_15px_rgba(139,92,246,0.5)]"></div>
+                                <div className="absolute left-1/2 top-0 h-4 w-4 -translate-x-1/2 -translate-y-1/2 rounded-full bg-brand shadow-[0_0_15px_rgba(124,58,237,0.5)]"></div>
                             </motion.div>
 
                             <motion.div
                                 animate={{ rotate: -360 }}
                                 transition={{ duration: 40, repeat: Infinity, ease: "linear" }}
-                                className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[450px] h-[450px] rounded-full border border-slate-200 z-0"
+                                className="absolute top-1/2 left-1/2 z-0 h-[450px] w-[450px] -translate-x-1/2 -translate-y-1/2 rounded-full border border-slate-800"
                             >
-                                <div className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2 w-6 h-6 rounded-full bg-purple-500 shadow-[0_0_15px_rgba(16,185,129,0.5)] flex items-center justify-center">
+                                <div className="absolute bottom-0 left-1/2 flex h-6 w-6 -translate-x-1/2 translate-y-1/2 items-center justify-center rounded-full bg-brand-light shadow-[0_0_15px_rgba(124,58,237,0.5)]">
                                     <div className="w-2 h-2 rounded-full bg-white"></div>
                                 </div>
-                                <div className="absolute top-1/2 right-0 translate-x-1/2 -translate-y-1/2 w-3 h-3 rounded-full bg-violet-400 shadow-sm"></div>
+                                <div className="absolute right-0 top-1/2 h-3 w-3 translate-x-1/2 -translate-y-1/2 rounded-full bg-brand-lighter shadow-sm"></div>
                             </motion.div>
 
                             {/* Decorative Floating Nodes */}
                             <motion.div
                                 animate={{ y: [0, -15, 0] }}
                                 transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
-                                className="absolute top-12 right-0 bg-white p-3 rounded-xl shadow-md border border-slate-200 flex items-center gap-3 z-30"
+                                className="absolute right-0 top-12 z-30 flex items-center gap-3 rounded-xl border border-white/10 bg-slate-900/65 p-3 shadow-md"
                             >
-                                <div className="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center">
-                                    <span className="text-purple-600 text-xs font-bold">1:1</span>
+                                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-brand/10">
+                                    <span className="text-xs font-bold text-brand-lighter">1:1</span>
                                 </div>
                                 <div className="space-y-1">
-                                    <div className="h-2 w-16 bg-slate-200 rounded"></div>
-                                    <div className="h-1.5 w-10 bg-slate-300 rounded"></div>
+                                    <div className="h-2 w-16 rounded bg-slate-700"></div>
+                                    <div className="h-1.5 w-10 rounded bg-slate-800"></div>
                                 </div>
                             </motion.div>
 
                             <motion.div
                                 animate={{ y: [0, 10, 0] }}
                                 transition={{ duration: 4, repeat: Infinity, ease: "easeInOut", delay: 1 }}
-                                className="absolute bottom-16 left-0 bg-white p-4 rounded-2xl shadow-lg border border-slate-200 z-30 flex gap-4 items-center"
+                                className="absolute bottom-16 left-0 z-30 flex items-center gap-4 rounded-2xl border border-white/10 bg-slate-900/65 p-4 shadow-lg"
                             >
                                 <div className="relative">
-                                    <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-slate-200 shadow-sm ring-2 ring-white bg-slate-100">
+                                    <div className="h-12 w-12 overflow-hidden rounded-full border-2 border-slate-700 bg-slate-800 shadow-sm ring-2 ring-slate-900">
                                         <Image src="https://i.pravatar.cc/150?img=11" alt="Student" width={48} height={48} className="w-full h-full object-cover" />
                                     </div>
-                                    <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-purple-500 rounded-full border-2 border-white flex items-center justify-center">
+                                    <div className="absolute -bottom-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full border-2 border-slate-900 bg-brand">
                                         <ArrowRight className="w-3 h-3 text-white -rotate-45" />
                                     </div>
                                 </div>
                                 <div>
-                                    <p className="text-sm font-bold text-slate-900">Career breakthrough</p>
-                                    <p className="text-xs text-purple-600">Achieved in 3 months</p>
+                                    <p className="text-sm font-bold text-white">Career breakthrough</p>
+                                    <p className="text-xs text-brand-lighter">Achieved in 3 months</p>
                                 </div>
                             </motion.div>
                         </div>
@@ -176,21 +175,19 @@ export function HowItWorks() {
 
                                     {/* Icon Container */}
                                     <div className="relative shrink-0">
-                                        <div className={`w-16 h-16 rounded-2xl flex items-center justify-center border ${step.bgColor} ${step.borderColor} shadow-sm group-hover:scale-110 transition-all duration-300 bg-white`}>
-                                            <Icon className={`w-7 h-7 text-violet-600`} strokeWidth={2.5} />
+                                        <div className={`flex h-16 w-16 items-center justify-center rounded-2xl border bg-slate-900/60 shadow-sm transition-all duration-300 group-hover:scale-110 ${step.bgColor} ${step.borderColor}`}>
+                                            <Icon className="h-7 w-7 text-brand-lighter" strokeWidth={2.5} />
                                         </div>
-                                        {/* Number Badge */}
-                                        <div className="absolute -top-3 -right-3 w-7 h-7 rounded-full bg-slate-100 border-2 border-white flex items-center justify-center shadow-sm">
-                                            <span className="text-slate-900 text-xs font-bold">{index + 1}</span>
+                                        <div className="absolute -right-3 -top-3 flex h-7 w-7 items-center justify-center rounded-full border-2 border-slate-900 bg-slate-800 shadow-sm">
+                                            <span className="text-xs font-bold text-white">{index + 1}</span>
                                         </div>
                                     </div>
 
-                                    {/* Text Content */}
                                     <div className="pt-2">
-                                        <h3 className="text-xl font-bold text-slate-900 mb-2 group-hover:text-violet-600 transition-colors">
+                                        <h3 className="mb-2 text-xl font-bold text-white transition-colors group-hover:text-brand-lighter">
                                             {step.title}
                                         </h3>
-                                        <p className="text-slate-600 leading-relaxed text-base">
+                                        <p className="text-base leading-relaxed text-slate-400">
                                             {step.description}
                                         </p>
                                     </div>
@@ -203,4 +200,3 @@ export function HowItWorks() {
         </section>
     );
 }
-

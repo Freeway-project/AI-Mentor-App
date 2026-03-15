@@ -24,11 +24,11 @@ export function Navbar() {
     const isMentee = user && !isMentor && !isAdmin;
 
     return (
-        <nav className="sticky top-0 z-50 w-full border-b border-slate-800 bg-slate-950/80 backdrop-blur-md">
+        <nav className="sticky top-0 z-50 w-full border-b border-white/10 bg-slate-950/80 backdrop-blur-md">
             <div className="container mx-auto flex h-16 items-center justify-between px-4 md:px-6">
                 {/* Logo */}
                 <Link href="/" className="flex items-center space-x-2">
-                    <Rocket className="h-6 w-6 text-amber-500" />
+                    <Rocket className="h-6 w-6 text-brand-lighter" />
                     <span className="text-xl font-bold tracking-tight text-white">OWL Mentor</span>
                 </Link>
 
@@ -43,7 +43,7 @@ export function Navbar() {
                     {!user && (
                         <>
                             <Link
-                                href="#how-it-works"
+                                href="/how-it-works"
                                 className="text-sm font-medium text-slate-300 hover:text-white transition-colors"
                             >
                                 How it works
@@ -77,7 +77,7 @@ export function Navbar() {
                                 <span>{user.name}</span>
                             </div>
                             {isAdmin && (
-                                <Button variant="outline" size="sm" className="border-slate-700 text-slate-300 hover:bg-slate-800 hover:text-white" asChild>
+                                <Button variant="outline" size="sm" className="border-white/10 bg-transparent text-slate-300 hover:bg-slate-800 hover:text-white" asChild>
                                     <Link href="/admin">Admin</Link>
                                 </Button>
                             )}
@@ -92,7 +92,7 @@ export function Navbar() {
                             <Button variant="ghost" className="text-slate-300 hover:text-white hover:bg-slate-800" asChild>
                                 <Link href="/login">Log in</Link>
                             </Button>
-                            <Button className="bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold shadow-[0_0_15px_rgba(245,158,11,0.3)] transition-all hover:shadow-[0_0_20px_rgba(245,158,11,0.5)]" asChild>
+                            <Button className="bg-brand text-white font-bold shadow-[0_0_15px_rgba(124,58,237,0.25)] transition-all hover:bg-brand-light hover:shadow-[0_0_20px_rgba(124,58,237,0.4)]" asChild>
                                 <Link href="/register">Find a Mentor</Link>
                             </Button>
                         </>
@@ -101,7 +101,7 @@ export function Navbar() {
 
                 {/* Mobile Menu Button */}
                 <button
-                    className="md:hidden p-2 text-slate-300 hover:text-white hover:bg-slate-800 rounded-md"
+                    className="rounded-md p-2 text-slate-300 hover:bg-slate-800 hover:text-white md:hidden"
                     onClick={toggleMenu}
                 >
                     {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
@@ -110,7 +110,7 @@ export function Navbar() {
 
             {/* Mobile Navigation */}
             {isMenuOpen && (
-                <div className="md:hidden border-t border-slate-800 bg-slate-900 px-4 py-4 space-y-4 shadow-lg absolute w-full left-0">
+                <div className="absolute left-0 w-full space-y-4 border-t border-white/10 bg-slate-900 px-4 py-4 shadow-lg md:hidden">
                     <div className="flex flex-col space-y-4">
                         <Link
                             href="/browse"
@@ -143,10 +143,10 @@ export function Navbar() {
                             <>
                                 <div className="text-sm text-slate-300 py-2">{user.name} ({user.email})</div>
                                 {isAdmin && (
-                                    <Button variant="outline" className="w-full border-slate-700 text-slate-300 hover:bg-slate-800 hover:text-white" asChild>
-                                        <Link href="/admin" onClick={toggleMenu}>Admin Panel</Link>
-                                    </Button>
-                                )}
+                                <Button variant="outline" className="w-full border-white/10 bg-transparent text-slate-300 hover:bg-slate-800 hover:text-white" asChild>
+                                    <Link href="/admin" onClick={toggleMenu}>Admin Panel</Link>
+                                </Button>
+                            )}
 
                                 <Button variant="ghost" className="w-full justify-start text-slate-300 hover:text-white hover:bg-slate-800" onClick={() => { handleLogout(); toggleMenu(); }}>
                                     Log out
@@ -159,7 +159,7 @@ export function Navbar() {
                                         Log in
                                     </Link>
                                 </Button>
-                                <Button className="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold" asChild>
+                                <Button className="w-full bg-brand font-bold text-white hover:bg-brand-light" asChild>
                                     <Link href="/register" onClick={toggleMenu}>
                                         Find a Mentor
                                     </Link>

@@ -7,6 +7,14 @@ import { apiClient } from '@/lib/api-client';
 import { Navbar } from '@/components/layout/Navbar';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import {
+  AppPageHeader,
+  AppPageShell,
+  AppPanel,
+  AppStatusBadge,
+  appTheme,
+} from '@/components/ui/app-theme';
+import { cn } from '@/lib/utils';
 
 /** Suggested query chips shown below the search bar */
 const SUGGESTED_QUERIES = [
@@ -21,7 +29,7 @@ const SUGGESTED_QUERIES = [
 /** Skeleton card shown while loading */
 function MentorSkeleton() {
   return (
-    <div className="bg-slate-900/40 rounded-2xl border border-slate-800/80 p-6 animate-pulse">
+    <AppPanel className="animate-pulse p-6">
       <div className="flex items-start gap-4">
         <div className="w-12 h-12 rounded-full bg-slate-800 flex-shrink-0" />
         <div className="flex-1 space-y-2">
@@ -36,7 +44,7 @@ function MentorSkeleton() {
         <div className="h-4 w-20 bg-slate-800 rounded" />
         <div className="h-4 w-16 bg-slate-800 rounded" />
       </div>
-    </div>
+    </AppPanel>
   );
 }
 
@@ -73,44 +81,33 @@ export default function BrowsePage() {
   };
 
   return (
-    <div
-      className="min-h-screen flex flex-col relative overflow-hidden"
-      style={{ background: 'linear-gradient(135deg, #0a0a1a 0%, #0d1117 30%, #0f0b1e 60%, #0a0e1a 100%)' }}
-    >
-      {/* Background decoration */}
-      <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute inset-0 opacity-[0.1]" style={{ backgroundImage: 'radial-gradient(circle, #475569 1px, transparent 1px)', backgroundSize: '36px 36px' }} />
-        <div className="absolute top-10 right-10 w-[500px] h-[500px] rounded-full bg-violet-600/5 blur-[120px]" />
-        <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-violet-500/30 to-transparent" />
-      </div>
-
+    <AppPageShell>
       <Navbar />
 
-      <div className="flex-1 relative z-10 w-full pt-8 pb-16">
-        <div className="container mx-auto px-4 md:px-6">
-          <div className="mb-10 text-center space-y-3">
-            <h1 className="text-4xl font-bold tracking-tight text-white mb-2">Find Your Mentor</h1>
-            <p className="text-lg text-slate-400 max-w-2xl mx-auto">
-              Describe what you want to learn — our AI matches you with the right mentor
-            </p>
-          </div>
+      <div className={cn(appTheme.content, 'flex-1 py-8 pb-16')}>
+        <div className={cn(appTheme.container, 'space-y-10')}>
+          <AppPageHeader
+            align="center"
+            title="Find Your Mentor"
+            description="Describe what you want to learn and the same shared search surface will match you with the right mentor."
+            className="mb-2"
+          />
 
-          {/* Search */}
-          <form onSubmit={handleSearch} className="mb-4 flex gap-3 max-w-3xl mx-auto">
+          <form onSubmit={handleSearch} className="mx-auto mb-4 flex max-w-3xl gap-3">
             <div className="relative flex-1 group">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-500 group-focus-within:text-violet-400 transition-colors" />
+              <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-500 transition-colors group-focus-within:text-brand-lighter" />
               <input
                 type="text"
                 value={query}
                 onChange={e => setQuery(e.target.value)}
-                className="w-full pl-12 pr-4 py-3.5 border border-slate-700/50 bg-slate-900/50 backdrop-blur-md rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500/50 text-white placeholder:text-slate-500 transition-all shadow-inner"
+                className={cn(appTheme.input, 'py-3.5 pl-12 pr-4')}
                 placeholder="Try: 'I want to learn system design' or 'I'm weak at TypeScript'"
               />
             </div>
             <Button
               type="submit"
               size="lg"
-              className="h-[52px] px-6 bg-violet-600 hover:bg-violet-500 text-white rounded-xl shadow-[0_0_20px_rgba(139,92,246,0.2)] flex items-center gap-2"
+              className="h-[52px] gap-2 rounded-xl bg-brand px-6 text-white shadow-[0_0_20px_rgba(124,58,237,0.22)] hover:bg-brand-light"
             >
               {query.length > 3 ? <Sparkles className="w-4 h-4" /> : <Search className="w-4 h-4" />}
               Search
@@ -123,7 +120,7 @@ export default function BrowsePage() {
               <button
                 key={chip}
                 onClick={() => handleChip(chip)}
-                className="text-xs px-3 py-1.5 rounded-full border border-slate-700 text-slate-400 hover:border-violet-500 hover:text-violet-400 transition-colors bg-slate-900/30"
+                className="rounded-full border border-white/10 bg-slate-900/35 px-3 py-1.5 text-xs text-slate-300 transition-colors hover:border-brand/40 hover:text-white"
               >
                 {chip}
               </button>
@@ -133,9 +130,9 @@ export default function BrowsePage() {
           {/* Semantic indicator */}
           {isSemantic && !loading && mentors.length > 0 && (
             <div className="flex items-center justify-center gap-2 mb-6">
-              <span className="flex items-center gap-1.5 text-xs text-violet-400 bg-violet-500/10 border border-violet-500/20 px-3 py-1.5 rounded-full">
+              <AppStatusBadge tone="brand" className="gap-1.5 px-3 py-1.5">
                 <Sparkles className="w-3 h-3" /> AI-matched results for &ldquo;{query}&rdquo;
-              </span>
+              </AppStatusBadge>
             </div>
           )}
 
@@ -154,24 +151,24 @@ export default function BrowsePage() {
                 <Link
                   key={mentor.id}
                   href={`/mentors/${mentor.id}`}
-                  className="group block bg-slate-900/40 backdrop-blur-md rounded-2xl border border-slate-800/80 hover:border-violet-500/30 hover:shadow-[0_0_30px_rgba(139,92,246,0.08)] transition-all duration-300 p-6 relative overflow-hidden"
+                  className="group relative block overflow-hidden rounded-2xl border border-white/10 bg-slate-900/50 p-6 backdrop-blur-md transition-all duration-300 hover:border-brand/30 hover:bg-slate-900/70 hover:shadow-[0_0_30px_rgba(124,58,237,0.08)]"
                 >
-                  <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-violet-500/0 to-transparent group-hover:via-violet-500/50 transition-all duration-300" />
+                  <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-brand/0 to-transparent transition-all duration-300 group-hover:via-brand/50" />
 
                   <div className="flex items-start gap-4">
-                    <div className="w-12 h-12 rounded-full bg-violet-500/10 border border-violet-500/20 flex items-center justify-center text-violet-400 font-semibold text-lg flex-shrink-0 shadow-inner">
+                    <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full border border-brand/20 bg-brand/10 text-lg font-semibold text-brand-lighter shadow-inner">
                       {mentor.name?.charAt(0)?.toUpperCase()}
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-start justify-between gap-2">
-                        <h3 className="font-semibold text-white truncate group-hover:text-violet-300 transition-colors">
+                        <h3 className="truncate font-semibold text-white transition-colors group-hover:text-brand-lighter">
                           {mentor.name}
                         </h3>
                         {/* Match score badge — only shown for semantic results */}
                         {mentor.matchScore != null && (
-                          <span className="flex-shrink-0 text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-violet-500/10 text-violet-400 border border-violet-500/20">
+                          <AppStatusBadge tone="brand" className="flex-shrink-0 px-1.5 py-0.5 text-[10px]">
                             {Math.round(mentor.matchScore * 100)}% match
-                          </span>
+                          </AppStatusBadge>
                         )}
                       </div>
                       {mentor.headline && (
@@ -183,7 +180,7 @@ export default function BrowsePage() {
                   {mentor.specialties?.length > 0 && (
                     <div className="flex flex-wrap gap-1.5 mt-5">
                       {mentor.specialties.slice(0, 4).map((s: string) => (
-                        <Badge key={s} variant="outline" className="text-xs bg-slate-800/50 text-slate-300 border-slate-700/50">
+                        <Badge key={s} variant="outline" className="border-white/10 bg-slate-800/70 text-xs text-slate-300">
                           {s}
                         </Badge>
                       ))}
@@ -203,7 +200,7 @@ export default function BrowsePage() {
                       )}
                     </div>
                     {mentor.hourlyRate && (
-                      <span className="font-semibold text-amber-500 bg-amber-500/10 px-2.5 py-1 rounded-md">
+                      <span className="rounded-md bg-amber-500/10 px-2.5 py-1 font-semibold text-amber-300">
                         ${mentor.hourlyRate}/hr
                       </span>
                     )}
@@ -214,6 +211,6 @@ export default function BrowsePage() {
           )}
         </div>
       </div>
-    </div>
+    </AppPageShell>
   );
 }

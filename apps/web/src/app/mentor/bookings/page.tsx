@@ -3,9 +3,18 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/lib/auth-context';
 import { apiClient } from '@/lib/api-client';
-import { Calendar, Clock, Video, RotateCcw, X, DollarSign } from 'lucide-react';
+import { Calendar, Clock, Video, X, DollarSign } from 'lucide-react';
 import Link from 'next/link';
 import { toast } from 'sonner';
+import {
+  AppPageHeader,
+  AppPanel,
+  AppSectionLabel,
+  AppStatCard,
+  AppStatusBadge,
+  appTheme,
+} from '@/components/ui/app-theme';
+import { cn } from '@/lib/utils';
 
 function formatDateTime(iso: string | Date) {
   return new Date(iso).toLocaleString([], {
@@ -18,17 +27,17 @@ function formatDateTime(iso: string | Date) {
 }
 
 function StatusBadge({ status }: { status: string }) {
-  const styles: Record<string, string> = {
-    booked: 'bg-violet-500/10 text-violet-400 border-violet-500/20',
-    confirmed: 'bg-purple-500/10 text-purple-400 border-purple-500/20',
-    completed: 'bg-slate-700/50 text-slate-400 border-slate-700',
-    cancelled: 'bg-red-500/10 text-red-400 border-red-500/20',
-    in_progress: 'bg-amber-500/10 text-amber-400 border-amber-500/20',
+  const tones: Record<string, 'brand' | 'purple' | 'slate' | 'red' | 'amber'> = {
+    booked: 'brand',
+    confirmed: 'purple',
+    completed: 'slate',
+    cancelled: 'red',
+    in_progress: 'amber',
   };
   return (
-    <span className={`text-xs font-medium px-2 py-0.5 rounded-full border ${styles[status] ?? styles.completed}`}>
+    <AppStatusBadge tone={tones[status] ?? 'slate'}>
       {status.replace('_', ' ')}
-    </span>
+    </AppStatusBadge>
   );
 }
 
@@ -78,66 +87,40 @@ export default function MentorBookingsPage() {
 
   if (loading) {
     return (
-      <div className="p-8 max-w-5xl mx-auto">
+      <div className="mx-auto max-w-5xl p-8">
         <p className="text-slate-500 text-sm animate-pulse">Loading sessions...</p>
       </div>
     );
   }
 
   return (
-    <div className="p-6 md:p-8 max-w-5xl mx-auto space-y-8">
-      {/* Header */}
-      <div>
-        <h1 className="text-2xl font-bold text-white">Your Bookings</h1>
-        <p className="text-slate-400 text-sm mt-1">Manage all your scheduled and past sessions</p>
-      </div>
+    <div className="mx-auto max-w-5xl space-y-8 p-6 md:p-8">
+      <AppPageHeader
+        title="Your Bookings"
+        description="Manage scheduled sessions, join calls, and keep your calendar clean from one shared dashboard layout."
+      />
 
-      {/* Stats */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="bg-slate-900 rounded-xl border border-slate-800 p-5 flex items-center gap-4">
-          <div className="w-10 h-10 rounded-xl bg-violet-500/10 flex items-center justify-center">
-            <Calendar className="w-5 h-5 text-violet-400" />
-          </div>
-          <div>
-            <p className="text-xs text-slate-500 uppercase tracking-wide">Upcoming</p>
-            <p className="text-2xl font-bold text-white">{upcoming.length}</p>
-          </div>
-        </div>
-        <div className="bg-slate-900 rounded-xl border border-slate-800 p-5 flex items-center gap-4">
-          <div className="w-10 h-10 rounded-xl bg-slate-800 flex items-center justify-center">
-            <Clock className="w-5 h-5 text-slate-400" />
-          </div>
-          <div>
-            <p className="text-xs text-slate-500 uppercase tracking-wide">Completed</p>
-            <p className="text-2xl font-bold text-white">{past.length}</p>
-          </div>
-        </div>
-        <div className="bg-slate-900 rounded-xl border border-slate-800 p-5 flex items-center gap-4">
-          <div className="w-10 h-10 rounded-xl bg-emerald-500/10 flex items-center justify-center">
-            <DollarSign className="w-5 h-5 text-emerald-400" />
-          </div>
-          <div>
-            <p className="text-xs text-slate-500 uppercase tracking-wide">Total Earned</p>
-            <p className="text-2xl font-bold text-white">
-              ${past.reduce((sum: number, s: any) => sum + (s.amountPaid ?? 0), 0).toFixed(2)}
-            </p>
-          </div>
-        </div>
+        <AppStatCard icon={<Calendar className="h-5 w-5" />} label="Upcoming" value={upcoming.length} tone="brand" />
+        <AppStatCard icon={<Clock className="h-5 w-5" />} label="Completed" value={past.length} tone="slate" />
+        <AppStatCard
+          icon={<DollarSign className="h-5 w-5" />}
+          label="Total Earned"
+          value={`$${past.reduce((sum: number, s: any) => sum + (s.amountPaid ?? 0), 0).toFixed(2)}`}
+          tone="emerald"
+        />
       </div>
 
-      {/* Upcoming sessions */}
       <section>
-        <h2 className="text-xs font-semibold text-slate-500 uppercase tracking-widest mb-4">
-          Upcoming Sessions
-        </h2>
+        <AppSectionLabel className="mb-4">Upcoming Sessions</AppSectionLabel>
         {upcoming.length === 0 ? (
-          <div className="bg-slate-900 rounded-2xl border border-slate-800 p-8 text-center">
+          <AppPanel className="p-8 text-center">
             <p className="text-slate-400">No upcoming sessions right now.</p>
-          </div>
+          </AppPanel>
         ) : (
           <div className="space-y-4">
             {upcoming.map(session => (
-              <div key={session.id} className="bg-slate-900 rounded-xl border border-slate-800 p-5">
+              <AppPanel key={session.id} className="p-5">
                 <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
                   <div className="space-y-1.5">
                     <StatusBadge status={session.status} />
@@ -159,7 +142,7 @@ export default function MentorBookingsPage() {
                         }
                         target={session.dailyRoomUrl ? undefined : "_blank"}
                         rel={session.dailyRoomUrl ? undefined : "noopener noreferrer"}
-                        className="inline-flex items-center gap-1.5 mt-2 px-4 py-2 bg-violet-600 hover:bg-violet-500 text-white text-sm font-medium rounded-xl transition-all shadow-lg shadow-violet-500/20 w-fit"
+                        className="mt-2 inline-flex w-fit items-center gap-1.5 rounded-xl bg-brand px-4 py-2 text-sm font-medium text-white transition-all shadow-lg shadow-brand/20 hover:bg-brand-light"
                       >
                         <Video className="w-4 h-4" /> 
                         {session.dailyRoomUrl ? 'Join Video Call' : 'Join External Meeting'}
@@ -173,7 +156,7 @@ export default function MentorBookingsPage() {
                         setCancellingId(cancellingId === session.id ? null : session.id);
                         setCancelReason('');
                       }}
-                      className="text-xs px-3 py-1.5 rounded-lg border border-slate-700 text-slate-300 hover:border-red-500 hover:text-red-400 transition-colors flex items-center gap-1"
+                      className="flex items-center gap-1 rounded-lg border border-white/10 px-3 py-1.5 text-xs text-slate-300 transition-colors hover:border-red-500 hover:text-red-300"
                     >
                       <X className="w-3 h-3" /> Cancel
                     </button>
@@ -189,43 +172,40 @@ export default function MentorBookingsPage() {
                       value={cancelReason}
                       onChange={e => setCancelReason(e.target.value)}
                       placeholder="e.g. Personal emergency"
-                      className="w-full bg-slate-800 border border-slate-700 text-slate-200 text-sm rounded-lg px-3 py-2 focus:outline-none focus:border-red-500"
+                      className={cn(appTheme.input, 'px-3 py-2 text-sm focus:ring-red-500/30')}
                     />
                     <div className="flex gap-2">
                       <button
                         onClick={() => handleCancel(session.id)}
-                        className="px-4 py-2 bg-red-600 hover:bg-red-500 text-white text-sm font-medium rounded-lg transition-colors"
+                        className="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-red-500"
                       >
                         Confirm Cancel
                       </button>
                       <button
                         onClick={() => { setCancellingId(null); setCancelReason(''); }}
-                        className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-sm rounded-lg transition-colors"
+                        className="rounded-lg bg-slate-800 px-4 py-2 text-sm text-slate-300 transition-colors hover:bg-slate-700"
                       >
                         Keep session
                       </button>
                     </div>
                   </div>
                 )}
-              </div>
+              </AppPanel>
             ))}
           </div>
         )}
       </section>
 
-      {/* Past sessions */}
       <section>
-        <h2 className="text-xs font-semibold text-slate-500 uppercase tracking-widest mb-4">
-          Past Sessions
-        </h2>
+        <AppSectionLabel className="mb-4">Past Sessions</AppSectionLabel>
         {past.length === 0 ? (
-          <div className="bg-slate-900 rounded-2xl border border-slate-800 p-8 text-center">
+          <AppPanel className="p-8 text-center">
             <p className="text-slate-400 font-medium">No sessions yet</p>
-          </div>
+          </AppPanel>
         ) : (
           <div className="space-y-3">
             {past.map(session => (
-              <div key={session.id} className="bg-slate-900 rounded-xl border border-slate-800 p-4 flex items-center justify-between gap-4">
+              <AppPanel key={session.id} className="flex items-center justify-between gap-4 p-4">
                 <div>
                   <p className="font-medium text-slate-200 text-sm">{session.title}</p>
                   {session.menteeName && (
@@ -236,7 +216,7 @@ export default function MentorBookingsPage() {
                   </p>
                 </div>
                 <StatusBadge status={session.status} />
-              </div>
+              </AppPanel>
             ))}
           </div>
         )}

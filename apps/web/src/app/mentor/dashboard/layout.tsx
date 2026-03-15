@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth-context';
 import { MentorSidebar } from '@/components/layout/MentorSidebar';
 import { apiClient } from '@/lib/api-client';
+import { appTheme } from '@/components/ui/app-theme';
 
 export default function MentorDashboardLayout({ children }: { children: React.ReactNode }) {
     const { user, loading } = useAuth();
@@ -37,7 +38,7 @@ export default function MentorDashboardLayout({ children }: { children: React.Re
     if (loading || !profileLoaded) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-slate-950">
-                <div className="w-8 h-8 border-4 border-violet-500 border-t-transparent rounded-full animate-spin" />
+                <div className={appTheme.spinner} />
             </div>
         );
     }

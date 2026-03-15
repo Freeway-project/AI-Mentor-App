@@ -36,14 +36,14 @@ export function ProgressPath() {
     const ctaOpacity = useTransform(scrollYProgress, [0.8, 0.9], [0, 1]);
 
     return (
-        <section className="py-24 bg-slate-50 relative overflow-hidden" ref={containerRef}>
+        <section className="relative overflow-hidden bg-transparent py-24" ref={containerRef}>
             <div className="container mx-auto px-4 md:px-6">
 
                 <div className="text-center mb-16 space-y-4">
-                    <h2 className="text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">
+                    <h2 className="text-3xl font-bold tracking-tight text-white sm:text-4xl">
                         Your Journey to Mastery
                     </h2>
-                    <p className="text-lg text-slate-600 max-w-2xl mx-auto">
+                    <p className="mx-auto max-w-2xl text-lg text-slate-400">
                         Three simple steps between you and your next career breakthrough.
                     </p>
                 </div>
@@ -51,12 +51,12 @@ export function ProgressPath() {
                 <div className="max-w-3xl mx-auto relative pl-8 md:pl-0">
 
                     {/* The Background Line (unfilled) */}
-                    <div className="absolute left-[39px] md:left-1/2 md:-ml-[2px] top-0 bottom-24 w-1 bg-slate-200 rounded-full" />
+                    <div className="absolute left-[39px] top-0 bottom-24 w-1 rounded-full bg-slate-800 md:left-1/2 md:-ml-[2px]" />
 
                     {/* The Animated "Filling" Line */}
                     <motion.div
                         style={{ height: pathHeight }}
-                        className="absolute left-[39px] md:left-1/2 md:-ml-[2px] top-0 w-1 bg-violet-500 rounded-full origin-top shadow-[0_0_15px_rgba(139,92,246,0.3)] z-0"
+                        className="absolute left-[39px] top-0 z-0 w-1 origin-top rounded-full bg-brand shadow-[0_0_15px_rgba(124,58,237,0.3)] md:left-1/2 md:-ml-[2px]"
                     />
 
                     <div className="space-y-32 relative z-10 pb-32">
@@ -68,29 +68,28 @@ export function ProgressPath() {
                         >
                             {/* Desktop: Text on Left */}
                             <div className="hidden md:block flex-1 text-right">
-                                <h3 className="text-2xl font-bold text-slate-900 mb-2">1. Find Your Mentor</h3>
-                                <p className="text-slate-600">Browse through vetted industry experts. Filter by skill, company, or role to find your perfect match.</p>
+                                <h3 className="mb-2 text-2xl font-bold text-white">1. Find Your Mentor</h3>
+                                <p className="text-slate-400">Browse through vetted industry experts. Filter by skill, company, or role to find your perfect match.</p>
                             </div>
 
                             {/* Center Node */}
                             <motion.div
                                 style={{ borderColor: step1Color, color: step1Color }}
-                                className="w-12 h-12 rounded-full border-4 bg-white flex items-center justify-center shrink-0 shadow-sm relative z-20 transition-colors"
+                                className="relative z-20 flex h-12 w-12 shrink-0 items-center justify-center rounded-full border-4 bg-slate-900 shadow-sm transition-colors"
                             >
                                 <Search className="w-5 h-5" />
                             </motion.div>
 
                             {/* Mobile: Text on Right */}
                             <div className="flex-1 md:text-left">
-                                <h3 className="text-2xl font-bold text-slate-900 mb-2 md:hidden">1. Find Your Mentor</h3>
-                                <p className="text-slate-600 md:hidden">Browse through vetted industry experts. Filter by skill, company, or role to find your perfect match.</p>
-                                {/* Visual Card */}
-                                <div className="p-4 bg-white border border-slate-200 rounded-xl shadow-sm md:w-[90%] md:ml-auto">
+                                <h3 className="mb-2 text-2xl font-bold text-white md:hidden">1. Find Your Mentor</h3>
+                                <p className="text-slate-400 md:hidden">Browse through vetted industry experts. Filter by skill, company, or role to find your perfect match.</p>
+                                <div className="rounded-xl border border-white/10 bg-slate-900/60 p-4 shadow-sm md:ml-auto md:w-[90%]">
                                     <div className="flex gap-4 items-center">
-                                        <div className="w-12 h-12 bg-violet-100 rounded-full flex items-center justify-center text-violet-600 font-bold shrink-0 text-lg">SJ</div>
+                                        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-brand/10 text-lg font-bold text-brand-lighter">SJ</div>
                                         <div className="space-y-2 flex-1">
-                                            <div className="h-4 w-24 bg-slate-200 rounded"></div>
-                                            <div className="h-3 w-32 bg-slate-100 rounded"></div>
+                                            <div className="h-4 w-24 rounded bg-slate-700"></div>
+                                            <div className="h-3 w-32 rounded bg-slate-800"></div>
                                         </div>
                                     </div>
                                 </div>
@@ -104,28 +103,27 @@ export function ProgressPath() {
                         >
                             {/* Desktop: Text on Right */}
                             <div className="hidden md:block flex-1 text-left">
-                                <h3 className="text-2xl font-bold text-slate-900 mb-2">2. Pick a Time</h3>
-                                <p className="text-slate-600">View real-time availability. Select a slot that works for your schedule without the back-and-forth emails.</p>
+                                <h3 className="mb-2 text-2xl font-bold text-white">2. Pick a Time</h3>
+                                <p className="text-slate-400">View real-time availability. Select a slot that works for your schedule without the back-and-forth emails.</p>
                             </div>
 
                             {/* Center Node */}
                             <motion.div
                                 style={{ borderColor: step2Color, color: step2Color }}
-                                className="w-12 h-12 rounded-full border-4 bg-white flex items-center justify-center shrink-0 shadow-sm relative z-20 transition-colors"
+                                className="relative z-20 flex h-12 w-12 shrink-0 items-center justify-center rounded-full border-4 bg-slate-900 shadow-sm transition-colors"
                             >
                                 <Calendar className="w-5 h-5" />
                             </motion.div>
 
                             {/* Mobile: Text on Right */}
                             <div className="flex-1 text-left md:text-right">
-                                <h3 className="text-2xl font-bold text-slate-900 mb-2 md:hidden">2. Pick a Time</h3>
-                                <p className="text-slate-600 md:hidden">View real-time availability. Select a slot that works for your schedule without the back-and-forth emails.</p>
-                                {/* Visual Card */}
-                                <div className="p-4 bg-white border border-slate-200 rounded-xl shadow-sm md:w-[90%] md:mr-auto">
+                                <h3 className="mb-2 text-2xl font-bold text-white md:hidden">2. Pick a Time</h3>
+                                <p className="text-slate-400 md:hidden">View real-time availability. Select a slot that works for your schedule without the back-and-forth emails.</p>
+                                <div className="rounded-xl border border-white/10 bg-slate-900/60 p-4 shadow-sm md:mr-auto md:w-[90%]">
                                     <div className="grid grid-cols-3 gap-2">
-                                        <div className="bg-slate-50 border border-slate-200 py-2 rounded text-center text-xs text-slate-500">9:00 AM</div>
-                                        <div className="bg-violet-600 py-2 rounded text-center text-xs text-white font-bold shadow-md shadow-violet-500/20">10:00 AM</div>
-                                        <div className="bg-slate-50 border border-slate-200 py-2 rounded text-center text-xs text-slate-500">11:00 AM</div>
+                                        <div className="rounded border border-white/10 bg-slate-800 py-2 text-center text-xs text-slate-500">9:00 AM</div>
+                                        <div className="rounded bg-brand py-2 text-center text-xs font-bold text-white shadow-md shadow-brand/20">10:00 AM</div>
+                                        <div className="rounded border border-white/10 bg-slate-800 py-2 text-center text-xs text-slate-500">11:00 AM</div>
                                     </div>
                                 </div>
                             </div>
@@ -138,32 +136,31 @@ export function ProgressPath() {
                         >
                             {/* Desktop: Text on Left */}
                             <div className="hidden md:block flex-1 text-right">
-                                <h3 className="text-2xl font-bold text-slate-900 mb-2">3. Book & Learn</h3>
-                                <p className="text-slate-600">Confirm your session to instantly get a Google Meet link. Join the call and start accelerating your growth.</p>
+                                <h3 className="mb-2 text-2xl font-bold text-white">3. Book & Learn</h3>
+                                <p className="text-slate-400">Confirm your session to instantly get a Google Meet link. Join the call and start accelerating your growth.</p>
                             </div>
 
                             {/* Center Node */}
                             <motion.div
                                 style={{ borderColor: step3Color, color: step3Color }}
-                                className="w-12 h-12 rounded-full border-4 bg-white flex items-center justify-center shrink-0 shadow-[0_0_15px_rgba(16,185,129,0.2)] relative z-20 transition-colors"
+                                className="relative z-20 flex h-12 w-12 shrink-0 items-center justify-center rounded-full border-4 bg-slate-900 shadow-[0_0_15px_rgba(124,58,237,0.2)] transition-colors"
                             >
                                 <Video className="w-5 h-5 flex-shrink-0 ml-0.5" />
                             </motion.div>
 
                             {/* Mobile: Text on Right */}
                             <div className="flex-1 md:text-left">
-                                <h3 className="text-2xl font-bold text-slate-900 mb-2 md:hidden">3. Book & Learn</h3>
-                                <p className="text-slate-600 md:hidden">Confirm your session to instantly get a Google Meet link. Join the call and start accelerating your growth.</p>
-                                {/* Visual Card */}
-                                <div className="p-4 bg-white border border-slate-200 rounded-xl shadow-sm md:w-[90%] md:ml-auto flex items-center gap-3">
-                                    <div className="w-10 h-10 rounded-lg bg-purple-100 flex items-center justify-center shrink-0 text-purple-600">
+                                <h3 className="mb-2 text-2xl font-bold text-white md:hidden">3. Book & Learn</h3>
+                                <p className="text-slate-400 md:hidden">Confirm your session to instantly get a Google Meet link. Join the call and start accelerating your growth.</p>
+                                <div className="flex items-center gap-3 rounded-xl border border-white/10 bg-slate-900/60 p-4 shadow-sm md:ml-auto md:w-[90%]">
+                                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-brand/10 text-brand-lighter">
                                         <Video className="w-5 h-5" />
                                     </div>
                                     <div className="flex-1">
-                                        <div className="h-3 w-1/2 bg-slate-200 rounded mb-2"></div>
-                                        <div className="h-2 w-1/3 bg-slate-100 rounded"></div>
+                                        <div className="mb-2 h-3 w-1/2 rounded bg-slate-700"></div>
+                                        <div className="h-2 w-1/3 rounded bg-slate-800"></div>
                                     </div>
-                                    <div className="px-2 py-1 bg-purple-50 text-purple-700 text-[10px] border border-purple-200 font-bold rounded uppercase">Confirmed</div>
+                                    <div className="rounded border border-brand/20 bg-brand/10 px-2 py-1 text-[10px] font-bold uppercase text-brand-lighter">Confirmed</div>
                                 </div>
                             </div>
                         </motion.div>
@@ -176,7 +173,7 @@ export function ProgressPath() {
                     >
                         <Button
                             size="lg"
-                            className="w-full bg-violet-600 hover:bg-violet-700 text-white shadow-[0_0_20px_rgba(139,92,246,0.3)] rounded-full h-14 text-lg font-bold group"
+                            className="group h-14 w-full rounded-full bg-brand text-lg font-bold text-white shadow-[0_0_20px_rgba(124,58,237,0.3)] hover:bg-brand-light"
                             asChild
                         >
                             <Link href="/find-mentor">

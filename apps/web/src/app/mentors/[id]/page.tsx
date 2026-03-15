@@ -9,6 +9,8 @@ import { Navbar } from '@/components/layout/Navbar';
 import { Badge } from '@/components/ui/badge';
 import { SlotPicker } from '@/components/booking/SlotPicker';
 import { BookingModal } from '@/components/booking/BookingModal';
+import { AppPageShell, AppPanel, AppSectionLabel, appTheme } from '@/components/ui/app-theme';
+import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 
 const DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
@@ -59,46 +61,39 @@ export default function MentorProfilePage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex flex-col" style={{ background: 'linear-gradient(135deg, #0a0a1a 0%, #0d1117 30%, #0f0b1e 60%, #0a0e1a 100%)' }}>
+      <AppPageShell>
         <Navbar />
-        <div className="flex-1 flex items-center justify-center">
+        <div className={cn(appTheme.content, 'flex flex-1 items-center justify-center')}>
           <p className="text-slate-500">Loading...</p>
         </div>
-      </div>
+      </AppPageShell>
     );
   }
 
   if (error || !mentor) {
     return (
-      <div className="min-h-screen flex flex-col" style={{ background: 'linear-gradient(135deg, #0a0a1a 0%, #0d1117 30%, #0f0b1e 60%, #0a0e1a 100%)' }}>
+      <AppPageShell>
         <Navbar />
-        <div className="flex-1 flex items-center justify-center">
+        <div className={cn(appTheme.content, 'flex flex-1 items-center justify-center')}>
           <p className="text-red-400">{error || 'Mentor not found'}</p>
         </div>
-      </div>
+      </AppPageShell>
     );
   }
 
   return (
-    <div className="min-h-screen flex flex-col relative" style={{ background: 'linear-gradient(135deg, #0a0a1a 0%, #0d1117 30%, #0f0b1e 60%, #0a0e1a 100%)' }}>
-      {/* Background decorations */}
-      <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute inset-0 opacity-[0.07]" style={{ backgroundImage: 'radial-gradient(circle, #475569 1px, transparent 1px)', backgroundSize: '36px 36px' }} />
-        <div className="absolute top-0 right-1/4 w-[500px] h-[500px] rounded-full bg-violet-600/5 blur-[120px]" />
-        <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-violet-500/30 to-transparent" />
-      </div>
-
+    <AppPageShell>
       <Navbar />
 
-      <div className="flex-1 relative z-10 w-full py-8 md:py-12">
-        <div className="container mx-auto max-w-5xl px-4 md:px-6 space-y-6">
+      <div className={cn(appTheme.content, 'flex-1 py-8 md:py-12')}>
+        <div className={cn(appTheme.container, 'max-w-5xl space-y-6')}>
 
           {/* ── Profile hero ── */}
-          <div className="bg-slate-900/50 backdrop-blur-md rounded-2xl border border-slate-800/80 p-6 md:p-8 relative overflow-hidden shadow-xl">
-            <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-violet-500/20 to-transparent" />
+          <AppPanel className="relative overflow-hidden p-6 md:p-8">
+            <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-brand/20 to-transparent" />
             <div className="flex flex-col sm:flex-row items-start gap-6">
               {/* Avatar */}
-              <div className="w-20 h-20 md:w-24 md:h-24 rounded-2xl bg-gradient-to-br from-violet-600/20 to-violet-500/10 border border-violet-500/20 flex items-center justify-center text-violet-300 font-bold text-3xl flex-shrink-0">
+              <div className="flex h-20 w-20 flex-shrink-0 items-center justify-center rounded-2xl border border-brand/20 bg-gradient-to-br from-brand/20 to-brand-light/10 text-3xl font-bold text-brand-lighter md:h-24 md:w-24">
                 {mentor.name?.charAt(0)?.toUpperCase()}
               </div>
 
@@ -111,7 +106,7 @@ export default function MentorProfilePage() {
                     )}
                   </div>
                   {mentor.hourlyRate && (
-                    <span className="text-lg font-bold text-amber-400 bg-amber-500/10 border border-amber-500/20 px-3 py-1 rounded-lg flex-shrink-0">
+                    <span className="flex-shrink-0 rounded-lg border border-amber-500/20 bg-amber-500/10 px-3 py-1 text-lg font-bold text-amber-300">
                       ${mentor.hourlyRate}<span className="text-sm font-normal text-amber-500/70">/hr</span>
                     </span>
                   )}
@@ -133,7 +128,7 @@ export default function MentorProfilePage() {
                     </span>
                   )}
                   {mentor.verified && (
-                    <span className="flex items-center gap-1.5 text-emerald-400">
+                    <span className="flex items-center gap-1.5 text-emerald-300">
                       <CheckCircle className="w-3.5 h-3.5" />
                       Verified
                     </span>
@@ -150,13 +145,13 @@ export default function MentorProfilePage() {
                 {mentor.specialties?.length > 0 && (
                   <div className="flex flex-wrap gap-2 mt-4">
                     {mentor.specialties.map((s: string) => (
-                      <Badge key={s} variant="outline" className="bg-slate-800/50 text-slate-300 border-slate-700/50 text-xs">{s}</Badge>
+                      <Badge key={s} variant="outline" className="border-white/10 bg-slate-800/70 text-xs text-slate-300">{s}</Badge>
                     ))}
                   </div>
                 )}
               </div>
             </div>
-          </div>
+          </AppPanel>
 
           {/* ── Two-column layout ── */}
           <div className="grid md:grid-cols-5 gap-6 items-start">
@@ -164,47 +159,47 @@ export default function MentorProfilePage() {
             {/* ── Left: About / Expertise / Languages / Schedule ── */}
             <div className="md:col-span-3 space-y-5">
               {mentor.bio && (
-                <section className="bg-slate-900/40 backdrop-blur-md rounded-2xl border border-slate-800/80 p-6">
+                <AppPanel className="p-6">
                   <h2 className="text-base font-semibold text-white mb-3">About</h2>
                   <p className="text-slate-300 leading-relaxed whitespace-pre-wrap text-sm">{mentor.bio}</p>
-                </section>
+                </AppPanel>
               )}
 
               {mentor.introVideoUrl && (
-                <section className="bg-slate-900/40 backdrop-blur-md rounded-2xl border border-slate-800/80 p-6">
+                <AppPanel className="p-6">
                   <h2 className="text-base font-semibold text-white mb-3">Intro Video</h2>
                   <video
                     src={mentor.introVideoUrl}
                     controls
                     className="w-full rounded-xl bg-slate-800/60 border border-slate-700/50"
                   />
-                </section>
+                </AppPanel>
               )}
 
               {mentor.expertise?.length > 0 && (
-                <section className="bg-slate-900/40 backdrop-blur-md rounded-2xl border border-slate-800/80 p-6">
+                <AppPanel className="p-6">
                   <h2 className="text-base font-semibold text-white mb-3">Expertise</h2>
                   <div className="flex flex-wrap gap-2">
                     {mentor.expertise.map((e: string) => (
-                      <Badge key={e} variant="outline" className="bg-slate-800/50 text-slate-300 border-slate-700/50 text-xs">{e}</Badge>
+                      <Badge key={e} variant="outline" className="border-white/10 bg-slate-800/70 text-xs text-slate-300">{e}</Badge>
                     ))}
                   </div>
-                </section>
+                </AppPanel>
               )}
 
               {mentor.languages?.length > 0 && (
-                <section className="bg-slate-900/40 backdrop-blur-md rounded-2xl border border-slate-800/80 p-6">
+                <AppPanel className="p-6">
                   <h2 className="text-base font-semibold text-white mb-3">Languages</h2>
                   <div className="flex flex-wrap gap-2">
                     {mentor.languages.map((l: string) => (
-                      <Badge key={l} variant="outline" className="bg-slate-800/50 text-slate-300 border-slate-700/50 text-xs">{l}</Badge>
+                      <Badge key={l} variant="outline" className="border-white/10 bg-slate-800/70 text-xs text-slate-300">{l}</Badge>
                     ))}
                   </div>
-                </section>
+                </AppPanel>
               )}
 
               {mentor.availability?.schedule?.length > 0 && (
-                <section className="bg-slate-900/40 backdrop-blur-md rounded-2xl border border-slate-800/80 p-6">
+                <AppPanel className="p-6">
                   <h2 className="text-base font-semibold text-white mb-3">Weekly Schedule</h2>
                   <div className="space-y-2 text-sm">
                     {mentor.availability.schedule.map((slot: any, i: number) => (
@@ -217,30 +212,30 @@ export default function MentorProfilePage() {
                       </div>
                     ))}
                   </div>
-                </section>
+                </AppPanel>
               )}
             </div>
 
             {/* ── Right: Sticky booking panel ── */}
             <div className="md:col-span-2">
               <div className="sticky top-6">
-                <div className="bg-slate-900/50 backdrop-blur-md rounded-2xl border border-slate-800/80 p-5 shadow-xl relative overflow-hidden">
-                  <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-violet-500/30 to-transparent" />
+                <AppPanel className="relative overflow-hidden p-5">
+                  <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-brand/30 to-transparent" />
 
                   <h2 className="text-base font-semibold text-white mb-4">Book a Session</h2>
 
                   {/* Offer cards */}
                   {offers.length > 0 && (
                     <div className="space-y-2 mb-5">
-                      <p className="text-xs text-slate-500 uppercase tracking-wide mb-2">Session type</p>
+                      <AppSectionLabel className="mb-2">Session type</AppSectionLabel>
                       {offers.map((offer: any) => (
                         <button
                           key={offer.id}
                           onClick={() => { setSelectedOfferId(offer.id); setSelectedSlot(null); }}
-                          className={`w-full text-left rounded-xl border px-4 py-3 transition-all ${
+                          className={`w-full rounded-xl border px-4 py-3 text-left transition-all ${
                             selectedOfferId === offer.id
-                              ? 'border-violet-500/60 bg-violet-500/10'
-                              : 'border-slate-700/50 bg-slate-800/30 hover:border-slate-600'
+                              ? 'border-brand/60 bg-brand/10'
+                              : 'border-white/10 bg-slate-800/40 hover:border-white/20'
                           }`}
                         >
                           <div className="flex justify-between items-center">
@@ -254,7 +249,7 @@ export default function MentorProfilePage() {
                   )}
 
                   <div className="border-t border-slate-800/60 pt-4">
-                    <p className="text-xs text-slate-500 uppercase tracking-wide mb-3">Pick a time</p>
+                    <AppSectionLabel className="mb-3">Pick a time</AppSectionLabel>
                     <SlotPicker
                       mentorId={mentorId}
                       durationMin={durationMin}
@@ -267,7 +262,7 @@ export default function MentorProfilePage() {
                       Select a time slot above to proceed
                     </p>
                   )}
-                </div>
+                </AppPanel>
               </div>
             </div>
           </div>
@@ -286,6 +281,6 @@ export default function MentorProfilePage() {
           onSuccess={() => setShowModal(false)}
         />
       )}
-    </div>
+    </AppPageShell>
   );
 }

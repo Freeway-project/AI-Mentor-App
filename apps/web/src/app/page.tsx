@@ -6,10 +6,11 @@ import { SocialProof } from '@/components/home/SocialProof';
 import { ProgressPath } from '@/components/home/ProgressPath';
 import { FAQ } from '@/components/home/FAQ';
 import { Footer } from '@/components/layout/Footer';
+import { AppPageShell } from '@/components/ui/app-theme';
 
 export default function Home() {
   return (
-    <main className="min-h-screen bg-slate-950">
+    <AppPageShell>
       <Navbar />
       <Hero />
       <HowItWorks />
@@ -18,6 +19,6 @@ export default function Home() {
       <ProgressPath />
       <FAQ />
       <Footer />
-    </main>
+    </AppPageShell>
   );
 }

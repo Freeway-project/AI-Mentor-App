@@ -29,23 +29,22 @@ const companies = ['Google', 'Amazon', 'Netflix', 'Stripe', 'Uber', 'Microsoft',
 export function SocialProof() {
     return (
         <section className="py-20 md:py-28 relative overflow-hidden"
-            style={{ background: 'linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%)' }}
+            style={{ background: 'linear-gradient(180deg, rgba(2,6,23,0) 0%, rgba(15,23,42,0.55) 100%)' }}
         >
-            {/* Section glow */}
             <div className="absolute inset-0 pointer-events-none">
-                <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-violet-300/40 to-transparent" />
-                <div className="absolute bottom-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-fuchsia-300/30 to-transparent" />
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[400px] rounded-full bg-violet-400/10 blur-[100px]" />
+                <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-brand/30 to-transparent" />
+                <div className="absolute bottom-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-brand-light/20 to-transparent" />
+                <div className="absolute top-1/2 left-1/2 h-[400px] w-[800px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-brand/10 blur-[100px]" />
             </div>
 
             <div className="container mx-auto px-4 md:px-6 relative z-10">
                 {/* Header */}
                 <div className="text-center mb-14 space-y-3">
-                    <p className="text-violet-600 text-sm font-semibold uppercase tracking-widest">Testimonials</p>
-                    <h2 className="text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">
+                    <p className="text-brand-lighter text-sm font-semibold uppercase tracking-widest">Testimonials</p>
+                    <h2 className="text-3xl font-bold tracking-tight text-white sm:text-4xl">
                         Trusted by ambitious learners
                     </h2>
-                    <p className="text-lg text-slate-600 max-w-2xl mx-auto">
+                    <p className="mx-auto max-w-2xl text-lg text-slate-400">
                         Real results from real people — see what our community says about their journey.
                     </p>
                 </div>
@@ -54,29 +53,27 @@ export function SocialProof() {
                 <div className="grid gap-6 md:grid-cols-3">
                     {testimonials.map((t, i) => (
                         <div key={i}
-                            className="group relative rounded-2xl border border-slate-200 bg-white/60 backdrop-blur-sm p-7 space-y-5 hover:border-violet-300/60 hover:shadow-lg transition-all duration-300"
+                            className="group relative space-y-5 rounded-2xl border border-white/10 bg-slate-900/60 p-7 backdrop-blur-sm transition-all duration-300 hover:border-brand/30 hover:shadow-lg"
                         >
-                            {/* Gradient top border on hover */}
-                            <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-violet-200/0 to-transparent group-hover:via-violet-400/50 transition-all duration-300 rounded-t-2xl" />
+                            <div className="absolute inset-x-0 top-0 h-px rounded-t-2xl bg-gradient-to-r from-transparent via-brand/0 to-transparent transition-all duration-300 group-hover:via-brand/50" />
 
-                            {/* Stars */}
                             <div className="flex gap-0.5">
                                 {Array.from({ length: t.stars }).map((_, s) => (
-                                    <Star key={s} className="w-4 h-4 text-violet-500 fill-violet-500" />
+                                    <Star key={s} className="h-4 w-4 fill-brand text-brand" />
                                 ))}
                             </div>
 
-                            <p className="text-slate-700 leading-relaxed">
+                            <p className="leading-relaxed text-slate-300">
                                 &ldquo;{t.quote}&rdquo;
                             </p>
 
-                            <div className="flex items-center gap-3 pt-4 border-t border-slate-200/70">
-                                <div className="w-10 h-10 rounded-full overflow-hidden ring-2 ring-violet-500/20 shrink-0">
+                            <div className="flex items-center gap-3 border-t border-white/10 pt-4">
+                                <div className="h-10 w-10 shrink-0 overflow-hidden rounded-full ring-2 ring-brand/20">
                                     {/* eslint-disable-next-line @next/next/no-img-element */}
                                     <img src={t.image} alt={t.author} className="w-full h-full object-cover" />
                                 </div>
                                 <div>
-                                    <p className="font-semibold text-slate-900 text-sm">{t.author}</p>
+                                    <p className="text-sm font-semibold text-white">{t.author}</p>
                                     <p className="text-xs text-slate-500">{t.role}</p>
                                 </div>
                             </div>
@@ -89,7 +86,7 @@ export function SocialProof() {
                     <p className="text-xs text-slate-500 uppercase tracking-widest mb-6">Our mentees work at</p>
                     <div className="flex flex-wrap justify-center gap-x-10 gap-y-3">
                         {companies.map((c) => (
-                            <span key={c} className="text-slate-600 font-semibold text-sm tracking-wide hover:text-slate-900 transition-colors cursor-default">{c}</span>
+                            <span key={c} className="cursor-default text-sm font-semibold tracking-wide text-slate-400 transition-colors hover:text-white">{c}</span>
                         ))}
                     </div>
                 </div>

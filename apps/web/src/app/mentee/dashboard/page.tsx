@@ -3,10 +3,19 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/lib/auth-context';
 import { apiClient } from '@/lib/api-client';
-import { Calendar, Clock, CreditCard, ArrowRight, BookOpen, Video, X, RotateCcw, Plus, Search } from 'lucide-react';
+import { Calendar, Clock, CreditCard, ArrowRight, BookOpen, Video, X, RotateCcw } from 'lucide-react';
 import Link from 'next/link';
 import { toast } from 'sonner';
 import { SlotPicker } from '@/components/booking/SlotPicker';
+import {
+  AppPageHeader,
+  AppPanel,
+  AppSectionLabel,
+  AppStatCard,
+  AppStatusBadge,
+  appTheme,
+} from '@/components/ui/app-theme';
+import { cn } from '@/lib/utils';
 
 function formatDateTime(iso: string | Date) {
   return new Date(iso).toLocaleString([], {
@@ -19,17 +28,17 @@ function formatDateTime(iso: string | Date) {
 }
 
 function StatusBadge({ status }: { status: string }) {
-  const styles: Record<string, string> = {
-    booked: 'bg-violet-500/10 text-violet-400 border-violet-500/20',
-    confirmed: 'bg-purple-500/10 text-purple-400 border-purple-500/20',
-    completed: 'bg-slate-700/50 text-slate-400 border-slate-700',
-    cancelled: 'bg-red-500/10 text-red-400 border-red-500/20',
-    in_progress: 'bg-amber-500/10 text-amber-400 border-amber-500/20',
+  const tones: Record<string, 'brand' | 'purple' | 'slate' | 'red' | 'amber'> = {
+    booked: 'brand',
+    confirmed: 'purple',
+    completed: 'slate',
+    cancelled: 'red',
+    in_progress: 'amber',
   };
   return (
-    <span className={`text-xs font-medium px-2 py-0.5 rounded-full border ${styles[status] ?? styles.completed}`}>
+    <AppStatusBadge tone={tones[status] ?? 'slate'}>
       {status.replace('_', ' ')}
-    </span>
+    </AppStatusBadge>
   );
 }
 
@@ -105,61 +114,33 @@ export default function MenteeDashboardPage() {
 
   if (loading) {
     return (
-      <div className="p-8 max-w-5xl mx-auto">
+      <div className="mx-auto max-w-5xl p-8">
         <p className="text-slate-500 text-sm animate-pulse">Loading...</p>
       </div>
     );
   }
 
   return (
-    <div className="p-6 md:p-8 max-w-5xl mx-auto space-y-8">
-      {/* Header */}
-      <div>
-        <h1 className="text-2xl font-bold text-white">
-          Welcome back, {user?.name?.split(' ')[0]} 👋
-        </h1>
-        <p className="text-slate-400 text-sm mt-1">Here&apos;s your learning overview</p>
-      </div>
+    <div className="mx-auto max-w-5xl space-y-8 p-6 md:p-8">
+      <AppPageHeader
+        title={`Welcome back, ${user?.name?.split(' ')[0] ?? 'Learner'}`}
+        description="Track credits, upcoming sessions, and reschedules from the same shared dashboard system."
+        titleClassName="text-2xl md:text-3xl"
+      />
 
-      {/* Stats */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="bg-slate-900 rounded-xl border border-slate-800 p-5 flex items-center gap-4">
-          <div className="w-10 h-10 rounded-xl bg-amber-500/10 flex items-center justify-center">
-            <CreditCard className="w-5 h-5 text-amber-400" />
-          </div>
-          <div>
-            <p className="text-xs text-slate-500 uppercase tracking-wide">Credits</p>
-            <p className="text-2xl font-bold text-white">{credits?.balance ?? '—'}</p>
-          </div>
-        </div>
-        <div className="bg-slate-900 rounded-xl border border-slate-800 p-5 flex items-center gap-4">
-          <div className="w-10 h-10 rounded-xl bg-violet-500/10 flex items-center justify-center">
-            <Calendar className="w-5 h-5 text-violet-400" />
-          </div>
-          <div>
-            <p className="text-xs text-slate-500 uppercase tracking-wide">Upcoming</p>
-            <p className="text-2xl font-bold text-white">{upcoming.length}</p>
-          </div>
-        </div>
-        <div className="bg-slate-900 rounded-xl border border-slate-800 p-5 flex items-center gap-4">
-          <div className="w-10 h-10 rounded-xl bg-violet-500/10 flex items-center justify-center">
-            <BookOpen className="w-5 h-5 text-violet-400" />
-          </div>
-          <div>
-            <p className="text-xs text-slate-500 uppercase tracking-wide">Sessions done</p>
-            <p className="text-2xl font-bold text-white">{past.length}</p>
-          </div>
-        </div>
+        <AppStatCard icon={<CreditCard className="h-5 w-5" />} label="Credits" value={credits?.balance ?? '—'} tone="amber" />
+        <AppStatCard icon={<Calendar className="h-5 w-5" />} label="Upcoming" value={upcoming.length} tone="brand" />
+        <AppStatCard icon={<BookOpen className="h-5 w-5" />} label="Sessions Done" value={past.length} tone="purple" />
       </div>
 
-      {/* Banner */}
       {nextSession ? (
-        <div className="rounded-2xl border border-violet-500/30 bg-violet-500/10 p-5 flex items-start gap-4">
-          <div className="p-2.5 rounded-xl bg-violet-500/10">
-            <Clock className="w-6 h-6 text-violet-400" />
+        <AppPanel className="flex items-start gap-4 border-brand/20 bg-brand/10 p-5">
+          <div className="rounded-xl border border-brand/20 bg-brand/10 p-2.5 text-brand-lighter">
+            <Clock className="h-6 w-6" />
           </div>
           <div className="flex-1">
-            <h2 className="font-semibold text-violet-400">Next session</h2>
+            <h2 className="font-semibold text-brand-lighter">Next session</h2>
             <p className="text-white font-medium mt-0.5">{nextSession.title}</p>
             <p className="text-sm text-slate-400 mt-1">
               {formatDateTime(nextSession.scheduledAt)} · {nextSession.duration} min
@@ -169,43 +150,40 @@ export default function MenteeDashboardPage() {
                 href={nextSession.dailyRoomUrl ? `/video/${nextSession.id}` : (nextSession.meetUrl || nextSession.meetingLink)}
                 target={nextSession.dailyRoomUrl ? undefined : '_blank'}
                 rel={nextSession.dailyRoomUrl ? undefined : 'noopener noreferrer'}
-                className="inline-flex items-center gap-1.5 mt-2 px-4 py-2 bg-violet-600 hover:bg-violet-500 text-white text-sm font-medium rounded-xl transition-all shadow-lg shadow-violet-500/20 w-fit"
+                className="mt-2 inline-flex w-fit items-center gap-1.5 rounded-xl bg-brand px-4 py-2 text-sm font-medium text-white transition-all shadow-lg shadow-brand/20 hover:bg-brand-light"
               >
                 <Video className="w-4 h-4" />
                 {nextSession.dailyRoomUrl ? 'Join Video Call' : 'Join Google Meet'}
               </Link>
             )}
           </div>
-        </div>
+        </AppPanel>
       ) : (
-        <div className="rounded-2xl border border-violet-500/30 bg-violet-500/10 p-5 flex items-start gap-4">
-          <div className="p-2.5 rounded-xl bg-violet-500/10">
-            <Clock className="w-6 h-6 text-violet-400" />
+        <AppPanel className="flex items-start gap-4 border-brand/20 bg-brand/10 p-5">
+          <div className="rounded-xl border border-brand/20 bg-brand/10 p-2.5 text-brand-lighter">
+            <Clock className="h-6 w-6" />
           </div>
           <div>
-            <h2 className="font-semibold text-violet-400">Find your first mentor</h2>
+            <h2 className="font-semibold text-brand-lighter">Find your first mentor</h2>
             <p className="text-sm text-slate-400 mt-0.5">
               You haven&apos;t booked any sessions yet. Browse our list of expert mentors to get started.
             </p>
             <Link
               href="/browse"
-              className="inline-flex items-center gap-1.5 mt-3 text-sm font-medium text-violet-400 hover:underline"
+              className="mt-3 inline-flex items-center gap-1.5 text-sm font-medium text-brand-lighter hover:text-white"
             >
               Browse mentors <ArrowRight className="w-3.5 h-3.5" />
             </Link>
           </div>
-        </div>
+        </AppPanel>
       )}
 
-      {/* Upcoming sessions */}
       {upcoming.length > 0 && (
         <section>
-          <h2 className="text-xs font-semibold text-slate-500 uppercase tracking-widest mb-4">
-            Upcoming Sessions
-          </h2>
+          <AppSectionLabel className="mb-4">Upcoming Sessions</AppSectionLabel>
           <div className="space-y-4">
             {upcoming.map(session => (
-              <div key={session.id} className="bg-slate-900 rounded-xl border border-slate-800 p-5">
+              <AppPanel key={session.id} className="p-5">
                 <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
                   <div className="space-y-1.5">
                     <StatusBadge status={session.status} />
@@ -218,7 +196,7 @@ export default function MenteeDashboardPage() {
                         href={session.dailyRoomUrl ? `/video/${session.id}` : (session.meetUrl || session.meetingLink)}
                         target={session.dailyRoomUrl ? undefined : '_blank'}
                         rel={session.dailyRoomUrl ? undefined : 'noopener noreferrer'}
-                        className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-violet-500/10 hover:bg-violet-500/20 text-violet-400 text-xs font-medium rounded-lg transition-colors border border-violet-500/20 w-fit mt-1"
+                        className="mt-1 inline-flex w-fit items-center gap-1.5 rounded-lg border border-brand/20 bg-brand/10 px-3 py-1.5 text-xs font-medium text-brand-lighter transition-colors hover:bg-brand/20"
                       >
                         <Video className="w-3.5 h-3.5" />
                         {session.dailyRoomUrl ? 'Join Video Call' : 'Join Google Meet'}
@@ -232,7 +210,7 @@ export default function MenteeDashboardPage() {
                         setCancellingId(null);
                         setNewSlot(null);
                       }}
-                      className="text-xs px-3 py-1.5 rounded-lg border border-slate-700 text-slate-300 hover:border-violet-500 hover:text-violet-400 transition-colors flex items-center gap-1"
+                      className="flex items-center gap-1 rounded-lg border border-white/10 px-3 py-1.5 text-xs text-slate-300 transition-colors hover:border-brand/40 hover:text-brand-lighter"
                     >
                       <RotateCcw className="w-3 h-3" /> Reschedule
                     </button>
@@ -242,7 +220,7 @@ export default function MenteeDashboardPage() {
                         setReschedulingId(null);
                         setCancelReason('');
                       }}
-                      className="text-xs px-3 py-1.5 rounded-lg border border-slate-700 text-slate-300 hover:border-red-500 hover:text-red-400 transition-colors flex items-center gap-1"
+                      className="flex items-center gap-1 rounded-lg border border-white/10 px-3 py-1.5 text-xs text-slate-300 transition-colors hover:border-red-500 hover:text-red-300"
                     >
                       <X className="w-3 h-3" /> Cancel
                     </button>
@@ -258,18 +236,18 @@ export default function MenteeDashboardPage() {
                       value={cancelReason}
                       onChange={e => setCancelReason(e.target.value)}
                       placeholder="e.g. Schedule conflict"
-                      className="w-full bg-slate-800 border border-slate-700 text-slate-200 text-sm rounded-lg px-3 py-2 focus:outline-none focus:border-red-500"
+                      className={cn(appTheme.input, 'px-3 py-2 text-sm focus:ring-red-500/30')}
                     />
                     <div className="flex gap-2">
                       <button
                         onClick={() => handleCancel(session.id)}
-                        className="px-4 py-2 bg-red-600 hover:bg-red-500 text-white text-sm font-medium rounded-lg transition-colors"
+                        className="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-red-500"
                       >
                         Confirm Cancel
                       </button>
                       <button
                         onClick={() => { setCancellingId(null); setCancelReason(''); }}
-                        className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-sm rounded-lg transition-colors"
+                        className="rounded-lg bg-slate-800 px-4 py-2 text-sm text-slate-300 transition-colors hover:bg-slate-700"
                       >
                         Keep session
                       </button>
@@ -291,13 +269,13 @@ export default function MenteeDashboardPage() {
                         <button
                           onClick={() => handleReschedule(session.id)}
                           disabled={rescheduling}
-                          className="px-4 py-2 bg-violet-600 hover:bg-violet-500 text-white text-sm font-medium rounded-lg transition-colors disabled:opacity-50"
+                          className="rounded-lg bg-brand px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-brand-light disabled:opacity-50"
                         >
                           {rescheduling ? 'Rescheduling...' : 'Confirm Reschedule'}
                         </button>
                         <button
                           onClick={() => { setReschedulingId(null); setNewSlot(null); }}
-                          className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-sm rounded-lg transition-colors"
+                          className="rounded-lg bg-slate-800 px-4 py-2 text-sm text-slate-300 transition-colors hover:bg-slate-700"
                         >
                           Back
                         </button>
@@ -305,27 +283,24 @@ export default function MenteeDashboardPage() {
                     )}
                   </div>
                 )}
-              </div>
+              </AppPanel>
             ))}
           </div>
         </section>
       )}
 
-      {/* Past sessions */}
       <section>
-        <h2 className="text-xs font-semibold text-slate-500 uppercase tracking-widest mb-4">
-          Past Sessions
-        </h2>
+        <AppSectionLabel className="mb-4">Past Sessions</AppSectionLabel>
         {past.length === 0 ? (
-          <div className="bg-slate-900 rounded-2xl border border-slate-800 p-8 flex flex-col items-center text-center">
+          <AppPanel className="flex flex-col items-center p-8 text-center">
             <BookOpen className="w-10 h-10 text-slate-700 mb-3" />
             <p className="text-slate-400 font-medium">No sessions yet</p>
             <p className="text-slate-500 text-sm mt-1">Your completed sessions will appear here.</p>
-          </div>
+          </AppPanel>
         ) : (
           <div className="space-y-3">
             {past.map(session => (
-              <div key={session.id} className="bg-slate-900 rounded-xl border border-slate-800 p-4 flex items-center justify-between gap-4">
+              <AppPanel key={session.id} className="flex items-center justify-between gap-4 p-4">
                 <div>
                   <p className="font-medium text-slate-200 text-sm">{session.title}</p>
                   <p className="text-xs text-slate-500 mt-0.5">
@@ -333,7 +308,7 @@ export default function MenteeDashboardPage() {
                   </p>
                 </div>
                 <StatusBadge status={session.status} />
-              </div>
+              </AppPanel>
             ))}
           </div>
         )}
