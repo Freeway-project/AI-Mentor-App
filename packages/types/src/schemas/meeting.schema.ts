@@ -25,6 +25,9 @@ export const meetingSchema = z.object({
   status: meetingStatusEnum,
   creditCost: z.number(), // 0.5 or 1.0
   offerId: z.string().optional(),
+  paymentIntentId: z.string().optional(),
+  amountPaid: z.number().optional(),   // USD
+  menteeName: z.string().optional(),
   meetingLink: z.string().url().optional(),
   notes: z.string().max(5000).optional(),
   rating: z.number().min(0).max(5).optional(),

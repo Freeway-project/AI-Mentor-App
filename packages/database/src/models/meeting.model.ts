@@ -11,6 +11,9 @@ export interface IMeetingDocument extends mongoose.Document {
   status: string;
   creditCost: number;
   offerId?: string;
+  paymentIntentId?: string;
+  amountPaid?: number;
+  menteeName?: string;
   meetingLink?: string;
   notes?: string;
   rating?: number;
@@ -43,6 +46,9 @@ const meetingSchema = new Schema<IMeetingDocument>(
     },
     creditCost: { type: Number, required: true, default: 1.0 },
     offerId: { type: String },
+    paymentIntentId: { type: String },
+    amountPaid: { type: Number },
+    menteeName: { type: String },
     meetingLink: { type: String },
     notes: { type: String },
     rating: { type: Number },
@@ -81,6 +87,9 @@ export function toMeeting(doc: IMeetingDocument): Meeting {
     status: doc.status as any,
     creditCost: doc.creditCost,
     offerId: doc.offerId,
+    paymentIntentId: doc.paymentIntentId,
+    amountPaid: doc.amountPaid,
+    menteeName: doc.menteeName,
     meetingLink: doc.meetingLink,
     notes: doc.notes,
     rating: doc.rating,

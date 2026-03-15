@@ -183,7 +183,11 @@ router.post('/bookings', authenticate, requireEmailVerified, async (req: Request
       throw new AppError(409, 'SLOT_UNAVAILABLE', 'This time slot is no longer available');
     }
 
+    // Fetch mentee early (used for menteeName on meeting + emails below)
+    const mentee = await userRepo.findById(req.userId!);
+
     // Payment verification: Stripe (preferred) or legacy credits
+    let amountPaid: number | undefined;
     if (paymentIntentId) {
       const pi = await stripeService.retrievePaymentIntent(paymentIntentId);
       if (pi.status !== 'succeeded') {
@@ -193,6 +197,7 @@ router.post('/bookings', authenticate, requireEmailVerified, async (req: Request
       if (pi.amount !== expectedCents) {
         throw new AppError(400, 'PAYMENT_AMOUNT_MISMATCH', 'Payment amount does not match session price');
       }
+      amountPaid = pi.amount / 100;
     } else {
       // Legacy credit flow
       const account = await creditRepo.getBalance(req.userId!);
@@ -210,6 +215,9 @@ router.post('/bookings', authenticate, requireEmailVerified, async (req: Request
       duration: durationMin,
       offerId,
       creditCost,
+      paymentIntentId: paymentIntentId || undefined,
+      amountPaid,
+      menteeName: mentee.name,
     });
 
     // Hold credits (legacy flow only)
@@ -225,7 +233,12 @@ router.post('/bookings', authenticate, requireEmailVerified, async (req: Request
       await meetingRepo.update(meeting.id, { dailyRoomUrl: room.url, dailyRoomName: room.name } as any);
       dailyRoomUrl = room.url;
     } catch (err) {
-      logger.warn(`[Booking] Daily room creation failed: ${(err as Error).message}`);
+      logger.warn('[Booking] Daily room creation failed', {
+        meetingId: meeting.id,
+        mentorId: mentor.id,
+        menteeUserId: req.userId,
+        error: err instanceof Error ? err.message : String(err),
+      });
     }
 
     // Try to create Google Calendar event
@@ -258,10 +271,7 @@ router.post('/bookings', authenticate, requireEmailVerified, async (req: Request
 
     // Send booking confirmation emails to mentee and mentor (non-fatal)
     try {
-      const [mentee, mentorUser] = await Promise.all([
-        userRepo.findById(req.userId!),
-        userRepo.findById(mentor.userId),
-      ]);
+      const mentorUser = await userRepo.findById(mentor.userId);
       const sharedEmailParams = {
         menteeName: mentee.name,
         mentorName: mentor.name,
