@@ -1,19 +1,23 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import { Star, Clock, Users, Globe, CheckCircle } from 'lucide-react';
 import { apiClient } from '@/lib/api-client';
+import { useAuth } from '@/lib/auth-context';
 import { Navbar } from '@/components/layout/Navbar';
 import { Badge } from '@/components/ui/badge';
 import { SlotPicker } from '@/components/booking/SlotPicker';
 import { BookingModal } from '@/components/booking/BookingModal';
+import { toast } from 'sonner';
 
 const DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
 export default function MentorProfilePage() {
   const params = useParams();
   const mentorId = params.id as string;
+  const { user } = useAuth();
+  const router = useRouter();
 
   const [mentor, setMentor] = useState<any>(null);
   const [offers, setOffers] = useState<any[]>([]);
@@ -39,6 +43,11 @@ export default function MentorProfilePage() {
   const durationMin = selectedOffer?.durationMinutes ?? 30;
 
   const handleSlotSelect = (slot: { start: string; end: string }) => {
+    if (!user) {
+      toast.error('Sign in to book a session');
+      router.push(`/login?redirect=/mentors/${mentorId}`);
+      return;
+    }
     setSelectedSlot(slot);
     setShowModal(true);
   };

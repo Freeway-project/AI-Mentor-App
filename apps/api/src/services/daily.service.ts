@@ -27,8 +27,9 @@ export class DailyService {
       body: JSON.stringify({
         name: roomName,
         properties: {
-          enable_recording: 'cloud',
           exp: Math.floor(params.expiresAt.getTime() / 1000),
+          enable_chat: true,
+          enable_screenshare: true,
         },
       }),
     });

@@ -21,6 +21,7 @@ export function Navbar() {
 
     const isMentor = user?.roles?.includes('mentor');
     const isAdmin = user?.roles?.includes('admin');
+    const isMentee = user && !isMentor && !isAdmin;
 
     return (
         <nav className="sticky top-0 z-50 w-full border-b border-slate-800 bg-slate-950/80 backdrop-blur-md">
@@ -55,6 +56,14 @@ export function Navbar() {
                             className="text-sm font-medium text-slate-300 hover:text-white transition-colors"
                         >
                             My Profile
+                        </Link>
+                    )}
+                    {isMentee && (
+                        <Link
+                            href="/mentee/dashboard"
+                            className="text-sm font-medium text-slate-300 hover:text-white transition-colors"
+                        >
+                            My Sessions
                         </Link>
                     )}
                 </div>
@@ -117,6 +126,15 @@ export function Navbar() {
                                 onClick={toggleMenu}
                             >
                                 My Profile
+                            </Link>
+                        )}
+                        {isMentee && (
+                            <Link
+                                href="/mentee/dashboard"
+                                className="text-sm font-medium text-slate-300 hover:text-white"
+                                onClick={toggleMenu}
+                            >
+                                My Sessions
                             </Link>
                         )}
                     </div>

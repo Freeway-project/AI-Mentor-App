@@ -87,7 +87,9 @@ function StripePaymentForm({
     });
 
     if (confirmError) {
-      setError(confirmError.message || 'Payment failed');
+      const msg = confirmError.message || 'Payment failed. Please try again.';
+      setError(msg);
+      toast.error(msg);
       setPaying(false);
       return;
     }
@@ -100,7 +102,9 @@ function StripePaymentForm({
         });
         onSuccess(booking);
       } catch (err: any) {
-        setError(err.message || 'Booking failed after payment — please contact support');
+        const msg = err.message || 'Booking failed after payment — please contact support';
+        setError(msg);
+        toast.error('Booking failed after payment — please contact support');
         setPaying(false);
       }
     } else {
@@ -166,6 +170,7 @@ export function BookingModal({ mentorId, mentorName, offer, hourlyRate, slot, on
   const handleSuccess = (b: any) => {
     setBooking(b);
     setStep('success');
+    toast.success('Booking confirmed! Check your email for details.');
     onSuccess(b);
   };
 

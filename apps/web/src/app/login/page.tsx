@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google';
 import { useDispatch } from 'react-redux';
@@ -18,6 +18,8 @@ export default function LoginPage() {
   const dispatch = useDispatch<AppDispatch>();
   const { login: ctxLogin, loginWithGoogle } = useAuth();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const redirect = searchParams.get('redirect');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -37,7 +39,7 @@ export default function LoginPage() {
           window.location.href = '/onboarding';
         }
       } else {
-        router.push('/mentee/dashboard');
+        router.push(redirect || '/mentee/dashboard');
       }
     } catch (err: any) {
       if (err?.code === 'EMAIL_NOT_VERIFIED' || err?.message?.includes('verify your email')) {
@@ -75,7 +77,7 @@ export default function LoginPage() {
           window.location.href = '/onboarding';
         }
       } else {
-        router.push('/mentee/dashboard');
+        router.push(redirect || '/mentee/dashboard');
       }
     } catch (err: any) {
       toast.error(err.message || 'Google sign-in failed');
