@@ -22,19 +22,44 @@ interface AuthContextType {
   logout: () => void;
 }
 
+function readCachedUser(): User | null {
+  if (typeof window === 'undefined') return null;
+  try {
+    const raw = localStorage.getItem('auth_user');
+    return raw ? (JSON.parse(raw) as User) : null;
+  } catch {
+    return null;
+  }
+}
+
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
+  const hasToken = typeof window !== 'undefined' && !!localStorage.getItem('auth_token');
+  const [user, setUser] = useState<User | null>(readCachedUser);
+  const [loading, setLoading] = useState(hasToken);
 
+  // Register 401 handler once
+  useEffect(() => {
+    apiClient.setOnUnauthorized(() => {
+      localStorage.removeItem('auth_user');
+      setUser(null);
+    });
+  }, []);
+
+  // Background validation on mount
   useEffect(() => {
     const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : null;
     if (token) {
       apiClient.getMe()
-        .then((data) => setUser(data))
+        .then((data) => {
+          setUser(data);
+          localStorage.setItem('auth_user', JSON.stringify(data));
+        })
         .catch(() => {
           apiClient.clearToken();
+          localStorage.removeItem('auth_user');
+          setUser(null);
         })
         .finally(() => setLoading(false));
     } else {
@@ -45,12 +70,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const login = useCallback(async (email: string, password: string) => {
     const data = await apiClient.login(email, password);
     apiClient.setToken(data.token);
+    localStorage.setItem('auth_user', JSON.stringify(data.user));
     setUser(data.user);
   }, []);
 
   const register = useCallback(async (email: string, password: string, name: string, role: string) => {
     const data = await apiClient.register(email, password, name, role);
     apiClient.setToken(data.token);
+    localStorage.setItem('auth_user', JSON.stringify(data.user));
     setUser(data.user);
     return data;
   }, []);
@@ -58,12 +85,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const loginWithGoogle = useCallback(async (idToken: string, role?: 'mentee' | 'mentor') => {
     const data = await apiClient.googleAuth(idToken, role);
     apiClient.setToken(data.token);
+    localStorage.setItem('auth_user', JSON.stringify(data.user));
     setUser(data.user);
     return { isNew: data.isNew };
   }, []);
 
   const logout = useCallback(() => {
     apiClient.clearToken();
+    localStorage.removeItem('auth_user');
     setUser(null);
   }, []);
 

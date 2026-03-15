@@ -161,6 +161,17 @@ export default function MentorProfilePage() {
                 </section>
               )}
 
+              {mentor.introVideoUrl && (
+                <section className="bg-slate-900/40 backdrop-blur-md rounded-2xl border border-slate-800/80 p-6">
+                  <h2 className="text-base font-semibold text-white mb-3">Intro Video</h2>
+                  <video
+                    src={mentor.introVideoUrl}
+                    controls
+                    className="w-full rounded-xl bg-slate-800/60 border border-slate-700/50"
+                  />
+                </section>
+              )}
+
               {mentor.expertise?.length > 0 && (
                 <section className="bg-slate-900/40 backdrop-blur-md rounded-2xl border border-slate-800/80 p-6">
                   <h2 className="text-base font-semibold text-white mb-3">Expertise</h2>

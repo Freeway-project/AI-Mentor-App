@@ -58,6 +58,21 @@ export default function MentorDashboardPage() {
     const status = profile?.approvalStatus || 'pending';
     const cfg = STATUS_CONFIG[status] ?? STATUS_CONFIG.pending;
     const StatusIcon = cfg.icon;
+    const isPendingReview = profile?.onboardingStep === 'published' && profile?.approvalStatus === 'pending';
+
+    if (!loading && isPendingReview) {
+        return (
+            <div className="min-h-screen flex items-center justify-center p-8">
+                <div className="text-center max-w-md">
+                    <div className="w-16 h-16 rounded-full bg-amber-500/10 flex items-center justify-center mx-auto mb-4">
+                        <Clock className="w-8 h-8 text-amber-400" />
+                    </div>
+                    <h1 className="text-xl font-bold text-white mb-2">Profile Under Review</h1>
+                    <p className="text-slate-400 text-sm">Your profile has been submitted and is awaiting admin approval. We&apos;ll notify you once it&apos;s reviewed.</p>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="p-8 max-w-5xl mx-auto space-y-8">

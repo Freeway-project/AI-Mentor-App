@@ -14,6 +14,7 @@ interface ApiResponse<T = any> {
 class ApiClient {
   private baseUrl: string;
   private token: string | null = null;
+  private onUnauthorized?: () => void;
 
   constructor(baseUrl: string) {
     this.baseUrl = baseUrl;
@@ -36,6 +37,10 @@ class ApiClient {
     }
   }
 
+  setOnUnauthorized(cb: () => void) {
+    this.onUnauthorized = cb;
+  }
+
   private async request<T>(
     endpoint: string,
     options: RequestInit = {}
@@ -53,6 +58,12 @@ class ApiClient {
       ...options,
       headers,
     });
+
+    if (response.status === 401) {
+      this.clearToken();
+      this.onUnauthorized?.();
+      throw new Error('Unauthorized');
+    }
 
     const data: ApiResponse<T> = await response.json();
 
@@ -73,6 +84,12 @@ class ApiClient {
       headers,
       body: formData,
     });
+
+    if (response.status === 401) {
+      this.clearToken();
+      this.onUnauthorized?.();
+      throw new Error('Unauthorized');
+    }
 
     const data: ApiResponse<T> = await response.json();
     if (!data.success) throw new Error(data.error?.message || 'Upload failed');

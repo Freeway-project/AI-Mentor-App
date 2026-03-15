@@ -20,8 +20,8 @@ export default function MentorDashboardLayout({ children }: { children: React.Re
 
         apiClient.getMyMentorProfile()
             .then((p) => {
-                // If onboarding not finished, force them to complete it
-                if (p.onboardingStep !== 'completed') {
+                // Allow 'published' (submitted, awaiting approval) through to dashboard
+                if (p.onboardingStep !== 'completed' && p.onboardingStep !== 'published') {
                     router.replace('/onboarding');
                     return;
                 }

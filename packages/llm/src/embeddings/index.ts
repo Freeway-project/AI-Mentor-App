@@ -7,16 +7,6 @@ export * from './base.embedding-client';
 export * from './openai.embedding-client';
 export * from './voyage.embedding-client';
 
-/**
- * Factory for embedding clients.
- *
- * Reads EMBEDDING_PROVIDER env var (default: 'voyage').
- *
- * Required env vars:
- *   VOYAGE_API_KEY  — for voyage (default)
- *   OPENAI_API_KEY  — for openai
- *   EMBEDDING_PROVIDER — optional, defaults to 'voyage'
- */
 export function createEmbeddingClient(): EmbeddingProvider {
   const provider = (process.env.EMBEDDING_PROVIDER ?? 'voyage').toLowerCase();
 
@@ -31,7 +21,12 @@ export function createEmbeddingClient(): EmbeddingProvider {
       if (!key) throw new Error('OPENAI_API_KEY is required for the OpenAI embedding client');
       return new OpenAIEmbeddingClient(key);
     }
+    case 'voyage': {
+      const key = process.env.VOYAGE_API_KEY;
+      if (!key) throw new Error('VOYAGE_API_KEY is required for the Voyage embedding client');
+      return new VoyageEmbeddingClient(key);
+    }
     default:
-      throw new Error(`Unknown EMBEDDING_PROVIDER: "${provider}". Supported: voyage, openai`);
+      throw new Error(`Unknown EMBEDDING_PROVIDER: "${provider}". Supported: openai, voyage`);
   }
 }
