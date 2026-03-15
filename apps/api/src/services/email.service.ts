@@ -375,7 +375,7 @@ export const EmailService = {
     const fromEmail = process.env.SMTP_FROM_EMAIL || process.env.SMTP_FROM || 'noreply@owlmentor.com';
     const from = `${fromName} <${fromEmail}>`;
     const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
-    const sessionUrl = `${appUrl}/dashboard/sessions/${params.meetingId}`;
+    const sessionUrl = `${appUrl}/mentee/dashboard`;
     const callUrl = params.dailyRoomUrl || params.meetUrl;
 
     const dateStr = params.scheduledAt.toLocaleDateString('en-US', {
@@ -550,7 +550,7 @@ export const EmailService = {
     const fromEmail = process.env.SMTP_FROM_EMAIL || process.env.SMTP_FROM || 'noreply@owlmentor.com';
     const from = `${fromName} <${fromEmail}>`;
     const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
-    const sessionUrl = `${appUrl}/dashboard/sessions/${params.meetingId}`;
+    const sessionUrl = `${appUrl}/mentee/dashboard`;
 
     const durationMin = Math.round(params.durationSeconds / 60);
     const sessionDate = params.scheduledAt.toLocaleDateString('en-US', {
