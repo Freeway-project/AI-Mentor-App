@@ -12,12 +12,12 @@ import { logger } from '@owl-mentors/utils';
  * When a mentor saves their profile, we:
  *   1. Fetch the mentor + their session offers
  *   2. Concatenate key text fields into a single "profile document"
- *   3. Send that document to the OpenAI Embeddings API → get float[1536]
+ *   3. Send that document to the Voyage AI Embeddings API → get float[1024]
  *   4. Store the vector in the mentor's MongoDB document (profileEmbedding field)
  *
  * ### Search (read path)
  * When a user searches with a natural language query:
- *   1. Embed the query string → float[1536]
+ *   1. Embed the query string → float[1024]
  *   2. Run MongoDB $vectorSearch aggregation (cosine similarity)
  *   3. Return ranked mentors with a matchScore (0.0–1.0)
  *

@@ -2,9 +2,9 @@ import OpenAI, { toFile } from 'openai';
 import { logger } from '@owl-mentors/utils';
 
 function getClient(): OpenAI {
-  const apiKey = process.env.OPENAI_API_KEY;
-  if (!apiKey) throw new Error('OPENAI_API_KEY environment variable is required');
-  return new OpenAI({ apiKey });
+  const apiKey = process.env.GROQ_API_KEY;
+  if (!apiKey) throw new Error('GROQ_API_KEY environment variable is required');
+  return new OpenAI({ apiKey, baseURL: 'https://api.groq.com/openai/v1' });
 }
 
 export class WhisperService {
@@ -22,7 +22,7 @@ export class WhisperService {
     const client = getClient();
     const result = await client.audio.transcriptions.create({
       file,
-      model: 'whisper-1',
+      model: 'whisper-large-v3',
     });
 
     logger.info(`[Whisper] Transcription complete (${result.text.length} chars)`);
