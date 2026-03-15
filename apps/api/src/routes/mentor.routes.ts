@@ -8,8 +8,10 @@ import { logger } from '@owl-mentors/utils';
 import { AppError } from '../middleware/error.middleware';
 import { EmailService } from '../services/email.service';
 import { EmbeddingService } from '../services/embedding.service';
+import { LLMSearchService } from '../services/llm-search.service';
 
 const embeddingService = new EmbeddingService();
+const llmSearchService = new LLMSearchService();
 
 const router: Router = Router();
 
@@ -202,6 +204,7 @@ router.get('/:id', async (req: Request, res: Response, next: NextFunction) => {
 
 // Search mentors (public)
 // Supports natural language queries via Atlas Vector Search (semantic) with keyword fallback.
+// LLM layer adds intent parsing (budget/language extraction) and re-ranking with explanations.
 router.get('/', searchRateLimit, validateQuery(searchMentorsSchema), async (req: Request, res: Response, next: NextFunction) => {
   try {
     const params = req.query as any;
@@ -211,12 +214,33 @@ router.get('/', searchRateLimit, validateQuery(searchMentorsSchema), async (req:
     // When a free-text query is provided, attempt semantic vector search first.
     // Falls back to keyword search if the vector index isn't set up or the embedding fails.
     if (params.query) {
+      // Step 1: Parse intent — extract structured filters from natural language (non-blocking)
+      let parsedIntent = { semanticQuery: params.query as string, maxRate: undefined as number | undefined, language: undefined as string | undefined };
+      try {
+        parsedIntent = await llmSearchService.parseIntent(params.query);
+        if (parsedIntent.maxRate != null && !params.maxRate) params.maxRate = parsedIntent.maxRate;
+        if (parsedIntent.language && !params.language) params.language = parsedIntent.language;
+      } catch {
+        // graceful — proceed without parsed intent
+      }
+
+      // Step 2: Vector search
       try {
         const vectorMentors = await embeddingService.searchMentors(params.query, limit);
         if (vectorMentors.length > 0) {
+          // Step 3: Re-rank and attach explanations (non-blocking — degrades gracefully)
+          let enrichedMentors: typeof vectorMentors = vectorMentors;
+          let llmEnhanced = false;
+          try {
+            enrichedMentors = await llmSearchService.rerankAndExplain(params.query, vectorMentors);
+            llmEnhanced = true;
+          } catch (rankErr) {
+            logger.warn(`[LLMSearch] Re-ranking failed, using original order: ${(rankErr as Error).message}`);
+          }
+
           return res.json({
             success: true,
-            data: { mentors: vectorMentors, total: vectorMentors.length, query: params.query, semantic: true },
+            data: { mentors: enrichedMentors, total: enrichedMentors.length, query: params.query, semantic: true, llmEnhanced },
           });
         }
       } catch (vectorErr) {
@@ -228,7 +252,7 @@ router.get('/', searchRateLimit, validateQuery(searchMentorsSchema), async (req:
     const mentors = await getMentorRepo().search(params);
     return res.json({
       success: true,
-      data: { mentors, total: mentors.length, query: params.query, semantic: false },
+      data: { mentors, total: mentors.length, query: params.query, semantic: false, llmEnhanced: false },
     });
   } catch (error) {
     next(error);
