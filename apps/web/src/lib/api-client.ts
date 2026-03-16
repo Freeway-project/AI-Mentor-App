@@ -11,6 +11,24 @@ interface ApiResponse<T = any> {
   };
 }
 
+export interface MentorSearchQueryAnalysis {
+  experienceLevel?: 'beginner' | 'intermediate' | 'advanced';
+  focusTerms: string[];
+  language?: string;
+  maxRate?: number;
+  semanticQuery?: string;
+  topic?: string;
+}
+
+export interface MentorSearchResponse {
+  mentors: any[];
+  total: number;
+  semantic?: boolean;
+  hybrid?: boolean;
+  llmEnhanced?: boolean;
+  queryAnalysis?: MentorSearchQueryAnalysis;
+}
+
 class ApiClient {
   private baseUrl: string;
   private token: string | null = null;
@@ -160,7 +178,7 @@ class ApiClient {
       });
     }
 
-    return this.request<{ mentors: any[]; total: number; semantic?: boolean }>(`/mentors?${params.toString()}`);
+    return this.request<MentorSearchResponse>(`/mentors?${params.toString()}`);
   }
 
   async getMentor(id: string) {

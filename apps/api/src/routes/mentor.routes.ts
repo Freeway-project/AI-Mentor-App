@@ -8,8 +8,10 @@ import { logger } from '@owl-mentors/utils';
 import { AppError } from '../middleware/error.middleware';
 import { EmailService } from '../services/email.service';
 import { EmbeddingService } from '../services/embedding.service';
+import { MentorSearchService, MentorWithReason } from '../services/mentor-search.service';
 
 const embeddingService = new EmbeddingService();
+const mentorSearchService = new MentorSearchService();
 
 const router: Router = Router();
 
@@ -33,6 +35,14 @@ function getOfferRepo() {
 function getPolicyRepo() {
   if (!policyRepo) policyRepo = new PolicyRepository();
   return policyRepo;
+}
+
+function getFirstString(value: unknown): string | undefined {
+  if (Array.isArray(value)) {
+    return typeof value[0] === 'string' ? value[0] : undefined;
+  }
+
+  return typeof value === 'string' ? value : undefined;
 }
 
 // Become a mentor
@@ -202,29 +212,93 @@ router.get('/', searchRateLimit, validateQuery(searchMentorsSchema), async (req:
   try {
     const params = req.query as any;
     const limit = Number(params.limit) || 20;
+    const offset = Number(params.offset) || 0;
 
-    // --- Vector search path ---
-    // When a free-text query is provided, attempt semantic vector search first.
-    // Falls back to keyword search if the vector index isn't set up or the embedding fails.
+    if (typeof params.languages === 'string') {
+      params.languages = [params.languages];
+    }
+    if (typeof params.specialties === 'string') {
+      params.specialties = [params.specialties];
+    }
+    if (params.maxRate != null) {
+      params.maxRate = Number(params.maxRate);
+    }
+    if (params.minRating != null) {
+      params.minRating = Number(params.minRating);
+    }
+    params.limit = limit;
+    params.offset = offset;
+
     if (params.query) {
+      const parsedIntent = await mentorSearchService.parseIntent(params.query as string);
+      if (parsedIntent.maxRate != null && !params.maxRate) {
+        params.maxRate = parsedIntent.maxRate;
+      }
+      if (parsedIntent.language && !params.languages) {
+        params.languages = [parsedIntent.language];
+      }
+
+      const structuredFilters = {
+        language: getFirstString(params.languages) ?? parsedIntent.language,
+        maxRate: params.maxRate != null ? Number(params.maxRate) : parsedIntent.maxRate,
+        minRating: params.minRating != null ? Number(params.minRating) : undefined,
+      };
+      const keywordQuery = mentorSearchService.buildKeywordQuery(parsedIntent);
+
+      let vectorMentors: MentorWithReason[] = [];
+      let keywordMentors: MentorWithReason[] = [];
+      let semantic = false;
+      let llmEnhanced = false;
+
       try {
-        const vectorMentors = await embeddingService.searchMentors(params.query, limit);
-        if (vectorMentors.length > 0) {
-          return res.json({
-            success: true,
-            data: { mentors: vectorMentors, total: vectorMentors.length, query: params.query, semantic: true },
-          });
-        }
+        vectorMentors = await embeddingService.searchMentors(parsedIntent.semanticQuery, limit);
+        vectorMentors = mentorSearchService.applyStructuredFilters(vectorMentors, structuredFilters);
+        semantic = vectorMentors.length > 0;
       } catch (vectorErr) {
         logger.warn(`[VectorSearch] Falling back to keyword search: ${(vectorErr as Error).message}`);
       }
+
+      keywordMentors = await getMentorRepo().search({
+        ...params,
+        limit,
+        query: keywordQuery,
+      });
+      keywordMentors = mentorSearchService.attachHeuristicReasons(
+        mentorSearchService.applyStructuredFilters(keywordMentors, structuredFilters),
+        parsedIntent
+      );
+
+      let mentors = mentorSearchService.mergeResults(vectorMentors, keywordMentors, limit);
+
+      if (semantic && mentors.length > 0) {
+        try {
+          mentors = await mentorSearchService.rerankAndExplain(params.query as string, mentors);
+          llmEnhanced = true;
+        } catch (rankErr) {
+          logger.warn(`[MentorSearch] Re-ranking failed, using hybrid order: ${(rankErr as Error).message}`);
+        }
+      }
+
+      mentors = mentorSearchService.attachHeuristicReasons(mentors, parsedIntent);
+
+      return res.json({
+        success: true,
+        data: {
+          mentors,
+          total: mentors.length,
+          query: params.query,
+          queryAnalysis: mentorSearchService.summarizeIntent(parsedIntent),
+          semantic,
+          hybrid: semantic && keywordMentors.length > 0,
+          llmEnhanced,
+        },
+      });
     }
 
-    // --- Keyword search fallback ---
     const mentors = await getMentorRepo().search(params);
     return res.json({
       success: true,
-      data: { mentors, total: mentors.length, query: params.query, semantic: false },
+      data: { mentors, total: mentors.length, query: params.query, semantic: false, hybrid: false, llmEnhanced: false },
     });
   } catch (error) {
     next(error);
