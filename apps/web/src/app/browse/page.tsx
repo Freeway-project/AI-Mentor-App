@@ -7,6 +7,7 @@ import { apiClient, MentorSearchResponse } from '@/lib/api-client';
 import { Navbar } from '@/components/layout/Navbar';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { AnimatedPlaceholderInput } from '@/components/ui/animated-placeholder-input';
 
 /** Suggested query chips shown below the search bar */
 const SUGGESTED_QUERIES = [
@@ -121,12 +122,13 @@ export default function BrowsePage() {
           <form onSubmit={handleSearch} className="mb-4 flex gap-3 max-w-3xl mx-auto">
             <div className="relative flex-1 group">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-500 group-focus-within:text-violet-400 transition-colors" />
-              <input
+              <AnimatedPlaceholderInput
                 type="text"
                 value={query}
                 onChange={e => setQuery(e.target.value)}
+                suggestions={SUGGESTED_QUERIES}
                 className="w-full pl-12 pr-4 py-3.5 border border-slate-700/50 bg-slate-900/50 backdrop-blur-md rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500/50 text-white placeholder:text-slate-500 transition-all shadow-inner"
-                placeholder="Try: 'I want to learn system design' or 'I'm weak at TypeScript'"
+                placeholder="Try: I'm weak at TypeScript"
               />
             </div>
             <Button
