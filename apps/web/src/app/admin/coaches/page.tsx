@@ -19,7 +19,7 @@ function CoachCard({ coach, onApprove, onReject }: {
 
   return (
     <div className="bg-white rounded-xl border border-slate-200 p-5 space-y-3">
-      <div className="flex items-start justify-between gap-4">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
             <p className="font-semibold text-slate-900 truncate">{coach.name}</p>
@@ -42,7 +42,7 @@ function CoachCard({ coach, onApprove, onReject }: {
       </div>
 
       {coach.approvalStatus === 'pending' && (
-        <div className="flex gap-2 pt-2 border-t border-slate-100">
+        <div className="flex flex-col gap-2 border-t border-slate-100 pt-2 sm:flex-row">
           <Button
             size="sm"
             onClick={() => onApprove(coach.id)}
@@ -57,7 +57,7 @@ function CoachCard({ coach, onApprove, onReject }: {
       )}
 
       {showReject && (
-        <div className="flex gap-2">
+        <div className="flex flex-col gap-2 sm:flex-row">
           <input
             type="text"
             placeholder="Reason for rejection..."
@@ -126,7 +126,7 @@ export default function CoachesPage() {
   const loading = tab === 'pending' ? pendingLoading : allLoading;
 
   return (
-    <div className="p-8 space-y-6">
+    <div className="p-4 sm:p-6 lg:p-8 space-y-6">
       <div>
         <h1 className="text-2xl font-bold text-slate-900">Coach Management</h1>
         <p className="text-slate-500 text-sm mt-1">Review and approve coach applications</p>

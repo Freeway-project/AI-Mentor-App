@@ -55,7 +55,7 @@ function TopicForm({
           className="w-full px-3 py-2 text-sm text-slate-900 bg-white placeholder:text-slate-400 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-300 resize-none"
         />
       </div>
-      <div className="flex gap-2 justify-end">
+      <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
         <Button variant="outline" size="sm" onClick={onCancel} disabled={loading}>
           Cancel
         </Button>
@@ -115,8 +115,8 @@ export default function TopicsPage() {
   });
 
   return (
-    <div className="p-8 space-y-6">
-      <div className="flex items-center justify-between">
+    <div className="p-4 sm:p-6 lg:p-8 space-y-6">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold text-slate-900">Topic Catalog</h1>
           <p className="text-slate-500 text-sm mt-1">
@@ -156,7 +156,7 @@ export default function TopicsPage() {
                   loading={update.isPending}
                 />
               ) : (
-                <div className="flex items-start justify-between gap-4">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
                       <p className="font-medium text-slate-900">{topic.name}</p>
@@ -174,7 +174,7 @@ export default function TopicsPage() {
                       <p className="text-sm text-slate-500 mt-0.5">{topic.description}</p>
                     )}
                   </div>
-                  <div className="flex gap-2 shrink-0">
+                  <div className="flex gap-2 shrink-0 self-start">
                     <Button
                       size="sm"
                       variant="outline"

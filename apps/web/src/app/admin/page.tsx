@@ -59,14 +59,14 @@ export default function AdminDashboard() {
   });
 
   return (
-    <div className="p-8 space-y-8">
+    <div className="p-4 sm:p-6 lg:p-8 space-y-8">
       <div>
         <h1 className="text-2xl font-bold text-slate-900">Dashboard</h1>
         <p className="text-slate-500 text-sm mt-1">Platform overview</p>
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-2 xl:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
         <StatsCard
           label="Total Users"
           value={statsLoading ? '...' : (stats?.totalUsers ?? 0)}
@@ -101,7 +101,7 @@ export default function AdminDashboard() {
             Last 30 days: {usage?.overview.totalCalls ?? 0} calls, {usage?.overview.totalTokens ?? 0} tokens, {usage?.overview.failureCount ?? 0} failures.
           </p>
         </div>
-        <Link href="/admin/service-usage" className="text-sm font-medium text-violet-600 hover:underline">
+        <Link href="/admin/service-usage" className="text-sm font-medium text-violet-600 hover:underline self-start">
           Open usage dashboard
         </Link>
       </div>
@@ -123,7 +123,7 @@ export default function AdminDashboard() {
 
       {/* Pending coach approvals */}
       <div className="bg-white rounded-xl border border-slate-200">
-        <div className="px-5 py-4 border-b border-slate-200 flex items-center justify-between">
+        <div className="px-5 py-4 border-b border-slate-200 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <h2 className="font-semibold text-slate-900">Pending Coach Approvals</h2>
           {(pending?.total ?? 0) > 5 && (
             <Link href="/admin/coaches" className="text-sm text-violet-600 hover:underline">
@@ -138,13 +138,13 @@ export default function AdminDashboard() {
           <div className="divide-y divide-slate-100">
             {pending.mentors.map((coach) => (
               <div key={coach.id} className="px-5 py-4 space-y-3">
-                <div className="flex items-start justify-between gap-4">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                   <div>
                     <p className="font-medium text-slate-900">{coach.name}</p>
                     {coach.headline && <p className="text-sm text-slate-500">{coach.headline}</p>}
                     {coach.bio && <p className="text-sm text-slate-400 mt-1 line-clamp-2">{coach.bio}</p>}
                   </div>
-                  <div className="flex gap-2 shrink-0">
+                  <div className="flex gap-2 shrink-0 self-start">
                     <Button
                       size="sm"
                       onClick={() => approve.mutate({ id: coach.id })}
@@ -164,7 +164,7 @@ export default function AdminDashboard() {
                 </div>
 
                 {rejectingId === coach.id && (
-                  <div className="flex gap-2">
+                  <div className="flex flex-col gap-2 sm:flex-row">
                     <input
                       type="text"
                       placeholder="Rejection reason (required)"

@@ -116,7 +116,7 @@ export default function ServiceUsagePage() {
     : 0;
 
   return (
-    <div className="p-8 space-y-6">
+    <div className="p-4 sm:p-6 lg:p-8 space-y-6">
       <div className="flex flex-col gap-2 lg:flex-row lg:items-end lg:justify-between">
         <div>
           <h1 className="text-2xl font-bold text-slate-900">Service Usage</h1>
@@ -130,7 +130,7 @@ export default function ServiceUsagePage() {
       </div>
 
       <div className="flex flex-wrap gap-3">
-        <div className="flex gap-1 bg-slate-100 rounded-lg p-1">
+        <div className="flex w-full flex-wrap gap-1 rounded-lg bg-slate-100 p-1 sm:w-auto">
           {RANGE_OPTIONS.map(option => (
             <button
               key={option}
@@ -155,7 +155,7 @@ export default function ServiceUsagePage() {
             setService(event.target.value);
             setOffset(0);
           }}
-          className="px-3 py-2 text-sm text-slate-900 bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-300"
+          className="w-full px-3 py-2 text-sm text-slate-900 bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-300 sm:w-auto"
         >
           <option value="">All services</option>
           {serviceOptions.map(option => (
@@ -171,7 +171,7 @@ export default function ServiceUsagePage() {
             setProvider(event.target.value);
             setOffset(0);
           }}
-          className="px-3 py-2 text-sm text-slate-900 bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-300"
+          className="w-full px-3 py-2 text-sm text-slate-900 bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-300 sm:w-auto"
         >
           <option value="">All providers</option>
           {providerOptions.map(option => (
@@ -181,7 +181,7 @@ export default function ServiceUsagePage() {
           ))}
         </select>
 
-        <div className="flex gap-1 bg-slate-100 rounded-lg p-1">
+        <div className="flex w-full flex-wrap gap-1 rounded-lg bg-slate-100 p-1 sm:w-auto">
           {(['all', 'success', 'failed'] as StatusFilter[]).map(option => (
             <button
               key={option}
@@ -201,7 +201,7 @@ export default function ServiceUsagePage() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-5 gap-4">
         <StatsCard
           label="Service Calls"
           value={isLoading ? '...' : formatInteger(data?.overview.totalCalls)}

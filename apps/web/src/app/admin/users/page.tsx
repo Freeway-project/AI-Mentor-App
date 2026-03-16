@@ -47,7 +47,7 @@ export default function UsersPage() {
   const isPending = suspend.isPending || activate.isPending;
 
   return (
-    <div className="p-8 space-y-6">
+    <div className="p-4 sm:p-6 lg:p-8 space-y-6">
       <div>
         <h1 className="text-2xl font-bold text-slate-900">User Management</h1>
         <p className="text-slate-500 text-sm mt-1">
@@ -62,7 +62,7 @@ export default function UsersPage() {
           placeholder="Search by name or email..."
           value={search}
           onChange={(e) => { setSearch(e.target.value); setOffset(0); }}
-          className="px-3 py-2 text-sm text-slate-900 bg-white placeholder:text-slate-400 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-300 w-64"
+          className="w-full px-3 py-2 text-sm text-slate-900 bg-white placeholder:text-slate-400 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-300 sm:w-64"
         />
         <div className="flex gap-1 bg-slate-100 rounded-lg p-1">
           {(['all', 'mentee', 'mentor'] as RoleFilter[]).map((r) => (
@@ -81,7 +81,7 @@ export default function UsersPage() {
       </div>
 
       {/* Table */}
-      <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
+      <div className="bg-white rounded-xl border border-slate-200 overflow-hidden overflow-x-auto">
         {isLoading ? (
           <div className="flex justify-center py-12">
             <div className="w-8 h-8 border-4 border-violet-600 border-t-transparent rounded-full animate-spin" />
@@ -89,7 +89,7 @@ export default function UsersPage() {
         ) : !data?.users.length ? (
           <div className="text-center py-12 text-slate-500">No users found</div>
         ) : (
-          <table className="w-full text-sm">
+          <table className="w-full min-w-[760px] text-sm">
             <thead>
               <tr className="border-b border-slate-200 bg-slate-50">
                 <th className="px-4 py-3 text-left font-medium text-slate-600">Name</th>

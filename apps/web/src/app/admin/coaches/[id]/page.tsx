@@ -114,7 +114,7 @@ export default function MentorReviewPage() {
 
     if (isError || !mentor) {
         return (
-            <div className="p-8 text-center text-slate-500">
+            <div className="p-4 sm:p-6 lg:p-8 text-center text-slate-500">
                 <p>Mentor not found or could not be loaded.</p>
                 <Link href="/admin/coaches" className="text-violet-600 hover:underline text-sm mt-2 inline-block">← Back to Coaches</Link>
             </div>
