@@ -137,14 +137,14 @@ export default function LoginPage() {
               </span>
             </h1>
             <p className="text-slate-400 text-base leading-relaxed">
-              Get personalised 1-on-1 guidance from industry professionals who've been where you want to go.
+              Get personalised 1-on-1 guidance from industry professionals who&apos;ve been where you want to go.
             </p>
           </div>
 
           {/* Testimonial */}
           <div className="mt-10 max-w-sm p-5 rounded-2xl bg-white/[0.04] border border-white/[0.08] backdrop-blur-sm">
             <p className="text-slate-300 text-sm leading-relaxed italic">
-              "Within 3 months of working with my mentor I landed a senior engineering role at a FAANG company."
+              &ldquo;Within 3 months of working with my mentor I landed a senior engineering role at a FAANG company.&rdquo;
             </p>
             <div className="flex items-center gap-3 mt-4">
               <div className="w-8 h-8 rounded-full bg-gradient-to-br from-violet-400 to-fuchsia-400 flex items-center justify-center text-white text-xs font-bold">

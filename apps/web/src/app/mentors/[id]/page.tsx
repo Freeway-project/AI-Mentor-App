@@ -10,6 +10,8 @@ import { MentorProfileSections } from '@/components/mentor-profile/profile-secti
 import { MentorProfileStructuredData } from '@/components/mentor-profile/profile-structured-data';
 import { getMentorProfilePageData, buildMentorMetadata } from '@/lib/public-mentor';
 
+export const dynamic = 'force-dynamic';
+
 const MentorProfileBookingPanel = dynamic(
   () =>
     import('@/components/mentor-profile/profile-booking-panel').then(
