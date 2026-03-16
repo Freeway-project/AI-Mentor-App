@@ -2,6 +2,7 @@ import { MentorRepository, OfferRepository } from '@owl-mentors/database';
 import { createEmbeddingClient, EmbeddingProvider } from '@owl-mentors/llm';
 import { Mentor, Offer } from '@owl-mentors/types';
 import { logger } from '@owl-mentors/utils';
+import { serviceUsageService } from './service-usage.service';
 
 /**
  * EmbeddingService — orchestrates mentor profile embedding and semantic search.
@@ -34,11 +35,13 @@ export class EmbeddingService {
   private embeddingClient: EmbeddingProvider;
   private mentorRepo: MentorRepository;
   private offerRepo: OfferRepository;
+  private provider: string;
 
   constructor() {
     this.embeddingClient = createEmbeddingClient();
     this.mentorRepo = new MentorRepository();
     this.offerRepo = new OfferRepository();
+    this.provider = (process.env.EMBEDDING_PROVIDER ?? 'voyage').toLowerCase();
   }
 
   /**
@@ -93,10 +96,40 @@ export class EmbeddingService {
       return;
     }
 
-    const embedding = await this.embeddingClient.embed(text);
-    await this.mentorRepo.updateEmbedding(mentorId, embedding);
+    const startTime = Date.now();
+    try {
+      const embedding = await this.embeddingClient.embed(text);
+      await this.mentorRepo.updateEmbedding(mentorId, embedding);
 
-    logger.info(`[Embedding] Mentor ${mentorId} embedded (${embedding.length} dims)`);
+      await serviceUsageService.recordSuccess({
+        service: 'embeddings',
+        provider: this.provider,
+        operation: 'embed_mentor_profile',
+        usageCount: 1,
+        durationMs: Date.now() - startTime,
+        metadata: {
+          mentorId,
+          inputChars: text.length,
+          dimensions: embedding.length,
+        },
+      });
+
+      logger.info(`[Embedding] Mentor ${mentorId} embedded (${embedding.length} dims)`);
+    } catch (error) {
+      await serviceUsageService.recordFailure({
+        service: 'embeddings',
+        provider: this.provider,
+        operation: 'embed_mentor_profile',
+        usageCount: 1,
+        durationMs: Date.now() - startTime,
+        errorMessage: (error as Error).message,
+        metadata: {
+          mentorId,
+          inputChars: text.length,
+        },
+      });
+      throw error;
+    }
   }
 
   /**
@@ -109,7 +142,40 @@ export class EmbeddingService {
    * @returns Mentors sorted by semantic similarity, each with a matchScore (0.0–1.0)
    */
   async searchMentors(query: string, limit = 12): Promise<(Mentor & { matchScore?: number })[]> {
-    const queryEmbedding = await this.embeddingClient.embed(query);
-    return this.mentorRepo.vectorSearch(queryEmbedding, limit);
+    const startTime = Date.now();
+    try {
+      const queryEmbedding = await this.embeddingClient.embed(query);
+      const mentors = await this.mentorRepo.vectorSearch(queryEmbedding, limit);
+
+      await serviceUsageService.recordSuccess({
+        service: 'embeddings',
+        provider: this.provider,
+        operation: 'embed_search_query',
+        usageCount: 1,
+        durationMs: Date.now() - startTime,
+        metadata: {
+          inputChars: query.length,
+          limit,
+          resultCount: mentors.length,
+          dimensions: queryEmbedding.length,
+        },
+      });
+
+      return mentors;
+    } catch (error) {
+      await serviceUsageService.recordFailure({
+        service: 'embeddings',
+        provider: this.provider,
+        operation: 'embed_search_query',
+        usageCount: 1,
+        durationMs: Date.now() - startTime,
+        errorMessage: (error as Error).message,
+        metadata: {
+          inputChars: query.length,
+          limit,
+        },
+      });
+      throw error;
+    }
   }
 }

@@ -36,6 +36,11 @@ export default function AdminDashboard() {
     queryFn: () => adminService.listPendingCoaches(5),
   });
 
+  const { data: usage } = useQuery({
+    queryKey: ['admin-service-usage-preview'],
+    queryFn: () => adminService.getServiceUsage({ days: 30, limit: 5 }),
+  });
+
   const approve = useMutation({
     mutationFn: ({ id, note }: { id: string; note?: string }) => adminService.approveCoach(id, note),
     onSuccess: () => {
@@ -87,6 +92,18 @@ export default function AdminDashboard() {
           color="purple"
           sub={`${(stats?.credits.totalHeld ?? 0).toFixed(1)} held`}
         />
+      </div>
+
+      <div className="bg-white rounded-xl border border-slate-200 p-5 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+        <div>
+          <h2 className="font-semibold text-slate-900">AI and Service Usage</h2>
+          <p className="text-sm text-slate-500 mt-1">
+            Last 30 days: {usage?.overview.totalCalls ?? 0} calls, {usage?.overview.totalTokens ?? 0} tokens, {usage?.overview.failureCount ?? 0} failures.
+          </p>
+        </div>
+        <Link href="/admin/service-usage" className="text-sm font-medium text-violet-600 hover:underline">
+          Open usage dashboard
+        </Link>
       </div>
 
       {/* Session status breakdown */}

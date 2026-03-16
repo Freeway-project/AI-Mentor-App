@@ -54,6 +54,15 @@ const navItems = [
     ),
   },
   {
+    label: 'Service Usage',
+    href: '/admin/service-usage',
+    icon: (
+      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 13v7m4-14v14m4-9v9M4 20h16" />
+      </svg>
+    ),
+  },
+  {
     label: 'Topics',
     href: '/admin/topics',
     icon: (

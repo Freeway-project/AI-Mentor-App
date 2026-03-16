@@ -1,5 +1,6 @@
 import nodemailer from 'nodemailer';
 import { logger } from '@owl-mentors/utils';
+import { serviceUsageService } from './service-usage.service';
 
 let _devTransport: nodemailer.Transporter | null = null;
 
@@ -24,6 +25,58 @@ function createTransport() {
     port: Number(SMTP_PORT) || 587,
     secure: Number(SMTP_PORT) === 465,
     auth: { user: SMTP_USER, pass: SMTP_PASS },
+  });
+}
+
+function getRecipientCount(to: nodemailer.SendMailOptions['to']): number {
+  if (!to) return 1;
+  if (Array.isArray(to)) return to.length || 1;
+  if (typeof to === 'string') return to.split(',').map(value => value.trim()).filter(Boolean).length || 1;
+  return 1;
+}
+
+async function sendTrackedMail(params: {
+  transport: nodemailer.Transporter;
+  provider: 'smtp' | 'ethereal';
+  operation: string;
+  mailOptions: nodemailer.SendMailOptions;
+  metadata?: Record<string, unknown>;
+}) {
+  const startTime = Date.now();
+
+  try {
+    const info = await params.transport.sendMail(params.mailOptions);
+    await serviceUsageService.recordSuccess({
+      service: 'email',
+      provider: params.provider,
+      operation: params.operation,
+      usageCount: getRecipientCount(params.mailOptions.to),
+      durationMs: Date.now() - startTime,
+      metadata: params.metadata,
+    });
+    return info;
+  } catch (error) {
+    await serviceUsageService.recordFailure({
+      service: 'email',
+      provider: params.provider,
+      operation: params.operation,
+      usageCount: getRecipientCount(params.mailOptions.to),
+      durationMs: Date.now() - startTime,
+      errorMessage: (error as Error).message,
+      metadata: params.metadata,
+    });
+    throw error;
+  }
+}
+
+async function recordEmailFallbackFailure(operation: string, errorMessage: string, metadata?: Record<string, unknown>) {
+  await serviceUsageService.recordFailure({
+    service: 'email',
+    provider: 'fallback',
+    operation,
+    usageCount: 1,
+    errorMessage,
+    metadata,
   });
 }
 
@@ -62,7 +115,13 @@ export const EmailService = {
     const transport = createTransport();
     if (transport) {
       try {
-        await transport.sendMail({ from, to, subject, html });
+        await sendTrackedMail({
+          transport,
+          provider: 'smtp',
+          operation: 'send_otp',
+          mailOptions: { from, to, subject, html },
+          metadata: { emailType: 'otp' },
+        });
         logger.info(`[OTP EMAIL] Sent to ${to}`);
         return;
       } catch (error) {
@@ -74,11 +133,18 @@ export const EmailService = {
     // Fallback: Ethereal (dev only — captures email, viewable in browser)
     try {
       const devTransport = await getDevTransport();
-      const info = await devTransport.sendMail({ from, to, subject, html });
+      const info = await sendTrackedMail({
+        transport: devTransport,
+        provider: 'ethereal',
+        operation: 'send_otp',
+        mailOptions: { from, to, subject, html },
+        metadata: { emailType: 'otp' },
+      });
       const previewUrl = nodemailer.getTestMessageUrl(info);
       logger.info(`[OTP EMAIL DEV] Code: ${code} | Preview: ${previewUrl}`);
     } catch (err) {
       // Last resort — just log the code
+      await recordEmailFallbackFailure('send_otp', 'Logged OTP fallback only', { emailType: 'otp' });
       logger.warn(`[OTP EMAIL FALLBACK] To: ${to} | Code: ${code} | Expires: 10 min`);
     }
   },
@@ -110,7 +176,13 @@ export const EmailService = {
     const transport = createTransport();
     if (transport) {
       try {
-        await transport.sendMail({ from, to, subject, html });
+        await sendTrackedMail({
+          transport,
+          provider: 'smtp',
+          operation: 'send_password_reset',
+          mailOptions: { from, to, subject, html },
+          metadata: { emailType: 'password_reset' },
+        });
         logger.info(`[RESET EMAIL] Sent to ${to}`);
         return;
       } catch (error) {
@@ -122,11 +194,20 @@ export const EmailService = {
     // Fallback: Ethereal (dev only)
     try {
       const devTransport = await getDevTransport();
-      const info = await devTransport.sendMail({ from, to, subject, html });
+      const info = await sendTrackedMail({
+        transport: devTransport,
+        provider: 'ethereal',
+        operation: 'send_password_reset',
+        mailOptions: { from, to, subject, html },
+        metadata: { emailType: 'password_reset' },
+      });
       const previewUrl = nodemailer.getTestMessageUrl(info);
       logger.info(`[RESET EMAIL DEV] Preview: ${previewUrl}`);
     } catch (err) {
       // Last resort — just log the reset URL
+      await recordEmailFallbackFailure('send_password_reset', 'Logged password reset fallback only', {
+        emailType: 'password_reset',
+      });
       logger.warn(`[RESET EMAIL FALLBACK] To: ${to} | URL: ${resetUrl}`);
     }
   },
@@ -182,7 +263,13 @@ export const EmailService = {
     }
 
     try {
-      await transport.sendMail({ from, to: adminEmail, subject, html });
+      await sendTrackedMail({
+        transport,
+        provider: 'smtp',
+        operation: 'notify_admin_profile_complete',
+        mailOptions: { from, to: adminEmail, subject, html },
+        metadata: { emailType: 'admin_profile_complete', mentorId: mentor.mentorId },
+      });
       logger.info(`[ADMIN NOTIFY] Profile-complete email sent to ${adminEmail} for mentor ${mentor.email}`);
     } catch (error) {
       logger.error(`[ADMIN NOTIFY] Failed to send profile-complete email: ${(error as Error).message}`);
@@ -237,7 +324,13 @@ export const EmailService = {
     }
 
     try {
-      await transport.sendMail({ from, to: adminEmail, subject, html });
+      await sendTrackedMail({
+        transport,
+        provider: 'smtp',
+        operation: 'notify_admin_new_mentor',
+        mailOptions: { from, to: adminEmail, subject, html },
+        metadata: { emailType: 'admin_new_mentor' },
+      });
       logger.info(`[ADMIN NOTIFY] Sent to ${adminEmail} for mentor ${mentor.email}`);
     } catch (error) {
       logger.error(`[ADMIN NOTIFY] Failed: ${(error as Error).message}`);
@@ -282,7 +375,13 @@ export const EmailService = {
     const transport = createTransport();
     if (transport) {
       try {
-        await transport.sendMail({ from, to: params.mentorEmail, subject, html });
+        await sendTrackedMail({
+          transport,
+          provider: 'smtp',
+          operation: 'notify_mentor_review_message',
+          mailOptions: { from, to: params.mentorEmail, subject, html },
+          metadata: { emailType: 'mentor_review_message', mentorId: params.mentorId },
+        });
         logger.info(`[REVIEW EMAIL] Sent to mentor ${params.mentorEmail}`);
         return;
       } catch (error) {
@@ -293,10 +392,20 @@ export const EmailService = {
 
     try {
       const devTransport = await getDevTransport();
-      const info = await devTransport.sendMail({ from, to: params.mentorEmail, subject, html });
+      const info = await sendTrackedMail({
+        transport: devTransport,
+        provider: 'ethereal',
+        operation: 'notify_mentor_review_message',
+        mailOptions: { from, to: params.mentorEmail, subject, html },
+        metadata: { emailType: 'mentor_review_message', mentorId: params.mentorId },
+      });
       const previewUrl = nodemailer.getTestMessageUrl(info);
       logger.info(`[REVIEW EMAIL DEV] Sent to ${params.mentorEmail} | Preview: ${previewUrl}`);
     } catch (err) {
+      await recordEmailFallbackFailure('notify_mentor_review_message', (err as Error).message, {
+        emailType: 'mentor_review_message',
+        mentorId: params.mentorId,
+      });
       logger.warn(`[REVIEW EMAIL FALLBACK] Could not send to ${params.mentorEmail}: ${(err as Error).message}`);
     }
   },
@@ -341,7 +450,13 @@ export const EmailService = {
     const transport = createTransport();
     if (transport) {
       try {
-        await transport.sendMail({ from, to: adminEmail, subject, html });
+        await sendTrackedMail({
+          transport,
+          provider: 'smtp',
+          operation: 'notify_admin_review_reply',
+          mailOptions: { from, to: adminEmail, subject, html },
+          metadata: { emailType: 'admin_review_reply', mentorId: params.mentorId },
+        });
         logger.info(`[ADMIN REVIEW REPLY] Sent to ${adminEmail} for mentor ${params.mentorEmail}`);
         return;
       } catch (error) {
@@ -352,10 +467,20 @@ export const EmailService = {
 
     try {
       const devTransport = await getDevTransport();
-      const info = await devTransport.sendMail({ from, to: adminEmail, subject, html });
+      const info = await sendTrackedMail({
+        transport: devTransport,
+        provider: 'ethereal',
+        operation: 'notify_admin_review_reply',
+        mailOptions: { from, to: adminEmail, subject, html },
+        metadata: { emailType: 'admin_review_reply', mentorId: params.mentorId },
+      });
       const previewUrl = nodemailer.getTestMessageUrl(info);
       logger.info(`[ADMIN REVIEW REPLY DEV] Sent to ${adminEmail} | Preview: ${previewUrl}`);
     } catch (err) {
+      await recordEmailFallbackFailure('notify_admin_review_reply', (err as Error).message, {
+        emailType: 'admin_review_reply',
+        mentorId: params.mentorId,
+      });
       logger.warn(`[ADMIN REVIEW REPLY FALLBACK] Could not send to ${adminEmail}: ${(err as Error).message}`);
     }
   },
@@ -437,7 +562,13 @@ export const EmailService = {
     const transport = createTransport();
     if (transport) {
       try {
-        await transport.sendMail({ from, to: params.to, subject, html });
+        await sendTrackedMail({
+          transport,
+          provider: 'smtp',
+          operation: 'send_booking_confirmation',
+          mailOptions: { from, to: params.to, subject, html },
+          metadata: { emailType: 'booking_confirmation', meetingId: params.meetingId },
+        });
         logger.info(`[BOOKING CONFIRM EMAIL] Sent to ${params.to}`);
         return;
       } catch (error) {
@@ -448,10 +579,20 @@ export const EmailService = {
 
     try {
       const devTransport = await getDevTransport();
-      const info = await devTransport.sendMail({ from, to: params.to, subject, html });
+      const info = await sendTrackedMail({
+        transport: devTransport,
+        provider: 'ethereal',
+        operation: 'send_booking_confirmation',
+        mailOptions: { from, to: params.to, subject, html },
+        metadata: { emailType: 'booking_confirmation', meetingId: params.meetingId },
+      });
       const previewUrl = nodemailer.getTestMessageUrl(info);
       logger.info(`[BOOKING CONFIRM EMAIL DEV] Sent to ${params.to} | Preview: ${previewUrl}`);
     } catch (err) {
+      await recordEmailFallbackFailure('send_booking_confirmation', (err as Error).message, {
+        emailType: 'booking_confirmation',
+        meetingId: params.meetingId,
+      });
       logger.warn(`[BOOKING CONFIRM EMAIL FALLBACK] Could not send to ${params.to}: ${(err as Error).message}`);
     }
   },
@@ -517,7 +658,13 @@ export const EmailService = {
     const transport = createTransport();
     if (transport) {
       try {
-        await transport.sendMail({ from, to: params.to, subject, html });
+        await sendTrackedMail({
+          transport,
+          provider: 'smtp',
+          operation: 'send_session_reminder',
+          mailOptions: { from, to: params.to, subject, html },
+          metadata: { emailType: 'session_reminder', meetingId: params.meetingId },
+        });
         logger.info(`[REMINDER EMAIL] Sent to ${params.to}`);
         return;
       } catch (error) {
@@ -528,10 +675,20 @@ export const EmailService = {
 
     try {
       const devTransport = await getDevTransport();
-      const info = await devTransport.sendMail({ from, to: params.to, subject, html });
+      const info = await sendTrackedMail({
+        transport: devTransport,
+        provider: 'ethereal',
+        operation: 'send_session_reminder',
+        mailOptions: { from, to: params.to, subject, html },
+        metadata: { emailType: 'session_reminder', meetingId: params.meetingId },
+      });
       const previewUrl = nodemailer.getTestMessageUrl(info);
       logger.info(`[REMINDER EMAIL DEV] Sent to ${params.to} | Preview: ${previewUrl}`);
     } catch (err) {
+      await recordEmailFallbackFailure('send_session_reminder', (err as Error).message, {
+        emailType: 'session_reminder',
+        meetingId: params.meetingId,
+      });
       logger.warn(`[REMINDER EMAIL FALLBACK] Could not send to ${params.to}: ${(err as Error).message}`);
     }
   },
@@ -602,7 +759,13 @@ export const EmailService = {
     const transport = createTransport();
     if (transport) {
       try {
-        await transport.sendMail({ from, to: params.to, subject, html });
+        await sendTrackedMail({
+          transport,
+          provider: 'smtp',
+          operation: 'send_session_summary',
+          mailOptions: { from, to: params.to, subject, html },
+          metadata: { emailType: 'session_summary', meetingId: params.meetingId },
+        });
         logger.info(`[SESSION SUMMARY EMAIL] Sent to ${params.to}`);
         return;
       } catch (error) {
@@ -613,10 +776,20 @@ export const EmailService = {
 
     try {
       const devTransport = await getDevTransport();
-      const info = await devTransport.sendMail({ from, to: params.to, subject, html });
+      const info = await sendTrackedMail({
+        transport: devTransport,
+        provider: 'ethereal',
+        operation: 'send_session_summary',
+        mailOptions: { from, to: params.to, subject, html },
+        metadata: { emailType: 'session_summary', meetingId: params.meetingId },
+      });
       const previewUrl = nodemailer.getTestMessageUrl(info);
       logger.info(`[SESSION SUMMARY EMAIL DEV] Sent to ${params.to} | Preview: ${previewUrl}`);
     } catch (err) {
+      await recordEmailFallbackFailure('send_session_summary', (err as Error).message, {
+        emailType: 'session_summary',
+        meetingId: params.meetingId,
+      });
       logger.warn(`[SESSION SUMMARY EMAIL FALLBACK] Could not send to ${params.to}: ${(err as Error).message}`);
     }
   },
@@ -667,7 +840,13 @@ export const EmailService = {
     const transport = createTransport();
     if (transport) {
       try {
-        await transport.sendMail({ from, to, subject, html });
+        await sendTrackedMail({
+          transport,
+          provider: 'smtp',
+          operation: 'send_marketing_email',
+          mailOptions: { from, to, subject, html },
+          metadata: { emailType: 'marketing' },
+        });
         logger.info(`[MARKETING EMAIL] Sent to ${to}`);
         return;
       } catch (error) {
@@ -678,10 +857,19 @@ export const EmailService = {
 
     try {
       const devTransport = await getDevTransport();
-      const info = await devTransport.sendMail({ from, to, subject, html });
+      const info = await sendTrackedMail({
+        transport: devTransport,
+        provider: 'ethereal',
+        operation: 'send_marketing_email',
+        mailOptions: { from, to, subject, html },
+        metadata: { emailType: 'marketing' },
+      });
       const previewUrl = nodemailer.getTestMessageUrl(info);
       logger.info(`[MARKETING EMAIL DEV] Sent to ${to} | Preview: ${previewUrl}`);
     } catch (err) {
+      await recordEmailFallbackFailure('send_marketing_email', (err as Error).message, {
+        emailType: 'marketing',
+      });
       logger.warn(`[MARKETING EMAIL FALLBACK] Could not send to ${to}: ${(err as Error).message}`);
     }
   },

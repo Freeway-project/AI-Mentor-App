@@ -13,6 +13,7 @@ import { DailyService } from '../services/daily.service';
 import { WhisperService } from '../services/whisper.service';
 import { EmailService } from '../services/email.service';
 import { StripeService } from '../services/stripe.service';
+import { serviceUsageService } from '../services/service-usage.service';
 
 const router: Router = Router();
 
@@ -130,7 +131,24 @@ async function handleDailyEvent(payload: DailyWebhookPayload): Promise<void> {
       menteeName: mentee.name,
       mentorName: mentor.name,
     });
+    const llmStartTime = Date.now();
     const llmResponse = await llm.chat(messages, { temperature: 0.3, maxTokens: 800 });
+    await serviceUsageService.recordSuccess({
+      service: 'llm',
+      provider: llmResponse.provider,
+      operation: 'chat_completion',
+      model: llmResponse.model,
+      usageCount: 1,
+      durationMs: Date.now() - llmStartTime,
+      promptTokens: llmResponse.tokens?.prompt,
+      completionTokens: llmResponse.tokens?.completion,
+      totalTokens: llmResponse.tokens?.total,
+      metadata: {
+        feature: 'session_summary',
+        meetingId,
+        messageCount: messages.length,
+      },
+    });
     const parsed = JSON.parse(llmResponse.content);
     summary = parsed.summary ?? '';
     actionItems = parsed.actionItems ?? [];
@@ -138,6 +156,17 @@ async function handleDailyEvent(payload: DailyWebhookPayload): Promise<void> {
     summaryStatus = 'summarized';
     logger.info(`[Webhook/Daily] LLM summary generated for meeting ${meetingId}`);
   } catch (err) {
+    await serviceUsageService.recordFailure({
+      service: 'llm',
+      provider: process.env.LLM_PROVIDER || 'openrouter',
+      operation: 'chat_completion',
+      usageCount: 1,
+      errorMessage: (err as Error).message,
+      metadata: {
+        feature: 'session_summary',
+        meetingId,
+      },
+    });
     logger.error(`[Webhook/Daily] LLM summary failed for meeting ${meetingId}: ${(err as Error).message}`);
   }
 

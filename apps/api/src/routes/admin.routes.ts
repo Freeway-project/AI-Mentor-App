@@ -1,5 +1,14 @@
 import { Router, Request, Response, NextFunction } from 'express';
-import { UserRepository, MentorRepository, MeetingRepository, CreditRepository, OfferRepository, PolicyRepository } from '@owl-mentors/database';
+import {
+  UserRepository,
+  MentorRepository,
+  MeetingRepository,
+  CreditRepository,
+  OfferRepository,
+  PolicyRepository,
+  ServiceUsageRepository,
+  ServiceUsageStatus,
+} from '@owl-mentors/database';
 import { ReviewMessageModel, toReviewMessage } from '../../../../packages/database/src/models/review-message.model';
 import { authenticate, authorize } from '../middleware/auth.middleware';
 import { AppError } from '../middleware/error.middleware';
@@ -13,6 +22,7 @@ let meetingRepo: MeetingRepository;
 let creditRepo: CreditRepository;
 let offerRepo: OfferRepository;
 let policyRepo: PolicyRepository;
+let serviceUsageRepo: ServiceUsageRepository;
 
 function getUserRepo() { if (!userRepo) userRepo = new UserRepository(); return userRepo; }
 function getMentorRepo() { if (!mentorRepo) mentorRepo = new MentorRepository(); return mentorRepo; }
@@ -20,6 +30,7 @@ function getMeetingRepo() { if (!meetingRepo) meetingRepo = new MeetingRepositor
 function getCreditRepo() { if (!creditRepo) creditRepo = new CreditRepository(); return creditRepo; }
 function getOfferRepo() { if (!offerRepo) offerRepo = new OfferRepository(); return offerRepo; }
 function getPolicyRepo() { if (!policyRepo) policyRepo = new PolicyRepository(); return policyRepo; }
+function getServiceUsageRepo() { if (!serviceUsageRepo) serviceUsageRepo = new ServiceUsageRepository(); return serviceUsageRepo; }
 
 // All admin routes require admin role
 router.use(authenticate, authorize('admin'));
@@ -130,6 +141,54 @@ router.get('/credits', async (req: Request, res: Response, next: NextFunction) =
     );
     const stats = await getCreditRepo().getCirculationStats();
     res.json({ success: true, data: { ...result, stats } });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// ─── Service Usage ───────────────────────────────────────────────────────────
+
+// GET /admin/service-usage
+router.get('/service-usage', async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { days, service, provider, status, limit, offset } = req.query;
+    const parsedDays = Math.max(1, Math.min(Number(days) || 30, 365));
+    const parsedLimit = Math.max(1, Math.min(Number(limit) || 25, 100));
+    const parsedOffset = Math.max(0, Number(offset) || 0);
+    const allowedStatuses: ServiceUsageStatus[] = ['success', 'failed'];
+    const parsedStatus = typeof status === 'string' && allowedStatuses.includes(status as ServiceUsageStatus)
+      ? status as ServiceUsageStatus
+      : undefined;
+    const since = new Date(Date.now() - parsedDays * 24 * 60 * 60 * 1000);
+    const filters = {
+      since,
+      service: typeof service === 'string' && service.trim() ? service.trim() : undefined,
+      provider: typeof provider === 'string' && provider.trim() ? provider.trim() : undefined,
+      status: parsedStatus,
+    };
+
+    const [overview, services, recordsResult] = await Promise.all([
+      getServiceUsageRepo().getOverview(filters),
+      getServiceUsageRepo().getServiceBreakdown(filters),
+      getServiceUsageRepo().list(filters, parsedLimit, parsedOffset),
+    ]);
+
+    res.json({
+      success: true,
+      data: {
+        overview,
+        services,
+        records: recordsResult.records,
+        total: recordsResult.total,
+        filters: {
+          ...filters,
+          days: parsedDays,
+          since,
+          limit: parsedLimit,
+          offset: parsedOffset,
+        },
+      },
+    });
   } catch (error) {
     next(error);
   }

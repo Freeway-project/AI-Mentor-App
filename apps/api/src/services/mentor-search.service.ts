@@ -1,5 +1,6 @@
 import {
   GroqClient,
+  LLMResponse,
   OpenRouterClient,
   buildProviderRankingPrompt,
   buildSearchQueryParserPrompt,
@@ -7,6 +8,7 @@ import {
 } from '@owl-mentors/llm';
 import { Mentor } from '@owl-mentors/types';
 import { logger } from '@owl-mentors/utils';
+import { serviceUsageService } from './service-usage.service';
 
 export interface ParsedIntent {
   experienceLevel?: 'beginner' | 'intermediate' | 'advanced';
@@ -222,21 +224,77 @@ export class MentorSearchService {
     this.openrouter = process.env.OPENROUTER_API_KEY ? new OpenRouterClient(process.env.OPENROUTER_API_KEY) : null;
   }
 
-  private async callWithFallback(messages: LLMMessage[]): Promise<string> {
+  private async callWithFallback(
+    messages: LLMMessage[],
+    feature: 'parse_intent' | 'rerank_results'
+  ): Promise<LLMResponse> {
     const opts = { maxTokens: 512, temperature: 0 };
+    const metadata = {
+      feature,
+      messageCount: messages.length,
+      maxTokens: opts.maxTokens,
+    };
 
     if (this.groq) {
+      const startTime = Date.now();
       try {
         const res = await this.groq.chat(messages, opts);
-        return res.content;
+        await serviceUsageService.recordSuccess({
+          service: 'llm',
+          provider: res.provider,
+          operation: 'chat_completion',
+          model: res.model,
+          usageCount: 1,
+          durationMs: Date.now() - startTime,
+          promptTokens: res.tokens?.prompt,
+          completionTokens: res.tokens?.completion,
+          totalTokens: res.tokens?.total,
+          metadata,
+        });
+        return res;
       } catch (error) {
+        await serviceUsageService.recordFailure({
+          service: 'llm',
+          provider: 'groq',
+          operation: 'chat_completion',
+          usageCount: 1,
+          durationMs: Date.now() - startTime,
+          errorMessage: (error as Error).message,
+          metadata,
+        });
         logger.warn(`[MentorSearch] Groq failed, falling back to OpenRouter: ${(error as Error).message}`);
       }
     }
 
     if (this.openrouter) {
-      const res = await this.openrouter.chat(messages, opts);
-      return res.content;
+      const startTime = Date.now();
+      try {
+        const res = await this.openrouter.chat(messages, opts);
+        await serviceUsageService.recordSuccess({
+          service: 'llm',
+          provider: res.provider,
+          operation: 'chat_completion',
+          model: res.model,
+          usageCount: 1,
+          durationMs: Date.now() - startTime,
+          promptTokens: res.tokens?.prompt,
+          completionTokens: res.tokens?.completion,
+          totalTokens: res.tokens?.total,
+          metadata,
+        });
+        return res;
+      } catch (error) {
+        await serviceUsageService.recordFailure({
+          service: 'llm',
+          provider: 'openrouter',
+          operation: 'chat_completion',
+          usageCount: 1,
+          durationMs: Date.now() - startTime,
+          errorMessage: (error as Error).message,
+          metadata,
+        });
+        throw error;
+      }
     }
 
     throw new Error('No LLM provider configured');
@@ -322,7 +380,7 @@ export class MentorSearchService {
 
     try {
       const messages = buildSearchQueryParserPrompt(query);
-      const content = await this.callWithFallback(messages);
+      const content = (await this.callWithFallback(messages, 'parse_intent')).content;
       const jsonMatch = content.match(/\{[\s\S]*\}/);
 
       if (!jsonMatch) {
@@ -338,7 +396,7 @@ export class MentorSearchService {
   async rerankAndExplain(query: string, mentors: MentorWithReason[]): Promise<MentorWithReason[]> {
     try {
       const messages = buildProviderRankingPrompt(query, mentors);
-      const content = await this.callWithFallback(messages);
+      const content = (await this.callWithFallback(messages, 'rerank_results')).content;
       const jsonMatch = content.match(/\[[\s\S]*\]/);
 
       if (!jsonMatch) {

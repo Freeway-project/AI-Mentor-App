@@ -17,6 +17,7 @@ export * from './models/campaign-run.model';
 export * from './models/user-integration.model';
 export * from './models/calendar-settings.model';
 export * from './models/transcript.model';
+export * from './models/service-usage.model';
 
 // Repositories
 export { UserRepository } from './repositories/user.repository';
@@ -32,6 +33,7 @@ export { OtpRepository } from './repositories/otp.repository';
 export { UserIntegrationRepository } from './repositories/user-integration.repository';
 export { CalendarSettingsRepository } from './repositories/calendar-settings.repository';
 export { TranscriptRepository } from './repositories/transcript.repository';
+export { ServiceUsageRepository } from './repositories/service-usage.repository';
 
 // Legacy exports
 export { MentorRepository as ProviderRepository } from './repositories/mentor.repository';

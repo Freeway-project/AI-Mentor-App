@@ -53,6 +53,72 @@ export interface AdminTransaction {
   createdAt: string;
 }
 
+export interface AdminServiceUsageOverview {
+  totalCalls: number;
+  totalUsage: number;
+  successCount: number;
+  failureCount: number;
+  totalTokens: number;
+  promptTokens: number;
+  completionTokens: number;
+  averageDurationMs: number;
+  totalEstimatedCostUsd: number;
+  uniqueServices: number;
+}
+
+export interface AdminServiceUsageGroup {
+  service: string;
+  provider: string;
+  totalCalls: number;
+  totalUsage: number;
+  successCount: number;
+  failureCount: number;
+  totalTokens: number;
+  promptTokens: number;
+  completionTokens: number;
+  averageDurationMs: number;
+  totalEstimatedCostUsd: number;
+  lastUsedAt?: string;
+  operations: string[];
+}
+
+export interface AdminServiceUsageRecord {
+  id: string;
+  service: string;
+  provider: string;
+  operation: string;
+  model?: string;
+  status: 'success' | 'failed';
+  usageCount: number;
+  durationMs?: number;
+  promptTokens?: number;
+  completionTokens?: number;
+  totalTokens?: number;
+  estimatedCostUsd?: number;
+  errorMessage?: string;
+  metadata?: Record<string, unknown>;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface AdminServiceUsageFilters {
+  days: number;
+  since: string;
+  limit: number;
+  offset: number;
+  service?: string;
+  provider?: string;
+  status?: 'success' | 'failed';
+}
+
+export interface AdminServiceUsageResponse {
+  overview: AdminServiceUsageOverview;
+  services: AdminServiceUsageGroup[];
+  records: AdminServiceUsageRecord[];
+  total: number;
+  filters: AdminServiceUsageFilters;
+}
+
 export const adminService = {
   getStats: () => apiFetch<AdminStats>('/admin/stats'),
 
@@ -108,6 +174,24 @@ export const adminService = {
     if (params?.limit) q.set('limit', String(params.limit));
     if (params?.offset !== undefined) q.set('offset', String(params.offset));
     return apiFetch<{ transactions: AdminTransaction[]; total: number; stats: any }>(`/admin/credits?${q}`);
+  },
+
+  getServiceUsage: (params?: {
+    days?: number;
+    service?: string;
+    provider?: string;
+    status?: 'success' | 'failed';
+    limit?: number;
+    offset?: number;
+  }) => {
+    const q = new URLSearchParams();
+    if (params?.days) q.set('days', String(params.days));
+    if (params?.service) q.set('service', params.service);
+    if (params?.provider) q.set('provider', params.provider);
+    if (params?.status) q.set('status', params.status);
+    if (params?.limit) q.set('limit', String(params.limit));
+    if (params?.offset !== undefined) q.set('offset', String(params.offset));
+    return apiFetch<AdminServiceUsageResponse>(`/admin/service-usage?${q}`);
   },
 
   getCoachById: (id: string) => apiFetch<any>(`/admin/coaches/${id}`),

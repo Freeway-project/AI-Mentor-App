@@ -1,5 +1,6 @@
 import crypto from 'crypto';
 import { logger } from '@owl-mentors/utils';
+import { serviceUsageService } from './service-usage.service';
 
 export interface DailyRoom {
   name: string;
@@ -15,49 +16,98 @@ function getApiKey(): string {
 
 export class DailyService {
   async createRoom(params: { meetingId: string; expiresAt: Date }): Promise<DailyRoom> {
-    const apiKey = getApiKey();
+    const startTime = Date.now();
     const roomName = `session-${params.meetingId}`;
 
-    const res = await fetch('https://api.daily.co/v1/rooms', {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        name: roomName,
-        properties: {
-          exp: Math.floor(params.expiresAt.getTime() / 1000),
-          enable_chat: true,
-          enable_screenshare: true,
+    try {
+      const apiKey = getApiKey();
+      const res = await fetch('https://api.daily.co/v1/rooms', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${apiKey}`,
+          'Content-Type': 'application/json',
         },
-      }),
-    });
+        body: JSON.stringify({
+          name: roomName,
+          properties: {
+            exp: Math.floor(params.expiresAt.getTime() / 1000),
+            enable_chat: true,
+            enable_screenshare: true,
+          },
+        }),
+      });
 
-    if (!res.ok) {
-      const body = await res.text();
-      throw new Error(`Daily createRoom failed (${res.status}): ${body}`);
+      if (!res.ok) {
+        const body = await res.text();
+        throw new Error(`Daily createRoom failed (${res.status}): ${body}`);
+      }
+
+      const data = await res.json() as { name: string; url: string; id: string };
+      logger.info(`[Daily] Room created: ${data.name}`);
+      await serviceUsageService.recordSuccess({
+        service: 'video',
+        provider: 'daily',
+        operation: 'create_room',
+        usageCount: 1,
+        durationMs: Date.now() - startTime,
+        metadata: {
+          meetingId: params.meetingId,
+          roomName: data.name,
+        },
+      });
+      return { name: data.name, url: data.url, id: data.id };
+    } catch (error) {
+      await serviceUsageService.recordFailure({
+        service: 'video',
+        provider: 'daily',
+        operation: 'create_room',
+        usageCount: 1,
+        durationMs: Date.now() - startTime,
+        errorMessage: (error as Error).message,
+        metadata: {
+          meetingId: params.meetingId,
+          roomName,
+        },
+      });
+      throw error;
     }
-
-    const data = await res.json() as { name: string; url: string; id: string };
-    logger.info(`[Daily] Room created: ${data.name}`);
-    return { name: data.name, url: data.url, id: data.id };
   }
 
   async getRecordingDownloadLink(recordingId: string): Promise<string> {
-    const apiKey = getApiKey();
+    const startTime = Date.now();
+    try {
+      const apiKey = getApiKey();
+      const res = await fetch(`https://api.daily.co/v1/recordings/${recordingId}/access-link`, {
+        headers: { Authorization: `Bearer ${apiKey}` },
+      });
 
-    const res = await fetch(`https://api.daily.co/v1/recordings/${recordingId}/access-link`, {
-      headers: { Authorization: `Bearer ${apiKey}` },
-    });
+      if (!res.ok) {
+        const body = await res.text();
+        throw new Error(`Daily getRecordingDownloadLink failed (${res.status}): ${body}`);
+      }
 
-    if (!res.ok) {
-      const body = await res.text();
-      throw new Error(`Daily getRecordingDownloadLink failed (${res.status}): ${body}`);
+      const data = await res.json() as { download_link: string };
+      await serviceUsageService.recordSuccess({
+        service: 'video',
+        provider: 'daily',
+        operation: 'get_recording_download_link',
+        usageCount: 1,
+        durationMs: Date.now() - startTime,
+        metadata: { recordingId },
+      });
+      return data.download_link;
+    } catch (error) {
+      await serviceUsageService.recordFailure({
+        service: 'video',
+        provider: 'daily',
+        operation: 'get_recording_download_link',
+        usageCount: 1,
+        durationMs: Date.now() - startTime,
+        errorMessage: (error as Error).message,
+        metadata: { recordingId },
+      });
+      throw error;
     }
-
-    const data = await res.json() as { download_link: string };
-    return data.download_link;
   }
 
   verifyWebhookSignature(rawBody: string, header: string): boolean {

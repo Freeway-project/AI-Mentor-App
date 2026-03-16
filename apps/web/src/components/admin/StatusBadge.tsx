@@ -13,6 +13,8 @@ const statusConfig: Record<string, { label: string; className: string }> = {
   rejected:     { label: 'Rejected',    className: 'bg-red-100 text-red-700' },
   active:       { label: 'Active',      className: 'bg-green-100 text-green-700' },
   suspended:    { label: 'Suspended',   className: 'bg-red-100 text-red-700' },
+  success:      { label: 'Success',     className: 'bg-green-100 text-green-700' },
+  failed:       { label: 'Failed',      className: 'bg-red-100 text-red-700' },
 };
 
 export function StatusBadge({ status }: { status: string }) {
