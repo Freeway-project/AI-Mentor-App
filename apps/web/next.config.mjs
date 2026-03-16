@@ -3,6 +3,9 @@ const nextConfig = {
   reactStrictMode: true,
   output: 'standalone',
   transpilePackages: ['@owl-mentors/types', '@owl-mentors/utils'],
+  experimental: {
+    webpackBuildWorker: false,
+  },
   env: {
     NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL,
     NEXT_PUBLIC_GOOGLE_CLIENT_ID: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID,
