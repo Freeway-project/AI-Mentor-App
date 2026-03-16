@@ -3,6 +3,60 @@ import { Mentor, UpdateMentorInput, SearchMentorsInput, OnboardingStep, Availabi
 import { logger } from '@owl-mentors/utils';
 import { MentorModel, toMentor } from '../models/mentor.model';
 
+const SEARCH_FIELDS = ['headline', 'bio', 'specialties', 'expertise', 'name'] as const;
+
+function escapeRegExp(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+function buildSearchTerms(query: string): string[] {
+  return Array.from(
+    new Set(
+      query
+        .split(/\s+/)
+        .map(term => term.trim())
+        .filter(term => term.length > 1)
+    )
+  );
+}
+
+function collectSearchableFields(mentor: Mentor): Array<[string, string]> {
+  return [
+    ['headline', mentor.headline ?? ''],
+    ['bio', mentor.bio ?? ''],
+    ['specialties', (mentor.specialties ?? []).join(' ')],
+    ['expertise', (mentor.expertise ?? []).join(' ')],
+    ['name', mentor.name ?? ''],
+  ];
+}
+
+function scoreMentorMatch(mentor: Mentor, searchTerms: string[]): number {
+  const weightedFields = {
+    bio: 2,
+    expertise: 4,
+    headline: 5,
+    name: 2,
+    specialties: 6,
+  } as const;
+
+  return collectSearchableFields(mentor).reduce((score, [field, value]) => {
+    const lowerValue = value.toLowerCase();
+    const fieldWeight = weightedFields[field as keyof typeof weightedFields] ?? 1;
+
+    const fieldScore = searchTerms.reduce((termScore, term) => {
+      const lowerTerm = term.toLowerCase();
+      if (!lowerValue.includes(lowerTerm)) {
+        return termScore;
+      }
+
+      const exactWordMatch = new RegExp(`\\b${escapeRegExp(lowerTerm)}\\b`, 'i').test(value);
+      return termScore + fieldWeight + (exactWordMatch ? 2 : 0);
+    }, 0);
+
+    return score + fieldScore;
+  }, 0);
+}
+
 export class MentorRepository {
   async create(data: { userId: string; name: string }): Promise<Mentor> {
     const startTime = Date.now();
@@ -57,13 +111,17 @@ export class MentorRepository {
   async search(params: SearchMentorsInput): Promise<Mentor[]> {
     const startTime = Date.now();
     try {
-      const filter: any = { isActive: true };
+      const filter: any = { approvalStatus: 'approved', isActive: true };
 
       if (params.specialties && params.specialties.length > 0) {
-        filter.specialties = { $in: params.specialties };
+        filter.specialties = {
+          $in: params.specialties.map(specialty => new RegExp(`^${escapeRegExp(specialty)}$`, 'i')),
+        };
       }
       if (params.languages && params.languages.length > 0) {
-        filter.languages = { $in: params.languages };
+        filter.languages = {
+          $in: params.languages.map(language => new RegExp(`^${escapeRegExp(language)}$`, 'i')),
+        };
       }
       if (params.minRating) {
         filter.rating = { $gte: params.minRating };
@@ -71,20 +129,33 @@ export class MentorRepository {
       if (params.maxRate) {
         filter.hourlyRate = { $lte: params.maxRate };
       }
-      if (params.query) {
-        const re = new RegExp(params.query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i');
-        filter.$or = [
-          { headline: re },
-          { bio: re },
-          { specialties: re },
-          { expertise: re },
-          { name: re },
-        ];
+      const searchTerms = params.query ? buildSearchTerms(params.query) : [];
+
+      if (searchTerms.length === 0) {
+        const docs = await MentorModel.find(filter).skip(params.offset || 0).limit(params.limit || 20);
+        logger.db({ operation: 'find', collection: 'providers', duration: Date.now() - startTime });
+        return docs.map(toMentor);
       }
 
-      const docs = await MentorModel.find(filter).skip(params.offset || 0).limit(params.limit || 20);
+      const limit = params.limit || 20;
+      const offset = params.offset || 0;
+      const candidateLimit = Math.max((offset + limit) * 4, 20);
+      const docs = await MentorModel.find(filter).limit(candidateLimit);
       logger.db({ operation: 'find', collection: 'providers', duration: Date.now() - startTime });
-      return docs.map(toMentor);
+
+      const mentors = docs.map(toMentor);
+      return mentors
+        .map(mentor => ({ mentor, score: scoreMentorMatch(mentor, searchTerms) }))
+        .filter(entry => entry.score > 0)
+        .sort((a, b) => {
+          if (b.score !== a.score) {
+            return b.score - a.score;
+          }
+
+          return (b.mentor.rating ?? 0) - (a.mentor.rating ?? 0);
+        })
+        .slice(offset, offset + limit)
+        .map(entry => entry.mentor);
     } catch (error) {
       logger.db({ operation: 'find', collection: 'providers', duration: Date.now() - startTime, error: (error as Error).message });
       throw error;

@@ -1,9 +1,10 @@
+
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { Search, Sparkles } from 'lucide-react';
-import { apiClient } from '@/lib/api-client';
+import { apiClient, MentorSearchResponse } from '@/lib/api-client';
 import { Navbar } from '@/components/layout/Navbar';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -15,16 +16,19 @@ import {
   appTheme,
 } from '@/components/ui/app-theme';
 import { cn } from '@/lib/utils';
+import { AnimatedPlaceholderInput } from '@/components/ui/animated-placeholder-input';
 
 /** Suggested query chips shown below the search bar */
 const SUGGESTED_QUERIES = [
-  'React & TypeScript',
-  'System Design',
-  'Interview Prep',
-  'Machine Learning',
-  'Career Growth',
-  'Backend Engineering',
+  "I'm weak at TypeScript",
+  'Help me with system design',
+  'Frontend interview prep',
+  'Need React architecture guidance',
+  'Machine learning fundamentals',
+  'Career growth for senior frontend',
 ];
+
+type SearchMeta = Pick<MentorSearchResponse, 'hybrid' | 'llmEnhanced' | 'queryAnalysis' | 'semantic'>;
 
 /** Skeleton card shown while loading */
 function MentorSkeleton() {
@@ -53,22 +57,43 @@ export default function BrowsePage() {
   const [query, setQuery] = useState('');
   const [loading, setLoading] = useState(true);
   const [isSemantic, setIsSemantic] = useState(false);
+  const [searchMeta, setSearchMeta] = useState<SearchMeta>({});
+  const hasLoadedInitialResults = useRef(false);
 
   const fetchMentors = async (searchQuery?: string) => {
     setLoading(true);
     try {
       const data = await apiClient.searchMentors(searchQuery);
       setMentors(data.mentors || []);
-      setIsSemantic(!!(data as any).semantic);
+      setIsSemantic(!!data.semantic);
+      setSearchMeta({
+        hybrid: data.hybrid,
+        llmEnhanced: data.llmEnhanced,
+        queryAnalysis: data.queryAnalysis,
+        semantic: data.semantic,
+      });
     } catch {
       setMentors([]);
       setIsSemantic(false);
+      setSearchMeta({});
     } finally {
       setLoading(false);
     }
   };
 
-  useEffect(() => { fetchMentors(); }, []);
+  useEffect(() => {
+    if (!hasLoadedInitialResults.current) {
+      hasLoadedInitialResults.current = true;
+      fetchMentors();
+      return;
+    }
+
+    const timeoutId = window.setTimeout(() => {
+      fetchMentors(query.trim() || undefined);
+    }, 320);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [query]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -77,7 +102,6 @@ export default function BrowsePage() {
 
   const handleChip = (chip: string) => {
     setQuery(chip);
-    fetchMentors(chip);
   };
 
   return (
@@ -96,12 +120,13 @@ export default function BrowsePage() {
           <form onSubmit={handleSearch} className="mx-auto mb-4 flex max-w-3xl gap-3">
             <div className="relative flex-1 group">
               <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-500 transition-colors group-focus-within:text-brand-lighter" />
-              <input
+              <AnimatedPlaceholderInput
                 type="text"
                 value={query}
                 onChange={e => setQuery(e.target.value)}
+                suggestions={SUGGESTED_QUERIES}
                 className={cn(appTheme.input, 'py-3.5 pl-12 pr-4')}
-                placeholder="Try: 'I want to learn system design' or 'I'm weak at TypeScript'"
+                placeholder="Try: I'm weak at TypeScript"
               />
             </div>
             <Button
@@ -128,11 +153,47 @@ export default function BrowsePage() {
           </div>
 
           {/* Semantic indicator */}
-          {isSemantic && !loading && mentors.length > 0 && (
-            <div className="flex items-center justify-center gap-2 mb-6">
-              <AppStatusBadge tone="brand" className="gap-1.5 px-3 py-1.5">
-                <Sparkles className="w-3 h-3" /> AI-matched results for &ldquo;{query}&rdquo;
-              </AppStatusBadge>
+          {!loading && mentors.length > 0 && (isSemantic || searchMeta.queryAnalysis?.focusTerms?.length) && (
+            <div className="mx-auto mb-6 flex max-w-3xl flex-col items-center gap-3 text-center">
+              <div className="flex flex-wrap items-center justify-center gap-2">
+                {isSemantic && (
+                  <span className="flex items-center gap-1.5 rounded-full border border-violet-500/20 bg-violet-500/10 px-3 py-1.5 text-xs text-violet-400">
+                    <Sparkles className="h-3 w-3" />
+                    {searchMeta.hybrid ? 'AI + keyword matched' : 'AI-matched results'}
+                  </span>
+                )}
+                {searchMeta.llmEnhanced && (
+                  <span className="rounded-full border border-emerald-500/20 bg-emerald-500/10 px-3 py-1.5 text-xs text-emerald-300">
+                    Ranked with match reasons
+                  </span>
+                )}
+              </div>
+
+              {searchMeta.queryAnalysis?.focusTerms?.length ? (
+                <>
+                  <p className="max-w-2xl text-sm text-slate-300">
+                    We matched this search against{' '}
+                    <span className="font-medium text-white">
+                      {searchMeta.queryAnalysis.focusTerms.join(', ')}
+                    </span>
+                    {searchMeta.queryAnalysis.experienceLevel && (
+                      <> for a {searchMeta.queryAnalysis.experienceLevel} learner</>
+                    )}
+                    .
+                  </p>
+                  <div className="flex flex-wrap justify-center gap-2">
+                    {searchMeta.queryAnalysis.focusTerms.map(term => (
+                      <Badge
+                        key={term}
+                        variant="outline"
+                        className="border-violet-500/20 bg-violet-500/10 text-xs text-violet-300"
+                      >
+                        {term}
+                      </Badge>
+                    ))}
+                  </div>
+                </>
+              ) : null}
             </div>
           )}
 
@@ -143,7 +204,12 @@ export default function BrowsePage() {
             </div>
           ) : mentors.length === 0 ? (
             <div className="text-center py-20 text-slate-400">
-              No mentors found. Try a different search.
+              <p>No mentors found. Try a different search.</p>
+              {searchMeta.queryAnalysis?.focusTerms?.length ? (
+                <p className="mt-3 text-sm text-slate-500">
+                  Current focus terms: {searchMeta.queryAnalysis.focusTerms.join(', ')}
+                </p>
+              ) : null}
             </div>
           ) : (
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
@@ -185,6 +251,12 @@ export default function BrowsePage() {
                         </Badge>
                       ))}
                     </div>
+                  )}
+
+                  {mentor.matchReason && (
+                    <p className="mt-4 rounded-xl border border-violet-500/10 bg-violet-500/5 px-3.5 py-3 text-sm leading-6 text-slate-300">
+                      {mentor.matchReason}
+                    </p>
                   )}
 
                   <div className="flex items-center justify-between mt-6 pt-4 border-t border-slate-800/70 text-sm">

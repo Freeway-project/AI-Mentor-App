@@ -14,6 +14,8 @@ Extract:
 - budget: price range or constraints
 - experience_level: beginner, intermediate, advanced
 
+If the user says they are weak at, struggling with, or need help with a topic, set the topic/skills from that phrase and treat it as beginner intent unless they clearly say otherwise.
+
 Return JSON only, no explanation.`,
     },
     {

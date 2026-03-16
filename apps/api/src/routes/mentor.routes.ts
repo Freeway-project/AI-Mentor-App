@@ -8,10 +8,10 @@ import { logger } from '@owl-mentors/utils';
 import { AppError } from '../middleware/error.middleware';
 import { EmailService } from '../services/email.service';
 import { EmbeddingService } from '../services/embedding.service';
-import { LLMSearchService } from '../services/llm-search.service';
+import { MentorSearchService } from '../services/mentor-search.service';
 
 const embeddingService = new EmbeddingService();
-const llmSearchService = new LLMSearchService();
+const mentorSearchService = new MentorSearchService();
 
 const router: Router = Router();
 
@@ -35,6 +35,14 @@ function getOfferRepo() {
 function getPolicyRepo() {
   if (!policyRepo) policyRepo = new PolicyRepository();
   return policyRepo;
+}
+
+function getFirstString(value: unknown): string | undefined {
+  if (Array.isArray(value)) {
+    return typeof value[0] === 'string' ? value[0] : undefined;
+  }
+
+  return typeof value === 'string' ? value : undefined;
 }
 
 // Become a mentor
@@ -209,50 +217,95 @@ router.get('/', searchRateLimit, validateQuery(searchMentorsSchema), async (req:
   try {
     const params = req.query as any;
     const limit = Number(params.limit) || 20;
+    const offset = Number(params.offset) || 0;
 
-    // --- Vector search path ---
-    // When a free-text query is provided, attempt semantic vector search first.
-    // Falls back to keyword search if the vector index isn't set up or the embedding fails.
+    if (typeof params.languages === 'string') {
+      params.languages = [params.languages];
+    }
+    if (typeof params.specialties === 'string') {
+      params.specialties = [params.specialties];
+    }
+    if (params.maxRate != null) {
+      params.maxRate = Number(params.maxRate);
+    }
+    if (params.minRating != null) {
+      params.minRating = Number(params.minRating);
+    }
+    params.limit = limit;
+    params.offset = offset;
+
     if (params.query) {
-      // Step 1: Parse intent — extract structured filters from natural language (non-blocking)
-      let parsedIntent = { semanticQuery: params.query as string, maxRate: undefined as number | undefined, language: undefined as string | undefined };
-      try {
-        parsedIntent = await llmSearchService.parseIntent(params.query);
-        if (parsedIntent.maxRate != null && !params.maxRate) params.maxRate = parsedIntent.maxRate;
-        if (parsedIntent.language && !params.language) params.language = parsedIntent.language;
-      } catch {
-        // graceful — proceed without parsed intent
-      }
+      const parsedIntent = await mentorSearchService.parseIntent(params.query as string).catch(() => ({
+        semanticQuery: params.query as string,
+        keywords: [],
+        skills: [],
+        queryVariants: [params.query as string],
+      }));
 
-      // Step 2: Vector search
-      try {
-        const vectorMentors = await embeddingService.searchMentors(params.query, limit);
-        if (vectorMentors.length > 0) {
-          // Step 3: Re-rank and attach explanations (non-blocking — degrades gracefully)
-          let enrichedMentors: typeof vectorMentors = vectorMentors;
-          let llmEnhanced = false;
-          try {
-            enrichedMentors = await llmSearchService.rerankAndExplain(params.query, vectorMentors);
-            llmEnhanced = true;
-          } catch (rankErr) {
-            logger.warn(`[LLMSearch] Re-ranking failed, using original order: ${(rankErr as Error).message}`);
-          }
+      const structuredFilters = {
+        maxRate: parsedIntent.maxRate ?? (params.maxRate ? Number(params.maxRate) : undefined),
+        language: parsedIntent.language ?? params.language,
+        minRating: params.minRating ? Number(params.minRating) : undefined,
+      };
 
-          return res.json({
-            success: true,
-            data: { mentors: enrichedMentors, total: enrichedMentors.length, query: params.query, semantic: true, llmEnhanced },
-          });
+      const keywordQuery = mentorSearchService.buildKeywordQuery(parsedIntent as any);
+
+      let vectorMentors: any[] = [];
+      let semantic = false;
+      let llmEnhanced = false;
+
+      try {
+        const raw = await embeddingService.searchMentors((parsedIntent as any).semanticQuery || params.query, limit);
+        if (raw.length > 0) {
+          semantic = true;
+          vectorMentors = mentorSearchService.applyStructuredFilters(raw, structuredFilters);
         }
       } catch (vectorErr) {
         logger.warn(`[VectorSearch] Falling back to keyword search: ${(vectorErr as Error).message}`);
       }
+
+      let keywordMentors: any[] = [];
+      try {
+        const raw = await getMentorRepo().search({ ...params, limit, query: keywordQuery });
+        keywordMentors = mentorSearchService.attachHeuristicReasons(
+          mentorSearchService.applyStructuredFilters(raw, structuredFilters),
+          parsedIntent as any
+        );
+      } catch (keywordErr) {
+        logger.warn(`[KeywordSearch] Failed: ${(keywordErr as Error).message}`);
+      }
+
+      let mentors = mentorSearchService.mergeResults(vectorMentors, keywordMentors, limit);
+
+      if (mentors.length > 0) {
+        try {
+          mentors = await mentorSearchService.rerankAndExplain(params.query as string, mentors);
+          llmEnhanced = true;
+        } catch (rankErr) {
+          logger.warn(`[MentorSearch] Re-ranking failed, using hybrid order: ${(rankErr as Error).message}`);
+        }
+      }
+
+      mentors = mentorSearchService.attachHeuristicReasons(mentors, parsedIntent as any);
+
+      return res.json({
+        success: true,
+        data: {
+          mentors,
+          total: mentors.length,
+          query: params.query,
+          queryAnalysis: mentorSearchService.summarizeIntent(parsedIntent as any),
+          semantic,
+          hybrid: semantic && keywordMentors.length > 0,
+          llmEnhanced,
+        },
+      });
     }
 
-    // --- Keyword search fallback ---
     const mentors = await getMentorRepo().search(params);
     return res.json({
       success: true,
-      data: { mentors, total: mentors.length, query: params.query, semantic: false, llmEnhanced: false },
+      data: { mentors, total: mentors.length, query: params.query, semantic: false },
     });
   } catch (error) {
     next(error);
