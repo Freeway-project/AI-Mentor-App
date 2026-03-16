@@ -11,8 +11,6 @@
     "clean": "rm -rf .next out"
   },
   "dependencies": {
-    "@daily-co/daily-js": "^0.89.0",
-    "@daily-co/daily-react": "^0.24.0",
     "@owl-mentors/types": "workspace:*",
     "@owl-mentors/utils": "workspace:*",
     "@radix-ui/react-slot": "^1.2.4",

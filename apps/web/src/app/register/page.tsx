@@ -1,10 +1,18 @@
 'use client';
 
 import { useState } from 'react';
+import nextDynamic from 'next/dynamic';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google';
 import { useAuth } from '@/lib/auth-context';
+
+const GoogleAuthButton = nextDynamic(
+  () => import('@/components/auth/google-auth-button').then((module) => module.GoogleAuthButton),
+  {
+    ssr: false,
+    loading: () => <div className="h-10 w-full rounded-xl border border-white/10 bg-white/[0.04]" />,
+  }
+);
 
 export default function RegisterPage() {
   const [name, setName] = useState('');
@@ -187,16 +195,11 @@ export default function RegisterPage() {
 
             {/* Google signup */}
             {googleClientId && (
-              <div className="flex justify-center [&>div]:w-full">
-                <GoogleLogin
-                  onSuccess={handleGoogleSuccess}
-                  onError={() => setError('Google sign-up failed')}
-                  theme="filled_black"
-                  shape="rectangular"
-                  size="large"
-                  text="continue_with"
-                />
-              </div>
+              <GoogleAuthButton
+                clientId={googleClientId}
+                onSuccess={handleGoogleSuccess}
+                onError={() => setError('Google sign-up failed')}
+              />
             )}
 
             {googleClientId && (
@@ -320,14 +323,6 @@ export default function RegisterPage() {
       </div>
     </div>
   );
-
-  if (googleClientId) {
-    return (
-      <GoogleOAuthProvider clientId={googleClientId}>
-        {content}
-      </GoogleOAuthProvider>
-    );
-  }
 
   return content;
 }

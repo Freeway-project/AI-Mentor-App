@@ -1,15 +1,20 @@
 'use client';
 
 import { useMemo, useState } from 'react';
+import nextDynamic from 'next/dynamic';
 import { CalendarDays, Clock3, PlayCircle } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth-context';
-import { BookingModal } from '@/components/booking/BookingModal';
 import { SlotPicker } from '@/components/booking/SlotPicker';
 import { AppPanel, AppSectionLabel } from '@/components/ui/app-theme';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 import type { MentorOffer } from './types';
+
+const BookingModal = nextDynamic(
+  () => import('@/components/booking/BookingModal').then((module) => module.BookingModal),
+  { ssr: false }
+);
 
 interface Slot {
   start: string;

@@ -16,6 +16,7 @@ import {
     getToneClasses,
 } from '@/components/ui/app-theme';
 import { cn } from '@/lib/utils';
+import { getSessionAccess } from '@/lib/session-access';
 
 const STATUS_CONFIG: Record<string, { icon: any; tone: 'amber' | 'purple' | 'red'; title: string; description: string }> = {
     pending: {
@@ -141,6 +142,7 @@ export default function MentorDashboardPage() {
             {/* Next Session widget */}
             {upcomingBookings.length > 0 && (() => {
                 const next = upcomingBookings[0];
+                const sessionAccess = getSessionAccess(next);
                 return (
                     <AppPanel className="p-6">
                         <AppSectionLabel className="mb-4">Next Session</AppSectionLabel>
@@ -155,13 +157,14 @@ export default function MentorDashboardPage() {
                                     })} · {next.duration} min
                                 </p>
                             </div>
-                            {(next.dailyRoomUrl || next.meetingLink) && (
+                            {sessionAccess && (
                                 <Link
-                                    href={next.dailyRoomUrl ? `/video/${next.id}` : next.meetingLink}
-                                    target={next.dailyRoomUrl ? undefined : '_blank'}
+                                    href={sessionAccess.href}
+                                    target={sessionAccess.isExternal ? '_blank' : undefined}
+                                    rel={sessionAccess.isExternal ? 'noopener noreferrer' : undefined}
                                     className="inline-flex w-fit items-center gap-2 rounded-xl bg-brand px-4 py-2 text-sm font-medium text-white transition-all hover:bg-brand-light"
                                 >
-                                    <Video className="w-4 h-4" /> Join Call
+                                    <Video className="w-4 h-4" /> {sessionAccess.label}
                                 </Link>
                             )}
                         </div>

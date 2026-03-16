@@ -15,6 +15,7 @@ import {
   appTheme,
 } from '@/components/ui/app-theme';
 import { cn } from '@/lib/utils';
+import { getSessionAccess } from '@/lib/session-access';
 
 function formatDateTime(iso: string | Date) {
   return new Date(iso).toLocaleString([], {
@@ -119,7 +120,10 @@ export default function MentorBookingsPage() {
           </AppPanel>
         ) : (
           <div className="space-y-4">
-            {upcoming.map(session => (
+            {upcoming.map(session => {
+              const sessionAccess = getSessionAccess(session);
+
+              return (
               <AppPanel key={session.id} className="p-5">
                 <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
                   <div className="space-y-1.5">
@@ -133,19 +137,15 @@ export default function MentorBookingsPage() {
                     </p>
                     
                     {/* VIDEO CTA */}
-                    {(session.dailyRoomUrl || session.meetUrl || session.meetingLink) && (
+                    {sessionAccess && (
                       <Link
-                        href={
-                          session.dailyRoomUrl
-                            ? `/video/${session.id}`
-                            : (session.meetUrl || session.meetingLink)
-                        }
-                        target={session.dailyRoomUrl ? undefined : "_blank"}
-                        rel={session.dailyRoomUrl ? undefined : "noopener noreferrer"}
+                        href={sessionAccess.href}
+                        target={sessionAccess.isExternal ? "_blank" : undefined}
+                        rel={sessionAccess.isExternal ? "noopener noreferrer" : undefined}
                         className="mt-2 inline-flex w-fit items-center gap-1.5 rounded-xl bg-brand px-4 py-2 text-sm font-medium text-white transition-all shadow-lg shadow-brand/20 hover:bg-brand-light"
                       >
                         <Video className="w-4 h-4" /> 
-                        {session.dailyRoomUrl ? 'Join Video Call' : 'Join External Meeting'}
+                        {sessionAccess.label}
                       </Link>
                     )}
                   </div>
@@ -191,7 +191,8 @@ export default function MentorBookingsPage() {
                   </div>
                 )}
               </AppPanel>
-            ))}
+              );
+            })}
           </div>
         )}
       </section>

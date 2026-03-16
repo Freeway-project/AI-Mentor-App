@@ -4,6 +4,8 @@ import { AppProviders } from './providers';
 import { Toaster } from 'sonner';
 import { RouteTransition } from '@/components/ui/route-transition';
 
+export const dynamic = 'force-dynamic';
+
 export const metadata: Metadata = {
   title: 'OWL Mentor',
   description: 'Find and connect with expert mentors',

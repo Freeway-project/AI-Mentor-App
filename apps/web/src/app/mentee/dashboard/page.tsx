@@ -16,6 +16,7 @@ import {
   appTheme,
 } from '@/components/ui/app-theme';
 import { cn } from '@/lib/utils';
+import { getSessionAccess } from '@/lib/session-access';
 
 function formatDateTime(iso: string | Date) {
   return new Date(iso).toLocaleString([], {
@@ -111,6 +112,7 @@ export default function MenteeDashboardPage() {
   };
 
   const nextSession = upcoming[0] ?? null;
+  const nextSessionAccess = nextSession ? getSessionAccess(nextSession) : null;
 
   if (loading) {
     return (
@@ -145,15 +147,15 @@ export default function MenteeDashboardPage() {
             <p className="text-sm text-slate-400 mt-1">
               {formatDateTime(nextSession.scheduledAt)} · {nextSession.duration} min
             </p>
-            {(nextSession.dailyRoomUrl || nextSession.meetUrl || nextSession.meetingLink) && (
+            {nextSessionAccess && (
               <Link
-                href={nextSession.dailyRoomUrl ? `/video/${nextSession.id}` : (nextSession.meetUrl || nextSession.meetingLink)}
-                target={nextSession.dailyRoomUrl ? undefined : '_blank'}
-                rel={nextSession.dailyRoomUrl ? undefined : 'noopener noreferrer'}
+                href={nextSessionAccess.href}
+                target={nextSessionAccess.isExternal ? '_blank' : undefined}
+                rel={nextSessionAccess.isExternal ? 'noopener noreferrer' : undefined}
                 className="mt-2 inline-flex w-fit items-center gap-1.5 rounded-xl bg-brand px-4 py-2 text-sm font-medium text-white transition-all shadow-lg shadow-brand/20 hover:bg-brand-light"
               >
                 <Video className="w-4 h-4" />
-                {nextSession.dailyRoomUrl ? 'Join Video Call' : 'Join Google Meet'}
+                {nextSessionAccess.label}
               </Link>
             )}
           </div>
@@ -182,7 +184,10 @@ export default function MenteeDashboardPage() {
         <section>
           <AppSectionLabel className="mb-4">Upcoming Sessions</AppSectionLabel>
           <div className="space-y-4">
-            {upcoming.map(session => (
+            {upcoming.map(session => {
+              const sessionAccess = getSessionAccess(session);
+
+              return (
               <AppPanel key={session.id} className="p-5">
                 <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
                   <div className="space-y-1.5">
@@ -191,15 +196,15 @@ export default function MenteeDashboardPage() {
                     <p className="text-sm text-slate-400">
                       {formatDateTime(session.scheduledAt)} · {session.duration} min
                     </p>
-                    {(session.dailyRoomUrl || session.meetUrl || session.meetingLink) && (
+                    {sessionAccess && (
                       <Link
-                        href={session.dailyRoomUrl ? `/video/${session.id}` : (session.meetUrl || session.meetingLink)}
-                        target={session.dailyRoomUrl ? undefined : '_blank'}
-                        rel={session.dailyRoomUrl ? undefined : 'noopener noreferrer'}
+                        href={sessionAccess.href}
+                        target={sessionAccess.isExternal ? '_blank' : undefined}
+                        rel={sessionAccess.isExternal ? 'noopener noreferrer' : undefined}
                         className="mt-1 inline-flex w-fit items-center gap-1.5 rounded-lg border border-brand/20 bg-brand/10 px-3 py-1.5 text-xs font-medium text-brand-lighter transition-colors hover:bg-brand/20"
                       >
                         <Video className="w-3.5 h-3.5" />
-                        {session.dailyRoomUrl ? 'Join Video Call' : 'Join Google Meet'}
+                        {sessionAccess.label}
                       </Link>
                     )}
                   </div>
@@ -284,7 +289,8 @@ export default function MenteeDashboardPage() {
                   </div>
                 )}
               </AppPanel>
-            ))}
+              );
+            })}
           </div>
         </section>
       )}

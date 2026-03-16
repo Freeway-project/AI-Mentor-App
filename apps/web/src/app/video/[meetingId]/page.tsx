@@ -4,9 +4,10 @@ import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth-context';
 import { apiClient } from '@/lib/api-client';
-import { DailyVideoCall } from '@/components/video/DailyVideoCall';
 import { ArrowLeft, Loader2, AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
+import { SessionRoomPlaceholder } from '@/components/video/SessionRoomPlaceholder';
+import { getSessionAccess, hasLegacySessionRoom } from '@/lib/session-access';
 
 export default function VideoCallPage() {
   const params = useParams();
@@ -39,9 +40,15 @@ export default function VideoCallPage() {
           throw new Error('You are not authorized to join this session');
         }
 
-        // Ensure the meeting has a daily room
-        if (!data.dailyRoomUrl) {
-          throw new Error('No video room has been generated for this session yet');
+        const sessionAccess = getSessionAccess({
+          id: data.id,
+          dailyRoomUrl: data.dailyRoomUrl,
+          meetUrl: data.meetUrl,
+          meetingLink: data.meetingLink,
+        });
+
+        if (!sessionAccess && !hasLegacySessionRoom(data)) {
+          throw new Error('No session room has been generated for this booking yet');
         }
 
         setMeeting(data);
@@ -70,7 +77,7 @@ export default function VideoCallPage() {
     return (
       <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center p-4">
         <Loader2 className="w-10 h-10 text-violet-500 animate-spin mb-4" />
-        <p className="text-slate-400 font-medium">Preparing your video session...</p>
+        <p className="text-slate-400 font-medium">Preparing your session room...</p>
       </div>
     );
   }
@@ -96,44 +103,10 @@ export default function VideoCallPage() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-950 flex flex-col">
-      {/* Minimal Header */}
-      <header className="h-16 border-b border-slate-800 bg-slate-900/50 flex items-center justify-between px-6 flex-shrink-0">
-        <div className="flex items-center gap-4">
-          <button
-            onClick={handleLeave}
-            className="p-2 -ml-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-colors"
-            title="Leave Session"
-          >
-            <ArrowLeft className="w-5 h-5" />
-          </button>
-          <div className="flex flex-col">
-            <h1 className="text-sm font-semibold text-white">{meeting?.title || 'Video Session'}</h1>
-            <p className="text-xs text-slate-500">
-              {meeting?.duration} min session
-            </p>
-          </div>
-        </div>
-        
-        {/* Connection status indicator */}
-        <div className="flex items-center gap-2">
-          <span className="relative flex h-2.5 w-2.5">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-            <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
-          </span>
-          <span className="text-xs font-medium text-slate-400">Live</span>
-        </div>
-      </header>
-
-      {/* Video Area */}
-      <main className="flex-1 p-4 md:p-6 lg:p-8 flex items-center justify-center bg-slate-950">
-        <div className="w-full max-w-6xl aspect-video max-h-[calc(100vh-8rem)]">
-          <DailyVideoCall 
-            url={meeting.dailyRoomUrl} 
-            onLeave={handleLeave} 
-          />
-        </div>
-      </main>
+    <div className="min-h-screen bg-slate-950 px-4 py-8 md:px-6 lg:px-8">
+      <div className="mx-auto flex min-h-[calc(100vh-4rem)] max-w-6xl items-center justify-center">
+        <SessionRoomPlaceholder meeting={meeting} onBack={handleLeave} />
+      </div>
     </div>
   );
 }

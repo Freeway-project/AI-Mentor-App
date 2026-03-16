@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import dynamic from 'next/dynamic';
+import nextDynamic from 'next/dynamic';
 import { notFound } from 'next/navigation';
 import { Navbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
@@ -12,7 +12,7 @@ import { getMentorProfilePageData, buildMentorMetadata } from '@/lib/public-ment
 
 export const dynamic = 'force-dynamic';
 
-const MentorProfileBookingPanel = dynamic(
+const MentorProfileBookingPanel = nextDynamic(
   () =>
     import('@/components/mentor-profile/profile-booking-panel').then(
       (module) => module.MentorProfileBookingPanel

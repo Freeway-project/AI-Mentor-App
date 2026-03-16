@@ -1,15 +1,23 @@
 'use client';
 
 import { useState } from 'react';
+import nextDynamic from 'next/dynamic';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google';
 import { useDispatch } from 'react-redux';
 import { login } from '@/store/slices/auth.slice';
 import { useAuth } from '@/lib/auth-context';
 import { apiClient } from '@/lib/api-client';
 import { toast } from 'sonner';
 import type { AppDispatch } from '@/store';
+
+const GoogleAuthButton = nextDynamic(
+  () => import('@/components/auth/google-auth-button').then((module) => module.GoogleAuthButton),
+  {
+    ssr: false,
+    loading: () => <div className="h-10 w-full rounded-xl border border-white/10 bg-white/[0.04]" />,
+  }
+);
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -191,16 +199,11 @@ export default function LoginPage() {
 
             {/* Google login */}
             {googleClientId && (
-              <div className="flex justify-center [&>div]:w-full">
-                <GoogleLogin
-                  onSuccess={handleGoogleSuccess}
-                  onError={() => toast.error('Google sign-in failed')}
-                  theme="filled_black"
-                  shape="rectangular"
-                  size="large"
-                  text="continue_with"
-                />
-              </div>
+              <GoogleAuthButton
+                clientId={googleClientId}
+                onSuccess={handleGoogleSuccess}
+                onError={() => toast.error('Google sign-in failed')}
+              />
             )}
 
             {googleClientId && (
@@ -276,14 +279,6 @@ export default function LoginPage() {
       </div>
     </div>
   );
-
-  if (googleClientId) {
-    return (
-      <GoogleOAuthProvider clientId={googleClientId}>
-        {content}
-      </GoogleOAuthProvider>
-    );
-  }
 
   return content;
 }

@@ -1,6 +1,8 @@
 'use client';
 
 import { CheckCircle } from 'lucide-react';
+import Link from 'next/link';
+import { getSessionAccess } from '@/lib/session-access';
 
 interface Props {
   booking: {
@@ -27,7 +29,7 @@ function formatDateTime(d: string | Date): string {
 }
 
 export function BookingConfirmation({ booking, onClose }: Props) {
-  const callLink = booking.dailyRoomUrl || booking.meetUrl || booking.meetingLink;
+  const sessionAccess = getSessionAccess(booking);
 
   return (
     <div className="space-y-5">
@@ -52,17 +54,17 @@ export function BookingConfirmation({ booking, onClose }: Props) {
           <span className="text-slate-500">Duration</span>
           <span className="text-slate-200">{booking.duration} min</span>
         </div>
-        {callLink && (
+        {sessionAccess && (
           <div className="pt-2 border-t border-slate-700">
-            <a
-              href={callLink}
-              target="_blank"
-              rel="noopener noreferrer"
+            <Link
+              href={sessionAccess.href}
+              target={sessionAccess.isExternal ? '_blank' : undefined}
+              rel={sessionAccess.isExternal ? 'noopener noreferrer' : undefined}
               className="flex items-center justify-center gap-2 w-full py-2.5 bg-violet-600 hover:bg-violet-500 text-white font-semibold rounded-lg transition-colors text-sm"
             >
-              Join Session →
-            </a>
-            <p className="text-center text-xs text-slate-500 mt-2 break-all">{callLink}</p>
+              {sessionAccess.label} →
+            </Link>
+            <p className="text-center text-xs text-slate-500 mt-2 break-all">{sessionAccess.href}</p>
           </div>
         )}
       </div>
