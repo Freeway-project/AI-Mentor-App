@@ -9,13 +9,20 @@ function escapeRegExp(value: string): string {
   return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
+const SEARCH_STOP_WORDS = new Set([
+  'a', 'am', 'an', 'and', 'are', 'as', 'at', 'be', 'by', 'do',
+  'for', 'from', 'get', 'help', 'i', 'in', 'is', 'it', 'me',
+  'my', 'need', 'of', 'on', 'or', 'so', 'the', 'to', 'us',
+  'was', 'we', 'with',
+]);
+
 function buildSearchTerms(query: string): string[] {
   return Array.from(
     new Set(
       query
         .split(/\s+/)
-        .map(term => term.trim())
-        .filter(term => term.length > 1)
+        .map(term => term.trim().toLowerCase())
+        .filter(term => term.length > 1 && !SEARCH_STOP_WORDS.has(term))
     )
   );
 }

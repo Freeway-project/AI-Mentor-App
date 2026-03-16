@@ -3,24 +3,6 @@
 
 services:
 
-  # ── MongoDB ─────────────────────────────────────────────────────────────────
-  mongo:
-    image: mongo:7
-    restart: unless-stopped
-    environment:
-      MONGO_INITDB_DATABASE: mentor-app
-    volumes:
-      - mongo_data:/data/db
-    # Port exposed only for local dev/debugging. Remove in production.
-    ports:
-      - '27018:27017'
-    healthcheck:
-      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 10s
-
   # ── API ─────────────────────────────────────────────────────────────────────
   api:
     build:
@@ -32,14 +14,5 @@ services:
     environment:
       NODE_ENV: production
       PORT: 3001
-      MONGODB_URI: mongodb://mongo:27017/mentor-app
-      MONGODB_DB_NAME: mentor-app
     ports:
       - '6001:3001'
-    depends_on:
-      mongo:
-        condition: service_healthy
-
-
-volumes:
-  mongo_data:

@@ -21,11 +21,6 @@ export function createEmbeddingClient(): EmbeddingProvider {
       if (!key) throw new Error('OPENAI_API_KEY is required for the OpenAI embedding client');
       return new OpenAIEmbeddingClient(key);
     }
-    case 'voyage': {
-      const key = process.env.VOYAGE_API_KEY;
-      if (!key) throw new Error('VOYAGE_API_KEY is required for the Voyage embedding client');
-      return new VoyageEmbeddingClient(key);
-    }
     default:
       throw new Error(`Unknown EMBEDDING_PROVIDER: "${provider}". Supported: openai, voyage`);
   }

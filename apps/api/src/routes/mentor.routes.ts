@@ -8,7 +8,7 @@ import { logger } from '@owl-mentors/utils';
 import { AppError } from '../middleware/error.middleware';
 import { EmailService } from '../services/email.service';
 import { EmbeddingService } from '../services/embedding.service';
-import { MentorSearchService } from '../services/mentor-search.service';
+import { MentorSearchService, MentorWithReason, ParsedIntent } from '../services/mentor-search.service';
 
 const embeddingService = new EmbeddingService();
 const mentorSearchService = new MentorSearchService();
@@ -235,12 +235,9 @@ router.get('/', searchRateLimit, validateQuery(searchMentorsSchema), async (req:
     params.offset = offset;
 
     if (params.query) {
-      const parsedIntent = await mentorSearchService.parseIntent(params.query as string).catch(() => ({
-        semanticQuery: params.query as string,
-        keywords: [],
-        skills: [],
-        queryVariants: [params.query as string],
-      }));
+      const query = params.query as string;
+      const parsedIntent: ParsedIntent = await mentorSearchService.parseIntent(query)
+        .catch(() => mentorSearchService.buildLocalIntent(query));
 
       const structuredFilters = {
         maxRate: parsedIntent.maxRate ?? (params.maxRate ? Number(params.maxRate) : undefined),
@@ -248,14 +245,14 @@ router.get('/', searchRateLimit, validateQuery(searchMentorsSchema), async (req:
         minRating: params.minRating ? Number(params.minRating) : undefined,
       };
 
-      const keywordQuery = mentorSearchService.buildKeywordQuery(parsedIntent as any);
+      const keywordQuery = mentorSearchService.buildKeywordQuery(parsedIntent);
 
-      let vectorMentors: any[] = [];
+      let vectorMentors: MentorWithReason[] = [];
       let semantic = false;
       let llmEnhanced = false;
 
       try {
-        const raw = await embeddingService.searchMentors((parsedIntent as any).semanticQuery || params.query, limit);
+        const raw = await embeddingService.searchMentors(parsedIntent.semanticQuery, limit);
         if (raw.length > 0) {
           semantic = true;
           vectorMentors = mentorSearchService.applyStructuredFilters(raw, structuredFilters);
@@ -264,29 +261,29 @@ router.get('/', searchRateLimit, validateQuery(searchMentorsSchema), async (req:
         logger.warn(`[VectorSearch] Falling back to keyword search: ${(vectorErr as Error).message}`);
       }
 
-      let keywordMentors: any[] = [];
+      let keywordMentors: MentorWithReason[] = [];
       try {
         const raw = await getMentorRepo().search({ ...params, limit, query: keywordQuery });
         keywordMentors = mentorSearchService.attachHeuristicReasons(
           mentorSearchService.applyStructuredFilters(raw, structuredFilters),
-          parsedIntent as any
+          parsedIntent
         );
       } catch (keywordErr) {
         logger.warn(`[KeywordSearch] Failed: ${(keywordErr as Error).message}`);
       }
 
-      let mentors = mentorSearchService.mergeResults(vectorMentors, keywordMentors, limit);
+      let mentors: MentorWithReason[] = mentorSearchService.mergeResults(vectorMentors, keywordMentors, limit);
 
       if (mentors.length > 0) {
         try {
-          mentors = await mentorSearchService.rerankAndExplain(params.query as string, mentors);
+          mentors = await mentorSearchService.rerankAndExplain(query, mentors);
           llmEnhanced = true;
         } catch (rankErr) {
           logger.warn(`[MentorSearch] Re-ranking failed, using hybrid order: ${(rankErr as Error).message}`);
         }
       }
 
-      mentors = mentorSearchService.attachHeuristicReasons(mentors, parsedIntent as any);
+      mentors = mentorSearchService.attachHeuristicReasons(mentors, parsedIntent);
 
       return res.json({
         success: true,

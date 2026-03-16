@@ -242,7 +242,7 @@ export class MentorSearchService {
     throw new Error('No LLM provider configured');
   }
 
-  private buildLocalIntent(query: string): ParsedIntent {
+  buildLocalIntent(query: string): ParsedIntent {
     const normalized = sanitizeQuery(query);
     const multiWordTerms = MULTI_WORD_TERMS
       .filter(term => normalized.includes(term))

@@ -100,19 +100,21 @@ export function AppPageHeader({
   description,
   align = 'left',
   titleClassName,
+  descriptionClassName,
   className,
 }: {
   title: ReactNode;
   description?: ReactNode;
   align?: 'left' | 'center';
   titleClassName?: string;
+  descriptionClassName?: string;
   className?: string;
 }) {
   return (
     <div className={cn('space-y-1.5', align === 'center' && 'mx-auto text-center', className)}>
       <h1 className={cn(appTheme.pageTitle, titleClassName)}>{title}</h1>
       {description ? (
-        <p className={cn(appTheme.pageSubtitle, align === 'center' && 'mx-auto')}>
+        <p className={cn(appTheme.pageSubtitle, align === 'center' && 'mx-auto', descriptionClassName)}>
           {description}
         </p>
       ) : null}

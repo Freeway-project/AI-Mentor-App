@@ -17,6 +17,7 @@ import {
 } from '@/components/ui/app-theme';
 import { cn } from '@/lib/utils';
 import { AnimatedPlaceholderInput } from '@/components/ui/animated-placeholder-input';
+import { SearchLoadingScene } from '@/components/browse/search-loading-scene';
 
 /** Suggested query chips shown below the search bar */
 const SUGGESTED_QUERIES = [
@@ -56,6 +57,7 @@ export default function BrowsePage() {
   const [mentors, setMentors] = useState<any[]>([]);
   const [query, setQuery] = useState('');
   const [loading, setLoading] = useState(true);
+  const [showSearchScene, setShowSearchScene] = useState(false);
   const [isSemantic, setIsSemantic] = useState(false);
   const [searchMeta, setSearchMeta] = useState<SearchMeta>({});
   const hasLoadedInitialResults = useRef(false);
@@ -95,6 +97,19 @@ export default function BrowsePage() {
     return () => window.clearTimeout(timeoutId);
   }, [query]);
 
+  useEffect(() => {
+    if (!loading) {
+      setShowSearchScene(false);
+      return;
+    }
+
+    const timeoutId = window.setTimeout(() => {
+      setShowSearchScene(true);
+    }, 180);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [loading]);
+
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     fetchMentors(query);
@@ -103,6 +118,8 @@ export default function BrowsePage() {
   const handleChip = (chip: string) => {
     setQuery(chip);
   };
+
+  const isQuerySearch = query.trim().length > 0;
 
   return (
     <AppPageShell>
@@ -114,6 +131,7 @@ export default function BrowsePage() {
             align="center"
             title="Find Your Mentor"
             description="Describe what you want to learn and the same shared search surface will match you with the right mentor."
+            descriptionClassName="lg:max-w-none lg:whitespace-nowrap"
             className="mb-2"
           />
 
@@ -140,17 +158,19 @@ export default function BrowsePage() {
           </form>
 
           {/* Suggested query chips */}
-          <div className="flex flex-wrap justify-center gap-2 mb-10 max-w-3xl mx-auto">
-            {SUGGESTED_QUERIES.map(chip => (
-              <button
-                key={chip}
-                onClick={() => handleChip(chip)}
-                className="rounded-full border border-white/10 bg-slate-900/35 px-3 py-1.5 text-xs text-slate-300 transition-colors hover:border-brand/40 hover:text-white"
-              >
-                {chip}
-              </button>
-            ))}
-          </div>
+          {!isQuerySearch ? (
+            <div className="flex flex-wrap justify-center gap-2 mb-10 max-w-3xl mx-auto">
+              {SUGGESTED_QUERIES.map(chip => (
+                <button
+                  key={chip}
+                  onClick={() => handleChip(chip)}
+                  className="rounded-full border border-white/10 bg-slate-900/35 px-3 py-1.5 text-xs text-slate-300 transition-colors hover:border-brand/40 hover:text-white"
+                >
+                  {chip}
+                </button>
+              ))}
+            </div>
+          ) : null}
 
           {/* Semantic indicator */}
           {!loading && mentors.length > 0 && (isSemantic || searchMeta.queryAnalysis?.focusTerms?.length) && (
@@ -199,8 +219,14 @@ export default function BrowsePage() {
 
           {/* Results */}
           {loading ? (
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-              {Array.from({ length: 6 }).map((_, i) => <MentorSkeleton key={i} />)}
+            <div className="space-y-8">
+              {isQuerySearch && showSearchScene ? (
+                <SearchLoadingScene query={query} />
+              ) : null}
+
+              <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                {Array.from({ length: 6 }).map((_, i) => <MentorSkeleton key={i} />)}
+              </div>
             </div>
           ) : mentors.length === 0 ? (
             <div className="text-center py-20 text-slate-400">
