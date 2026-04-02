@@ -1,6 +1,6 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import { MentorRepository, UserRepository, OfferRepository, PolicyRepository } from '@owl-mentors/database';
-import { updateMentorSchema, updateAvailabilitySchema, searchMentorsSchema } from '@owl-mentors/types';
+import { updateMentorSchema, updateAvailabilitySchema, searchMentorsSchema, OnboardingStep } from '@owl-mentors/types';
 import { validate, validateQuery } from '../middleware/validation.middleware';
 import { authenticate, authorize, requireEmailVerified } from '../middleware/auth.middleware';
 import { searchRateLimit } from '../middleware/rateLimit.middleware';
@@ -96,13 +96,14 @@ router.put('/me', authenticate, requireEmailVerified, authorize('mentor'), valid
     await getMentorRepo().update(mentor.id, updatePayload);
 
     // Advance onboarding step through the profile-building steps
-    const profileStepNext: Record<string, string> = {
+    const profileStepNext: Partial<Record<OnboardingStep, OnboardingStep>> = {
       basics: 'expertise',
       expertise: 'verification',
       verification: 'offers',
     };
-    if (profileStepNext[mentor.onboardingStep]) {
-      await getMentorRepo().updateOnboardingStep(mentor.id, profileStepNext[mentor.onboardingStep]);
+    const nextStep = profileStepNext[mentor.onboardingStep];
+    if (nextStep) {
+      await getMentorRepo().updateOnboardingStep(mentor.id, nextStep);
     }
 
     const updated = await getMentorRepo().findById(mentor.id);

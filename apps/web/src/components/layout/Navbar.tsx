@@ -59,12 +59,20 @@ export function Navbar() {
                         </Link>
                     )}
                     {isMentee && (
-                        <Link
-                            href="/mentee/dashboard"
-                            className="text-sm font-medium text-slate-300 hover:text-white transition-colors"
-                        >
-                            My Sessions
-                        </Link>
+                        <>
+                            <Link
+                                href="/mentee/dashboard"
+                                className="text-sm font-medium text-slate-300 hover:text-white transition-colors"
+                            >
+                                My Sessions
+                            </Link>
+                            <Link
+                                href="/mentee/career"
+                                className="text-sm font-medium text-slate-300 hover:text-white transition-colors"
+                            >
+                                Career Plan
+                            </Link>
+                        </>
                     )}
                 </div>
 
@@ -129,13 +137,22 @@ export function Navbar() {
                             </Link>
                         )}
                         {isMentee && (
-                            <Link
-                                href="/mentee/dashboard"
-                                className="text-sm font-medium text-slate-300 hover:text-white"
-                                onClick={toggleMenu}
-                            >
-                                My Sessions
-                            </Link>
+                            <>
+                                <Link
+                                    href="/mentee/dashboard"
+                                    className="text-sm font-medium text-slate-300 hover:text-white"
+                                    onClick={toggleMenu}
+                                >
+                                    My Sessions
+                                </Link>
+                                <Link
+                                    href="/mentee/career"
+                                    className="text-sm font-medium text-slate-300 hover:text-white"
+                                    onClick={toggleMenu}
+                                >
+                                    Career Plan
+                                </Link>
+                            </>
                         )}
                     </div>
                     <div className="flex flex-col space-y-2 pt-4 border-t border-slate-800">

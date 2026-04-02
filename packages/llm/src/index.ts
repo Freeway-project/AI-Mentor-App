@@ -7,6 +7,7 @@ export * from './clients/base.client';
 export * from './clients/openrouter.client';
 export * from './clients/groq.client';
 export * from './prompts/provider-search.prompts';
+export * from './prompts/career-analysis.prompts';
 export * from './embeddings/index';
 
 export function createLLMClient(provider?: string): LLMProvider {

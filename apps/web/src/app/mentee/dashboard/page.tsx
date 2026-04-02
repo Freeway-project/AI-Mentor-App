@@ -136,6 +136,21 @@ export default function MenteeDashboardPage() {
         <AppStatCard icon={<BookOpen className="h-5 w-5" />} label="Sessions Done" value={past.length} tone="purple" />
       </div>
 
+      <AppPanel className="flex flex-col gap-3 p-5 md:flex-row md:items-center md:justify-between">
+        <div>
+          <h2 className="font-semibold text-white">Build a learning plan from your resume</h2>
+          <p className="mt-1 text-sm text-slate-400">
+            Upload your resume, define a target role, and get AI-generated skill gaps plus mentor suggestions.
+          </p>
+        </div>
+        <Link
+          href="/mentee/career"
+          className="inline-flex items-center gap-1.5 rounded-xl border border-brand/20 bg-brand/10 px-4 py-2 text-sm font-medium text-brand-lighter transition-colors hover:bg-brand/20"
+        >
+          Open Career Plan <ArrowRight className="h-4 w-4" />
+        </Link>
+      </AppPanel>
+
       {nextSession ? (
         <AppPanel className="flex items-start gap-4 border-brand/20 bg-brand/10 p-5">
           <div className="rounded-xl border border-brand/20 bg-brand/10 p-2.5 text-brand-lighter">

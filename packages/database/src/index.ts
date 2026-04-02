@@ -18,6 +18,7 @@ export * from './models/user-integration.model';
 export * from './models/calendar-settings.model';
 export * from './models/transcript.model';
 export * from './models/service-usage.model';
+export * from './models/career-profile.model';
 
 // Repositories
 export { UserRepository } from './repositories/user.repository';
@@ -34,6 +35,7 @@ export { UserIntegrationRepository } from './repositories/user-integration.repos
 export { CalendarSettingsRepository } from './repositories/calendar-settings.repository';
 export { TranscriptRepository } from './repositories/transcript.repository';
 export { ServiceUsageRepository } from './repositories/service-usage.repository';
+export { CareerProfileRepository } from './repositories/career-profile.repository';
 
 // Legacy exports
 export { MentorRepository as ProviderRepository } from './repositories/mentor.repository';
