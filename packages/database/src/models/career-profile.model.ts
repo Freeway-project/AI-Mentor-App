@@ -5,8 +5,8 @@ export interface ICareerProfileDocument extends mongoose.Document {
   userId: mongoose.Types.ObjectId;
   status: 'idle' | 'ready' | 'failed';
   resume?: {
-    fileUrl: string;
-    fileKey: string;
+    fileUrl?: string;
+    fileKey?: string;
     fileName: string;
     mimeType: string;
     uploadedAt: Date;

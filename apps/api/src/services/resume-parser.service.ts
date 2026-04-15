@@ -20,8 +20,26 @@ export class ResumeParserService {
     return { projectId, location, processorId };
   }
 
+  private getCredentialHint() {
+    if (process.env.GOOGLE_APPLICATION_CREDENTIALS) {
+      return process.env.GOOGLE_APPLICATION_CREDENTIALS;
+    }
+
+    return null;
+  }
+
   private getClient(location: string) {
     if (!this.client) {
+      const credentialPath = this.getCredentialHint();
+
+      if (!credentialPath) {
+        throw new AppError(
+          503,
+          'DOCUMENT_AI_CREDENTIALS_MISSING',
+          'Document AI credentials are missing. Set GOOGLE_APPLICATION_CREDENTIALS to your service account JSON key path.'
+        );
+      }
+
       this.client = new documentai.DocumentProcessorServiceClient({
         apiEndpoint: `${location}-documentai.googleapis.com`,
       });
@@ -54,6 +72,18 @@ export class ResumeParserService {
       if (error instanceof AppError) {
         throw error;
       }
+
+      const message = (error as Error).message || '';
+      if (
+        /default credentials|Could not load the default credentials|Could not load credentials|ENOENT|ECONNREFUSED/i.test(message)
+      ) {
+        throw new AppError(
+          503,
+          'DOCUMENT_AI_CREDENTIALS_INVALID',
+          'Document AI could not load Google credentials. Check GOOGLE_APPLICATION_CREDENTIALS and the service account key file.'
+        );
+      }
+
       throw new AppError(400, 'RESUME_PARSE_FAILED', 'Unable to process resume with Document AI');
     }
   }

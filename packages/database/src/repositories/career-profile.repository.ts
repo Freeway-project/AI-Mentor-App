@@ -10,8 +10,8 @@ import { logger } from '@owl-mentors/utils';
 import { CareerProfileModel, toCareerProfile } from '../models/career-profile.model';
 
 interface ResumeUpsertInput {
-  fileUrl: string;
-  fileKey: string;
+  fileUrl?: string;
+  fileKey?: string;
   fileName: string;
   mimeType: string;
   rawText: string;

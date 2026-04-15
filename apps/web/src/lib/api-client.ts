@@ -112,8 +112,8 @@ export interface CareerProfile {
   userId: string;
   status: 'idle' | 'ready' | 'failed';
   resume?: {
-    fileUrl: string;
-    fileKey: string;
+    fileUrl?: string;
+    fileKey?: string;
     fileName: string;
     mimeType: string;
     uploadedAt: string;
