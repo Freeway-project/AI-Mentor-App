@@ -383,6 +383,12 @@ class ApiClient {
     return this.upload<CareerProfile>('/career-profile/resume', fd);
   }
 
+  async parseResume(file: File) {
+    const fd = new FormData();
+    fd.append('resume', file);
+    return this.upload<{ extractedProfile: CareerExtractedProfile }>('/career-profile/parse', fd);
+  }
+
   async getCareerProfile() {
     return this.request<CareerProfile | null>('/career-profile/me');
   }

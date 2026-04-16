@@ -14,6 +14,22 @@ const repo = new CareerProfileRepository();
 const resumeParserService = new ResumeParserService();
 const careerAnalysisService = new CareerAnalysisService();
 
+// Public endpoint — parse a resume without saving, no auth required
+router.post(
+  '/parse',
+  uploadResume.single('resume'),
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      if (!req.file) throw new AppError(400, 'NO_FILE', 'No resume file provided');
+      const rawText = await resumeParserService.extractText(req.file.buffer, req.file.mimetype);
+      const extractedProfile = await careerAnalysisService.extractCareerProfile(rawText);
+      res.json({ success: true, data: { extractedProfile } });
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
 router.get('/me', authenticate, async (req: Request, res: Response, next: NextFunction) => {
   try {
     const profile = await repo.findByUserId(req.userId!);
