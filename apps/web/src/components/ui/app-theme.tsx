@@ -86,8 +86,8 @@ export function AppPageShell({
 }) {
   return (
     <div
-      className={cn(appTheme.pageShell, dark && 'text-white', className)}
-      style={{ background: dark ? 'var(--gradient-auth)' : 'var(--gradient-page)' }}
+      className={cn(appTheme.pageShell, className)}
+      style={{ background: 'var(--gradient-page)' }}
     >
       <div className={appTheme.pageBackdrop}>
         <div className={cn(appTheme.pageGrid, dark && 'opacity-[0.08]')} />
@@ -197,7 +197,7 @@ export function AppStatCard({
       </div>
       <div className="min-w-0">
         <p className="text-xs uppercase tracking-[0.2em] text-slate-500">{label}</p>
-        <p className="mt-1 text-2xl font-bold text-white">{value}</p>
+        <p className="mt-1 text-2xl font-bold text-slate-900">{value}</p>
         {meta ? <p className="mt-1 text-xs text-slate-500">{meta}</p> : null}
       </div>
     </div>

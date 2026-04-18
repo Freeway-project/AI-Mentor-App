@@ -145,7 +145,7 @@ export default function MenteeDashboardPage() {
         </div>
         <Link
           href="/mentee/career"
-          className="inline-flex items-center gap-1.5 rounded-xl border border-brand/20 bg-brand/10 px-4 py-2 text-sm font-medium text-brand-lighter transition-colors hover:bg-brand/20"
+          className="inline-flex items-center gap-1.5 rounded-xl border border-brand/20 bg-brand/10 px-4 py-2 text-sm font-medium text-brand transition-colors hover:bg-brand/20 hover:text-brand-light"
         >
           Open Career Plan <ArrowRight className="h-4 w-4" />
         </Link>
@@ -153,13 +153,13 @@ export default function MenteeDashboardPage() {
 
       {nextSession ? (
         <AppPanel className="flex items-start gap-4 border-brand/20 bg-brand/10 p-5">
-          <div className="rounded-xl border border-brand/20 bg-brand/10 p-2.5 text-brand-lighter">
+          <div className="rounded-xl border border-brand/20 bg-brand/10 p-2.5 text-brand">
             <Clock className="h-6 w-6" />
           </div>
           <div className="flex-1">
-            <h2 className="font-semibold text-brand-lighter">Next session</h2>
-            <p className="text-slate-900 font-medium mt-0.5">{nextSession.title}</p>
-            <p className="text-sm text-slate-400 mt-1">
+            <h2 className="font-semibold text-brand">Next session</h2>
+            <p className="text-slate-900 font-bold mt-0.5">{nextSession.title}</p>
+            <p className="text-sm text-slate-600 mt-1">
               {formatDateTime(nextSession.scheduledAt)} · {nextSession.duration} min
             </p>
             {nextSessionAccess && (
@@ -177,17 +177,17 @@ export default function MenteeDashboardPage() {
         </AppPanel>
       ) : (
         <AppPanel className="flex items-start gap-4 border-brand/20 bg-brand/10 p-5">
-          <div className="rounded-xl border border-brand/20 bg-brand/10 p-2.5 text-brand-lighter">
+          <div className="rounded-xl border border-brand/20 bg-brand/10 p-2.5 text-brand">
             <Clock className="h-6 w-6" />
           </div>
           <div>
-            <h2 className="font-semibold text-brand-lighter">Find your first mentor</h2>
-            <p className="text-sm text-slate-400 mt-0.5">
+            <h2 className="font-semibold text-brand">Find your first mentor</h2>
+            <p className="text-sm text-slate-600 mt-0.5">
               You haven&apos;t booked any sessions yet. Browse our list of expert mentors to get started.
             </p>
             <Link
               href="/browse"
-              className="mt-3 inline-flex items-center gap-1.5 text-sm font-medium text-brand-lighter hover:text-white"
+              className="mt-3 inline-flex items-center gap-1.5 text-sm font-semibold text-brand hover:text-brand-light transition-colors"
             >
               Browse mentors <ArrowRight className="w-3.5 h-3.5" />
             </Link>
@@ -207,8 +207,8 @@ export default function MenteeDashboardPage() {
                 <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
                   <div className="space-y-1.5">
                     <StatusBadge status={session.status} />
-                    <p className="font-semibold text-white">{session.title}</p>
-                    <p className="text-sm text-slate-400">
+                    <p className="font-bold text-slate-900">{session.title}</p>
+                    <p className="text-sm text-slate-500 font-medium">
                       {formatDateTime(session.scheduledAt)} · {session.duration} min
                     </p>
                     {sessionAccess && (
@@ -216,7 +216,7 @@ export default function MenteeDashboardPage() {
                         href={sessionAccess.href}
                         target={sessionAccess.isExternal ? '_blank' : undefined}
                         rel={sessionAccess.isExternal ? 'noopener noreferrer' : undefined}
-                        className="mt-1 inline-flex w-fit items-center gap-1.5 rounded-lg border border-brand/20 bg-brand/10 px-3 py-1.5 text-xs font-medium text-brand-lighter transition-colors hover:bg-brand/20"
+                        className="mt-1 inline-flex w-fit items-center gap-1.5 rounded-lg border border-brand/20 bg-brand/10 px-3 py-1.5 text-xs font-medium text-brand transition-colors hover:bg-brand/20 hover:text-brand-light"
                       >
                         <Video className="w-3.5 h-3.5" />
                         {sessionAccess.label}

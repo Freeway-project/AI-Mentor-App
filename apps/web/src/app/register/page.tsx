@@ -81,49 +81,49 @@ export default function RegisterPage() {
       style={{ background: 'var(--gradient-auth)' }}
     >
       {/* ── Left brand panel ── */}
-      <div className="hidden lg:flex lg:w-[45%] xl:w-[42%] flex-col relative overflow-hidden border-r border-white/[0.06]">
+      <div className="hidden lg:flex lg:w-[45%] xl:w-[42%] flex-col relative overflow-hidden bg-white/50 backdrop-blur-sm border-r border-slate-200">
         {/* Glow */}
         <div
           className="absolute inset-0 pointer-events-none"
           style={{
-            background: 'radial-gradient(ellipse 80% 60% at 50% 110%, rgba(124,58,237,0.28) 0%, transparent 70%)',
+            background: 'radial-gradient(ellipse 80% 60% at 50% 110%, rgba(124,58,237,0.1) 0%, transparent 70%)',
           }}
         />
         {/* Dot grid */}
         <div
-          className="absolute inset-0 opacity-[0.07]"
+          className="absolute inset-0 opacity-[0.04]"
           style={{
-            backgroundImage: 'radial-gradient(circle, #94a3b8 1px, transparent 1px)',
+            backgroundImage: 'radial-gradient(circle, #475569 1px, transparent 1px)',
             backgroundSize: '28px 28px',
           }}
         />
 
         {/* Logo */}
         <div className="relative z-10 p-8 lg:p-10">
-          <Link href="/" className="inline-flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center shadow-lg shadow-violet-500/25">
+          <Link href="/" className="inline-flex items-center gap-2 group">
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-violet-500 to-brand flex items-center justify-center shadow-lg shadow-brand/20">
               <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
                 <path d="M8 2L14 5.5V10.5L8 14L2 10.5V5.5L8 2Z" fill="white" fillOpacity="0.9" />
               </svg>
             </div>
-            <span className="text-white font-semibold text-lg tracking-tight">OWL Mentor</span>
+            <span className="text-slate-900 font-bold text-lg tracking-tight group-hover:text-brand transition-colors">OWL Mentor</span>
           </Link>
         </div>
 
         {/* Center copy */}
         <div className="relative z-10 flex-1 flex flex-col justify-center px-8 lg:px-12 pb-16">
           <div className="space-y-6 max-w-sm">
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-violet-500/10 border border-violet-500/20 text-violet-300 text-xs font-medium w-fit">
-              <span className="w-1.5 h-1.5 rounded-full bg-violet-400 animate-pulse" />
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-brand/10 border border-brand/20 text-brand text-xs font-semibold w-fit">
+              <span className="w-1.5 h-1.5 rounded-full bg-brand animate-pulse" />
               Free to join · No credit card
             </div>
-            <h1 className="text-3xl xl:text-4xl font-bold text-white leading-tight tracking-tight">
+            <h1 className="text-3xl xl:text-4xl font-bold text-slate-900 leading-tight tracking-tight">
               Start your journey<br />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-400 to-purple-300">
                 towards mastery
               </span>
             </h1>
-            <p className="text-slate-400 text-base leading-relaxed">
+            <p className="text-slate-600 text-base leading-relaxed">
               Whether you&apos;re here to learn or share expertise — you&apos;re in the right place.
             </p>
           </div>
@@ -135,9 +135,9 @@ export default function RegisterPage() {
               { value: '2k+', label: 'Active Learners' },
               { value: '95%', label: 'Satisfaction' },
             ].map(({ value, label }) => (
-              <div key={label} className="p-4 rounded-xl bg-white/[0.04] border border-white/[0.08] text-center">
-                <p className="text-xl font-bold text-white">{value}</p>
-                <p className="text-slate-500 text-xs mt-0.5">{label}</p>
+              <div key={label} className="p-4 rounded-xl bg-white border border-slate-200 text-center shadow-sm">
+                <p className="text-xl font-bold text-slate-900">{value}</p>
+                <p className="text-slate-500 font-medium text-xs mt-0.5">{label}</p>
               </div>
             ))}
           </div>
@@ -149,12 +149,12 @@ export default function RegisterPage() {
         {/* Mobile logo */}
         <div className="lg:hidden p-6">
           <Link href="/" className="inline-flex items-center gap-2">
-            <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center">
+            <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-brand to-purple-600 flex items-center justify-center shadow-sm">
               <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
                 <path d="M8 2L14 5.5V10.5L8 14L2 10.5V5.5L8 2Z" fill="white" fillOpacity="0.9" />
               </svg>
             </div>
-            <span className="text-white font-semibold">OWL Mentor</span>
+            <span className="text-slate-900 font-bold tracking-tight">OWL Mentor</span>
           </Link>
         </div>
 
@@ -163,19 +163,19 @@ export default function RegisterPage() {
 
             {/* Heading */}
             <div>
-              <h2 className="text-2xl font-bold text-white tracking-tight">Create your account</h2>
-              <p className="text-slate-400 text-sm mt-1">Join thousands of learners and mentors</p>
+              <h2 className="text-2xl font-bold text-slate-900 tracking-tight">Create your account</h2>
+              <p className="text-slate-600 text-sm mt-1">Join thousands of learners and mentors</p>
             </div>
 
             {/* Role toggle */}
-            <div className="grid grid-cols-2 gap-2 p-1 rounded-xl bg-white/[0.04] border border-white/[0.06]">
+            <div className="grid grid-cols-2 gap-2 p-1 rounded-xl bg-slate-100 border border-slate-200">
               <button
                 type="button"
                 onClick={() => setRole('mentee')}
-                className={`flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-medium transition-all ${
+                className={`flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-bold transition-all ${
                   role === 'mentee'
-                    ? 'bg-brand text-white shadow-md shadow-brand/30'
-                    : 'text-slate-400 hover:text-slate-200'
+                    ? 'bg-white text-brand shadow-sm ring-1 ring-slate-200'
+                    : 'text-slate-500 hover:text-slate-700'
                 }`}
               >
                 <span>🎓</span> I want to learn
@@ -183,10 +183,10 @@ export default function RegisterPage() {
               <button
                 type="button"
                 onClick={() => setRole('mentor')}
-                className={`flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-medium transition-all ${
+                className={`flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-bold transition-all ${
                   role === 'mentor'
-                    ? 'bg-amber-500 text-slate-950 shadow-md shadow-amber-500/30'
-                    : 'text-slate-400 hover:text-slate-200'
+                    ? 'bg-white text-amber-600 shadow-sm ring-1 ring-slate-200'
+                    : 'text-slate-500 hover:text-slate-700'
                 }`}
               >
                 <span>🏆</span> I want to mentor
@@ -204,9 +204,9 @@ export default function RegisterPage() {
 
             {googleClientId && (
               <div className="relative flex items-center gap-3">
-                <div className="flex-1 h-px bg-white/10" />
-                <span className="text-slate-500 text-xs font-medium shrink-0">or register with email</span>
-                <div className="flex-1 h-px bg-white/10" />
+                <div className="flex-1 h-px bg-slate-200" />
+                <span className="text-slate-400 text-xs font-semibold uppercase tracking-wider shrink-0">or register with email</span>
+                <div className="flex-1 h-px bg-slate-200" />
               </div>
             )}
 
@@ -223,7 +223,7 @@ export default function RegisterPage() {
             {/* Form */}
             <form onSubmit={handleSubmit} className="space-y-3.5">
               <div className="space-y-1.5">
-                <label htmlFor="name" className="block text-xs font-medium text-slate-400 uppercase tracking-wider">
+                <label htmlFor="name" className="block text-xs font-semibold text-slate-600 uppercase tracking-wider">
                   Full name
                 </label>
                 <input
@@ -232,13 +232,13 @@ export default function RegisterPage() {
                   required
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  className="w-full px-4 py-3 rounded-xl border border-white/10 bg-white/[0.05] text-white placeholder:text-slate-600 focus:outline-none focus:border-brand/60 focus:bg-white/[0.08] transition-all text-sm"
+                  className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-brand/40 focus:ring-4 focus:ring-brand/5 transition-all text-sm shadow-sm"
                   placeholder="Your full name"
                 />
               </div>
 
               <div className="space-y-1.5">
-                <label htmlFor="email" className="block text-xs font-medium text-slate-400 uppercase tracking-wider">
+                <label htmlFor="email" className="block text-xs font-semibold text-slate-600 uppercase tracking-wider">
                   Email address
                 </label>
                 <input
@@ -247,14 +247,14 @@ export default function RegisterPage() {
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full px-4 py-3 rounded-xl border border-white/10 bg-white/[0.05] text-white placeholder:text-slate-600 focus:outline-none focus:border-brand/60 focus:bg-white/[0.08] transition-all text-sm"
+                  className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-brand/40 focus:ring-4 focus:ring-brand/5 transition-all text-sm shadow-sm"
                   placeholder="you@example.com"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1.5">
-                  <label htmlFor="password" className="block text-xs font-medium text-slate-400 uppercase tracking-wider">
+                  <label htmlFor="password" className="block text-xs font-semibold text-slate-600 uppercase tracking-wider">
                     Password
                   </label>
                   <input
@@ -264,12 +264,12 @@ export default function RegisterPage() {
                     minLength={8}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="w-full px-4 py-3 rounded-xl border border-white/10 bg-white/[0.05] text-white placeholder:text-slate-600 focus:outline-none focus:border-brand/60 focus:bg-white/[0.08] transition-all text-sm"
+                    className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-brand/40 focus:ring-4 focus:ring-brand/5 transition-all text-sm shadow-sm"
                     placeholder="Min 8 chars"
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <label htmlFor="confirmPassword" className="block text-xs font-medium text-slate-400 uppercase tracking-wider">
+                  <label htmlFor="confirmPassword" className="block text-xs font-semibold text-slate-600 uppercase tracking-wider">
                     Confirm
                   </label>
                   <input
@@ -278,7 +278,7 @@ export default function RegisterPage() {
                     required
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
-                    className="w-full px-4 py-3 rounded-xl border border-white/10 bg-white/[0.05] text-white placeholder:text-slate-600 focus:outline-none focus:border-brand/60 focus:bg-white/[0.08] transition-all text-sm"
+                    className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-brand/40 focus:ring-4 focus:ring-brand/5 transition-all text-sm shadow-sm"
                     placeholder="Repeat it"
                   />
                 </div>
@@ -286,10 +286,10 @@ export default function RegisterPage() {
 
               <button
                 type="submit"
-                className={`w-full py-3 font-semibold rounded-xl transition-all shadow-lg disabled:opacity-60 disabled:cursor-not-allowed ${
+                className={`w-full py-3 font-bold rounded-xl transition-all shadow-md hover:shadow-lg disabled:opacity-60 disabled:cursor-not-allowed ${
                   isMentor
-                    ? 'bg-amber-500 hover:bg-amber-400 text-slate-950 shadow-amber-500/20'
-                    : 'bg-violet-600 hover:bg-violet-500 text-white shadow-violet-600/20'
+                    ? 'bg-amber-500 hover:bg-amber-400 text-white'
+                    : 'bg-brand hover:bg-brand-light text-white'
                 }`}
                 disabled={loading}
               >
@@ -305,16 +305,16 @@ export default function RegisterPage() {
               </button>
             </form>
 
-            <p className="text-center text-xs text-slate-600">
+            <p className="text-center text-xs text-slate-500 mt-4">
               By creating an account you agree to our{' '}
-              <Link href="/terms" className="text-slate-400 hover:text-slate-200 transition-colors">Terms</Link>
+              <Link href="/terms" className="text-slate-700 font-medium hover:text-brand transition-colors">Terms</Link>
               {' '}and{' '}
-              <Link href="/privacy" className="text-slate-400 hover:text-slate-200 transition-colors">Privacy Policy</Link>
+              <Link href="/privacy" className="text-slate-700 font-medium hover:text-brand transition-colors">Privacy Policy</Link>
             </p>
 
-            <p className="text-center text-sm text-slate-500">
+            <p className="text-center text-sm text-slate-600 mt-6 pt-2">
               Already have an account?{' '}
-              <Link href="/login" className="text-brand-lighter hover:text-brand-light font-medium transition-colors">
+              <Link href="/login" className="text-brand hover:text-brand-light font-bold transition-colors">
                 Sign in
               </Link>
             </p>

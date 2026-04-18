@@ -102,19 +102,19 @@ export default function LoginPage() {
       style={{ background: 'var(--gradient-auth)' }}
     >
       {/* ── Left brand panel ── */}
-      <div className="hidden lg:flex lg:w-[45%] xl:w-[42%] flex-col relative overflow-hidden border-r border-white/[0.06]">
+      <div className="hidden lg:flex lg:w-[45%] xl:w-[42%] flex-col relative overflow-hidden bg-white/50 backdrop-blur-sm border-r border-slate-200">
         {/* Radial glow */}
         <div
           className="absolute inset-0 pointer-events-none"
           style={{
-            background: 'radial-gradient(ellipse 80% 60% at 50% 110%, rgba(124,58,237,0.28) 0%, transparent 70%)',
+            background: 'radial-gradient(ellipse 80% 60% at 50% 110%, rgba(124,58,237,0.1) 0%, transparent 70%)',
           }}
         />
         {/* Dot grid */}
         <div
-          className="absolute inset-0 opacity-[0.07]"
+          className="absolute inset-0 opacity-[0.04]"
           style={{
-            backgroundImage: 'radial-gradient(circle, #94a3b8 1px, transparent 1px)',
+            backgroundImage: 'radial-gradient(circle, #475569 1px, transparent 1px)',
             backgroundSize: '28px 28px',
           }}
         />
@@ -122,45 +122,45 @@ export default function LoginPage() {
         {/* Logo */}
         <div className="relative z-10 p-8 lg:p-10">
           <Link href="/" className="inline-flex items-center gap-2 group">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center shadow-lg shadow-violet-500/25">
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-violet-500 to-brand flex items-center justify-center shadow-lg shadow-brand/20">
               <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
                 <path d="M8 2L14 5.5V10.5L8 14L2 10.5V5.5L8 2Z" fill="white" fillOpacity="0.9" />
               </svg>
             </div>
-            <span className="text-white font-semibold text-lg tracking-tight">OWL Mentor</span>
+            <span className="text-slate-900 font-bold text-lg tracking-tight group-hover:text-brand transition-colors">OWL Mentor</span>
           </Link>
         </div>
 
         {/* Center copy */}
         <div className="relative z-10 flex-1 flex flex-col justify-center px-8 lg:px-12 pb-16">
           <div className="space-y-6 max-w-sm">
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-violet-500/10 border border-violet-500/20 text-violet-300 text-xs font-medium w-fit">
-              <span className="w-1.5 h-1.5 rounded-full bg-violet-400 animate-pulse" />
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-brand/10 border border-brand/20 text-brand text-xs font-semibold w-fit">
+              <span className="w-1.5 h-1.5 rounded-full bg-brand animate-pulse" />
               Trusted by 2,000+ learners
             </div>
-            <h1 className="text-3xl xl:text-4xl font-bold text-white leading-tight tracking-tight">
+            <h1 className="text-3xl xl:text-4xl font-bold text-slate-900 leading-tight tracking-tight">
               Grow faster with<br />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-400 to-purple-300">
                 expert mentors
               </span>
             </h1>
-            <p className="text-slate-400 text-base leading-relaxed">
+            <p className="text-slate-600 text-base leading-relaxed">
               Get personalised 1-on-1 guidance from industry professionals who&apos;ve been where you want to go.
             </p>
           </div>
 
           {/* Testimonial */}
-          <div className="mt-10 max-w-sm p-5 rounded-2xl bg-white/[0.04] border border-white/[0.08] backdrop-blur-sm">
-            <p className="text-slate-300 text-sm leading-relaxed italic">
+          <div className="mt-10 max-w-sm p-5 rounded-2xl bg-white border border-slate-200 shadow-sm transition-all hover:border-brand/30 hover:shadow-md">
+            <p className="text-slate-700 text-sm leading-relaxed italic">
               &ldquo;Within 3 months of working with my mentor I landed a senior engineering role at a FAANG company.&rdquo;
             </p>
             <div className="flex items-center gap-3 mt-4">
-              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-violet-400 to-fuchsia-400 flex items-center justify-center text-white text-xs font-bold">
+              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-violet-500 to-fuchsia-500 flex items-center justify-center text-white text-xs font-bold shadow-sm">
                 A
               </div>
               <div>
-                <p className="text-white text-sm font-medium">Alex K.</p>
-                <p className="text-slate-500 text-xs">Software Engineer, Google</p>
+                <p className="text-slate-900 text-sm font-semibold">Alex K.</p>
+                <p className="text-slate-500 text-xs font-medium">Software Engineer, Google</p>
               </div>
               <div className="ml-auto flex gap-0.5">
                 {[...Array(5)].map((_, i) => (
@@ -179,12 +179,12 @@ export default function LoginPage() {
         {/* Mobile logo */}
         <div className="lg:hidden p-6">
           <Link href="/" className="inline-flex items-center gap-2">
-            <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center">
+            <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-brand to-purple-600 flex items-center justify-center shadow-sm">
               <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
                 <path d="M8 2L14 5.5V10.5L8 14L2 10.5V5.5L8 2Z" fill="white" fillOpacity="0.9" />
               </svg>
             </div>
-            <span className="text-white font-semibold">OWL Mentor</span>
+            <span className="text-slate-900 font-bold tracking-tight">OWL Mentor</span>
           </Link>
         </div>
 
@@ -193,8 +193,8 @@ export default function LoginPage() {
 
             {/* Heading */}
             <div>
-              <h2 className="text-2xl font-bold text-white tracking-tight">Welcome back</h2>
-              <p className="text-slate-400 text-sm mt-1">Sign in to your account to continue</p>
+              <h2 className="text-2xl font-bold text-slate-900 tracking-tight">Welcome back</h2>
+              <p className="text-slate-600 text-sm mt-1">Sign in to your account to continue</p>
             </div>
 
             {/* Google login */}
@@ -208,16 +208,16 @@ export default function LoginPage() {
 
             {googleClientId && (
               <div className="relative flex items-center gap-3">
-                <div className="flex-1 h-px bg-white/10" />
-                <span className="text-slate-500 text-xs font-medium shrink-0">or sign in with email</span>
-                <div className="flex-1 h-px bg-white/10" />
+                <div className="flex-1 h-px bg-slate-200" />
+                <span className="text-slate-400 text-xs font-semibold uppercase tracking-wider shrink-0">or sign in with email</span>
+                <div className="flex-1 h-px bg-slate-200" />
               </div>
             )}
 
             {/* Form */}
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-1.5">
-                <label htmlFor="email" className="block text-xs font-medium text-slate-400 uppercase tracking-wider">
+                <label htmlFor="email" className="block text-xs font-semibold text-slate-600 uppercase tracking-wider">
                   Email address
                 </label>
                 <input
@@ -226,17 +226,17 @@ export default function LoginPage() {
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full px-4 py-3 rounded-xl border border-white/10 bg-white/[0.05] text-white placeholder:text-slate-600 focus:outline-none focus:border-brand/60 focus:bg-white/[0.08] transition-all text-sm"
+                  className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-brand/40 focus:ring-4 focus:ring-brand/5 transition-all text-sm shadow-sm"
                   placeholder="you@example.com"
                 />
               </div>
 
               <div className="space-y-1.5">
                 <div className="flex items-center justify-between">
-                  <label htmlFor="password" className="block text-xs font-medium text-slate-400 uppercase tracking-wider">
+                  <label htmlFor="password" className="block text-xs font-semibold text-slate-600 uppercase tracking-wider">
                     Password
                   </label>
-                  <Link href="/forgot-password" className="text-xs text-brand-lighter hover:text-brand-light transition-colors">
+                  <Link href="/forgot-password" className="text-xs font-medium text-brand hover:text-brand-light transition-colors">
                     Forgot password?
                   </Link>
                 </div>
@@ -246,14 +246,14 @@ export default function LoginPage() {
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full px-4 py-3 rounded-xl border border-white/10 bg-white/[0.05] text-white placeholder:text-slate-600 focus:outline-none focus:border-brand/60 focus:bg-white/[0.08] transition-all text-sm"
+                  className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-brand/40 focus:ring-4 focus:ring-brand/5 transition-all text-sm shadow-sm"
                   placeholder="Enter your password"
                 />
               </div>
 
               <button
                 type="submit"
-                className="w-full py-3 bg-violet-600 hover:bg-violet-500 text-white font-semibold rounded-xl transition-all shadow-lg shadow-violet-600/20 hover:shadow-violet-500/30 disabled:opacity-60 disabled:cursor-not-allowed"
+                className="w-full py-3 bg-brand hover:bg-brand-light text-white font-bold rounded-xl transition-all shadow-md hover:shadow-lg disabled:opacity-60 disabled:cursor-not-allowed"
                 disabled={loading}
               >
                 {loading ? (
@@ -268,9 +268,9 @@ export default function LoginPage() {
               </button>
             </form>
 
-            <p className="text-center text-sm text-slate-500">
+            <p className="text-center text-sm text-slate-600 mt-6 md:mt-8">
               Don&apos;t have an account?{' '}
-              <Link href="/register" className="text-brand-lighter hover:text-brand-light font-medium transition-colors">
+              <Link href="/register" className="text-brand hover:text-brand-light font-bold transition-colors">
                 Create one free
               </Link>
             </p>
