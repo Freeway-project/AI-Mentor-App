@@ -1,4 +1,6 @@
 import type { Metadata } from 'next';
+import { Analytics } from '@vercel/analytics/react';
+import { SpeedInsights } from '@vercel/speed-insights/next';
 import './globals.css';
 import { AppProviders } from './providers';
 import { Toaster } from 'sonner';
@@ -23,6 +25,8 @@ export default function RootLayout({
           <RouteTransition>{children}</RouteTransition>
         </AppProviders>
         <Toaster position="top-center" richColors closeButton />
+        <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   );

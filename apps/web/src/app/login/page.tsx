@@ -99,7 +99,7 @@ export default function LoginPage() {
   const content = (
     <div
       className="min-h-screen flex"
-      style={{ background: 'var(--gradient-page)' }}
+      style={{ background: 'var(--gradient-auth)' }}
     >
       {/* ── Left brand panel ── */}
       <div className="hidden lg:flex lg:w-[45%] xl:w-[42%] flex-col relative overflow-hidden border-r border-white/[0.06]">

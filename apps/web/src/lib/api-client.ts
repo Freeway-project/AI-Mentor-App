@@ -29,6 +29,106 @@ export interface MentorSearchResponse {
   queryAnalysis?: MentorSearchQueryAnalysis;
 }
 
+export interface CareerTimelineEntry {
+  title: string;
+  company?: string;
+  startDate?: string;
+  endDate?: string;
+  isCurrent?: boolean;
+  summary?: string;
+  capabilitiesUsed: string[];
+}
+
+export interface CareerExtractedProfile {
+  summary: string;
+  headline?: string;
+  coreCapabilities: string[];
+  tools: string[];
+  domains: string[];
+  functionalSkills: string[];
+  communicationSkills: string[];
+  leadershipSignals: string[];
+  careerInterests: string[];
+  certifications: string[];
+  projects: Array<{ name: string; summary?: string; capabilitiesUsed: string[] }>;
+  education: Array<{ institution: string; degree?: string; fieldOfStudy?: string; graduationYear?: string }>;
+  experienceTimeline: CareerTimelineEntry[];
+  seniorityEstimate: string;
+  strengthSignals: string[];
+  weakSignals: string[];
+  confidence: number;
+}
+
+export interface CareerGoalInput {
+  targetRole?: string;
+  careerStageGoal?: string;
+  timelineMonths?: number;
+  focusAreas?: string[];
+  weeklyHours?: number;
+  maxBudget?: number;
+  preferredLanguage?: string;
+  freeformGoal?: string;
+}
+
+export interface CareerGoalProfile {
+  targetRole: string;
+  goalType: string;
+  timelineMonths?: number;
+  priorityAreas: string[];
+  inferredCurrentLevel?: string;
+  constraints: {
+    weeklyHours?: number;
+    maxBudget?: number;
+    preferredLanguage?: string;
+  };
+  confidence: number;
+  goalSummary: string;
+}
+
+export interface CareerAnalysis {
+  currentLevelSummary: string;
+  topStrengths: string[];
+  primaryGaps: string[];
+  recommendedFocusAreas: string[];
+  recommendedLearningOrder: string[];
+  explorationSuggestions: string[];
+  briefPlan: string;
+  mentorSearchQuery: string;
+  generatedAt: string;
+}
+
+export interface CareerMentorRecommendation {
+  mentorId: string;
+  name: string;
+  headline?: string;
+  hourlyRate?: number;
+  specialties: string[];
+  matchScore?: number;
+  matchReason?: string;
+}
+
+export interface CareerProfile {
+  id: string;
+  userId: string;
+  status: 'idle' | 'ready' | 'failed';
+  resume?: {
+    fileUrl?: string;
+    fileKey?: string;
+    fileName: string;
+    mimeType: string;
+    uploadedAt: string;
+    textExtractedAt?: string;
+  };
+  rawText?: string;
+  extractedProfile?: CareerExtractedProfile;
+  goalProfile?: CareerGoalProfile;
+  latestAnalysis?: CareerAnalysis;
+  mentorRecommendations: CareerMentorRecommendation[];
+  errorMessage?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 class ApiClient {
   private baseUrl: string;
   private token: string | null = null;
@@ -275,6 +375,29 @@ class ApiClient {
 
   async deleteIntroVideo() {
     return this.request<any>('/upload/intro-video', { method: 'DELETE' });
+  }
+
+  async uploadCareerResume(file: File) {
+    const fd = new FormData();
+    fd.append('resume', file);
+    return this.upload<CareerProfile>('/career-profile/resume', fd);
+  }
+
+  async parseResume(file: File) {
+    const fd = new FormData();
+    fd.append('resume', file);
+    return this.upload<{ extractedProfile: CareerExtractedProfile }>('/career-profile/parse', fd);
+  }
+
+  async getCareerProfile() {
+    return this.request<CareerProfile | null>('/career-profile/me');
+  }
+
+  async analyzeCareerProfile(data: CareerGoalInput) {
+    return this.request<CareerProfile>('/career-profile/analyze', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
   }
 
   // Google Calendar Integration

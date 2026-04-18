@@ -1,0 +1,87 @@
+'use client';
+
+import Link from 'next/link';
+import { usePathname, useRouter } from 'next/navigation';
+import { BookOpen, Compass, LayoutDashboard, LogOut, Rocket, User } from 'lucide-react';
+import { useAuth } from '@/lib/auth-context';
+
+const NAV = [
+  { href: '/mentee/dashboard', label: 'My Sessions', icon: LayoutDashboard },
+  { href: '/mentee/career', label: 'Career Plan', icon: BookOpen },
+  { href: '/browse', label: 'Browse Mentors', icon: Compass },
+];
+
+export function MenteeSidebar() {
+  const pathname = usePathname();
+  const router = useRouter();
+  const { user, logout } = useAuth();
+
+  const handleLogout = () => {
+    logout();
+    router.push('/');
+  };
+
+  return (
+    <aside className="hidden h-screen w-64 shrink-0 flex-col bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900 text-white lg:flex">
+      <div className="border-b border-white/10 px-5 py-5">
+        <Link href="/" className="flex items-center gap-2.5">
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-violet-500 to-purple-500">
+            <Rocket className="h-4 w-4 text-white" />
+          </div>
+          <span className="text-lg font-bold tracking-tight">OWL Mentor</span>
+        </Link>
+        <p className="mt-1 pl-0.5 text-xs text-slate-400">Mentee Portal</p>
+      </div>
+
+      <nav className="flex-1 space-y-0.5 overflow-y-auto px-3 py-4">
+        {NAV.map(({ href, label, icon: Icon }) => {
+          const isActive =
+            pathname === href || (href !== '/browse' && pathname.startsWith(href));
+
+          return (
+            <Link
+              key={href}
+              href={href}
+              className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all ${
+                isActive
+                  ? 'bg-gradient-to-r from-violet-600 to-purple-600 text-white shadow-md shadow-violet-900/40'
+                  : 'text-slate-400 hover:bg-white/8 hover:text-white'
+              }`}
+            >
+              <Icon className="h-4 w-4 shrink-0" />
+              {label}
+            </Link>
+          );
+        })}
+      </nav>
+
+      <div className="space-y-3 border-t border-white/10 px-3 py-4">
+        <div className="flex items-center gap-3 px-2">
+          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-violet-500 to-purple-500 text-xs font-bold">
+            {user?.name?.charAt(0)?.toUpperCase() || 'U'}
+          </div>
+          <div className="min-w-0">
+            <p className="truncate text-sm font-medium text-white">{user?.name}</p>
+            <p className="truncate text-xs text-slate-400">{user?.email}</p>
+          </div>
+        </div>
+
+        <Link
+          href="/browse"
+          className="flex items-center gap-3 rounded-lg border border-brand/20 bg-brand/10 px-3 py-2 text-sm text-brand-lighter transition-colors hover:bg-brand/20"
+        >
+          <User className="h-4 w-4" />
+          Find a Mentor
+        </Link>
+
+        <button
+          onClick={handleLogout}
+          className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm text-slate-400 transition-all hover:bg-white/8 hover:text-white"
+        >
+          <LogOut className="h-4 w-4" />
+          Sign out
+        </button>
+      </div>
+    </aside>
+  );
+}

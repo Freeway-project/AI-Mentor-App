@@ -2,8 +2,10 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { Rocket, LayoutDashboard, User, Calendar, Settings, LogOut, Clock, CalendarCheck } from 'lucide-react';
+import { Rocket, LayoutDashboard, User, Calendar, Settings, LogOut, Clock, CalendarCheck, FileUp, X } from 'lucide-react';
 import { useAuth } from '@/lib/auth-context';
+import { useState, useRef } from 'react';
+import { apiClient } from '@/lib/api-client';
 
 const NAV = [
     { href: '/mentor/dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -27,6 +29,33 @@ export function MentorSidebar({ approvalStatus }: MentorSidebarProps) {
     const pathname = usePathname();
     const router = useRouter();
     const { user, logout } = useAuth();
+    const [showUpload, setShowUpload] = useState(false);
+    const [resumeFile, setResumeFile] = useState<File | null>(null);
+    const [uploading, setUploading] = useState(false);
+    const [uploadStatus, setUploadStatus] = useState<'idle' | 'success' | 'error'>('idle');
+    const fileInputRef = useRef<HTMLInputElement>(null);
+
+    const handleUpload = async () => {
+        if (!resumeFile) return;
+        setUploading(true);
+        setUploadStatus('idle');
+        try {
+            await apiClient.uploadCareerResume(resumeFile);
+            setUploadStatus('success');
+            setResumeFile(null);
+            if (fileInputRef.current) fileInputRef.current.value = '';
+        } catch {
+            setUploadStatus('error');
+        } finally {
+            setUploading(false);
+        }
+    };
+
+    const handleToggle = () => {
+        setShowUpload((v) => !v);
+        setUploadStatus('idle');
+        setResumeFile(null);
+    };
 
     const handleLogout = () => {
         logout();
@@ -89,6 +118,48 @@ export function MentorSidebar({ approvalStatus }: MentorSidebarProps) {
                         <p className="text-xs text-slate-400 truncate">{user?.email}</p>
                     </div>
                 </div>
+
+                <button
+                    onClick={handleToggle}
+                    className="w-full flex items-center gap-3 px-3 py-2 rounded-lg border border-violet-500/20 bg-violet-500/10 text-sm text-violet-300 transition-colors hover:bg-violet-500/20"
+                >
+                    <FileUp className="w-4 h-4" />
+                    Upload Resume
+                </button>
+
+                {showUpload && (
+                    <div className="rounded-lg border border-white/10 bg-white/5 px-3 py-3 space-y-2">
+                        <div className="flex items-center justify-between">
+                            <span className="text-xs font-medium text-slate-300">Select resume file</span>
+                            <button onClick={handleToggle} className="text-slate-500 hover:text-white">
+                                <X className="w-3.5 h-3.5" />
+                            </button>
+                        </div>
+                        <input
+                            ref={fileInputRef}
+                            type="file"
+                            accept=".pdf,.docx,.doc,.html,.jpeg,.jpg,.png,.webp,.gif,.tiff,.bmp"
+                            onChange={(e) => {
+                                setResumeFile(e.target.files?.[0] ?? null);
+                                setUploadStatus('idle');
+                            }}
+                            className="w-full text-xs text-slate-400 file:mr-2 file:rounded file:border-0 file:bg-violet-600 file:px-2 file:py-1 file:text-xs file:text-white file:cursor-pointer"
+                        />
+                        <button
+                            onClick={handleUpload}
+                            disabled={uploading || !resumeFile}
+                            className="w-full rounded bg-violet-600 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-violet-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                            {uploading ? 'Uploading…' : 'Upload'}
+                        </button>
+                        {uploadStatus === 'success' && (
+                            <p className="text-xs text-green-400">Resume uploaded successfully!</p>
+                        )}
+                        {uploadStatus === 'error' && (
+                            <p className="text-xs text-red-400">Upload failed. Please try again.</p>
+                        )}
+                    </div>
+                )}
 
                 <button
                     onClick={handleLogout}

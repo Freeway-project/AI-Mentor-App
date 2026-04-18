@@ -210,3 +210,34 @@ Private
   webhook.routes.ts:65.
 
   If you want, I can next show the exact LiveKit post-call flow in your backend with endpoints, webhook payloads, and schema changes.
+
+
+
+  2.
+  Yes. The basic all-in-one AI search flow is done.
+
+  What is done:
+
+  - User enters a natural-language query on /browse
+  - Backend parses intent from that query
+  - It runs semantic/vector search over mentor profiles
+  - It falls back to keyword search if needed
+  - It merges results
+  - It optionally reranks them with an LLM
+  - UI shows the returned mentors with AI metadata like focus terms, match score, and match reason
+
+  What that means in practice:
+
+  - “Find me a mentor for TypeScript”
+  - “I’m weak at system design”
+  - “Need React help under $100”
+
+  Those kinds of searches are already supported end to end.
+
+  What is not fully done:
+
+  - richer availability-aware matching
+  - deeper context like reviews/transcripts/history
+  - more advanced personalized recommendations
+
+  So if your question is “is the basic AI mentor search feature implemented and usable?” the answer is yes.

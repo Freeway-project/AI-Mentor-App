@@ -12,6 +12,7 @@ import integrationRoutes from './integrations.routes';
 import bookingRoutes from './booking.routes';
 import webhookRoutes from './webhook.routes';
 import paymentRoutes from './payment.routes';
+import careerRoutes from './career.routes';
 
 const router: Router = Router();
 
@@ -28,6 +29,7 @@ router.use('/upload', uploadRoutes);
 router.use('/integrations', integrationRoutes);
 router.use('/webhooks', webhookRoutes);
 router.use('/payments', paymentRoutes);
+router.use('/career-profile', careerRoutes);
 router.use('/', bookingRoutes);
 
 export default router;

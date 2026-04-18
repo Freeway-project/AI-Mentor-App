@@ -3,8 +3,8 @@
 
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
-import { Search, Sparkles } from 'lucide-react';
-import { apiClient, MentorSearchResponse } from '@/lib/api-client';
+import { Search, Sparkles, Upload, FileText, Loader2, CheckCircle2, X } from 'lucide-react';
+import { apiClient, MentorSearchResponse, CareerExtractedProfile } from '@/lib/api-client';
 import { Navbar } from '@/components/layout/Navbar';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -36,18 +36,18 @@ function MentorSkeleton() {
   return (
     <AppPanel className="animate-pulse p-6">
       <div className="flex items-start gap-4">
-        <div className="w-12 h-12 rounded-full bg-slate-800 flex-shrink-0" />
+        <div className="w-12 h-12 rounded-full bg-slate-100 flex-shrink-0" />
         <div className="flex-1 space-y-2">
-          <div className="h-4 bg-slate-800 rounded w-32" />
-          <div className="h-3 bg-slate-800 rounded w-48" />
+          <div className="h-4 bg-slate-100 rounded w-32" />
+          <div className="h-3 bg-slate-100 rounded w-48" />
         </div>
       </div>
       <div className="flex gap-1.5 mt-5">
-        {[1, 2, 3].map(i => <div key={i} className="h-5 w-16 bg-slate-800 rounded-full" />)}
+        {[1, 2, 3].map(i => <div key={i} className="h-5 w-16 bg-slate-100 rounded-full" />)}
       </div>
-      <div className="flex justify-between mt-6 pt-4 border-t border-slate-800/70">
-        <div className="h-4 w-20 bg-slate-800 rounded" />
-        <div className="h-4 w-16 bg-slate-800 rounded" />
+      <div className="flex justify-between mt-6 pt-4 border-t border-slate-100">
+        <div className="h-4 w-20 bg-slate-100 rounded" />
+        <div className="h-4 w-16 bg-slate-100 rounded" />
       </div>
     </AppPanel>
   );
@@ -60,7 +60,12 @@ export default function BrowsePage() {
   const [showSearchScene, setShowSearchScene] = useState(false);
   const [isSemantic, setIsSemantic] = useState(false);
   const [searchMeta, setSearchMeta] = useState<SearchMeta>({});
+  const [resumeUploading, setResumeUploading] = useState(false);
+  const [resumeStep, setResumeStep] = useState<string | null>(null);
+  const [resumeError, setResumeError] = useState<string | null>(null);
+  const [resumeProfile, setResumeProfile] = useState<CareerExtractedProfile | null>(null);
   const hasLoadedInitialResults = useRef(false);
+  const resumeInputRef = useRef<HTMLInputElement>(null);
 
   const fetchMentors = async (searchQuery?: string) => {
     setLoading(true);
@@ -119,6 +124,35 @@ export default function BrowsePage() {
     setQuery(chip);
   };
 
+  const handleResumeUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setResumeUploading(true);
+    setResumeError(null);
+    setResumeProfile(null);
+    setResumeStep('Parsing your resume…');
+    try {
+      const result = await apiClient.parseResume(file);
+      setResumeStep('Building your profile…');
+      const extracted = result.extractedProfile;
+      if (extracted) {
+        setResumeProfile(extracted);
+        const caps = extracted.coreCapabilities?.slice(0, 3) ?? [];
+        const tools = extracted.tools?.slice(0, 2) ?? [];
+        const skills = [...caps, ...tools].filter(Boolean).join(', ');
+        const headline = extracted.headline ?? extracted.seniorityEstimate ?? '';
+        const autoQuery = headline ? `${headline} ${skills}`.trim() : skills;
+        if (autoQuery) setQuery(autoQuery);
+      }
+    } catch {
+      setResumeError('Resume upload failed. Please try again.');
+    } finally {
+      setResumeUploading(false);
+      setResumeStep(null);
+      e.target.value = '';
+    }
+  };
+
   const isQuerySearch = query.trim().length > 0;
 
   return (
@@ -137,7 +171,7 @@ export default function BrowsePage() {
 
           <form onSubmit={handleSearch} className="mx-auto mb-4 flex max-w-3xl gap-3">
             <div className="relative flex-1 group">
-              <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-500 transition-colors group-focus-within:text-brand-lighter" />
+              <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400 transition-colors group-focus-within:text-brand" />
               <AnimatedPlaceholderInput
                 type="text"
                 value={query}
@@ -155,7 +189,95 @@ export default function BrowsePage() {
               {query.length > 3 ? <Sparkles className="w-4 h-4" /> : <Search className="w-4 h-4" />}
               Search
             </Button>
+            <input
+              ref={resumeInputRef}
+              type="file"
+              accept=".pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+              className="hidden"
+              onChange={handleResumeUpload}
+            />
+            <Button
+              type="button"
+              size="lg"
+              disabled={resumeUploading}
+              onClick={() => resumeInputRef.current?.click()}
+              className="h-[52px] gap-2 rounded-xl bg-brand px-5 text-white shadow-[0_0_20px_rgba(124,58,237,0.22)] hover:bg-brand-light disabled:opacity-60"
+              title="Upload resume to find matching mentors"
+            >
+              {resumeUploading
+                ? <Loader2 className="w-4 h-4 animate-spin" />
+                : <Upload className="w-4 h-4" />}
+              Resume
+            </Button>
           </form>
+
+          {/* Resume processing — reuse the mentor search loading scene */}
+          {resumeUploading && (
+            <SearchLoadingScene query={resumeStep ?? 'Analysing your resume…'} />
+          )}
+
+          {/* Resume profile result */}
+          {!resumeUploading && resumeProfile && (
+            <div className="mx-auto max-w-3xl">
+              <div className="rounded-2xl border border-slate-200 bg-white overflow-hidden shadow-sm">
+                <div className="flex items-center justify-between px-5 py-3 border-b border-slate-100">
+                  <div className="flex items-center gap-2">
+                    <FileText className="w-3.5 h-3.5 text-slate-400" />
+                    <span className="text-xs font-medium tracking-wider text-slate-400 uppercase">Resume</span>
+                    <span className="text-slate-300">·</span>
+                    <span className="flex items-center gap-1 text-xs text-emerald-600 font-medium">
+                      <CheckCircle2 className="w-3 h-3" />
+                      Analysed
+                    </span>
+                  </div>
+                  <button
+                    onClick={() => setResumeProfile(null)}
+                    className="rounded-md p-1 text-slate-400 transition-colors hover:text-slate-600"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+                <div className="px-5 py-4 space-y-3.5">
+                  {resumeProfile.headline && (
+                    <p className="text-sm font-semibold text-slate-900">{resumeProfile.headline}</p>
+                  )}
+                  {resumeProfile.summary && (
+                    <p className="text-sm text-slate-500 leading-relaxed">{resumeProfile.summary}</p>
+                  )}
+                  {(resumeProfile.seniorityEstimate || resumeProfile.coreCapabilities?.length > 0 || resumeProfile.tools?.length > 0) && (
+                    <div className="flex flex-wrap gap-1.5 pt-0.5">
+                      {resumeProfile.seniorityEstimate && (
+                        <Badge variant="outline" className="border-brand/30 bg-brand/10 text-brand text-[11px] font-medium">
+                          {resumeProfile.seniorityEstimate}
+                        </Badge>
+                      )}
+                      {resumeProfile.coreCapabilities?.slice(0, 5).map(tag => (
+                        <Badge key={tag} variant="outline" className="border-slate-200 bg-slate-100 text-slate-600 text-[11px]">
+                          {tag}
+                        </Badge>
+                      ))}
+                      {resumeProfile.tools?.slice(0, 3).map(tag => (
+                        <Badge key={tag} variant="outline" className="border-slate-200 bg-slate-100 text-slate-600 text-[11px]">
+                          {tag}
+                        </Badge>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {resumeError && (
+            <div className="mx-auto max-w-3xl">
+              <div className="rounded-2xl border border-red-500/20 bg-red-500/5 px-5 py-3.5 flex items-center justify-between">
+                <p className="text-sm text-red-600">{resumeError}</p>
+                <button onClick={() => setResumeError(null)} className="text-red-400 hover:text-red-600 transition-colors ml-4">
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          )}
 
           {/* Suggested query chips */}
           {!isQuerySearch ? (
@@ -164,7 +286,7 @@ export default function BrowsePage() {
                 <button
                   key={chip}
                   onClick={() => handleChip(chip)}
-                  className="rounded-full border border-white/10 bg-slate-900/35 px-3 py-1.5 text-xs text-slate-300 transition-colors hover:border-brand/40 hover:text-white"
+                  className="rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs text-slate-600 transition-colors hover:border-brand/40 hover:text-brand shadow-sm"
                 >
                   {chip}
                 </button>
@@ -177,13 +299,13 @@ export default function BrowsePage() {
             <div className="mx-auto mb-6 flex max-w-3xl flex-col items-center gap-3 text-center">
               <div className="flex flex-wrap items-center justify-center gap-2">
                 {isSemantic && (
-                  <span className="flex items-center gap-1.5 rounded-full border border-violet-500/20 bg-violet-500/10 px-3 py-1.5 text-xs text-violet-400">
+                  <span className="flex items-center gap-1.5 rounded-full border border-violet-200 bg-violet-50 px-3 py-1.5 text-xs text-violet-600">
                     <Sparkles className="h-3 w-3" />
                     {searchMeta.hybrid ? 'AI + keyword matched' : 'AI-matched results'}
                   </span>
                 )}
                 {searchMeta.llmEnhanced && (
-                  <span className="rounded-full border border-emerald-500/20 bg-emerald-500/10 px-3 py-1.5 text-xs text-emerald-300">
+                  <span className="rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-xs text-emerald-600">
                     Ranked with match reasons
                   </span>
                 )}
@@ -191,9 +313,9 @@ export default function BrowsePage() {
 
               {searchMeta.queryAnalysis?.focusTerms?.length ? (
                 <>
-                  <p className="max-w-2xl text-sm text-slate-300">
+                  <p className="max-w-2xl text-sm text-slate-600">
                     We matched this search against{' '}
-                    <span className="font-medium text-white">
+                    <span className="font-medium text-slate-900">
                       {searchMeta.queryAnalysis.focusTerms.join(', ')}
                     </span>
                     {searchMeta.queryAnalysis.experienceLevel && (
@@ -206,7 +328,7 @@ export default function BrowsePage() {
                       <Badge
                         key={term}
                         variant="outline"
-                        className="border-violet-500/20 bg-violet-500/10 text-xs text-violet-300"
+                        className="border-violet-200 bg-violet-50 text-xs text-violet-600"
                       >
                         {term}
                       </Badge>
@@ -229,10 +351,10 @@ export default function BrowsePage() {
               </div>
             </div>
           ) : mentors.length === 0 ? (
-            <div className="text-center py-20 text-slate-400">
+            <div className="text-center py-20 text-slate-500">
               <p>No mentors found. Try a different search.</p>
               {searchMeta.queryAnalysis?.focusTerms?.length ? (
-                <p className="mt-3 text-sm text-slate-500">
+                <p className="mt-3 text-sm text-slate-400">
                   Current focus terms: {searchMeta.queryAnalysis.focusTerms.join(', ')}
                 </p>
               ) : null}
@@ -243,20 +365,19 @@ export default function BrowsePage() {
                 <Link
                   key={mentor.id}
                   href={`/mentors/${mentor.id}`}
-                  className="group relative block overflow-hidden rounded-2xl border border-white/10 bg-slate-900/50 p-6 backdrop-blur-md transition-all duration-300 hover:border-brand/30 hover:bg-slate-900/70 hover:shadow-[0_0_30px_rgba(124,58,237,0.08)]"
+                  className="group relative block overflow-hidden rounded-2xl border border-slate-200 bg-white p-6 transition-all duration-300 hover:border-brand/30 hover:shadow-[0_4px_24px_rgba(124,58,237,0.10)]"
                 >
-                  <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-brand/0 to-transparent transition-all duration-300 group-hover:via-brand/50" />
+                  <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-brand/0 to-transparent transition-all duration-300 group-hover:via-brand/40" />
 
                   <div className="flex items-start gap-4">
-                    <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full border border-brand/20 bg-brand/10 text-lg font-semibold text-brand-lighter shadow-inner">
+                    <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full border border-brand/20 bg-brand/10 text-lg font-semibold text-brand shadow-sm">
                       {mentor.name?.charAt(0)?.toUpperCase()}
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-start justify-between gap-2">
-                        <h3 className="truncate font-semibold text-white transition-colors group-hover:text-brand-lighter">
+                        <h3 className="truncate font-semibold text-slate-900 transition-colors group-hover:text-brand">
                           {mentor.name}
                         </h3>
-                        {/* Match score badge — only shown for semantic results */}
                         {mentor.matchScore != null && (
                           <AppStatusBadge tone="brand" className="flex-shrink-0 px-1.5 py-0.5 text-[10px]">
                             {Math.round(mentor.matchScore * 100)}% match
@@ -264,7 +385,7 @@ export default function BrowsePage() {
                         )}
                       </div>
                       {mentor.headline && (
-                        <p className="text-sm text-slate-400 truncate mt-0.5">{mentor.headline}</p>
+                        <p className="text-sm text-slate-500 truncate mt-0.5">{mentor.headline}</p>
                       )}
                     </div>
                   </div>
@@ -272,7 +393,7 @@ export default function BrowsePage() {
                   {mentor.specialties?.length > 0 && (
                     <div className="flex flex-wrap gap-1.5 mt-5">
                       {mentor.specialties.slice(0, 4).map((s: string) => (
-                        <Badge key={s} variant="outline" className="border-white/10 bg-slate-800/70 text-xs text-slate-300">
+                        <Badge key={s} variant="outline" className="border-slate-200 bg-slate-50 text-xs text-slate-600">
                           {s}
                         </Badge>
                       ))}
@@ -280,17 +401,17 @@ export default function BrowsePage() {
                   )}
 
                   {mentor.matchReason && (
-                    <p className="mt-4 rounded-xl border border-violet-500/10 bg-violet-500/5 px-3.5 py-3 text-sm leading-6 text-slate-300">
+                    <p className="mt-4 rounded-xl border border-violet-100 bg-violet-50 px-3.5 py-3 text-sm leading-6 text-slate-600">
                       {mentor.matchReason}
                     </p>
                   )}
 
-                  <div className="flex items-center justify-between mt-6 pt-4 border-t border-slate-800/70 text-sm">
-                    <div className="flex items-center gap-3 text-slate-400">
+                  <div className="flex items-center justify-between mt-6 pt-4 border-t border-slate-100 text-sm">
+                    <div className="flex items-center gap-3 text-slate-500">
                       {mentor.rating && (
                         <span className="flex items-center gap-1 font-medium">
                           <span className="text-amber-400">&#9733;</span>
-                          <span className="text-slate-300">{mentor.rating.toFixed(1)}</span>
+                          <span className="text-slate-700">{mentor.rating.toFixed(1)}</span>
                         </span>
                       )}
                       {mentor.totalMeetings > 0 && (
@@ -298,7 +419,7 @@ export default function BrowsePage() {
                       )}
                     </div>
                     {mentor.hourlyRate && (
-                      <span className="rounded-md bg-amber-500/10 px-2.5 py-1 font-semibold text-amber-300">
+                      <span className="rounded-md bg-amber-50 border border-amber-200 px-2.5 py-1 font-semibold text-amber-700">
                         ${mentor.hourlyRate}/hr
                       </span>
                     )}

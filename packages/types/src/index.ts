@@ -1,6 +1,7 @@
 // Schemas
 export * from './schemas/user.schema';
 export * from './schemas/mentor.schema';
+export * from './schemas/career-profile.schema';
 export * from './schemas/meeting.schema';
 export * from './schemas/chat.schema';
 export * from './schemas/notification.schema';

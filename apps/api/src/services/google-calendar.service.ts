@@ -272,7 +272,7 @@ export class GoogleCalendarService {
         },
       });
 
-      return { eventId, meetUrl };
+      return { eventId, meetUrl: meetUrl ?? undefined };
     } catch (error) {
       await serviceUsageService.recordFailure({
         service: 'calendar',
