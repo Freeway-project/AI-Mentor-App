@@ -10,7 +10,7 @@ import { AppPageShell } from '@/components/ui/app-theme';
 
 export default function Home() {
   return (
-    <AppPageShell dark>
+    <AppPageShell>
       <Navbar />
       <Hero />
       <HowItWorks />

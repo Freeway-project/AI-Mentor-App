@@ -35,19 +35,18 @@ export function FAQ() {
     };
 
     return (
-        <section id="faq" className="py-20 md:py-28 relative overflow-hidden"
-            style={{ background: 'linear-gradient(180deg, #0d0f1e 0%, #0a0a1a 100%)' }}
+        <section id="faq" className="py-20 md:py-28 relative overflow-hidden bg-slate-50/80"
         >
             <div className="absolute inset-0 pointer-events-none">
-                <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-fuchsia-500/30 to-transparent" />
+                <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-brand/20 to-transparent" />
             </div>
             <div className="container mx-auto px-4 md:px-6 max-w-3xl relative z-10">
                 <div className="text-center mb-12 space-y-3">
-                    <p className="text-violet-400 text-sm font-semibold uppercase tracking-widest">FAQ</p>
-                    <h2 className="text-3xl font-bold tracking-tight text-white sm:text-4xl">
+                    <p className="text-brand text-sm font-semibold uppercase tracking-widest">FAQ</p>
+                    <h2 className="text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">
                         Frequently Asked Questions
                     </h2>
-                    <p className="text-lg text-slate-400">
+                    <p className="text-lg text-slate-600">
                         Everything you need to know about the platform.
                     </p>
                 </div>
@@ -57,8 +56,8 @@ export function FAQ() {
                         <div
                             key={index}
                             className={`border rounded-xl overflow-hidden transition-all duration-200 ${openIndex === index
-                                    ? 'border-violet-500/40 bg-violet-500/5 shadow-[0_0_20px_rgba(139,92,246,0.07)]'
-                                    : 'border-slate-800/80 bg-slate-900/40 hover:border-slate-700'
+                                    ? 'border-brand/30 bg-brand/5 shadow-[0_4px_20px_rgba(124,58,237,0.07)]'
+                                    : 'border-slate-200 bg-white hover:border-slate-300'
                                 }`}
                         >
                             <button
@@ -66,7 +65,7 @@ export function FAQ() {
                                 className="flex items-center justify-between w-full p-4 md:p-6 text-left bg-transparent focus:outline-none focus:ring-2 focus:ring-violet-500/50 focus:ring-inset"
                                 aria-expanded={openIndex === index}
                             >
-                                <span className="text-lg font-medium text-white pr-8">
+                                <span className="text-lg font-medium text-slate-900 pr-8">
                                     {faq.question}
                                 </span>
                                 {openIndex === index ? (
@@ -81,7 +80,7 @@ export function FAQ() {
                                     openIndex === index ? "max-h-48 opacity-100" : "max-h-0 opacity-0"
                                 )}
                             >
-                                <div className="p-4 md:p-6 pt-2 text-slate-400 leading-relaxed border-t border-slate-700">
+                                <div className="p-4 md:p-6 pt-2 text-slate-600 leading-relaxed border-t border-slate-100">
                                     {faq.answer}
                                 </div>
                             </div>

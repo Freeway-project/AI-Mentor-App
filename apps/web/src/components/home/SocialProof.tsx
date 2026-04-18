@@ -28,23 +28,21 @@ const companies = ['Google', 'Amazon', 'Netflix', 'Stripe', 'Uber', 'Microsoft',
 
 export function SocialProof() {
     return (
-        <section className="py-20 md:py-28 relative overflow-hidden"
-            style={{ background: 'linear-gradient(180deg, rgba(2,6,23,0) 0%, rgba(15,23,42,0.55) 100%)' }}
-        >
+        <section className="py-20 md:py-28 relative overflow-hidden bg-slate-50/80">
             <div className="absolute inset-0 pointer-events-none">
-                <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-brand/30 to-transparent" />
-                <div className="absolute bottom-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-brand-light/20 to-transparent" />
-                <div className="absolute top-1/2 left-1/2 h-[400px] w-[800px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-brand/10 blur-[100px]" />
+                <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-brand/20 to-transparent" />
+                <div className="absolute bottom-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-slate-200 to-transparent" />
+                <div className="absolute top-1/2 left-1/2 h-[400px] w-[800px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-brand/5 blur-[100px]" />
             </div>
 
             <div className="container mx-auto px-4 md:px-6 relative z-10">
                 {/* Header */}
                 <div className="text-center mb-14 space-y-3">
-                    <p className="text-brand-lighter text-sm font-semibold uppercase tracking-widest">Testimonials</p>
-                    <h2 className="text-3xl font-bold tracking-tight text-white sm:text-4xl">
+                    <p className="text-brand text-sm font-semibold uppercase tracking-widest">Testimonials</p>
+                    <h2 className="text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">
                         Trusted by ambitious learners
                     </h2>
-                    <p className="mx-auto max-w-2xl text-lg text-slate-400">
+                    <p className="mx-auto max-w-2xl text-lg text-slate-600">
                         Real results from real people — see what our community says about their journey.
                     </p>
                 </div>
@@ -53,7 +51,7 @@ export function SocialProof() {
                 <div className="grid gap-6 md:grid-cols-3">
                     {testimonials.map((t, i) => (
                         <div key={i}
-                            className="group relative space-y-5 rounded-2xl border border-white/10 bg-slate-900/60 p-7 backdrop-blur-sm transition-all duration-300 hover:border-brand/30 hover:shadow-lg"
+                            className={`group relative space-y-5 rounded-2xl border border-slate-200 bg-white p-7 shadow-sm transition-all duration-300 hover:border-brand/30 hover:shadow-lg hover:shadow-brand/5`}
                         >
                             <div className="absolute inset-x-0 top-0 h-px rounded-t-2xl bg-gradient-to-r from-transparent via-brand/0 to-transparent transition-all duration-300 group-hover:via-brand/50" />
 
@@ -63,17 +61,17 @@ export function SocialProof() {
                                 ))}
                             </div>
 
-                            <p className="leading-relaxed text-slate-300">
+                            <p className="leading-relaxed text-slate-700">
                                 &ldquo;{t.quote}&rdquo;
                             </p>
 
-                            <div className="flex items-center gap-3 border-t border-white/10 pt-4">
+                            <div className="flex items-center gap-3 border-t border-slate-100 pt-4">
                                 <div className="h-10 w-10 shrink-0 overflow-hidden rounded-full ring-2 ring-brand/20">
                                     {/* eslint-disable-next-line @next/next/no-img-element */}
                                     <img src={t.image} alt={t.author} className="w-full h-full object-cover" />
                                 </div>
                                 <div>
-                                    <p className="text-sm font-semibold text-white">{t.author}</p>
+                                    <p className="text-sm font-semibold text-slate-900">{t.author}</p>
                                     <p className="text-xs text-slate-500">{t.role}</p>
                                 </div>
                             </div>
@@ -83,10 +81,10 @@ export function SocialProof() {
 
                 {/* Companies strip */}
                 <div className="mt-16 text-center">
-                    <p className="text-xs text-slate-500 uppercase tracking-widest mb-6">Our mentees work at</p>
+                    <p className="text-xs text-slate-400 uppercase tracking-widest mb-6">Our mentees work at</p>
                     <div className="flex flex-wrap justify-center gap-x-10 gap-y-3">
                         {companies.map((c) => (
-                            <span key={c} className="cursor-default text-sm font-semibold tracking-wide text-slate-400 transition-colors hover:text-white">{c}</span>
+                            <span key={c} className="cursor-default text-sm font-semibold tracking-wide text-slate-400 transition-colors hover:text-brand">{c}</span>
                         ))}
                     </div>
                 </div>

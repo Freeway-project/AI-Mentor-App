@@ -72,10 +72,10 @@ export function HowItWorks() {
                     transition={{ duration: 0.6 }}
                     className="text-center mb-16 md:mb-24 space-y-4"
                 >
-                    <h2 className="text-3xl font-extrabold tracking-tight text-white sm:text-4xl md:text-5xl">
+                    <h2 className="text-3xl font-extrabold tracking-tight text-slate-900 sm:text-4xl md:text-5xl">
                         Your Journey to Mastery
                     </h2>
-                    <p className="mx-auto max-w-2xl text-lg text-slate-400">
+                    <p className="mx-auto max-w-2xl text-lg text-slate-600">
                         We&apos;ve streamlined the mentorship process. Getting expert guidance has never been this simple and effective.
                     </p>
                 </motion.div>
@@ -92,15 +92,15 @@ export function HowItWorks() {
                     >
                         <div className="relative aspect-square md:aspect-auto md:h-[600px] w-full max-w-md mx-auto">
                             {/* Central Orbit Anchor */}
-                            <div className="absolute top-1/2 left-1/2 z-20 flex h-32 w-32 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-white/10 bg-slate-900/70 shadow-lg shadow-slate-950/40">
-                                <span className="text-center text-xl font-bold leading-tight text-white">Growth<br />Engine</span>
+                            <div className="absolute top-1/2 left-1/2 z-20 flex h-32 w-32 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-slate-200 bg-white shadow-lg shadow-slate-200/60">
+                                <span className="text-center text-xl font-bold leading-tight text-slate-800">Growth<br />Engine</span>
                             </div>
 
                             {/* Animated Rings */}
                             <motion.div
                                 animate={{ rotate: 360 }}
                                 transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
-                                className="absolute top-1/2 left-1/2 z-10 h-[300px] w-[300px] -translate-x-1/2 -translate-y-1/2 rounded-full border border-dashed border-slate-700"
+                                className="absolute top-1/2 left-1/2 z-10 h-[300px] w-[300px] -translate-x-1/2 -translate-y-1/2 rounded-full border border-dashed border-slate-300"
                             >
                                 <div className="absolute left-1/2 top-0 h-4 w-4 -translate-x-1/2 -translate-y-1/2 rounded-full bg-brand shadow-[0_0_15px_rgba(124,58,237,0.5)]"></div>
                             </motion.div>
@@ -108,7 +108,7 @@ export function HowItWorks() {
                             <motion.div
                                 animate={{ rotate: -360 }}
                                 transition={{ duration: 40, repeat: Infinity, ease: "linear" }}
-                                className="absolute top-1/2 left-1/2 z-0 h-[450px] w-[450px] -translate-x-1/2 -translate-y-1/2 rounded-full border border-slate-800"
+                                className="absolute top-1/2 left-1/2 z-0 h-[450px] w-[450px] -translate-x-1/2 -translate-y-1/2 rounded-full border border-slate-200"
                             >
                                 <div className="absolute bottom-0 left-1/2 flex h-6 w-6 -translate-x-1/2 translate-y-1/2 items-center justify-center rounded-full bg-brand-light shadow-[0_0_15px_rgba(124,58,237,0.5)]">
                                     <div className="w-2 h-2 rounded-full bg-white"></div>
@@ -120,33 +120,33 @@ export function HowItWorks() {
                             <motion.div
                                 animate={{ y: [0, -15, 0] }}
                                 transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
-                                className="absolute right-0 top-12 z-30 flex items-center gap-3 rounded-xl border border-white/10 bg-slate-900/65 p-3 shadow-md"
+                                className="absolute right-0 top-12 z-30 flex items-center gap-3 rounded-xl border border-slate-200 bg-white/90 p-3 shadow-md"
                             >
                                 <div className="flex h-8 w-8 items-center justify-center rounded-full bg-brand/10">
-                                    <span className="text-xs font-bold text-brand-lighter">1:1</span>
+                                    <span className="text-xs font-bold text-brand">1:1</span>
                                 </div>
                                 <div className="space-y-1">
-                                    <div className="h-2 w-16 rounded bg-slate-700"></div>
-                                    <div className="h-1.5 w-10 rounded bg-slate-800"></div>
+                                    <div className="h-2 w-16 rounded bg-slate-200"></div>
+                                    <div className="h-1.5 w-10 rounded bg-slate-100"></div>
                                 </div>
                             </motion.div>
 
                             <motion.div
                                 animate={{ y: [0, 10, 0] }}
                                 transition={{ duration: 4, repeat: Infinity, ease: "easeInOut", delay: 1 }}
-                                className="absolute bottom-16 left-0 z-30 flex items-center gap-4 rounded-2xl border border-white/10 bg-slate-900/65 p-4 shadow-lg"
+                                className="absolute bottom-16 left-0 z-30 flex items-center gap-4 rounded-2xl border border-slate-200 bg-white/90 p-4 shadow-lg"
                             >
                                 <div className="relative">
-                                    <div className="h-12 w-12 overflow-hidden rounded-full border-2 border-slate-700 bg-slate-800 shadow-sm ring-2 ring-slate-900">
+                                    <div className="h-12 w-12 overflow-hidden rounded-full border-2 border-slate-200 bg-slate-100 shadow-sm ring-2 ring-white">
                                         <Image src="https://i.pravatar.cc/150?img=11" alt="Student" width={48} height={48} className="w-full h-full object-cover" />
                                     </div>
-                                    <div className="absolute -bottom-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full border-2 border-slate-900 bg-brand">
+                                    <div className="absolute -bottom-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full border-2 border-white bg-brand">
                                         <ArrowRight className="w-3 h-3 text-white -rotate-45" />
                                     </div>
                                 </div>
                                 <div>
-                                    <p className="text-sm font-bold text-white">Career breakthrough</p>
-                                    <p className="text-xs text-brand-lighter">Achieved in 3 months</p>
+                                    <p className="text-sm font-bold text-slate-800">Career breakthrough</p>
+                                    <p className="text-xs text-brand">Achieved in 3 months</p>
                                 </div>
                             </motion.div>
                         </div>
@@ -170,24 +170,24 @@ export function HowItWorks() {
                                 >
                                     {/* Connecting Line */}
                                     {index !== steps.length - 1 && (
-                                        <div className="absolute left-8 top-16 bottom-0 w-0.5 bg-slate-200 group-hover:bg-violet-200 transition-colors -mb-8"></div>
+                                        <div className="absolute left-8 top-16 bottom-0 w-0.5 bg-slate-200 group-hover:bg-violet-300 transition-colors -mb-8"></div>
                                     )}
 
                                     {/* Icon Container */}
                                     <div className="relative shrink-0">
-                                        <div className={`flex h-16 w-16 items-center justify-center rounded-2xl border bg-slate-900/60 shadow-sm transition-all duration-300 group-hover:scale-110 ${step.bgColor} ${step.borderColor}`}>
-                                            <Icon className="h-7 w-7 text-brand-lighter" strokeWidth={2.5} />
+                                        <div className={`flex h-16 w-16 items-center justify-center rounded-2xl border bg-white shadow-sm transition-all duration-300 group-hover:scale-110 ${step.bgColor} ${step.borderColor}`}>
+                                            <Icon className="h-7 w-7 text-brand" strokeWidth={2.5} />
                                         </div>
-                                        <div className="absolute -right-3 -top-3 flex h-7 w-7 items-center justify-center rounded-full border-2 border-slate-900 bg-slate-800 shadow-sm">
+                                        <div className="absolute -right-3 -top-3 flex h-7 w-7 items-center justify-center rounded-full border-2 border-white bg-brand shadow-sm">
                                             <span className="text-xs font-bold text-white">{index + 1}</span>
                                         </div>
                                     </div>
 
                                     <div className="pt-2">
-                                        <h3 className="mb-2 text-xl font-bold text-white transition-colors group-hover:text-brand-lighter">
+                                        <h3 className="mb-2 text-xl font-bold text-slate-900 transition-colors group-hover:text-brand">
                                             {step.title}
                                         </h3>
-                                        <p className="text-base leading-relaxed text-slate-400">
+                                        <p className="text-base leading-relaxed text-slate-600">
                                             {step.description}
                                         </p>
                                     </div>
