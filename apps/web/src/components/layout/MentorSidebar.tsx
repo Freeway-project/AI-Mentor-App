@@ -5,7 +5,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { Rocket, LayoutDashboard, User, Calendar, Settings, LogOut, Clock, CalendarCheck, FileUp, X } from 'lucide-react';
 import { useAuth } from '@/lib/auth-context';
 import { useState, useRef } from 'react';
-import { api } from '@/lib/api-client';
+import { apiClient } from '@/lib/api-client';
 
 const NAV = [
     { href: '/mentor/dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -40,7 +40,7 @@ export function MentorSidebar({ approvalStatus }: MentorSidebarProps) {
         setUploading(true);
         setUploadStatus('idle');
         try {
-            await api.uploadCareerResume(resumeFile);
+            await apiClient.uploadCareerResume(resumeFile);
             setUploadStatus('success');
             setResumeFile(null);
             if (fileInputRef.current) fileInputRef.current.value = '';
