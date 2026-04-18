@@ -7,11 +7,11 @@ export function MenteeShell({
   children: React.ReactNode;
 }) {
   return (
-    <div className="min-h-screen bg-slate-950">
+    <div className="min-h-screen bg-slate-50">
       <Navbar />
       <div className="flex">
         <MenteeSidebar />
-        <main className="min-w-0 flex-1 bg-[radial-gradient(circle_at_top,_rgba(124,58,237,0.1),_transparent_38%)]">
+        <main className="min-w-0 flex-1 bg-slate-50">
           {children}
         </main>
       </div>

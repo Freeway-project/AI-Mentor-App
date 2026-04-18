@@ -22,12 +22,12 @@ const MentorProfileBookingPanel = nextDynamic(
       return (
         <AppPanel className="sticky top-24 p-5">
           <div className="space-y-4 animate-pulse">
-            <div className="h-4 w-28 rounded bg-slate-800" />
-            <div className="h-8 w-48 rounded bg-slate-800" />
-            <div className="h-16 rounded-2xl bg-slate-900/60" />
-            <div className="h-16 rounded-2xl bg-slate-900/60" />
-            <div className="h-16 rounded-2xl bg-slate-900/60" />
-            <div className="h-40 rounded-2xl bg-slate-900/60" />
+            <div className="h-4 w-28 rounded bg-slate-200" />
+            <div className="h-8 w-48 rounded bg-slate-200" />
+            <div className="h-16 rounded-2xl bg-slate-100" />
+            <div className="h-16 rounded-2xl bg-slate-100" />
+            <div className="h-16 rounded-2xl bg-slate-100" />
+            <div className="h-40 rounded-2xl bg-slate-100" />
           </div>
         </AppPanel>
       );

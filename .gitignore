@@ -44,3 +44,4 @@ bun.lockb
 docker/.env
 
 owl-mentors-0db451926f50.json
+client.json

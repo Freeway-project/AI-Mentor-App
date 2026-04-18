@@ -14,13 +14,16 @@
   --color-brand-lighter:#a78bfa; /* = brand.lighter */
 
   /* Surface / page backgrounds */
-  --color-surface:      #0f172a; /* = surface.DEFAULT (slate-900) */
-  --color-surface-deep: #020617; /* = surface.deep   (slate-950) */
+  --color-surface:      #ffffff;
+  --color-surface-deep: #f8fafc;
 
   /* Shared page gradient — used on auth pages & landing hero */
-  --gradient-page: linear-gradient(135deg, #0a0a1a 0%, #0d1117 30%, #0f0b1e 60%, #0a0e1a 100%);
+  --gradient-page: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 30%, #f5f3ff 60%, #faf5ff 100%);
 
-  color-scheme: dark;
+  /* Auth-specific dark gradient — used on login, register, verify pages */
+  --gradient-auth: linear-gradient(135deg, #0a0a1a 0%, #0d1117 30%, #0f0b1e 60%, #0a0e1a 100%);
+
+  color-scheme: light;
 }
 
 html,
@@ -33,7 +36,7 @@ html {
 }
 
 body {
-  color: #e2e8f0;
+  color: #0f172a;
   background: var(--color-surface-deep);
 }
 

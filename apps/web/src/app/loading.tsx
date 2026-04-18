@@ -7,7 +7,7 @@ export default function Loading() {
     return (
         <div
             className="fixed inset-0 z-50 flex items-center justify-center overflow-hidden"
-            style={{ background: 'var(--gradient-page)' }}
+            style={{ background: 'var(--gradient-auth)' }}
         >
             <div className="absolute inset-0 pointer-events-none">
                 <div className="absolute inset-0 opacity-[0.1]" style={{ backgroundImage: 'radial-gradient(circle, #475569 1px, transparent 1px)', backgroundSize: '36px 36px' }} />

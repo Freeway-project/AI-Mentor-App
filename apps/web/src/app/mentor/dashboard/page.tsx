@@ -78,10 +78,10 @@ export default function MentorDashboardPage() {
             <div className="min-h-screen flex items-center justify-center p-8">
                 <div className="max-w-md text-center">
                     <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full border border-amber-500/20 bg-amber-500/10">
-                        <Clock className="h-8 w-8 text-amber-300" />
+                        <Clock className="h-8 w-8 text-amber-600" />
                     </div>
-                    <h1 className="text-xl font-bold text-white mb-2">Profile Under Review</h1>
-                    <p className="text-slate-400 text-sm">Your profile has been submitted and is awaiting admin approval. We&apos;ll notify you once it&apos;s reviewed.</p>
+                    <h1 className="text-xl font-bold text-slate-900 mb-2">Profile Under Review</h1>
+                    <p className="text-slate-500 text-sm">Your profile has been submitted and is awaiting admin approval. We&apos;ll notify you once it&apos;s reviewed.</p>
                 </div>
             </div>
         );
@@ -91,7 +91,7 @@ export default function MentorDashboardPage() {
         <div className="p-8 max-w-5xl mx-auto space-y-8">
             <AppPageHeader
                 title={`Welcome back, ${user?.name?.split(' ')[0] ?? 'Mentor'}`}
-                description="Here’s your mentor portal overview, aligned to the same shared dashboard system as the rest of the app."
+                description="Here's your mentor portal overview, aligned to the same shared dashboard system as the rest of the app."
                 titleClassName="text-2xl md:text-3xl"
             />
 
@@ -102,16 +102,16 @@ export default function MentorDashboardPage() {
                     </div>
                     <div className="flex-1 min-w-0">
                         <h2 className={cn('text-base font-semibold', tone.text)}>{cfg.title}</h2>
-                        <p className="text-sm text-slate-400 mt-0.5">{cfg.description}</p>
+                        <p className="text-sm text-slate-500 mt-0.5">{cfg.description}</p>
                         {status === 'rejected' && profile?.approvalNote && (
-                            <div className="mt-3 rounded-lg border border-red-500/30 bg-red-950/40 px-4 py-2.5 text-sm text-red-300">
+                            <div className="mt-3 rounded-lg border border-red-200 bg-red-50 px-4 py-2.5 text-sm text-red-700">
                                 <span className="font-medium">Admin note: </span>{profile.approvalNote}
                             </div>
                         )}
                         {status === 'rejected' && (
                             <Link
                                 href="/mentor/dashboard/profile"
-                                className="mt-3 inline-flex items-center gap-1.5 text-sm font-medium text-red-300 hover:text-white"
+                                className="mt-3 inline-flex items-center gap-1.5 text-sm font-medium text-red-600 hover:text-red-700"
                             >
                                 Update profile <ArrowRight className="w-3.5 h-3.5" />
                             </Link>
@@ -132,8 +132,8 @@ export default function MentorDashboardPage() {
                             <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-brand to-brand-light transition-transform group-hover:scale-110">
                                 <Icon className="w-5 h-5 text-white" />
                             </div>
-                            <p className="font-semibold text-white text-sm">{label}</p>
-                            <p className="text-xs text-slate-400 mt-0.5">{description}</p>
+                            <p className="font-semibold text-slate-900 text-sm">{label}</p>
+                            <p className="text-xs text-slate-500 mt-0.5">{description}</p>
                         </Link>
                     ))}
                 </div>
@@ -148,9 +148,9 @@ export default function MentorDashboardPage() {
                         <AppSectionLabel className="mb-4">Next Session</AppSectionLabel>
                         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                             <div className="space-y-1">
-                                <p className="font-semibold text-white">{next.title}</p>
-                                {next.menteeName && <p className="text-sm text-slate-400">with {next.menteeName}</p>}
-                                <p className="text-sm text-slate-400">
+                                <p className="font-semibold text-slate-900">{next.title}</p>
+                                {next.menteeName && <p className="text-sm text-slate-500">with {next.menteeName}</p>}
+                                <p className="text-sm text-slate-500">
                                     {new Date(next.scheduledAt).toLocaleString([], {
                                         weekday: 'short', month: 'short', day: 'numeric',
                                         hour: '2-digit', minute: '2-digit',
@@ -169,7 +169,7 @@ export default function MentorDashboardPage() {
                             )}
                         </div>
                         {upcomingBookings.length > 1 && (
-                            <Link href="/mentor/bookings" className="mt-4 inline-flex items-center gap-1 text-xs text-brand-lighter hover:text-white">
+                            <Link href="/mentor/bookings" className="mt-4 inline-flex items-center gap-1 text-xs text-brand hover:text-brand-light">
                                 View all {upcomingBookings.length} upcoming <ArrowRight className="w-3 h-3" />
                             </Link>
                         )}
@@ -179,7 +179,7 @@ export default function MentorDashboardPage() {
 
             {profile && (
                 <AppPanel className="p-6">
-                    <h2 className="font-semibold text-white mb-4">Profile Completeness</h2>
+                    <h2 className="font-semibold text-slate-900 mb-4">Profile Completeness</h2>
                     <div className="space-y-3">
                         {[
                             { label: 'Bio & Headline', done: !!(profile.bio && profile.headline) },
@@ -188,12 +188,12 @@ export default function MentorDashboardPage() {
                             { label: 'Policies', done: false },
                         ].map(({ label, done }) => (
                             <div key={label} className="flex items-center gap-3">
-                                <div className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full ${done ? 'bg-brand' : 'bg-slate-700'}`}>
+                                <div className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full ${done ? 'bg-brand' : 'bg-slate-200'}`}>
                                     {done && <CheckCircle2 className="w-3.5 h-3.5 text-white" />}
                                 </div>
-                                <span className={`text-sm ${done ? 'text-white font-medium' : 'text-slate-500'}`}>{label}</span>
+                                <span className={`text-sm ${done ? 'text-slate-900 font-medium' : 'text-slate-500'}`}>{label}</span>
                                 {!done && (
-                                    <Link href="/mentor/dashboard/profile" className="ml-auto text-xs text-brand-lighter hover:text-white">
+                                    <Link href="/mentor/dashboard/profile" className="ml-auto text-xs text-brand hover:text-brand-light">
                                         Complete →
                                     </Link>
                                 )}

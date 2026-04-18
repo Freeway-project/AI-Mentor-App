@@ -30,7 +30,7 @@ export default function BookingsLayout({ children }: { children: React.ReactNode
 
     if (loading || !profileLoaded) {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-slate-950">
+            <div className="min-h-screen flex items-center justify-center bg-slate-50">
                 <div className={appTheme.spinner} />
             </div>
         );
@@ -39,9 +39,9 @@ export default function BookingsLayout({ children }: { children: React.ReactNode
     if (!user?.roles.includes("mentor")) return null;
 
     return (
-        <div className="flex h-screen overflow-hidden bg-slate-950">
+        <div className="flex h-screen overflow-hidden bg-slate-50">
             <MentorSidebar approvalStatus={approvalStatus} />
-            <main className="flex-1 overflow-y-auto bg-slate-950">
+            <main className="flex-1 overflow-y-auto bg-slate-50">
                 {children}
             </main>
         </div>

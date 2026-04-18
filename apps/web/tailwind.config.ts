@@ -30,6 +30,15 @@ const config: Config = {
       backgroundImage: {
         'page-gradient': 'linear-gradient(135deg, #0a0a1a 0%, #0d1117 30%, #0f0b1e 60%, #0a0e1a 100%)',
       },
+      keyframes: {
+        'fade-up': {
+          '0%': { opacity: '0', transform: 'translateY(8px)' },
+          '100%': { opacity: '1', transform: 'translateY(0)' },
+        },
+      },
+      animation: {
+        'fade-up': 'fade-up 0.35s ease-out forwards',
+      },
     },
   },
   plugins: [],

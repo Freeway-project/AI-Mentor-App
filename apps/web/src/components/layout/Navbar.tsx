@@ -24,52 +24,35 @@ export function Navbar() {
     const isMentee = user && !isMentor && !isAdmin;
 
     return (
-        <nav className="sticky top-0 z-50 w-full border-b border-white/10 bg-slate-950/80 backdrop-blur-md">
+        <nav className="sticky top-0 z-50 w-full border-b border-slate-200 bg-white/90 backdrop-blur-md">
             <div className="container mx-auto flex h-16 items-center justify-between px-4 md:px-6">
                 {/* Logo */}
                 <Link href="/" className="flex items-center space-x-2">
-                    <Rocket className="h-6 w-6 text-brand-lighter" />
-                    <span className="text-xl font-bold tracking-tight text-white">OWL Mentor</span>
+                    <Rocket className="h-6 w-6 text-brand" />
+                    <span className="text-xl font-bold tracking-tight text-slate-900">OWL Mentor</span>
                 </Link>
 
                 {/* Desktop Navigation */}
                 <div className="hidden md:flex md:items-center md:space-x-8">
-                    <Link
-                        href="/browse"
-                        className="text-sm font-medium text-slate-300 hover:text-white transition-colors"
-                    >
+                    <Link href="/browse" className="text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors">
                         Browse Mentors
                     </Link>
                     {!user && (
-                        <>
-                            <Link
-                                href="/how-it-works"
-                                className="text-sm font-medium text-slate-300 hover:text-white transition-colors"
-                            >
-                                How it works
-                            </Link>
-                        </>
+                        <Link href="/how-it-works" className="text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors">
+                            How it works
+                        </Link>
                     )}
                     {isMentor && (
-                        <Link
-                            href="/onboarding"
-                            className="text-sm font-medium text-slate-300 hover:text-white transition-colors"
-                        >
+                        <Link href="/onboarding" className="text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors">
                             My Profile
                         </Link>
                     )}
                     {isMentee && (
                         <>
-                            <Link
-                                href="/mentee/dashboard"
-                                className="text-sm font-medium text-slate-300 hover:text-white transition-colors"
-                            >
+                            <Link href="/mentee/dashboard" className="text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors">
                                 My Sessions
                             </Link>
-                            <Link
-                                href="/mentee/career"
-                                className="text-sm font-medium text-slate-300 hover:text-white transition-colors"
-                            >
+                            <Link href="/mentee/career" className="text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors">
                                 Career Plan
                             </Link>
                         </>
@@ -80,24 +63,23 @@ export function Navbar() {
                 <div className="hidden md:flex md:items-center md:space-x-4">
                     {user ? (
                         <div className="flex items-center gap-3">
-                            <div className="flex items-center gap-2 text-sm text-slate-300">
+                            <div className="flex items-center gap-2 text-sm text-slate-600">
                                 <User className="h-4 w-4" />
                                 <span>{user.name}</span>
                             </div>
                             {isAdmin && (
-                                <Button variant="outline" size="sm" className="border-white/10 bg-transparent text-slate-300 hover:bg-slate-800 hover:text-white" asChild>
+                                <Button variant="outline" size="sm" asChild>
                                     <Link href="/admin">Admin</Link>
                                 </Button>
                             )}
-
-                            <Button variant="ghost" size="sm" className="text-slate-300 hover:text-white hover:bg-slate-800" onClick={handleLogout}>
+                            <Button variant="ghost" size="sm" className="text-slate-600 hover:text-slate-900" onClick={handleLogout}>
                                 <LogOut className="h-4 w-4 mr-1" />
                                 Log out
                             </Button>
                         </div>
                     ) : (
                         <>
-                            <Button variant="ghost" className="text-slate-300 hover:text-white hover:bg-slate-800" asChild>
+                            <Button variant="ghost" className="text-slate-600 hover:text-slate-900" asChild>
                                 <Link href="/login">Log in</Link>
                             </Button>
                             <Button className="bg-brand text-white font-bold shadow-[0_0_15px_rgba(124,58,237,0.25)] transition-all hover:bg-brand-light hover:shadow-[0_0_20px_rgba(124,58,237,0.4)]" asChild>
@@ -109,7 +91,7 @@ export function Navbar() {
 
                 {/* Mobile Menu Button */}
                 <button
-                    className="rounded-md p-2 text-slate-300 hover:bg-slate-800 hover:text-white md:hidden"
+                    className="rounded-md p-2 text-slate-600 hover:bg-slate-100 hover:text-slate-900 md:hidden"
                     onClick={toggleMenu}
                 >
                     {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
@@ -118,68 +100,47 @@ export function Navbar() {
 
             {/* Mobile Navigation */}
             {isMenuOpen && (
-                <div className="absolute left-0 w-full space-y-4 border-t border-white/10 bg-slate-900 px-4 py-4 shadow-lg md:hidden">
+                <div className="absolute left-0 w-full space-y-4 border-t border-slate-200 bg-white px-4 py-4 shadow-lg md:hidden">
                     <div className="flex flex-col space-y-4">
-                        <Link
-                            href="/browse"
-                            className="text-sm font-medium text-slate-300 hover:text-white"
-                            onClick={toggleMenu}
-                        >
+                        <Link href="/browse" className="text-sm font-medium text-slate-600 hover:text-slate-900" onClick={toggleMenu}>
                             Browse Mentors
                         </Link>
                         {isMentor && (
-                            <Link
-                                href="/onboarding"
-                                className="text-sm font-medium text-slate-300 hover:text-white"
-                                onClick={toggleMenu}
-                            >
+                            <Link href="/onboarding" className="text-sm font-medium text-slate-600 hover:text-slate-900" onClick={toggleMenu}>
                                 My Profile
                             </Link>
                         )}
                         {isMentee && (
                             <>
-                                <Link
-                                    href="/mentee/dashboard"
-                                    className="text-sm font-medium text-slate-300 hover:text-white"
-                                    onClick={toggleMenu}
-                                >
+                                <Link href="/mentee/dashboard" className="text-sm font-medium text-slate-600 hover:text-slate-900" onClick={toggleMenu}>
                                     My Sessions
                                 </Link>
-                                <Link
-                                    href="/mentee/career"
-                                    className="text-sm font-medium text-slate-300 hover:text-white"
-                                    onClick={toggleMenu}
-                                >
+                                <Link href="/mentee/career" className="text-sm font-medium text-slate-600 hover:text-slate-900" onClick={toggleMenu}>
                                     Career Plan
                                 </Link>
                             </>
                         )}
                     </div>
-                    <div className="flex flex-col space-y-2 pt-4 border-t border-slate-800">
+                    <div className="flex flex-col space-y-2 pt-4 border-t border-slate-100">
                         {user ? (
                             <>
-                                <div className="text-sm text-slate-300 py-2">{user.name} ({user.email})</div>
+                                <div className="text-sm text-slate-600 py-2">{user.name} ({user.email})</div>
                                 {isAdmin && (
-                                <Button variant="outline" className="w-full border-white/10 bg-transparent text-slate-300 hover:bg-slate-800 hover:text-white" asChild>
-                                    <Link href="/admin" onClick={toggleMenu}>Admin Panel</Link>
-                                </Button>
-                            )}
-
-                                <Button variant="ghost" className="w-full justify-start text-slate-300 hover:text-white hover:bg-slate-800" onClick={() => { handleLogout(); toggleMenu(); }}>
+                                    <Button variant="outline" className="w-full" asChild>
+                                        <Link href="/admin" onClick={toggleMenu}>Admin Panel</Link>
+                                    </Button>
+                                )}
+                                <Button variant="ghost" className="w-full justify-start text-slate-600" onClick={() => { handleLogout(); toggleMenu(); }}>
                                     Log out
                                 </Button>
                             </>
                         ) : (
                             <>
-                                <Button variant="ghost" className="justify-start px-0 text-slate-300 hover:text-white hover:bg-slate-800" asChild>
-                                    <Link href="/login" onClick={toggleMenu}>
-                                        Log in
-                                    </Link>
+                                <Button variant="ghost" className="justify-start px-0 text-slate-600" asChild>
+                                    <Link href="/login" onClick={toggleMenu}>Log in</Link>
                                 </Button>
                                 <Button className="w-full bg-brand font-bold text-white hover:bg-brand-light" asChild>
-                                    <Link href="/register" onClick={toggleMenu}>
-                                        Find a Mentor
-                                    </Link>
+                                    <Link href="/register" onClick={toggleMenu}>Find a Mentor</Link>
                                 </Button>
                             </>
                         )}

@@ -9,7 +9,7 @@ import { AppPageShell, AppPanel, appTheme } from '@/components/ui/app-theme';
 
 export default function HowItWorksPage() {
   return (
-    <AppPageShell>
+    <AppPageShell dark>
       <Navbar />
 
       <main className={appTheme.content}>
