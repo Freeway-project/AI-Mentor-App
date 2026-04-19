@@ -38,7 +38,7 @@ export function Hero() {
                 <div className="absolute inset-0 opacity-[0.05]" style={{ backgroundImage: 'radial-gradient(circle, #94a3b8 1px, transparent 1px)', backgroundSize: '36px 36px' }} />
                 <div className="absolute -top-40 -left-40 h-[700px] w-[700px] animate-pulse rounded-full bg-brand/8 blur-[120px]" />
                 <div className="absolute top-1/3 -right-40 h-[600px] w-[600px] rounded-full bg-brand-light/6 blur-[100px]" style={{ animationDelay: '1s' }} />
-                <div className="absolute -bottom-20 left-1/3 h-[400px] w-[500px] rounded-full bg-violet-100/60 blur-[100px]" />
+                <div className="absolute -bottom-20 left-1/3 h-[400px] w-[500px] rounded-full bg-brand/60 blur-[100px]" />
             </div>
 
             <div className="container mx-auto px-4 md:px-6 relative z-10 sticky top-32">
@@ -81,7 +81,7 @@ export function Hero() {
                             transition={{ duration: 0.6, delay: 0.35 }}
                             className="flex flex-col sm:flex-row gap-3 justify-center lg:justify-start"
                         >
-                            <Button size="lg" className="group gap-2 rounded-full bg-brand px-7 font-bold text-white shadow-[0_4px_20px_rgba(124,58,237,0.25)] transition-all hover:bg-brand-light hover:shadow-[0_6px_30px_rgba(124,58,237,0.35)]" asChild>
+                            <Button size="lg" className="group gap-2 rounded-full bg-brand px-7 font-bold text-white shadow-[0_4px_20px_rgba(160, 120, 48,0.25)] transition-all hover:bg-brand-light hover:shadow-[0_6px_30px_rgba(160, 120, 48,0.35)]" asChild>
                                 <Link href="/browse">
                                     Find a Mentor
                                     <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
@@ -113,7 +113,7 @@ export function Hero() {
                         {/* The Spark (Mentor) */}
                         <motion.div
                             style={{ top: sparkY }}
-                            className="absolute left-1/2 -ml-[2px] z-10 h-32 w-1 bg-gradient-to-b from-transparent via-brand to-transparent shadow-[0_0_20px_rgba(124,58,237,0.3)]"
+                            className="absolute left-1/2 -ml-[2px] z-10 h-32 w-1 bg-gradient-to-b from-transparent via-brand to-transparent shadow-[0_0_20px_rgba(160, 120, 48,0.3)]"
                         />
                         <motion.div
                             style={{ top: sparkY }}
@@ -121,7 +121,7 @@ export function Hero() {
                         />
                         <motion.div
                             style={{ top: sparkY }}
-                            className="absolute left-[calc(50%-4px)] -mt-1 z-20 h-2 w-2 rounded-full bg-white shadow-[0_0_15px_#8b5cf6] ring-2 ring-brand/30"
+                            className="absolute left-[calc(50%-4px)] -mt-1 z-20 h-2 w-2 rounded-full bg-white shadow-[0_0_15px_#A07830] ring-2 ring-brand/30"
                         />
 
                         {/* Winding SVG Path */}
@@ -141,13 +141,13 @@ export function Hero() {
                                 strokeWidth="6"
                                 strokeLinecap="round"
                                 style={{ pathLength }}
-                                className="drop-shadow-[0_0_8px_rgba(124,58,237,0.3)]"
+                                className="drop-shadow-[0_0_8px_rgba(160, 120, 48,0.3)]"
                             />
                             <defs>
                                 <linearGradient id="glowGradient" x1="0" y1="0" x2="0" y2="1">
-                                    <stop offset="0%" stopColor="#c4b5fd" />
-                                    <stop offset="50%" stopColor="#8b5cf6" />
-                                    <stop offset="100%" stopColor="#7c3aed" />
+                                    <stop offset="0%" stopColor="#C9A85A" />
+                                    <stop offset="50%" stopColor="#B8923C" />
+                                    <stop offset="100%" stopColor="#A07830" />
                                 </linearGradient>
                             </defs>
                         </svg>
@@ -186,8 +186,8 @@ export function Hero() {
                                 style={{ opacity: stone4Opacity, scale: stone4Scale }}
                                 className="absolute bottom-[20px] left-1/2 -translate-x-1/2 flex flex-col items-center gap-4 pointer-events-auto"
                             >
-                                <div className="text-sm font-bold uppercase tracking-widest text-brand drop-shadow-[0_0_4px_rgba(124,58,237,0.2)]">Success</div>
-                                <Button size="lg" className="group gap-2 rounded-full bg-brand px-8 py-6 text-lg font-bold text-white shadow-[0_4px_24px_rgba(124,58,237,0.3)] transition-all hover:scale-105 hover:bg-brand-light hover:shadow-[0_8px_32px_rgba(124,58,237,0.4)]" asChild>
+                                <div className="text-sm font-bold uppercase tracking-widest text-brand drop-shadow-[0_0_4px_rgba(160, 120, 48,0.2)]">Success</div>
+                                <Button size="lg" className="group gap-2 rounded-full bg-brand px-8 py-6 text-lg font-bold text-white shadow-[0_4px_24px_rgba(160, 120, 48,0.3)] transition-all hover:scale-105 hover:bg-brand-light hover:shadow-[0_8px_32px_rgba(160, 120, 48,0.4)]" asChild>
                                     <Link href="/find-mentor">
                                         Book Your Session
                                         <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />

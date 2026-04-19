@@ -17,7 +17,7 @@ const SEARCH_STEPS = [
     icon: BrainCircuit,
     title: 'Matching mentor signals',
     body: 'Profiles, specialties, and teaching fit are being compared right now.',
-    accent: 'from-violet-400/25 via-fuchsia-300/10 to-transparent',
+    accent: 'from-brand-light/25 via-fuchsia-300/10 to-transparent',
   },
   {
     icon: Users,
@@ -78,7 +78,7 @@ export function SearchLoadingScene({
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(253,224,71,0.18),transparent_24%),radial-gradient(circle_at_top_left,rgba(56,189,248,0.14),transparent_24%),linear-gradient(145deg,rgba(15,23,42,0.98),rgba(2,6,23,0.96))]" />
       <div className="absolute left-[-8rem] top-[-5rem] h-72 w-72 rounded-full bg-amber-300/15 blur-[120px]" />
       <div className="absolute right-[-5rem] top-[-6rem] h-80 w-80 rounded-full bg-sky-300/12 blur-[140px]" />
-      <div className="absolute bottom-[-7rem] left-1/2 h-56 w-56 -translate-x-1/2 rounded-full bg-violet-400/10 blur-[120px]" />
+      <div className="absolute bottom-[-7rem] left-1/2 h-56 w-56 -translate-x-1/2 rounded-full bg-brand-light/10 blur-[120px]" />
 
       <div className="relative grid gap-6 p-5 md:p-6 xl:grid-cols-[1.08fr_0.92fr] xl:items-center">
         <div className="relative overflow-hidden rounded-[26px] border border-white/10 bg-slate-950/55 p-3 md:p-4 shadow-inner shadow-slate-950/70">

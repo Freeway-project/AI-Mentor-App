@@ -128,7 +128,7 @@ export function MentorHighlights() {
                             key={category}
                             onClick={() => setActiveCategory(category)}
                             className={`px-5 py-2.5 rounded-full text-sm font-semibold transition-all duration-300 ${activeCategory === category
-                                ? 'scale-105 bg-brand text-white shadow-[0_4px_16px_rgba(124,58,237,0.3)]'
+                                ? 'scale-105 bg-brand text-white shadow-[0_4px_16px_rgba(160, 120, 48,0.3)]'
                                 : 'border border-slate-200 bg-white text-slate-600 shadow-sm hover:scale-105 hover:border-brand/30 hover:text-brand'
                                 }`}
                         >

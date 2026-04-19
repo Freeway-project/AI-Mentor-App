@@ -19,7 +19,7 @@ export function ProgressPath() {
     // Step 1: Find Mentor
     const step1Opacity = useTransform(scrollYProgress, [0.1, 0.2], [0.3, 1]);
     const step1Scale = useTransform(scrollYProgress, [0.1, 0.2], [0.8, 1]);
-    const step1Color = useTransform(scrollYProgress, [0.1, 0.2], ['#1e293b', '#f59e0b']); // slate-800 to violet-500
+    const step1Color = useTransform(scrollYProgress, [0.1, 0.2], ['#1e293b', '#f59e0b']); // slate-800 to brand
 
     // Step 2: Pick Time
     const step2Opacity = useTransform(scrollYProgress, [0.4, 0.5], [0.3, 1]);
@@ -56,7 +56,7 @@ export function ProgressPath() {
                     {/* The Animated "Filling" Line */}
                     <motion.div
                         style={{ height: pathHeight }}
-                        className="absolute left-[39px] top-0 z-0 w-1 origin-top rounded-full bg-brand shadow-[0_0_15px_rgba(124,58,237,0.3)] md:left-1/2 md:-ml-[2px]"
+                        className="absolute left-[39px] top-0 z-0 w-1 origin-top rounded-full bg-brand shadow-[0_0_15px_rgba(160, 120, 48,0.3)] md:left-1/2 md:-ml-[2px]"
                     />
 
                     <div className="space-y-32 relative z-10 pb-32">
@@ -143,7 +143,7 @@ export function ProgressPath() {
                             {/* Center Node */}
                             <motion.div
                                 style={{ borderColor: step3Color, color: step3Color }}
-                                className="relative z-20 flex h-12 w-12 shrink-0 items-center justify-center rounded-full border-4 bg-white shadow-[0_0_15px_rgba(124,58,237,0.15)] transition-colors"
+                                className="relative z-20 flex h-12 w-12 shrink-0 items-center justify-center rounded-full border-4 bg-white shadow-[0_0_15px_rgba(160, 120, 48,0.15)] transition-colors"
                             >
                                 <Video className="w-5 h-5 flex-shrink-0 ml-0.5" />
                             </motion.div>
@@ -173,7 +173,7 @@ export function ProgressPath() {
                     >
                         <Button
                             size="lg"
-                            className="group h-14 w-full rounded-full bg-brand text-lg font-bold text-white shadow-[0_0_20px_rgba(124,58,237,0.3)] hover:bg-brand-light"
+                            className="group h-14 w-full rounded-full bg-brand text-lg font-bold text-white shadow-[0_0_20px_rgba(160, 120, 48,0.3)] hover:bg-brand-light"
                             asChild
                         >
                             <Link href="/find-mentor">

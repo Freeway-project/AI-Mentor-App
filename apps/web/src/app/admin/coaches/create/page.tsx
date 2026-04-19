@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { adminService, MentorExtractedFields } from '@/services/admin.service';
 
-const inputCls = 'w-full px-3 py-2.5 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500/50 bg-white text-slate-900 placeholder:text-slate-400 text-sm';
+const inputCls = 'w-full px-3 py-2.5 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand/50 bg-white text-slate-900 placeholder:text-slate-400 text-sm';
 const labelCls = 'block text-xs font-semibold text-slate-500 mb-1.5 uppercase tracking-wider';
 
 function TagInput({
@@ -45,17 +45,17 @@ function TagInput({
   return (
     <div>
       <label className={labelCls}>{label}</label>
-      <div className="flex flex-wrap gap-1.5 p-2 border border-slate-300 rounded-xl bg-white min-h-[42px] focus-within:ring-2 focus-within:ring-violet-500/50">
+      <div className="flex flex-wrap gap-1.5 p-2 border border-slate-300 rounded-xl bg-white min-h-[42px] focus-within:ring-2 focus-within:ring-brand/50">
         {tags.map(tag => (
           <span
             key={tag}
-            className="flex items-center gap-1 bg-violet-100 text-violet-700 text-xs font-medium px-2 py-0.5 rounded-full"
+            className="flex items-center gap-1 bg-brand/10 text-brand text-xs font-medium px-2 py-0.5 rounded-full"
           >
             {tag}
             <button
               type="button"
               onClick={() => removeTag(tag)}
-              className="hover:text-violet-900 leading-none"
+              className="hover:text-brand leading-none"
             >
               ×
             </button>
@@ -111,12 +111,15 @@ export default function CreateMentorPage() {
   const [copied, setCopied] = useState(false);
 
   function applyParsedFields(fields: MentorExtractedFields) {
-    if (fields.name && !name) setName(fields.name);
-    if (fields.headline) setHeadline(fields.headline);
-    if (fields.bio) setBio(fields.bio);
-    if (fields.specialties.length > 0) setSpecialties(fields.specialties);
-    if (fields.expertise.length > 0) setExpertise(fields.expertise);
-    if (fields.languages.length > 0) setLanguages(fields.languages);
+    const filled: string[] = [];
+    if (fields.email && !email) { setEmail(fields.email); filled.push('email'); }
+    if (fields.name && !name) { setName(fields.name); filled.push('name'); }
+    if (fields.headline) { setHeadline(fields.headline); filled.push('headline'); }
+    if (fields.bio) { setBio(fields.bio); filled.push('bio'); }
+    if (fields.specialties.length > 0) { setSpecialties(fields.specialties); filled.push('specialties'); }
+    if (fields.expertise.length > 0) { setExpertise(fields.expertise); filled.push('expertise'); }
+    if (fields.languages.length > 0) { setLanguages(fields.languages); filled.push('languages'); }
+    return filled;
   }
 
   async function handleResumeUpload(file: File) {
@@ -125,8 +128,11 @@ export default function CreateMentorPage() {
     setParsedNote('');
     try {
       const { mentorFields } = await adminService.parseResumeForMentor(file);
-      applyParsedFields(mentorFields);
-      setParsedNote('Resume parsed — fields have been auto-filled. Review and edit as needed.');
+      const filled = applyParsedFields(mentorFields);
+      const summary = filled.length > 0
+        ? `Auto-filled: ${filled.join(', ')}. Review and edit as needed.`
+        : 'Resume parsed but no fields could be extracted. Fill in the form manually.';
+      setParsedNote(summary);
     } catch (err: any) {
       setParseError(err.message || 'Failed to parse resume');
     } finally {
@@ -216,7 +222,7 @@ export default function CreateMentorPage() {
           <div className="flex gap-3 pt-2">
             <button
               onClick={handleReset}
-              className="flex-1 px-4 py-2.5 bg-violet-600 hover:bg-violet-700 text-white rounded-xl text-sm font-medium transition-colors"
+              className="flex-1 px-4 py-2.5 bg-brand hover:bg-brand text-white rounded-xl text-sm font-medium transition-colors"
             >
               Create Another
             </button>
@@ -255,11 +261,11 @@ export default function CreateMentorPage() {
 
         <div
           onClick={() => fileInputRef.current?.click()}
-          className="border-2 border-dashed border-slate-200 rounded-xl p-6 text-center cursor-pointer hover:border-violet-300 hover:bg-violet-50/50 transition-colors"
+          className="border-2 border-dashed border-slate-200 rounded-xl p-6 text-center cursor-pointer hover:border-brand-light hover:bg-brand/50 transition-colors"
         >
           {parsing ? (
             <div className="flex flex-col items-center gap-2">
-              <div className="w-8 h-8 border-2 border-violet-500 border-t-transparent rounded-full animate-spin" />
+              <div className="w-8 h-8 border-2 border-brand border-t-transparent rounded-full animate-spin" />
               <p className="text-sm text-slate-500">Parsing resume...</p>
             </div>
           ) : (
@@ -407,7 +413,7 @@ export default function CreateMentorPage() {
               type="checkbox"
               checked={autoPassword}
               onChange={e => setAutoPassword(e.target.checked)}
-              className="w-4 h-4 rounded border-slate-300 text-violet-600 focus:ring-violet-500"
+              className="w-4 h-4 rounded border-slate-300 text-brand focus:ring-brand"
             />
             <span className="text-sm text-slate-700">Auto-generate password (recommended)</span>
           </label>
@@ -436,7 +442,7 @@ export default function CreateMentorPage() {
           <button
             type="submit"
             disabled={submitting}
-            className="flex-1 px-4 py-2.5 bg-violet-600 hover:bg-violet-700 disabled:opacity-60 text-white rounded-xl text-sm font-medium transition-colors"
+            className="flex-1 px-4 py-2.5 bg-brand hover:bg-brand disabled:opacity-60 text-white rounded-xl text-sm font-medium transition-colors"
           >
             {submitting ? 'Creating...' : 'Create Mentor'}
           </button>

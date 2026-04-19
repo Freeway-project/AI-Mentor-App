@@ -24,7 +24,7 @@ export function TemplateList({ templates, selectedId, onSelect, onNew, loading }
                 <h2 className="font-semibold text-slate-800 text-sm uppercase tracking-wider">Templates</h2>
                 <button
                     onClick={onNew}
-                    className="text-xs bg-violet-600 text-white px-3 py-1.5 rounded-lg hover:bg-violet-700 transition-colors font-medium"
+                    className="text-xs bg-brand text-white px-3 py-1.5 rounded-lg hover:bg-brand transition-colors font-medium"
                 >
                     + New
                 </button>
@@ -43,7 +43,7 @@ export function TemplateList({ templates, selectedId, onSelect, onNew, loading }
                         <button
                             key={t.id}
                             onClick={() => onSelect(t)}
-                            className={`w-full text-left px-4 py-3 border-b border-slate-100 hover:bg-slate-50 transition-colors ${selectedId === t.id ? 'bg-violet-50 border-l-4 border-l-violet-600 pl-3' : ''
+                            className={`w-full text-left px-4 py-3 border-b border-slate-100 hover:bg-slate-50 transition-colors ${selectedId === t.id ? 'bg-brand/5 border-l-4 border-l-brand pl-3' : ''
                                 }`}
                         >
                             <p className="text-sm font-medium text-slate-800 truncate">{t.name}</p>

@@ -92,7 +92,7 @@ export default function OnboardingPage() {
   if (authLoading || loading) {
     return (
       <div className="min-h-screen flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #0a0a1a 0%, #0d1117 30%, #0f0b1e 60%, #0a0e1a 100%)' }}>
-        <div className="w-8 h-8 border-4 border-violet-500 border-t-transparent rounded-full animate-spin" />
+        <div className="w-8 h-8 border-4 border-brand border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
@@ -101,8 +101,8 @@ export default function OnboardingPage() {
     <div className="min-h-screen flex flex-col relative overflow-hidden" style={{ background: 'linear-gradient(135deg, #0a0a1a 0%, #0d1117 30%, #0f0b1e 60%, #0a0e1a 100%)' }}>
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute inset-0 opacity-[0.07]" style={{ backgroundImage: 'radial-gradient(circle, #475569 1px, transparent 1px)', backgroundSize: '32px 32px' }} />
-        <div className="absolute top-1/4 right-1/4 w-[600px] h-[600px] rounded-full bg-violet-600/5 blur-[120px]" />
-        <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-violet-500/30 to-transparent" />
+        <div className="absolute top-1/4 right-1/4 w-[600px] h-[600px] rounded-full bg-brand/5 blur-[120px]" />
+        <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-brand/30 to-transparent" />
       </div>
 
       <Navbar />
@@ -124,7 +124,7 @@ export default function OnboardingPage() {
                   onClick={() => goToStep(i)}
                   className={`flex items-center justify-center w-9 h-9 rounded-full text-sm font-semibold transition-all shadow-md ${
                     i === currentStep
-                      ? 'bg-violet-600 text-white shadow-violet-500/30 ring-2 ring-violet-500/40'
+                      ? 'bg-brand text-white shadow-brand/30 ring-2 ring-brand/40'
                       : i < currentStep
                         ? 'bg-green-500/20 text-green-400 border border-green-500/40'
                         : 'bg-slate-800/80 text-slate-500 border border-slate-700/60'
@@ -133,7 +133,7 @@ export default function OnboardingPage() {
                   {i < currentStep ? '✓' : i + 1}
                 </button>
                 <span className={`ml-2 text-xs hidden sm:inline font-medium ${
-                  i === currentStep ? 'text-violet-300' : i < currentStep ? 'text-green-400' : 'text-slate-600'
+                  i === currentStep ? 'text-brand-light' : i < currentStep ? 'text-green-400' : 'text-slate-600'
                 }`}>
                   {label}
                 </span>

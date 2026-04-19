@@ -55,7 +55,7 @@ export function OffersStep({ mentorId, onComplete }: OffersStepProps) {
     }
   };
 
-  const inputCls = 'w-full px-3 py-2.5 border border-slate-700/60 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500/50 bg-slate-800/60 text-white placeholder:text-slate-500 text-sm';
+  const inputCls = 'w-full px-3 py-2.5 border border-slate-700/60 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand/50 bg-slate-800/60 text-white placeholder:text-slate-500 text-sm';
   const labelCls = 'block text-xs font-semibold text-slate-400 mb-1.5 uppercase tracking-wider';
 
   return (
@@ -73,7 +73,7 @@ export function OffersStep({ mentorId, onComplete }: OffersStepProps) {
       {offers.length > 0 && (
         <div className="space-y-2">
           {offers.map((offer) => (
-            <div key={offer.id} className="flex items-center justify-between p-4 bg-slate-800/40 border border-slate-700/50 rounded-xl hover:border-violet-500/20 transition-colors">
+            <div key={offer.id} className="flex items-center justify-between p-4 bg-slate-800/40 border border-slate-700/50 rounded-xl hover:border-brand/20 transition-colors">
               <div>
                 <p className="font-semibold text-white text-sm">{offer.title}</p>
                 <p className="text-xs text-slate-400 mt-0.5">
@@ -153,7 +153,7 @@ export function OffersStep({ mentorId, onComplete }: OffersStepProps) {
         <Button
           onClick={onComplete}
           disabled={offers.length === 0}
-          className="bg-violet-600 hover:bg-violet-700 text-white"
+          className="bg-brand hover:bg-brand text-white"
         >
           Continue →
         </Button>

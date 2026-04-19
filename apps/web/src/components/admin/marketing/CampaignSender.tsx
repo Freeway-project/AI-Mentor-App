@@ -105,7 +105,7 @@ export function CampaignSender({ selectedTemplateId, selectedTemplateName, recip
                 <Button
                     onClick={handleSend}
                     disabled={sending || !selectedTemplateId || validRecipients.length === 0}
-                    className="w-full bg-violet-600 hover:bg-violet-700 text-white h-11 font-semibold"
+                    className="w-full bg-brand hover:bg-brand text-white h-11 font-semibold"
                 >
                     {sending ? '⏳ Sending in background…' : `🚀 Send to ${validRecipients.length} recipient(s)`}
                 </Button>
@@ -129,7 +129,7 @@ export function CampaignSender({ selectedTemplateId, selectedTemplateName, recip
                         {/* Progress bar */}
                         <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
                             <div
-                                className={`h-full rounded-full transition-all ${pollData.failed > 0 ? 'bg-amber-500' : 'bg-violet-500'}`}
+                                className={`h-full rounded-full transition-all ${pollData.failed > 0 ? 'bg-amber-500' : 'bg-brand'}`}
                                 style={{ width: `${pct}%` }}
                             />
                         </div>

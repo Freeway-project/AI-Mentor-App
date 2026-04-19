@@ -73,7 +73,7 @@ export function SlotPicker({ mentorId, durationMin, onSlotSelect }: Props) {
             value={from}
             min={todayISO()}
             onChange={e => setFrom(e.target.value)}
-            className="bg-slate-800 border border-slate-700 text-slate-200 text-sm rounded-lg px-3 py-2 focus:outline-none focus:border-violet-500"
+            className="bg-slate-800 border border-slate-700 text-slate-200 text-sm rounded-lg px-3 py-2 focus:outline-none focus:border-brand"
           />
         </div>
         <div className="flex flex-col gap-1">
@@ -83,7 +83,7 @@ export function SlotPicker({ mentorId, durationMin, onSlotSelect }: Props) {
             value={to}
             min={from}
             onChange={e => setTo(e.target.value)}
-            className="bg-slate-800 border border-slate-700 text-slate-200 text-sm rounded-lg px-3 py-2 focus:outline-none focus:border-violet-500"
+            className="bg-slate-800 border border-slate-700 text-slate-200 text-sm rounded-lg px-3 py-2 focus:outline-none focus:border-brand"
           />
         </div>
       </div>
@@ -105,8 +105,8 @@ export function SlotPicker({ mentorId, durationMin, onSlotSelect }: Props) {
                 onClick={() => handleSelect(slot)}
                 className={`px-3 py-1.5 text-sm rounded-lg border transition-colors font-medium ${
                   selected?.start === slot.start
-                    ? 'bg-violet-600 border-violet-500 text-white'
-                    : 'bg-slate-800/60 border-slate-700 text-slate-300 hover:border-violet-500 hover:text-white'
+                    ? 'bg-brand border-brand text-white'
+                    : 'bg-slate-800/60 border-slate-700 text-slate-300 hover:border-brand hover:text-white'
                 }`}
               >
                 {formatTime(slot.start)}

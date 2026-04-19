@@ -33,7 +33,7 @@ export function TemplateEditor({ initialData, onSave, onDelete, saving }: Templa
         await onSave({ name, subject, bodyHtml }, initialData?.id);
     };
 
-    const inputCls = 'w-full px-3 py-2 text-sm text-slate-900 bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-400 placeholder:text-slate-400';
+    const inputCls = 'w-full px-3 py-2 text-sm text-slate-900 bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-light placeholder:text-slate-400';
 
     return (
         <div className="flex flex-col h-full">
@@ -128,7 +128,7 @@ export function TemplateEditor({ initialData, onSave, onDelete, saving }: Templa
                 <Button
                     onClick={handleSave}
                     disabled={saving || !name || !subject || !bodyHtml}
-                    className="bg-violet-600 hover:bg-violet-700 text-white"
+                    className="bg-brand hover:bg-brand text-white"
                 >
                     {saving ? 'Saving…' : initialData?.id ? 'Update Template' : 'Save Template'}
                 </Button>

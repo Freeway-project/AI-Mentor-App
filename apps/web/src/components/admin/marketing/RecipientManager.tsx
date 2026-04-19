@@ -49,7 +49,7 @@ export function RecipientManager({ recipients, onChange }: RecipientManagerProps
         setShowBulk(false);
     };
 
-    const inputCls = 'flex-1 px-3 py-2 text-sm text-slate-900 bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-400 placeholder:text-slate-400';
+    const inputCls = 'flex-1 px-3 py-2 text-sm text-slate-900 bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-light placeholder:text-slate-400';
 
     const validCount = recipients.filter((r) => r.name && r.email.includes('@')).length;
 
@@ -71,7 +71,7 @@ export function RecipientManager({ recipients, onChange }: RecipientManagerProps
                     </button>
                     <button
                         onClick={addRow}
-                        className="text-xs bg-violet-600 text-white px-3 py-1.5 rounded-lg hover:bg-violet-700 transition-colors font-medium"
+                        className="text-xs bg-brand text-white px-3 py-1.5 rounded-lg hover:bg-brand transition-colors font-medium"
                     >
                         + Add
                     </button>

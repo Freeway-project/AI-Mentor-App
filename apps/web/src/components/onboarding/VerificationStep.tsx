@@ -107,7 +107,7 @@ export function VerificationStep({ profile, onComplete }: VerificationStepProps)
     }
   };
 
-  const inputCls = 'w-full px-3 py-2.5 border border-slate-700/60 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500/50 bg-slate-800/60 text-white placeholder:text-slate-500 text-sm';
+  const inputCls = 'w-full px-3 py-2.5 border border-slate-700/60 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand/50 bg-slate-800/60 text-white placeholder:text-slate-500 text-sm';
   const labelCls = 'block text-xs font-semibold text-slate-400 mb-1.5 uppercase tracking-wider';
 
   return (
@@ -132,7 +132,7 @@ export function VerificationStep({ profile, onComplete }: VerificationStepProps)
                   <FileText className="w-4 h-4 text-slate-400 shrink-0" />
                   <div>
                     <p className="text-sm font-medium text-white">{cert.name}</p>
-                    <a href={cert.fileUrl} target="_blank" rel="noreferrer" className="text-xs text-violet-400 hover:underline">View file</a>
+                    <a href={cert.fileUrl} target="_blank" rel="noreferrer" className="text-xs text-brand-light hover:underline">View file</a>
                   </div>
                 </div>
                 <button
@@ -167,7 +167,7 @@ export function VerificationStep({ profile, onComplete }: VerificationStepProps)
             <button
               type="button"
               onClick={() => certInputRef.current?.click()}
-              className="flex-1 py-2 border border-dashed border-slate-600/60 rounded-xl text-sm text-slate-500 hover:border-violet-500/40 hover:text-slate-300 transition-colors text-center"
+              className="flex-1 py-2 border border-dashed border-slate-600/60 rounded-xl text-sm text-slate-500 hover:border-brand/40 hover:text-slate-300 transition-colors text-center"
             >
               {certFile ? certFile.name : 'Choose file (PDF or image)'}
             </button>
@@ -176,7 +176,7 @@ export function VerificationStep({ profile, onComplete }: VerificationStepProps)
               size="sm"
               disabled={certLoading || !certFile || !certName.trim()}
               onClick={handleCertUpload}
-              className="bg-violet-600 hover:bg-violet-700 text-white"
+              className="bg-brand hover:bg-brand text-white"
             >
               {certLoading ? 'Uploading…' : 'Upload'}
             </Button>
@@ -219,7 +219,7 @@ export function VerificationStep({ profile, onComplete }: VerificationStepProps)
               type="button"
               onClick={() => videoInputRef.current?.click()}
               disabled={videoLoading}
-              className="w-full py-8 border-2 border-dashed border-slate-700/50 rounded-xl flex flex-col items-center gap-2 text-slate-500 hover:border-violet-500/30 hover:text-slate-400 transition-colors disabled:opacity-50"
+              className="w-full py-8 border-2 border-dashed border-slate-700/50 rounded-xl flex flex-col items-center gap-2 text-slate-500 hover:border-brand/30 hover:text-slate-400 transition-colors disabled:opacity-50"
             >
               <Video className="w-8 h-8" />
               <span className="text-sm font-medium">{videoLoading ? 'Uploading…' : 'Click to upload intro video'}</span>
@@ -236,7 +236,7 @@ export function VerificationStep({ profile, onComplete }: VerificationStepProps)
         <Button
           onClick={handleContinue}
           disabled={loading || certLoading || videoLoading}
-          className="bg-violet-600 hover:bg-violet-700 text-white"
+          className="bg-brand hover:bg-brand text-white"
         >
           {loading ? 'Saving…' : 'Continue →'}
         </Button>

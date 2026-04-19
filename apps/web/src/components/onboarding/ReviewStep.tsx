@@ -125,7 +125,7 @@ export function ReviewStep({ profile, onPublish }: ReviewStepProps) {
             <p className="text-xs text-slate-500">Timezone: {profile.availability.timezone}</p>
             {profile.availability.schedule.map((slot: any, i: number) => (
               <div key={i} className="flex items-center gap-3 text-sm">
-                <span className="text-violet-400 font-medium w-24">{DAYS[slot.dayOfWeek]}</span>
+                <span className="text-brand-light font-medium w-24">{DAYS[slot.dayOfWeek]}</span>
                 <span className="text-slate-300">{slot.startTime} – {slot.endTime}</span>
               </div>
             ))}
@@ -140,7 +140,7 @@ export function ReviewStep({ profile, onPublish }: ReviewStepProps) {
         <Button
           onClick={handlePublish}
           disabled={loading}
-          className="w-full h-12 bg-violet-600 hover:bg-violet-700 text-white font-semibold text-base shadow-[0_0_20px_rgba(139,92,246,0.3)] hover:shadow-[0_0_25px_rgba(139,92,246,0.4)] transition-all"
+          className="w-full h-12 bg-brand hover:bg-brand text-white font-semibold text-base shadow-[0_0_20px_rgba(139,92,246,0.3)] hover:shadow-[0_0_25px_rgba(139,92,246,0.4)] transition-all"
         >
           {loading ? 'Submitting…' : 'Submit for Approval →'}
         </Button>

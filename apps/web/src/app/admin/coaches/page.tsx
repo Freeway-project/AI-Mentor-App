@@ -33,7 +33,7 @@ function CoachCard({ coach, onApprove, onReject }: {
             </p>
             <Link
               href={`/admin/coaches/${coach.id}`}
-              className="text-xs text-violet-600 hover:underline font-medium"
+              className="text-xs text-brand hover:underline font-medium"
             >
               View Full Profile →
             </Link>
@@ -134,7 +134,7 @@ export default function CoachesPage() {
         </div>
         <Link
           href="/admin/coaches/create"
-          className="flex items-center gap-2 px-4 py-2.5 bg-violet-600 hover:bg-violet-700 text-white rounded-xl text-sm font-medium transition-colors whitespace-nowrap"
+          className="flex items-center gap-2 px-4 py-2.5 bg-brand hover:bg-brand text-white rounded-xl text-sm font-medium transition-colors whitespace-nowrap"
         >
           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -150,7 +150,7 @@ export default function CoachesPage() {
             key={t}
             onClick={() => { setTab(t); setOffset(0); }}
             className={`px-4 py-2 text-sm font-medium capitalize border-b-2 transition-colors ${tab === t
-                ? 'border-violet-600 text-violet-600'
+                ? 'border-brand text-brand'
                 : 'border-transparent text-slate-500 hover:text-slate-800'
               }`}
           >
@@ -166,7 +166,7 @@ export default function CoachesPage() {
 
       {loading ? (
         <div className="flex justify-center py-12">
-          <div className="w-8 h-8 border-4 border-violet-600 border-t-transparent rounded-full animate-spin" />
+          <div className="w-8 h-8 border-4 border-brand border-t-transparent rounded-full animate-spin" />
         </div>
       ) : coaches?.length === 0 ? (
         <div className="text-center py-12 text-slate-500">

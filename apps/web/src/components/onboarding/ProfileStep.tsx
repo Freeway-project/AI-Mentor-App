@@ -146,7 +146,7 @@ export function ProfileStep({ profile, userAvatar, onComplete }: ProfileStepProp
     }
   };
 
-  const inputCls = 'w-full px-3 py-2.5 border border-slate-700/60 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500/50 bg-slate-800/60 text-white placeholder:text-slate-500 text-sm';
+  const inputCls = 'w-full px-3 py-2.5 border border-slate-700/60 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand/50 bg-slate-800/60 text-white placeholder:text-slate-500 text-sm';
   const labelCls = 'block text-xs font-semibold text-slate-400 mb-1.5 uppercase tracking-wider';
 
   return (
@@ -233,7 +233,7 @@ export function ProfileStep({ profile, userAvatar, onComplete }: ProfileStepProp
           <input type="number" min="0" value={hourlyRate} onChange={e => setHourlyRate(e.target.value)} className={inputCls} placeholder="e.g. 50" />
         </div>
 
-        <Button type="submit" disabled={loading} className="w-full bg-violet-600 hover:bg-violet-700 text-white">
+        <Button type="submit" disabled={loading} className="w-full bg-brand hover:bg-brand text-white">
           {loading ? 'Saving…' : 'Save & Continue →'}
         </Button>
       </form>
@@ -257,7 +257,7 @@ export function ProfileStep({ profile, userAvatar, onComplete }: ProfileStepProp
                   <FileText className="w-4 h-4 text-slate-400 shrink-0" />
                   <div>
                     <p className="text-sm font-medium text-white">{cert.name}</p>
-                    <a href={cert.fileUrl} target="_blank" rel="noreferrer" className="text-xs text-violet-400 hover:underline">View file</a>
+                    <a href={cert.fileUrl} target="_blank" rel="noreferrer" className="text-xs text-brand-light hover:underline">View file</a>
                   </div>
                 </div>
                 <button onClick={() => handleCertDelete(cert.fileKey)} disabled={certLoading} className="text-slate-500 hover:text-red-400 transition-colors p-1 rounded-lg hover:bg-red-900/20">
@@ -274,10 +274,10 @@ export function ProfileStep({ profile, userAvatar, onComplete }: ProfileStepProp
           <div className="flex items-center gap-3">
             <input ref={certInputRef} type="file" accept="image/jpeg,image/png,image/webp,image/gif,application/pdf" className="hidden" onChange={e => setCertFile(e.target.files?.[0] || null)} />
             <button type="button" onClick={() => certInputRef.current?.click()}
-              className="flex-1 py-2 border border-dashed border-slate-600/60 rounded-xl text-sm text-slate-500 hover:border-violet-500/40 hover:text-slate-300 transition-colors text-center">
+              className="flex-1 py-2 border border-dashed border-slate-600/60 rounded-xl text-sm text-slate-500 hover:border-brand/40 hover:text-slate-300 transition-colors text-center">
               {certFile ? certFile.name : 'Choose file (PDF or image)'}
             </button>
-            <Button type="button" size="sm" disabled={certLoading || !certFile || !certName.trim()} onClick={handleCertUpload} className="bg-violet-600 hover:bg-violet-700 text-white">
+            <Button type="button" size="sm" disabled={certLoading || !certFile || !certName.trim()} onClick={handleCertUpload} className="bg-brand hover:bg-brand text-white">
               {certLoading ? 'Uploading…' : 'Upload'}
             </Button>
           </div>
@@ -318,7 +318,7 @@ export function ProfileStep({ profile, userAvatar, onComplete }: ProfileStepProp
           <div className="space-y-2">
             <input ref={videoInputRef} type="file" accept="video/mp4,video/webm,video/quicktime,video/x-msvideo" className="hidden" onChange={handleVideoChange} />
             <button type="button" onClick={() => videoInputRef.current?.click()} disabled={videoLoading}
-              className="w-full py-8 border-2 border-dashed border-slate-700/50 rounded-xl flex flex-col items-center gap-2 text-slate-500 hover:border-violet-500/30 hover:text-slate-400 transition-colors disabled:opacity-50">
+              className="w-full py-8 border-2 border-dashed border-slate-700/50 rounded-xl flex flex-col items-center gap-2 text-slate-500 hover:border-brand/30 hover:text-slate-400 transition-colors disabled:opacity-50">
               <Video className="w-8 h-8" />
               <span className="text-sm font-medium">{videoLoading ? 'Uploading…' : 'Click to upload intro video'}</span>
               {!videoLoading && <span className="text-xs text-slate-600">MP4, WebM or MOV · max 200 MB</span>}

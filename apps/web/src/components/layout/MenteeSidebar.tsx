@@ -45,7 +45,7 @@ export function MenteeSidebar() {
               href={href}
               className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all ${
                 isActive
-                  ? 'bg-gradient-to-r from-violet-600 to-purple-600 text-white shadow-md shadow-violet-900/40'
+                  ? 'bg-gradient-to-r from-brand to-purple-600 text-white shadow-md shadow-brand/40'
                   : 'text-slate-400 hover:bg-white/8 hover:text-white'
               }`}
             >
@@ -58,7 +58,7 @@ export function MenteeSidebar() {
 
       <div className="space-y-3 border-t border-white/10 px-3 py-4">
         <div className="flex items-center gap-3 px-2">
-          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-violet-500 to-purple-500 text-xs font-bold">
+          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-brand to-purple-500 text-xs font-bold">
             {user?.name?.charAt(0)?.toUpperCase() || 'U'}
           </div>
           <div className="min-w-0">

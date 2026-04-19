@@ -47,7 +47,7 @@ export function PoliciesStep({ mentorId, onComplete }: PoliciesStepProps) {
     }
   };
 
-  const inputCls = 'w-full px-3 py-2.5 border border-slate-700/60 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500/50 bg-slate-800/60 text-white placeholder:text-slate-500 text-sm';
+  const inputCls = 'w-full px-3 py-2.5 border border-slate-700/60 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand/50 bg-slate-800/60 text-white placeholder:text-slate-500 text-sm';
   const labelCls = 'block text-xs font-semibold text-slate-400 mb-1.5 uppercase tracking-wider';
   const hintCls = 'text-xs text-slate-600 mt-1';
 
@@ -108,7 +108,7 @@ export function PoliciesStep({ mentorId, onComplete }: PoliciesStepProps) {
         />
       </div>
 
-      <Button type="submit" disabled={loading} className="bg-violet-600 hover:bg-violet-700 text-white w-full">
+      <Button type="submit" disabled={loading} className="bg-brand hover:bg-brand text-white w-full">
         {loading ? 'Saving…' : 'Save & Continue →'}
       </Button>
     </form>

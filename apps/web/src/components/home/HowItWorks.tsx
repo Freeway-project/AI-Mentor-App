@@ -9,9 +9,9 @@ const steps = [
         title: 'Tell us your goals',
         description: 'Share your background, current challenges, and what you hope to achieve. We use this to understand your unique learning path.',
         icon: UserPlus,
-        color: 'text-violet-500',
-        bgColor: 'bg-violet-500/10',
-        borderColor: 'border-violet-500/20',
+        color: 'text-brand',
+        bgColor: 'bg-brand/10',
+        borderColor: 'border-brand/20',
     },
     {
         title: 'Get matched',
@@ -25,9 +25,9 @@ const steps = [
         title: 'Schedule Session',
         description: 'Find a time that works. Book a 1:1 video call directly on their calendar without any back-and-forth messaging.',
         icon: Calendar,
-        color: 'text-violet-500',
-        bgColor: 'bg-violet-500/10',
-        borderColor: 'border-violet-500/20',
+        color: 'text-brand',
+        bgColor: 'bg-brand/10',
+        borderColor: 'border-brand/20',
     },
     {
         title: 'Learn & Iterate',
@@ -102,7 +102,7 @@ export function HowItWorks() {
                                 transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
                                 className="absolute top-1/2 left-1/2 z-10 h-[300px] w-[300px] -translate-x-1/2 -translate-y-1/2 rounded-full border border-dashed border-slate-300"
                             >
-                                <div className="absolute left-1/2 top-0 h-4 w-4 -translate-x-1/2 -translate-y-1/2 rounded-full bg-brand shadow-[0_0_15px_rgba(124,58,237,0.5)]"></div>
+                                <div className="absolute left-1/2 top-0 h-4 w-4 -translate-x-1/2 -translate-y-1/2 rounded-full bg-brand shadow-[0_0_15px_rgba(160, 120, 48,0.5)]"></div>
                             </motion.div>
 
                             <motion.div
@@ -110,7 +110,7 @@ export function HowItWorks() {
                                 transition={{ duration: 40, repeat: Infinity, ease: "linear" }}
                                 className="absolute top-1/2 left-1/2 z-0 h-[450px] w-[450px] -translate-x-1/2 -translate-y-1/2 rounded-full border border-slate-200"
                             >
-                                <div className="absolute bottom-0 left-1/2 flex h-6 w-6 -translate-x-1/2 translate-y-1/2 items-center justify-center rounded-full bg-brand-light shadow-[0_0_15px_rgba(124,58,237,0.5)]">
+                                <div className="absolute bottom-0 left-1/2 flex h-6 w-6 -translate-x-1/2 translate-y-1/2 items-center justify-center rounded-full bg-brand-light shadow-[0_0_15px_rgba(160, 120, 48,0.5)]">
                                     <div className="w-2 h-2 rounded-full bg-white"></div>
                                 </div>
                                 <div className="absolute right-0 top-1/2 h-3 w-3 translate-x-1/2 -translate-y-1/2 rounded-full bg-brand-lighter shadow-sm"></div>
@@ -170,7 +170,7 @@ export function HowItWorks() {
                                 >
                                     {/* Connecting Line */}
                                     {index !== steps.length - 1 && (
-                                        <div className="absolute left-8 top-16 bottom-0 w-0.5 bg-slate-200 group-hover:bg-violet-300 transition-colors -mb-8"></div>
+                                        <div className="absolute left-8 top-16 bottom-0 w-0.5 bg-slate-200 group-hover:bg-brand-light transition-colors -mb-8"></div>
                                     )}
 
                                     {/* Icon Container */}

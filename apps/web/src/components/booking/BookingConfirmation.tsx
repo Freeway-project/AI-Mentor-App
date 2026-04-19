@@ -34,8 +34,8 @@ export function BookingConfirmation({ booking, onClose }: Props) {
   return (
     <div className="space-y-5">
       <div className="flex flex-col items-center text-center py-2">
-        <div className="w-14 h-14 rounded-full bg-violet-500/10 flex items-center justify-center mb-4">
-          <CheckCircle className="w-7 h-7 text-violet-400" />
+        <div className="w-14 h-14 rounded-full bg-brand/10 flex items-center justify-center mb-4">
+          <CheckCircle className="w-7 h-7 text-brand-light" />
         </div>
         <h3 className="text-lg font-bold text-white">Session booked!</h3>
         <p className="text-sm text-slate-400 mt-1">A confirmation email is on its way to you.</p>
@@ -60,7 +60,7 @@ export function BookingConfirmation({ booking, onClose }: Props) {
               href={sessionAccess.href}
               target={sessionAccess.isExternal ? '_blank' : undefined}
               rel={sessionAccess.isExternal ? 'noopener noreferrer' : undefined}
-              className="flex items-center justify-center gap-2 w-full py-2.5 bg-violet-600 hover:bg-violet-500 text-white font-semibold rounded-lg transition-colors text-sm"
+              className="flex items-center justify-center gap-2 w-full py-2.5 bg-brand hover:bg-brand text-white font-semibold rounded-lg transition-colors text-sm"
             >
               {sessionAccess.label} →
             </Link>

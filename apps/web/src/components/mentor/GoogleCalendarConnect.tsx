@@ -72,7 +72,7 @@ export function GoogleCalendarConnect({ onStatusChange }: Props) {
       ) : (
         <button
           onClick={handleConnect}
-          className="text-sm bg-violet-600 hover:bg-violet-500 text-white px-3 py-1.5 rounded-lg transition-colors font-medium"
+          className="text-sm bg-brand hover:bg-brand text-white px-3 py-1.5 rounded-lg transition-colors font-medium"
         >
           Connect Google Calendar
         </button>

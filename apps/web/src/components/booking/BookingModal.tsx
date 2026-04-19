@@ -130,7 +130,7 @@ function StripePaymentForm({
         <button
           onClick={handlePay}
           disabled={!stripe || paying}
-          className="flex-1 py-2.5 bg-violet-600 hover:bg-violet-500 text-white font-bold rounded-lg transition-colors disabled:opacity-50 text-sm"
+          className="flex-1 py-2.5 bg-brand hover:bg-brand text-white font-bold rounded-lg transition-colors disabled:opacity-50 text-sm"
         >
           {paying ? 'Processing...' : `Pay $${amountUsd.toFixed(2)}`}
         </button>
@@ -182,7 +182,7 @@ export function BookingModal({ mentorId, mentorName, offer, hourlyRate, slot, on
     >
       <div className="relative w-full max-w-md bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl overflow-hidden">
         {/* Top accent line */}
-        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-violet-500/50 to-transparent" />
+        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-brand/50 to-transparent" />
 
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-slate-800">
@@ -203,21 +203,21 @@ export function BookingModal({ mentorId, mentorName, offer, hourlyRate, slot, on
               {/* Session details */}
               <div className="bg-slate-800/50 rounded-xl p-4 space-y-3 text-sm">
                 <div className="flex items-center gap-2.5 text-slate-300">
-                  <User className="w-4 h-4 text-violet-400 flex-shrink-0" />
+                  <User className="w-4 h-4 text-brand-light flex-shrink-0" />
                   <span>with <strong className="text-white">{mentorName}</strong></span>
                 </div>
                 <div className="flex items-center gap-2.5 text-slate-300">
-                  <Calendar className="w-4 h-4 text-violet-400 flex-shrink-0" />
+                  <Calendar className="w-4 h-4 text-brand-light flex-shrink-0" />
                   <span>{formatSlotDate(slot.start)}</span>
                 </div>
                 <div className="flex items-center gap-2.5 text-slate-300">
-                  <Clock className="w-4 h-4 text-violet-400 flex-shrink-0" />
+                  <Clock className="w-4 h-4 text-brand-light flex-shrink-0" />
                   <span>{formatSlotTime(slot.start)} — {durationMin} min</span>
                 </div>
               </div>
 
               {/* Price summary */}
-              <div className="flex items-center justify-between bg-violet-500/10 border border-violet-500/20 rounded-xl px-4 py-3">
+              <div className="flex items-center justify-between bg-brand/10 border border-brand/20 rounded-xl px-4 py-3">
                 <div>
                   <p className="text-sm font-medium text-white">{sessionTitle}</p>
                   <p className="text-xs text-slate-400">{durationMin}-minute session</p>
@@ -228,7 +228,7 @@ export function BookingModal({ mentorId, mentorName, offer, hourlyRate, slot, on
               <button
                 onClick={handleContinue}
                 disabled={loadingIntent}
-                className="w-full py-3 bg-violet-600 hover:bg-violet-500 text-white font-bold rounded-lg transition-colors disabled:opacity-50"
+                className="w-full py-3 bg-brand hover:bg-brand text-white font-bold rounded-lg transition-colors disabled:opacity-50"
               >
                 {loadingIntent ? 'Preparing payment...' : 'Continue to Payment →'}
               </button>

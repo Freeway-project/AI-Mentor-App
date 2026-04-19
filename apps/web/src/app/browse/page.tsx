@@ -184,7 +184,7 @@ export default function BrowsePage() {
             <Button
               type="submit"
               size="lg"
-              className="h-[52px] gap-2 rounded-xl bg-brand px-6 text-white shadow-[0_0_20px_rgba(124,58,237,0.22)] hover:bg-brand-light"
+              className="h-[52px] gap-2 rounded-xl bg-brand px-6 text-white shadow-[0_0_20px_rgba(160, 120, 48,0.22)] hover:bg-brand-light"
             >
               {query.length > 3 ? <Sparkles className="w-4 h-4" /> : <Search className="w-4 h-4" />}
               Search
@@ -201,7 +201,7 @@ export default function BrowsePage() {
               size="lg"
               disabled={resumeUploading}
               onClick={() => resumeInputRef.current?.click()}
-              className="h-[52px] gap-2 rounded-xl bg-brand px-5 text-white shadow-[0_0_20px_rgba(124,58,237,0.22)] hover:bg-brand-light disabled:opacity-60"
+              className="h-[52px] gap-2 rounded-xl bg-brand px-5 text-white shadow-[0_0_20px_rgba(160, 120, 48,0.22)] hover:bg-brand-light disabled:opacity-60"
               title="Upload resume to find matching mentors"
             >
               {resumeUploading
@@ -252,12 +252,12 @@ export default function BrowsePage() {
                         </Badge>
                       )}
                       {resumeProfile.coreCapabilities?.slice(0, 5).map(tag => (
-                        <Badge key={tag} variant="outline" className="border-slate-200 bg-slate-100 text-slate-600 text-[11px]">
+                        <Badge key={tag} variant="outline" className="border-brand/20 bg-amber-50/50 text-brand text-[11px]">
                           {tag}
                         </Badge>
                       ))}
                       {resumeProfile.tools?.slice(0, 3).map(tag => (
-                        <Badge key={tag} variant="outline" className="border-slate-200 bg-slate-100 text-slate-600 text-[11px]">
+                        <Badge key={tag} variant="outline" className="border-brand/20 bg-amber-50/50 text-brand text-[11px]">
                           {tag}
                         </Badge>
                       ))}
@@ -299,7 +299,7 @@ export default function BrowsePage() {
             <div className="mx-auto mb-6 flex max-w-3xl flex-col items-center gap-3 text-center">
               <div className="flex flex-wrap items-center justify-center gap-2">
                 {isSemantic && (
-                  <span className="flex items-center gap-1.5 rounded-full border border-violet-200 bg-violet-50 px-3 py-1.5 text-xs text-violet-600">
+                  <span className="flex items-center gap-1.5 rounded-full border border-brand-lighter bg-brand/5 px-3 py-1.5 text-xs text-brand">
                     <Sparkles className="h-3 w-3" />
                     {searchMeta.hybrid ? 'AI + keyword matched' : 'AI-matched results'}
                   </span>
@@ -328,7 +328,7 @@ export default function BrowsePage() {
                       <Badge
                         key={term}
                         variant="outline"
-                        className="border-violet-200 bg-violet-50 text-xs text-violet-600"
+                        className="border-brand-lighter bg-brand/5 text-xs text-brand"
                       >
                         {term}
                       </Badge>
@@ -365,7 +365,7 @@ export default function BrowsePage() {
                 <Link
                   key={mentor.id}
                   href={`/mentors/${mentor.id}`}
-                  className="group relative block overflow-hidden rounded-2xl border border-slate-200 bg-white p-6 transition-all duration-300 hover:border-brand/30 hover:shadow-[0_4px_24px_rgba(124,58,237,0.10)]"
+                  className="group relative block overflow-hidden rounded-2xl border border-slate-200 bg-white p-6 transition-all duration-300 hover:border-brand/30 hover:shadow-[0_4px_24px_rgba(160, 120, 48,0.10)]"
                 >
                   <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-brand/0 to-transparent transition-all duration-300 group-hover:via-brand/40" />
 
@@ -393,7 +393,7 @@ export default function BrowsePage() {
                   {mentor.specialties?.length > 0 && (
                     <div className="flex flex-wrap gap-1.5 mt-5">
                       {mentor.specialties.slice(0, 4).map((s: string) => (
-                        <Badge key={s} variant="outline" className="border-slate-200 bg-slate-50 text-xs text-slate-600">
+                        <Badge key={s} variant="outline" className="border-brand/20 bg-amber-50/50 text-xs text-brand">
                           {s}
                         </Badge>
                       ))}
@@ -401,7 +401,7 @@ export default function BrowsePage() {
                   )}
 
                   {mentor.matchReason && (
-                    <p className="mt-4 rounded-xl border border-violet-100 bg-violet-50 px-3.5 py-3 text-sm leading-6 text-slate-600">
+                    <p className="mt-4 rounded-xl border border-brand/10 bg-brand/5 px-3.5 py-3 text-sm leading-6 text-slate-600">
                       {mentor.matchReason}
                     </p>
                   )}

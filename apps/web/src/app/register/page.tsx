@@ -96,7 +96,7 @@ export default function RegisterPage() {
         <div
           className="absolute inset-0 pointer-events-none"
           style={{
-            background: 'radial-gradient(ellipse 80% 60% at 50% 110%, rgba(124,58,237,0.1) 0%, transparent 70%)',
+            background: 'radial-gradient(ellipse 80% 60% at 50% 110%, rgba(160, 120, 48,0.1) 0%, transparent 70%)',
           }}
         />
         {/* Dot grid */}
@@ -124,7 +124,7 @@ export default function RegisterPage() {
             </div>
             <h1 className="text-3xl xl:text-4xl font-bold text-slate-900 leading-tight tracking-tight">
               Start your journey<br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-400 to-purple-300">
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-light to-purple-300">
                 towards mastery
               </span>
             </h1>

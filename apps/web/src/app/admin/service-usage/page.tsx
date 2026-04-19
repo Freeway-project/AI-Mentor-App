@@ -155,7 +155,7 @@ export default function ServiceUsagePage() {
             setService(event.target.value);
             setOffset(0);
           }}
-          className="w-full px-3 py-2 text-sm text-slate-900 bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-300 sm:w-auto"
+          className="w-full px-3 py-2 text-sm text-slate-900 bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-light sm:w-auto"
         >
           <option value="">All services</option>
           {serviceOptions.map(option => (
@@ -171,7 +171,7 @@ export default function ServiceUsagePage() {
             setProvider(event.target.value);
             setOffset(0);
           }}
-          className="w-full px-3 py-2 text-sm text-slate-900 bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-300 sm:w-auto"
+          className="w-full px-3 py-2 text-sm text-slate-900 bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-light sm:w-auto"
         >
           <option value="">All providers</option>
           {providerOptions.map(option => (
@@ -247,7 +247,7 @@ export default function ServiceUsagePage() {
 
         {isLoading ? (
           <div className="flex justify-center py-12">
-            <div className="w-8 h-8 border-4 border-violet-600 border-t-transparent rounded-full animate-spin" />
+            <div className="w-8 h-8 border-4 border-brand border-t-transparent rounded-full animate-spin" />
           </div>
         ) : !data?.services.length ? (
           <div className="text-center py-12 text-slate-500">No usage recorded for this filter set</div>
@@ -303,7 +303,7 @@ export default function ServiceUsagePage() {
 
         {isLoading ? (
           <div className="flex justify-center py-12">
-            <div className="w-8 h-8 border-4 border-violet-600 border-t-transparent rounded-full animate-spin" />
+            <div className="w-8 h-8 border-4 border-brand border-t-transparent rounded-full animate-spin" />
           </div>
         ) : !data?.records.length ? (
           <div className="text-center py-12 text-slate-500">No individual usage records available</div>

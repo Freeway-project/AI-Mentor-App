@@ -54,7 +54,7 @@ export function BasicsStep({ profile, userAvatar, onComplete }: BasicsStepProps)
     }
   };
 
-  const inputCls = 'w-full px-3 py-2.5 border border-slate-700/60 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500/50 bg-slate-800/60 text-white placeholder:text-slate-500 text-sm';
+  const inputCls = 'w-full px-3 py-2.5 border border-slate-700/60 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand/50 bg-slate-800/60 text-white placeholder:text-slate-500 text-sm';
   const labelCls = 'block text-xs font-semibold text-slate-400 mb-1.5 uppercase tracking-wider';
 
   return (
@@ -136,7 +136,7 @@ export function BasicsStep({ profile, userAvatar, onComplete }: BasicsStepProps)
           />
         </div>
 
-        <Button type="submit" disabled={loading} className="w-full bg-violet-600 hover:bg-violet-700 text-white">
+        <Button type="submit" disabled={loading} className="w-full bg-brand hover:bg-brand text-white">
           {loading ? 'Saving…' : 'Save & Continue →'}
         </Button>
       </form>

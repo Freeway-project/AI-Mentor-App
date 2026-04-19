@@ -578,7 +578,7 @@ export default function MenteeCareerPage() {
                     <Link
                       key={mentor.mentorId}
                       href={`/mentors/${mentor.mentorId}`}
-                      className="rounded-2xl border border-slate-200 bg-white p-4 transition-colors hover:border-brand/40 hover:shadow-[0_4px_20px_rgba(124,58,237,0.08)]"
+                      className="rounded-2xl border border-slate-200 bg-white p-4 transition-colors hover:border-brand/40 hover:shadow-[0_4px_20px_rgba(160, 120, 48,0.08)]"
                     >
                       <div className="flex items-start justify-between gap-2">
                         <div>

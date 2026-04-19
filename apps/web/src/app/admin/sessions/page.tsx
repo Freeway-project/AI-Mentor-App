@@ -69,14 +69,14 @@ export default function SessionsPage() {
             type="date"
             value={dateFrom}
             onChange={(e) => { setDateFrom(e.target.value); setOffset(0); }}
-            className="px-2 py-1.5 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-300 text-sm text-slate-900 bg-white"
+            className="px-2 py-1.5 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-light text-sm text-slate-900 bg-white"
           />
           <label>To</label>
           <input
             type="date"
             value={dateTo}
             onChange={(e) => { setDateTo(e.target.value); setOffset(0); }}
-            className="px-2 py-1.5 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-300 text-sm text-slate-900 bg-white"
+            className="px-2 py-1.5 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-light text-sm text-slate-900 bg-white"
           />
           {(dateFrom || dateTo) && (
             <button
@@ -93,7 +93,7 @@ export default function SessionsPage() {
       <div className="bg-white rounded-xl border border-slate-200 overflow-hidden overflow-x-auto">
         {isLoading ? (
           <div className="flex justify-center py-12">
-            <div className="w-8 h-8 border-4 border-violet-600 border-t-transparent rounded-full animate-spin" />
+            <div className="w-8 h-8 border-4 border-brand border-t-transparent rounded-full animate-spin" />
           </div>
         ) : !data?.meetings.length ? (
           <div className="text-center py-12 text-slate-500">No sessions found</div>

@@ -169,7 +169,7 @@ export function TermsAcceptanceModal({ open, onAccept }: TermsAcceptanceModalPro
                 <div className="px-6 py-5 border-t border-slate-700/60 shrink-0 space-y-4 bg-slate-900/80">
                     <p className="text-xs text-slate-500">
                         You can also{' '}
-                        <Link href="/terms" target="_blank" className="text-violet-400 hover:text-violet-300 underline underline-offset-2">
+                        <Link href="/terms" target="_blank" className="text-brand-light hover:text-brand-light underline underline-offset-2">
                             view the full agreement in a new tab
                         </Link>
                         .
@@ -179,7 +179,7 @@ export function TermsAcceptanceModal({ open, onAccept }: TermsAcceptanceModalPro
                             type="checkbox"
                             checked={accepted}
                             onChange={(e) => setAccepted(e.target.checked)}
-                            className="mt-0.5 w-4 h-4 shrink-0 rounded border-slate-600 bg-slate-800 accent-violet-500 cursor-pointer"
+                            className="mt-0.5 w-4 h-4 shrink-0 rounded border-slate-600 bg-slate-800 accent-brand cursor-pointer"
                         />
                         <span className="text-sm text-slate-300 group-hover:text-white transition-colors">
                             I have read, understood, and agree to the Independent Contractor Agreement above.
@@ -188,7 +188,7 @@ export function TermsAcceptanceModal({ open, onAccept }: TermsAcceptanceModalPro
                     <Button
                         disabled={!accepted}
                         onClick={onAccept}
-                        className="w-full bg-violet-600 hover:bg-violet-700 text-white disabled:opacity-40 disabled:cursor-not-allowed"
+                        className="w-full bg-brand hover:bg-brand text-white disabled:opacity-40 disabled:cursor-not-allowed"
                     >
                         Accept &amp; Continue
                     </Button>

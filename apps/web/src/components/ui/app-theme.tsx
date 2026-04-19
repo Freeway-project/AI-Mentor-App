@@ -67,7 +67,7 @@ export const appTheme = {
   statCard:
     'rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_2px_12px_rgba(0,0,0,0.05)]',
   actionTile:
-    'group rounded-2xl border border-slate-200 bg-white p-5 transition-all duration-200 hover:border-brand/40 hover:shadow-[0_4px_20px_rgba(124,58,237,0.08)]',
+    'group rounded-2xl border border-slate-200 bg-white p-5 transition-all duration-200 hover:border-brand/40 hover:shadow-[0_4px_20px_rgba(160, 120, 48,0.08)]',
   input:
     'w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-900 placeholder:text-slate-400 shadow-sm transition-all focus:outline-none focus:ring-2 focus:ring-brand/30',
   emptyState:

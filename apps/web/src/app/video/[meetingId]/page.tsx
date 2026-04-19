@@ -76,7 +76,7 @@ export default function VideoCallPage() {
   if (loading || authLoading) {
     return (
       <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center p-4">
-        <Loader2 className="w-10 h-10 text-violet-500 animate-spin mb-4" />
+        <Loader2 className="w-10 h-10 text-brand animate-spin mb-4" />
         <p className="text-slate-400 font-medium">Preparing your session room...</p>
       </div>
     );

@@ -84,7 +84,7 @@ export default function MentorProfilePage() {
                         key={tab}
                         onClick={() => setActiveTab(tab)}
                         className={`px-4 py-2.5 text-sm font-medium border-b-2 -mb-px transition-colors ${activeTab === tab
-                                ? 'border-violet-500 text-violet-400'
+                                ? 'border-brand text-brand-light'
                                 : 'border-transparent text-slate-500 hover:text-slate-300'
                             }`}
                     >
@@ -96,7 +96,7 @@ export default function MentorProfilePage() {
             {/* Tab content */}
             {loading ? (
                 <div className="flex justify-center py-12">
-                    <div className="w-8 h-8 border-4 border-violet-500 border-t-transparent rounded-full animate-spin" />
+                    <div className="w-8 h-8 border-4 border-brand border-t-transparent rounded-full animate-spin" />
                 </div>
             ) : (
                 <div className="bg-slate-900 rounded-2xl border border-slate-800 p-6">

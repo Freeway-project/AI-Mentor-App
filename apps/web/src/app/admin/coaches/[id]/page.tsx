@@ -107,7 +107,7 @@ export default function MentorReviewPage() {
     if (isLoading) {
         return (
             <div className="flex items-center justify-center h-full py-32">
-                <div className="w-8 h-8 border-4 border-violet-600 border-t-transparent rounded-full animate-spin" />
+                <div className="w-8 h-8 border-4 border-brand border-t-transparent rounded-full animate-spin" />
             </div>
         );
     }
@@ -116,7 +116,7 @@ export default function MentorReviewPage() {
         return (
             <div className="p-4 sm:p-6 lg:p-8 text-center text-slate-500">
                 <p>Mentor not found or could not be loaded.</p>
-                <Link href="/admin/coaches" className="text-violet-600 hover:underline text-sm mt-2 inline-block">← Back to Coaches</Link>
+                <Link href="/admin/coaches" className="text-brand hover:underline text-sm mt-2 inline-block">← Back to Coaches</Link>
             </div>
         );
     }
@@ -259,7 +259,7 @@ export default function MentorReviewPage() {
 
             {/* Submitted but not yet in published state warning */}
             {mentor.onboardingStep !== 'published' && (
-                <div className="bg-violet-50 border border-violet-200 rounded-xl p-3 text-sm text-violet-900">
+                <div className="bg-brand/5 border border-brand-lighter rounded-xl p-3 text-sm text-brand">
                     ℹ️ This mentor is still completing onboarding (step: <strong>{mentor.onboardingStep}</strong>) and has not yet submitted for review.
                 </div>
             )}
@@ -273,12 +273,12 @@ export default function MentorReviewPage() {
                             type="button"
                             onClick={() => setActiveReviewStep(step.key)}
                             className={`inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-medium transition-colors ${activeReviewStep === step.key
-                                ? 'border-violet-300 bg-violet-50 text-violet-800'
+                                ? 'border-brand-light bg-brand/5 text-brand'
                                 : 'border-slate-200 bg-slate-50 text-slate-600 hover:bg-slate-100'
                                 }`}
                         >
                             <span className={`inline-flex h-5 w-5 items-center justify-center rounded-full border text-[10px] ${activeReviewStep === step.key
-                                ? 'bg-white border-violet-300 text-violet-600'
+                                ? 'bg-white border-brand-light text-brand'
                                 : 'bg-white border-slate-200 text-slate-500'
                                 }`}>
                                 {idx + 1}
@@ -432,7 +432,7 @@ export default function MentorReviewPage() {
                                                     href={cert.fileUrl}
                                                     target="_blank"
                                                     rel="noreferrer"
-                                                    className="text-violet-600 hover:underline text-xs shrink-0 font-medium"
+                                                    className="text-brand hover:underline text-xs shrink-0 font-medium"
                                                 >
                                                     View ↗
                                                 </a>

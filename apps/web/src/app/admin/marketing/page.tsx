@@ -222,7 +222,7 @@ export default function MarketingPage() {
                                     {run.status === 'running' && (
                                         <div className="mt-3 h-1.5 bg-slate-100 rounded-full overflow-hidden">
                                             <div
-                                                className="h-full bg-violet-500 rounded-full transition-all"
+                                                className="h-full bg-brand rounded-full transition-all"
                                                 style={{ width: `${Math.round(((run.sent + run.failed) / run.total) * 100)}%` }}
                                             />
                                         </div>

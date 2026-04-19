@@ -75,7 +75,7 @@ export function AvailabilityStep({ profile, onComplete }: AvailabilityStepProps)
     }
   };
 
-  const inputCls = 'w-full px-3 py-2.5 border border-slate-700/60 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500/50 bg-slate-800/60 text-white placeholder:text-slate-500 text-sm';
+  const inputCls = 'w-full px-3 py-2.5 border border-slate-700/60 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand/50 bg-slate-800/60 text-white placeholder:text-slate-500 text-sm';
   const labelCls = 'block text-xs font-semibold text-slate-400 mb-1.5 uppercase tracking-wider';
   const hintCls = 'text-xs text-slate-600 mt-1';
 
@@ -113,7 +113,7 @@ export function AvailabilityStep({ profile, onComplete }: AvailabilityStepProps)
             {slots.map((slot, i) => (
               <div key={i} className="flex items-center justify-between p-3.5 bg-slate-800/40 border border-slate-700/50 rounded-xl">
                 <div className="flex items-center gap-3">
-                  <span className="text-xs font-bold text-violet-400 w-24">{DAYS[slot.dayOfWeek]}</span>
+                  <span className="text-xs font-bold text-brand-light w-24">{DAYS[slot.dayOfWeek]}</span>
                   <span className="text-sm text-slate-300">{slot.startTime} – {slot.endTime}</span>
                 </div>
                 <button
@@ -229,7 +229,7 @@ export function AvailabilityStep({ profile, onComplete }: AvailabilityStepProps)
         <Button
           onClick={handleSubmit}
           disabled={loading || slots.length === 0}
-          className="bg-violet-600 hover:bg-violet-700 text-white"
+          className="bg-brand hover:bg-brand text-white"
         >
           {loading ? 'Saving…' : 'Save & Continue →'}
         </Button>

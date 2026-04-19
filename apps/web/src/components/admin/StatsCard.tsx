@@ -9,7 +9,7 @@ interface StatsCardProps {
 }
 
 const colorMap = {
-  violet: { bg: 'bg-violet-50', icon: 'text-violet-600', value: 'text-violet-900' },
+  violet: { bg: 'bg-brand/5', icon: 'text-brand', value: 'text-brand' },
   green: { bg: 'bg-green-50', icon: 'text-green-600', value: 'text-green-900' },
   amber: { bg: 'bg-amber-50', icon: 'text-amber-600', value: 'text-amber-900' },
   purple: { bg: 'bg-purple-50', icon: 'text-purple-600', value: 'text-purple-900' },

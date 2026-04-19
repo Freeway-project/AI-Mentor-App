@@ -101,7 +101,7 @@ export default function AdminDashboard() {
             Last 30 days: {usage?.overview.totalCalls ?? 0} calls, {usage?.overview.totalTokens ?? 0} tokens, {usage?.overview.failureCount ?? 0} failures.
           </p>
         </div>
-        <Link href="/admin/service-usage" className="text-sm font-medium text-violet-600 hover:underline self-start">
+        <Link href="/admin/service-usage" className="text-sm font-medium text-brand hover:underline self-start">
           Open usage dashboard
         </Link>
       </div>
@@ -126,7 +126,7 @@ export default function AdminDashboard() {
         <div className="px-5 py-4 border-b border-slate-200 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <h2 className="font-semibold text-slate-900">Pending Coach Approvals</h2>
           {(pending?.total ?? 0) > 5 && (
-            <Link href="/admin/coaches" className="text-sm text-violet-600 hover:underline">
+            <Link href="/admin/coaches" className="text-sm text-brand hover:underline">
               View all {pending?.total}
             </Link>
           )}

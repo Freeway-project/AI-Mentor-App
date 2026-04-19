@@ -66,7 +66,7 @@ export function CalendarSelector() {
                 type="checkbox"
                 checked={selectedIds.includes(cal.id)}
                 onChange={() => toggleCalendar(cal.id)}
-                className="w-4 h-4 rounded accent-violet-500"
+                className="w-4 h-4 rounded accent-brand"
               />
               <span className="text-sm text-slate-300 group-hover:text-white transition-colors">
                 {cal.summary}
@@ -83,7 +83,7 @@ export function CalendarSelector() {
         <select
           value={writeCalendarId}
           onChange={e => setWriteCalendarId(e.target.value)}
-          className="w-full bg-slate-800 border border-slate-700 text-slate-200 text-sm rounded-lg px-3 py-2 focus:outline-none focus:border-violet-500"
+          className="w-full bg-slate-800 border border-slate-700 text-slate-200 text-sm rounded-lg px-3 py-2 focus:outline-none focus:border-brand"
         >
           {calendars.map(cal => (
             <option key={cal.id} value={cal.id}>
@@ -97,7 +97,7 @@ export function CalendarSelector() {
       <button
         onClick={handleSave}
         disabled={saving}
-        className="px-4 py-2 text-sm bg-violet-600 hover:bg-violet-500 text-white rounded-lg transition-colors font-medium disabled:opacity-50"
+        className="px-4 py-2 text-sm bg-brand hover:bg-brand text-white rounded-lg transition-colors font-medium disabled:opacity-50"
       >
         {saving ? 'Saving...' : 'Save calendar settings'}
       </button>

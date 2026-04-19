@@ -89,7 +89,7 @@ function MenteeLoginForm() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-violet-50 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-brand/5 flex items-center justify-center p-4">
         <div className="w-full max-w-md">
           {/* Logo */}
         <div className="mb-8 flex items-center justify-center">
@@ -111,7 +111,7 @@ function MenteeLoginForm() {
                 value={form.email}
                 onChange={set('email')}
                 placeholder="you@example.com"
-                className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-violet-300 text-slate-900 bg-white placeholder:text-slate-400"
+                className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-light text-slate-900 bg-white placeholder:text-slate-400"
               />
             </div>
             <div>
@@ -122,12 +122,12 @@ function MenteeLoginForm() {
                 value={form.password}
                 onChange={set('password')}
                 placeholder="Your password"
-                className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-violet-300 text-slate-900 bg-white placeholder:text-slate-400"
+                className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-light text-slate-900 bg-white placeholder:text-slate-400"
               />
             </div>
 
             <div className="flex justify-end">
-              <Link href="/forgot-password" className="text-sm text-violet-600 hover:underline">
+              <Link href="/forgot-password" className="text-sm text-brand hover:underline">
                 Forgot password?
               </Link>
             </div>
@@ -168,14 +168,14 @@ function MenteeLoginForm() {
 
           <p className="text-center text-sm text-slate-500">
             Don&apos;t have an account?{' '}
-            <Link href="/register" className="text-violet-600 font-medium hover:underline">
+            <Link href="/register" className="text-brand font-medium hover:underline">
               Sign up free
             </Link>
           </p>
 
           <p className="text-center text-sm text-slate-500">
             Are you a coach?{' '}
-            <Link href="/login" className="text-violet-600 font-medium hover:underline">
+            <Link href="/login" className="text-brand font-medium hover:underline">
               Coach login
             </Link>
           </p>

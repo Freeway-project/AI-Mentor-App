@@ -50,9 +50,9 @@ export function PremadeTemplates({ onSelect, loading }: PremadeTemplatesProps) {
                     key={t.name}
                     onClick={() => onSelect(t)}
                     disabled={loading}
-                    className="w-full text-left px-4 py-3 bg-white border border-slate-200 rounded-xl hover:border-violet-400 hover:shadow-sm transition-all group disabled:opacity-50 disabled:cursor-wait"
+                    className="w-full text-left px-4 py-3 bg-white border border-slate-200 rounded-xl hover:border-brand-light hover:shadow-sm transition-all group disabled:opacity-50 disabled:cursor-wait"
                 >
-                    <p className="text-sm font-semibold text-slate-800 group-hover:text-violet-700 transition-colors">{t.name}</p>
+                    <p className="text-sm font-semibold text-slate-800 group-hover:text-brand transition-colors">{t.name}</p>
                     <p className="text-xs text-slate-400 mt-0.5 truncate">{t.subject}</p>
                 </button>
             ))}

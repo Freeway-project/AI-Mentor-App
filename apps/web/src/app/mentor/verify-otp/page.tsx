@@ -61,7 +61,7 @@ function OtpInput({ onComplete }: { onComplete: (code: string) => void }) {
           value={d}
           onChange={(e) => handleChange(i, e.target.value)}
           onKeyDown={(e) => handleKeyDown(i, e)}
-          className="w-12 h-12 text-center text-xl font-bold border-2 border-slate-300 rounded-lg focus:outline-none focus:border-violet-500 focus:ring-2 focus:ring-violet-200 text-slate-900 bg-white"
+          className="w-12 h-12 text-center text-xl font-bold border-2 border-slate-300 rounded-lg focus:outline-none focus:border-brand focus:ring-2 focus:ring-brand-lighter text-slate-900 bg-white"
         />
       ))}
     </div>
@@ -134,8 +134,8 @@ export default function VerifyOtpPage() {
       <div className="flex-1 overflow-y-auto flex items-center justify-center bg-slate-50 px-4">
         <div className="w-full max-w-md space-y-8">
           <div className="text-center">
-            <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-violet-100 mb-4">
-              <Mail className="w-6 h-6 text-violet-600" />
+            <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-brand/10 mb-4">
+              <Mail className="w-6 h-6 text-brand" />
             </div>
             <h1 className="text-2xl font-bold text-slate-900">Verify your email</h1>
             <p className="mt-2 text-slate-600 text-sm">
@@ -145,8 +145,8 @@ export default function VerifyOtpPage() {
 
           {/* Step indicator */}
           <div className="flex items-center justify-center gap-2">
-            <div className="flex items-center gap-1.5 text-sm text-violet-600 font-medium">
-              <span className="w-5 h-5 rounded-full flex items-center justify-center text-xs bg-violet-600 text-white">2</span>
+            <div className="flex items-center gap-1.5 text-sm text-brand font-medium">
+              <span className="w-5 h-5 rounded-full flex items-center justify-center text-xs bg-brand text-white">2</span>
               Verify email
             </div>
             <span className="w-8 h-px bg-slate-300" />
@@ -174,7 +174,7 @@ export default function VerifyOtpPage() {
                   <button
                     type="button"
                     onClick={handleResend}
-                    className="text-violet-600 hover:underline font-medium"
+                    className="text-brand hover:underline font-medium"
                   >
                     Resend
                   </button>

@@ -139,7 +139,7 @@ function VerifyOtpContent() {
             {/* Background elements */}
             <div className="absolute inset-0 pointer-events-none">
                 <div className="absolute inset-0 opacity-[0.1]" style={{ backgroundImage: 'radial-gradient(circle, #475569 1px, transparent 1px)', backgroundSize: '32px 32px' }} />
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full bg-violet-600/5 blur-[120px]" />
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full bg-brand/5 blur-[120px]" />
             </div>
 
             <Navbar />
@@ -180,7 +180,7 @@ function VerifyOtpContent() {
                                     onChange={(e) => handleChange(index, e.target.value)}
                                     onKeyDown={(e) => handleKeyDown(index, e)}
                                     onPaste={handlePaste}
-                                    className="w-10 h-12 sm:w-12 sm:h-14 text-center text-xl font-semibold border border-slate-700/50 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500/50 bg-slate-950/50 text-white transition-colors"
+                                    className="w-10 h-12 sm:w-12 sm:h-14 text-center text-xl font-semibold border border-slate-700/50 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand/50 bg-slate-950/50 text-white transition-colors"
                                     autoFocus={index === 0}
                                 />
                             ))}
@@ -188,7 +188,7 @@ function VerifyOtpContent() {
 
                         <Button
                             type="submit"
-                            className="w-full h-12 text-base font-medium bg-violet-600 hover:bg-violet-500 text-white"
+                            className="w-full h-12 text-base font-medium bg-brand hover:bg-brand text-white"
                             disabled={loading || otp.join('').length !== 6}
                         >
                             {loading ? 'Verifying...' : 'Verify Email'}
@@ -202,7 +202,7 @@ function VerifyOtpContent() {
                                 type="button"
                                 onClick={handleResend}
                                 disabled={resending}
-                                className="text-violet-400 hover:text-violet-300 hover:underline font-medium disabled:opacity-50 transition-colors"
+                                className="text-brand-light hover:text-brand-light hover:underline font-medium disabled:opacity-50 transition-colors"
                             >
                                 {resending ? 'Sending...' : 'Click to resend'}
                             </button>

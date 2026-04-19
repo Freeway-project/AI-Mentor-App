@@ -85,7 +85,7 @@ export function Navbar() {
                             <Button variant="ghost" className="text-slate-600 hover:text-slate-900" asChild>
                                 <Link href="/login">Log in</Link>
                             </Button>
-                            <Button className="bg-brand text-white font-bold shadow-[0_0_15px_rgba(124,58,237,0.25)] transition-all hover:bg-brand-light hover:shadow-[0_0_20px_rgba(124,58,237,0.4)]" asChild>
+                            <Button className="bg-brand text-white font-bold shadow-[0_0_15px_rgba(160, 120, 48,0.25)] transition-all hover:bg-brand-light hover:shadow-[0_0_20px_rgba(160, 120, 48,0.4)]" asChild>
                                 <Link href="/register">Find a Mentor</Link>
                             </Button>
                         </>
