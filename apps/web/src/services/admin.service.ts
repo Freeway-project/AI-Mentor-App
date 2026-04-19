@@ -28,6 +28,7 @@ export interface CreateCoachResult {
 
 export interface MentorExtractedFields {
   name: string;
+  email: string;
   headline: string;
   bio: string;
   specialties: string[];

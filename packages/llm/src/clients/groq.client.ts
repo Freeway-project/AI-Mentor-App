@@ -4,7 +4,7 @@ import { logger } from '@owl-mentors/utils';
 
 export class GroqClient extends BaseLLMClient {
   constructor(apiKey: string) {
-    super(apiKey, 'https://api.groq.com/openai/v1', 'mixtral-8x7b-32768');
+    super(apiKey, 'https://api.groq.com/openai/v1', 'llama-3.3-70b-versatile');
   }
 
   async chat(messages: LLMMessage[], options?: LLMChatOptions): Promise<LLMResponse> {

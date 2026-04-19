@@ -27,7 +27,7 @@ export class MentorProfileExtractorService {
   }
 
   private async callWithFallback(messages: LLMMessage[]): Promise<LLMResponse> {
-    const opts = { maxTokens: 800, temperature: 0.2 };
+    const opts = { maxTokens: 1400, temperature: 0.2 };
     const metadata = { feature: FEATURE, messageCount: messages.length, maxTokens: opts.maxTokens };
 
     if (this.groq) {
@@ -106,8 +106,10 @@ export class MentorProfileExtractorService {
       new RegExp(skill.replace('.', '\\.'), 'i').test(rawText)
     );
 
+    const emailMatch = rawText.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/);
     return {
       name: lines[0]?.slice(0, 100) || '',
+      email: emailMatch?.[0] || '',
       headline: lines[1]?.slice(0, 120) || '',
       bio: lines.slice(0, 3).join(' ').slice(0, 400) || '',
       specialties: detectedSkills.slice(0, 3),
@@ -129,10 +131,11 @@ export class MentorProfileExtractorService {
 
       return {
         name: typeof raw.name === 'string' ? raw.name : '',
+        email: typeof raw.email === 'string' ? raw.email.trim() : '',
         headline: typeof raw.headline === 'string' ? raw.headline.slice(0, 120) : '',
         bio: typeof raw.bio === 'string' ? raw.bio.slice(0, 1000) : '',
-        specialties: Array.isArray(raw.specialties) ? raw.specialties.slice(0, 5) : [],
-        expertise: Array.isArray(raw.expertise) ? raw.expertise.slice(0, 10) : [],
+        specialties: Array.isArray(raw.specialties) ? raw.specialties.slice(0, 6) : [],
+        expertise: Array.isArray(raw.expertise) ? raw.expertise.slice(0, 12) : [],
         languages: Array.isArray(raw.languages) && raw.languages.length > 0 ? raw.languages : ['English'],
         certificationNames: Array.isArray(raw.certificationNames) ? raw.certificationNames : [],
       };

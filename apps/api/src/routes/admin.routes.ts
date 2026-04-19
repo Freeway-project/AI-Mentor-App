@@ -650,6 +650,23 @@ router.post('/coaches', async (req: Request, res: Response, next: NextFunction) 
       createdBy: req.userId,
     });
 
+    // Auto-create default policy and session offer so the profile is bookable
+    await Promise.all([
+      getPolicyRepo().upsert(mentor.id, {
+        cancellationHours: 24,
+        rescheduleHours: 24,
+        noShowPolicy: 'No refund for no-shows',
+      }),
+      getOfferRepo().create(mentor.id, {
+        title: '1:1 Mentoring Session',
+        description: 'A one-on-one session with the mentor.',
+        durationMinutes: 60,
+        price: hourlyRate ? Number(hourlyRate) : 100,
+        currency: 'USD',
+        isActive: true,
+      }),
+    ]);
+
     const user = await getUserRepo().findById(userId);
 
     logger.info(`[Admin] Created mentor profile ${mentor.id} for user ${userId} (existingUser=${isExistingUser})`);
