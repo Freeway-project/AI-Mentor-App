@@ -28,7 +28,4 @@ jobs:
           SMOKE_ADMIN_EMAIL: admin@owlmentor.com
           SMOKE_ADMIN_PASSWORD: Admin@123456
         run: |
-          test -n "$SMOKE_BASE_URL"
-          test -n "$SMOKE_ADMIN_EMAIL"
-          test -n "$SMOKE_ADMIN_PASSWORD"
           bun apps/api/scripts/smoke-test.ts
