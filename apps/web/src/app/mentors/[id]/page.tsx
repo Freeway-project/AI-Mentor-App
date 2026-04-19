@@ -3,12 +3,12 @@ import nextDynamic from 'next/dynamic';
 import { notFound } from 'next/navigation';
 import { Navbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
-import { AppPageShell, AppPanel, appTheme } from '@/components/ui/app-theme';
 import { MentorProfileBanner } from '@/components/mentor-profile/profile-banner';
 import { MentorProfileVideo } from '@/components/mentor-profile/profile-video';
 import { MentorProfileSections } from '@/components/mentor-profile/profile-sections';
 import { MentorProfileStructuredData } from '@/components/mentor-profile/profile-structured-data';
 import { getMentorProfilePageData, buildMentorMetadata } from '@/lib/public-mentor';
+import { ED } from '@/components/mentor-profile/editorial-theme';
 
 export const dynamic = 'force-dynamic';
 
@@ -18,20 +18,23 @@ const MentorProfileBookingPanel = nextDynamic(
       (module) => module.MentorProfileBookingPanel
     ),
   {
-    loading: () => {
-      return (
-        <AppPanel className="sticky top-24 p-5">
-          <div className="space-y-4 animate-pulse">
-            <div className="h-4 w-28 rounded bg-slate-200" />
-            <div className="h-8 w-48 rounded bg-slate-200" />
-            <div className="h-16 rounded-2xl bg-slate-100" />
-            <div className="h-16 rounded-2xl bg-slate-100" />
-            <div className="h-16 rounded-2xl bg-slate-100" />
-            <div className="h-40 rounded-2xl bg-slate-100" />
-          </div>
-        </AppPanel>
-      );
-    },
+    loading: () => (
+      <div
+        style={{
+          background: ED.card,
+          border: `1px solid ${ED.rule}`,
+          padding: 28,
+          position: 'sticky',
+          top: 24,
+        }}
+      >
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 12, opacity: 0.4 }}>
+          {[28, 8, 44, 120, 60].map((h, i) => (
+            <div key={i} style={{ height: h, background: ED.rule }} />
+          ))}
+        </div>
+      </div>
+    ),
   }
 );
 
@@ -59,35 +62,50 @@ export default async function MentorProfilePage({ params }: PageProps) {
     const { mentor, offers } = await getMentorProfilePageData(id);
 
     return (
-      <AppPageShell>
+      <div style={{ minHeight: '100vh', background: ED.cream, color: ED.ink }}>
         <MentorProfileStructuredData mentor={mentor} offers={offers} />
         <Navbar />
 
-        <main className={appTheme.content}>
-          <div className="container mx-auto space-y-6 px-4 py-8 md:px-6 md:py-12">
+        <main>
+          <div
+            style={{
+              maxWidth: 1280,
+              margin: '0 auto',
+              padding: '0 clamp(20px, 4vw, 48px)',
+            }}
+          >
+            {/* Editorial hero */}
             <MentorProfileBanner mentor={mentor} offers={offers} />
 
-            <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr),23rem] xl:grid-cols-[minmax(0,1fr),25rem]">
-              <div className="space-y-6">
+            {/* Two-column: sections + sticky booking rail */}
+            <div
+              className="mentor-profile-grid"
+              style={{ padding: '56px 0 120px' }}
+            >
+              <div style={{ minWidth: 0 }}>
                 {mentor.introVideoUrl ? (
-                  <MentorProfileVideo mentorName={mentor.name} videoUrl={mentor.introVideoUrl} />
+                  <div style={{ marginBottom: 64 }}>
+                    <MentorProfileVideo mentorName={mentor.name} videoUrl={mentor.introVideoUrl} />
+                  </div>
                 ) : null}
-                <MentorProfileSections mentor={mentor} />
+                <MentorProfileSections mentor={mentor} offers={offers} />
               </div>
 
-              <MentorProfileBookingPanel
-                mentorId={mentor.id}
-                mentorName={mentor.name}
-                offers={offers}
-                hourlyRate={mentor.hourlyRate}
-                introVideoUrl={mentor.introVideoUrl}
-              />
+              <aside>
+                <MentorProfileBookingPanel
+                  mentorId={mentor.id}
+                  mentorName={mentor.name}
+                  offers={offers}
+                  hourlyRate={mentor.hourlyRate}
+                  introVideoUrl={mentor.introVideoUrl}
+                />
+              </aside>
             </div>
           </div>
         </main>
 
         <Footer />
-      </AppPageShell>
+      </div>
     );
   } catch {
     notFound();

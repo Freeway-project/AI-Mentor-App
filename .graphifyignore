@@ -1,0 +1,13 @@
+.git/
+node_modules/
+.pnp/
+.pnp.js
+.bun/
+dist/
+build/
+.next/
+out/
+coverage/
+.nyc_output/
+.turbo/
+graphify-out/

@@ -2,6 +2,8 @@
 @tailwind components;
 @tailwind utilities;
 
+@import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
+
 /* ─── Design Tokens (CSS custom properties) ──────────────────────────────────
    These mirror the values in tailwind.config.ts so non-Tailwind code (inline
    styles, third-party components, etc.) can stay on-brand.
@@ -9,19 +11,19 @@
    ─────────────────────────────────────────────────────────────────────────── */
 :root {
   /* Brand accent — use Tailwind slash notation in classes: bg-brand/10, ring-brand/50 */
-  --color-brand:        #7c3aed; /* = brand.DEFAULT in tailwind.config.ts */
-  --color-brand-light:  #8b5cf6; /* = brand.light */
-  --color-brand-lighter:#a78bfa; /* = brand.lighter */
+  --color-brand:        #A07830; /* = brand.DEFAULT in tailwind.config.ts */
+  --color-brand-light:  #B8923C; /* = brand.light */
+  --color-brand-lighter:#C9A85A; /* = brand.lighter */
 
   /* Surface / page backgrounds */
   --color-surface:      #ffffff;
-  --color-surface-deep: #f8fafc;
+  --color-surface-deep: #faf8f4;
 
-  /* Shared page gradient — used on the landing page hero */
-  --gradient-page: linear-gradient(145deg, #f8fafc 0%, #f1f5f9 25%, #f5f3ff 65%, #faf5ff 100%);
+  /* Shared page gradient — warm cream/gold, no purple */
+  --gradient-page: linear-gradient(145deg, #faf8f4 0%, #f5f0e8 25%, #fdf6e8 65%, #faf8f0 100%);
 
-  /* Auth-specific light gradient — used on login, register, verify pages */
-  --gradient-auth: linear-gradient(135deg, #f8fafc 0%, #ede9fe 30%, #f1f5f9 60%, #f8fafc 100%);
+  /* Auth-specific warm gradient */
+  --gradient-auth: linear-gradient(135deg, #faf8f4 0%, #f5edd8 30%, #faf5eb 60%, #faf8f4 100%);
 
   color-scheme: light;
 }
@@ -36,10 +38,38 @@ html {
 }
 
 body {
-  color: #0f172a;
+  color: #1c1208;
   background: var(--color-surface-deep);
 }
 
 #__next {
   min-height: 100%;
+}
+
+/* Mentor profile editorial layout */
+.mentor-profile-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 380px;
+  gap: 64px;
+}
+
+@media (max-width: 900px) {
+  .mentor-profile-grid {
+    grid-template-columns: 1fr;
+    gap: 40px;
+  }
+}
+
+/* Mentor hero portrait grid */
+.mentor-hero-grid {
+  display: grid;
+  grid-template-columns: clamp(120px, 18%, 280px) 1fr;
+  gap: clamp(20px, 4vw, 64px);
+  align-items: start;
+}
+
+@media (max-width: 600px) {
+  .mentor-hero-grid {
+    grid-template-columns: 1fr;
+  }
 }
