@@ -2,9 +2,11 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { Rocket, LayoutDashboard, User, Calendar, Settings, LogOut, Clock, CalendarCheck, FileUp, X } from 'lucide-react';
+import { LayoutDashboard, User, Calendar, Settings, LogOut, Clock, CalendarCheck, FileUp, X, ChevronDown } from 'lucide-react';
+import { BrandLogo } from '@/components/brand/brand-logo';
 import { useAuth } from '@/lib/auth-context';
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { apiClient } from '@/lib/api-client';
 
 const NAV = [
@@ -19,11 +21,19 @@ interface MentorSidebarProps {
     approvalStatus?: 'pending' | 'approved' | 'rejected' | string;
 }
 
+type MentorSidebarProfile = {
+    id: string;
+    name: string;
+    headline?: string;
+};
+
 const statusConfig = {
     pending: { label: 'Under Review', classes: 'bg-amber-100 text-amber-700 border-amber-200' },
-    approved: { label: 'Approved', classes: 'bg-purple-100 text-purple-700 border-purple-200' },
+    approved: { label: 'Approved', classes: 'bg-amber-100 text-amber-700 border-amber-200' },
     rejected: { label: 'Rejected', classes: 'bg-red-100 text-red-700 border-red-200' },
 };
+
+const PROFILE_KEY = 'active_mentor_profile_id';
 
 export function MentorSidebar({ approvalStatus }: MentorSidebarProps) {
     const pathname = usePathname();
@@ -34,6 +44,32 @@ export function MentorSidebar({ approvalStatus }: MentorSidebarProps) {
     const [uploading, setUploading] = useState(false);
     const [uploadStatus, setUploadStatus] = useState<'idle' | 'success' | 'error'>('idle');
     const fileInputRef = useRef<HTMLInputElement>(null);
+    const [showProfileSwitch, setShowProfileSwitch] = useState(false);
+    const [activeProfileId, setActiveProfileId] = useState<string | null>(null);
+
+    const { data: profiles = [] } = useQuery<MentorSidebarProfile[]>({
+        queryKey: ['mentor-profiles'],
+        queryFn: async () => {
+            const profile = await apiClient.getMyMentorProfile();
+            return profile ? [profile as MentorSidebarProfile] : [];
+        },
+        enabled: !!user,
+    });
+
+    useEffect(() => {
+        const stored = localStorage.getItem(PROFILE_KEY);
+        if (stored) setActiveProfileId(stored);
+    }, []);
+
+    function switchProfile(id: string) {
+        localStorage.setItem(PROFILE_KEY, id);
+        setActiveProfileId(id);
+        setShowProfileSwitch(false);
+        router.refresh();
+    }
+
+    const multiProfile = profiles.length > 1;
+    const activeProfile = profiles?.find(p => p.id === activeProfileId) ?? profiles?.[0];
 
     const handleUpload = async () => {
         if (!resumeFile) return;
@@ -70,10 +106,10 @@ export function MentorSidebar({ approvalStatus }: MentorSidebarProps) {
             {/* Logo */}
             <div className="px-5 py-5 border-b border-white/10">
                 <Link href="/" className="flex items-center gap-2.5">
-                    <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-violet-500 to-purple-500 flex items-center justify-center">
-                        <Rocket className="w-4 h-4 text-white" />
-                    </div>
-                    <span className="text-lg font-bold tracking-tight">OWL Mentor</span>
+                    <BrandLogo
+                        markClassName="h-9 w-9"
+                        wordmarkClassName="text-xs tracking-[0.24em]"
+                    />
                 </Link>
                 <p className="mt-1 text-xs text-slate-400 pl-0.5">Mentor Portal</p>
             </div>
@@ -87,7 +123,7 @@ export function MentorSidebar({ approvalStatus }: MentorSidebarProps) {
                             key={href}
                             href={href}
                             className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${isActive
-                                ? 'bg-gradient-to-r from-violet-600 to-purple-600 text-white shadow-md shadow-violet-900/40'
+                                ? 'bg-gradient-to-r from-amber-700 to-amber-600 text-white shadow-md shadow-amber-900/40'
                                 : 'text-slate-400 hover:text-white hover:bg-white/8'
                                 }`}
                         >
@@ -100,6 +136,34 @@ export function MentorSidebar({ approvalStatus }: MentorSidebarProps) {
 
             {/* Bottom */}
             <div className="px-3 py-4 border-t border-white/10 space-y-3">
+                {/* Profile switcher (shown when user has multiple mentor profiles) */}
+                {multiProfile && (
+                    <div className="relative">
+                        <button
+                            onClick={() => setShowProfileSwitch(v => !v)}
+                            className="w-full flex items-center justify-between gap-2 px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-xs text-slate-300 hover:bg-white/10 transition-colors"
+                        >
+                            <span className="truncate">{activeProfile?.name ?? 'Select Profile'}</span>
+                            <ChevronDown className="w-3.5 h-3.5 shrink-0 text-slate-400" />
+                        </button>
+                        {showProfileSwitch && (
+                            <div className="absolute bottom-full left-0 right-0 mb-1 bg-slate-800 border border-white/10 rounded-lg shadow-xl overflow-hidden z-50">
+                                <p className="px-3 py-2 text-xs text-slate-500 border-b border-white/10">Switch profile</p>
+                                {profiles?.map(p => (
+                                    <button
+                                        key={p.id}
+                                        onClick={() => switchProfile(p.id)}
+                                        className={`w-full text-left px-3 py-2 text-xs transition-colors ${p.id === (activeProfileId ?? profiles[0]?.id) ? 'bg-amber-700 text-white' : 'text-slate-300 hover:bg-white/10'}`}
+                                    >
+                                        <span className="block font-medium truncate">{p.name}</span>
+                                        {p.headline && <span className="block text-slate-400 truncate">{p.headline}</span>}
+                                    </button>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+                )}
+
                 {/* Approval status pill */}
                 {statusInfo && (
                     <div className={`flex items-center gap-2 px-3 py-2 rounded-lg border text-xs font-medium ${statusInfo.classes}`}>
@@ -110,7 +174,7 @@ export function MentorSidebar({ approvalStatus }: MentorSidebarProps) {
 
                 {/* User info */}
                 <div className="flex items-center gap-3 px-2">
-                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-violet-500 to-purple-500 flex items-center justify-center text-xs font-bold shrink-0">
+                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-amber-600 to-amber-700 flex items-center justify-center text-xs font-bold shrink-0">
                         {user?.name?.charAt(0)?.toUpperCase() || 'M'}
                     </div>
                     <div className="min-w-0">
@@ -121,7 +185,7 @@ export function MentorSidebar({ approvalStatus }: MentorSidebarProps) {
 
                 <button
                     onClick={handleToggle}
-                    className="w-full flex items-center gap-3 px-3 py-2 rounded-lg border border-violet-500/20 bg-violet-500/10 text-sm text-violet-300 transition-colors hover:bg-violet-500/20"
+                    className="w-full flex items-center gap-3 px-3 py-2 rounded-lg border border-amber-500/20 bg-amber-500/10 text-sm text-amber-300 transition-colors hover:bg-amber-500/20"
                 >
                     <FileUp className="w-4 h-4" />
                     Upload Resume
@@ -143,12 +207,12 @@ export function MentorSidebar({ approvalStatus }: MentorSidebarProps) {
                                 setResumeFile(e.target.files?.[0] ?? null);
                                 setUploadStatus('idle');
                             }}
-                            className="w-full text-xs text-slate-400 file:mr-2 file:rounded file:border-0 file:bg-violet-600 file:px-2 file:py-1 file:text-xs file:text-white file:cursor-pointer"
+                            className="w-full text-xs text-slate-400 file:mr-2 file:rounded file:border-0 file:bg-amber-700 file:px-2 file:py-1 file:text-xs file:text-white file:cursor-pointer"
                         />
                         <button
                             onClick={handleUpload}
                             disabled={uploading || !resumeFile}
-                            className="w-full rounded bg-violet-600 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-violet-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="w-full rounded bg-amber-700 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-amber-800 disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                             {uploading ? 'Uploading…' : 'Upload'}
                         </button>

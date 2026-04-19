@@ -3,9 +3,10 @@
 import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Rocket, Mail } from 'lucide-react';
+import { Mail } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
+import { BrandLogoImage } from '@/components/brand/brand-logo';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 
@@ -133,9 +134,8 @@ export default function MenteeVerifyOtpPage() {
         <div className="min-h-screen bg-gradient-to-br from-slate-50 to-violet-50 flex items-center justify-center p-4">
             <div className="w-full max-w-md">
                 {/* Logo */}
-                <div className="flex items-center justify-center gap-2 mb-8">
-                    <Rocket className="h-7 w-7 text-violet-600" />
-                    <span className="text-2xl font-bold tracking-tight text-slate-900">OWL Mentor</span>
+                <div className="mb-8 flex items-center justify-center">
+                    <BrandLogoImage className="h-40 w-40" />
                 </div>
 
                 <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-8 space-y-6">

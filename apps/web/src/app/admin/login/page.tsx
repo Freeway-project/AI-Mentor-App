@@ -5,10 +5,10 @@ import { useRouter } from 'next/navigation';
 import { apiClient } from '@/lib/api-client';
 import { useAuth } from '@/lib/auth-context';
 import { useDispatch } from 'react-redux';
-import { login as reduxLogin } from '@/store/slices/auth.slice';
+import { setUser, setToken } from '@/store/slices/auth.slice';
 import type { AppDispatch } from '@/store';
 import { toast } from 'sonner';
-import { Shield } from 'lucide-react';
+import { BrandLogoImage } from '@/components/brand/brand-logo';
 
 export default function AdminLoginPage() {
     const router = useRouter();
@@ -56,8 +56,8 @@ export default function AdminLoginPage() {
             <div className="w-full max-w-sm space-y-8">
                 {/* Logo */}
                 <div className="text-center space-y-3">
-                    <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-br from-violet-600 to-violet-600 shadow-lg shadow-violet-900/40">
-                        <Shield className="w-7 h-7 text-white" />
+                    <div className="flex justify-center">
+                        <BrandLogoImage className="h-36 w-36" />
                     </div>
                     <div>
                         <h1 className="text-2xl font-bold text-white">Admin Portal</h1>

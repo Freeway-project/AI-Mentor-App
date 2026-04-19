@@ -1,18 +1,17 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect, useCallback } from 'react';
 import nextDynamic from 'next/dynamic';
-import { CalendarDays, Clock3, PlayCircle } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Check } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth-context';
-import { SlotPicker } from '@/components/booking/SlotPicker';
-import { AppPanel, AppSectionLabel } from '@/components/ui/app-theme';
-import { cn } from '@/lib/utils';
+import { apiClient } from '@/lib/api-client';
 import { toast } from 'sonner';
+import { ed, ED } from './editorial-theme';
 import type { MentorOffer } from './types';
 
 const BookingModal = nextDynamic(
-  () => import('@/components/booking/BookingModal').then((module) => module.BookingModal),
+  () => import('@/components/booking/BookingModal').then((m) => m.BookingModal),
   { ssr: false }
 );
 
@@ -20,6 +19,355 @@ interface Slot {
   start: string;
   end: string;
 }
+
+// ─── Helpers ───────────────────────────────────────────────────────────────
+
+function toISO(d: Date) {
+  return d.toISOString().slice(0, 10);
+}
+
+function pad(n: number) {
+  return String(n).padStart(2, '0');
+}
+
+function formatTime(iso: string) {
+  return new Date(iso).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+}
+
+function monthStart(year: number, month: number) {
+  return new Date(year, month, 1);
+}
+
+// ─── Editorial Calendar ─────────────────────────────────────────────────────
+
+function EditorialCalendar({
+  slotsByDate,
+  selectedDate,
+  onSelectDate,
+  loading,
+  monthCursor,
+  onMonthChange,
+}: {
+  slotsByDate: Record<string, Slot[]>;
+  selectedDate: string | null;
+  onSelectDate: (iso: string) => void;
+  loading: boolean;
+  monthCursor: { year: number; month: number };
+  onMonthChange: (delta: number) => void;
+}) {
+  const { year, month } = monthCursor;
+  const mStart = monthStart(year, month);
+  const mEnd = new Date(year, month + 1, 0);
+  const leadBlanks = (mStart.getDay() + 6) % 7; // Monday-start
+  const daysInMonth = mEnd.getDate();
+  const todayISO = toISO(new Date());
+
+  const cells: (Date | null)[] = [];
+  for (let i = 0; i < leadBlanks; i++) cells.push(null);
+  for (let d = 1; d <= daysInMonth; d++) cells.push(new Date(year, month, d));
+  while (cells.length % 7 !== 0) cells.push(null);
+
+  const monthLabel = mStart.toLocaleDateString('en-GB', { month: 'long', year: 'numeric' });
+
+  return (
+    <div>
+      {/* Month nav */}
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          marginBottom: 14,
+        }}
+      >
+        <button
+          onClick={() => onMonthChange(-1)}
+          style={{
+            width: 32,
+            height: 32,
+            border: `1px solid ${ED.rule}`,
+            background: 'transparent',
+            cursor: 'pointer',
+            color: ED.ink,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          <ChevronLeft size={14} />
+        </button>
+        <div style={ed.serif(24, ED.ink, { letterSpacing: -0.3 })}>{monthLabel}</div>
+        <button
+          onClick={() => onMonthChange(1)}
+          style={{
+            width: 32,
+            height: 32,
+            border: `1px solid ${ED.rule}`,
+            background: 'transparent',
+            cursor: 'pointer',
+            color: ED.ink,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          <ChevronRight size={14} />
+        </button>
+      </div>
+
+      {/* Weekday header */}
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(7, 1fr)',
+          fontFamily: '"JetBrains Mono", ui-monospace, monospace',
+          fontSize: 10,
+          color: ED.inkMuted,
+          letterSpacing: '0.15em',
+          textAlign: 'center',
+          paddingBottom: 8,
+          borderBottom: `1px solid ${ED.rule}`,
+          marginBottom: 8,
+          textTransform: 'uppercase',
+        }}
+      >
+        {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((d) => (
+          <div key={d}>{d}</div>
+        ))}
+      </div>
+
+      {/* Date grid */}
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(7, 1fr)',
+          rowGap: 4,
+          opacity: loading ? 0.5 : 1,
+          transition: 'opacity 150ms',
+        }}
+      >
+        {cells.map((d, i) => {
+          if (!d) return <div key={i} style={{ height: 38 }} />;
+          const iso = toISO(d);
+          const slots = slotsByDate[iso] || [];
+          const isPast = iso < todayISO;
+          const isAvailable = !isPast && slots.length > 0;
+          const isSelected = selectedDate === iso;
+
+          let bg = 'transparent';
+          let fg = isPast ? ED.rule : ED.ink;
+          let border = '1px solid transparent';
+          if (isAvailable && !isSelected) {
+            bg = ED.accentTint;
+            fg = ED.accentDeep;
+          }
+          if (isSelected) {
+            bg = ED.ink;
+            fg = ED.cream;
+          }
+
+          return (
+            <div key={i} style={{ display: 'flex', justifyContent: 'center' }}>
+              <button
+                disabled={!isAvailable}
+                onClick={() => onSelectDate(iso)}
+                style={{
+                  width: 38,
+                  height: 38,
+                  background: bg,
+                  color: fg,
+                  border,
+                  cursor: isAvailable ? 'pointer' : 'default',
+                  fontFamily: '"Instrument Serif", serif',
+                  fontSize: 18,
+                  letterSpacing: -0.3,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  padding: 0,
+                  position: 'relative',
+                  transition: 'all 100ms ease',
+                }}
+              >
+                {d.getDate()}
+                {isAvailable && !isSelected && (
+                  <span
+                    style={{
+                      position: 'absolute',
+                      bottom: 3,
+                      left: '50%',
+                      transform: 'translateX(-50%)',
+                      width: 3,
+                      height: 3,
+                      borderRadius: '50%',
+                      background: ED.accent,
+                    }}
+                  />
+                )}
+              </button>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Legend */}
+      <div
+        style={{
+          display: 'flex',
+          gap: 18,
+          marginTop: 14,
+          paddingTop: 10,
+          borderTop: `1px solid ${ED.rule}`,
+          fontFamily: '"JetBrains Mono", ui-monospace, monospace',
+          fontSize: 10,
+          color: ED.inkMuted,
+          letterSpacing: '0.08em',
+          textTransform: 'uppercase',
+        }}
+      >
+        <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+          <span style={{ width: 10, height: 10, background: ED.accentTint, border: `1px solid ${ED.rule}` }} />
+          Available
+        </span>
+        <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+          <span style={{ width: 10, height: 10, background: ED.ink }} />
+          Selected
+        </span>
+      </div>
+    </div>
+  );
+}
+
+// ─── Time slots ─────────────────────────────────────────────────────────────
+
+function TimeSlots({
+  date,
+  slots,
+  selectedSlot,
+  onSelectSlot,
+  timezone,
+}: {
+  date: string | null;
+  slots: Slot[];
+  selectedSlot: Slot | null;
+  onSelectSlot: (slot: Slot) => void;
+  timezone?: string;
+}) {
+  if (!date) {
+    return (
+      <p
+        style={{
+          fontFamily: 'Inter, sans-serif',
+          fontSize: 13,
+          color: ED.inkMuted,
+          fontStyle: 'italic',
+          margin: '16px 0 0',
+        }}
+      >
+        Pick a date above to see available times.
+      </p>
+    );
+  }
+
+  if (slots.length === 0) {
+    return (
+      <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, color: ED.inkMuted, margin: '16px 0 0' }}>
+        No times on this day. Try another.
+      </p>
+    );
+  }
+
+  const niceDate = new Date(date + 'T00:00:00').toLocaleDateString('en-GB', {
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long',
+  });
+
+  return (
+    <div style={{ marginTop: 16 }}>
+      <div style={ed.mono(10, ED.inkMuted, { marginBottom: 10 })}>
+        {niceDate}{timezone ? ` · ${timezone.replace(/_/g, ' ')}` : ''}
+      </div>
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fill, minmax(80px, 1fr))',
+          gap: 8,
+        }}
+      >
+        {slots.map((slot) => {
+          const active = selectedSlot?.start === slot.start;
+          return (
+            <button
+              key={slot.start}
+              onClick={() => onSelectSlot(slot)}
+              style={{
+                padding: '11px 8px',
+                background: active ? ED.ink : ED.card,
+                color: active ? ED.cream : ED.ink,
+                border: `1px solid ${active ? ED.ink : ED.rule}`,
+                cursor: 'pointer',
+                fontFamily: '"JetBrains Mono", ui-monospace, monospace',
+                fontSize: 13,
+                letterSpacing: '0.04em',
+                transition: 'all 100ms ease',
+              }}
+            >
+              {formatTime(slot.start)}
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+// ─── Confirm row ─────────────────────────────────────────────────────────────
+
+function ConfirmRow({
+  label,
+  value,
+  emphasis,
+}: {
+  label: string;
+  value: string;
+  emphasis?: boolean;
+}) {
+  return (
+    <div
+      style={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'baseline',
+        gap: 12,
+        paddingBottom: 10,
+        borderBottom: `1px solid ${ED.rule}`,
+      }}
+    >
+      <span style={ed.mono(10, ED.inkMuted)}>{label}</span>
+      <span
+        style={{
+          fontFamily: emphasis ? '"Instrument Serif", serif' : 'Inter, sans-serif',
+          fontSize: emphasis ? 22 : 14,
+          color: ED.ink,
+          textAlign: 'right',
+        }}
+      >
+        {value}
+      </span>
+    </div>
+  );
+}
+
+// ─── Main panel ──────────────────────────────────────────────────────────────
+
+type Step = 'date' | 'service' | 'confirm' | 'done';
+
+const STEPS: { key: Step; label: string }[] = [
+  { key: 'date', label: 'Date & time' },
+  { key: 'service', label: 'Session type' },
+  { key: 'confirm', label: 'Confirm' },
+];
 
 export function MentorProfileBookingPanel({
   mentorId,
@@ -36,16 +384,67 @@ export function MentorProfileBookingPanel({
 }) {
   const router = useRouter();
   const { user } = useAuth();
-  const [selectedOfferId, setSelectedOfferId] = useState<string>(offers[0]?.id || '');
+
+  const [step, setStep] = useState<Step>('date');
+  const [monthCursor, setMonthCursor] = useState(() => {
+    const now = new Date();
+    return { year: now.getFullYear(), month: now.getMonth() };
+  });
+  const [slotsByDate, setSlotsByDate] = useState<Record<string, Slot[]>>({});
+  const [loadingSlots, setLoadingSlots] = useState(false);
+  const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [selectedSlot, setSelectedSlot] = useState<Slot | null>(null);
+  const [selectedOfferId, setSelectedOfferId] = useState(offers[0]?.id || '');
   const [showModal, setShowModal] = useState(false);
 
   const selectedOffer = useMemo(
-    () => offers.find((offer) => offer.id === selectedOfferId) ?? offers[0] ?? null,
+    () => offers.find((o) => o.id === selectedOfferId) ?? offers[0] ?? null,
     [offers, selectedOfferId]
   );
 
   const durationMin = selectedOffer?.durationMinutes ?? 30;
+
+  // Fetch slots for the visible month range
+  const fetchMonthSlots = useCallback(
+    async (year: number, month: number) => {
+      const from = `${year}-${pad(month + 1)}-01`;
+      const lastDay = new Date(year, month + 1, 0).getDate();
+      const to = `${year}-${pad(month + 1)}-${pad(lastDay)}`;
+
+      setLoadingSlots(true);
+      try {
+        const data = await apiClient.getAvailableSlots(mentorId, from, to, durationMin);
+        const grouped: Record<string, Slot[]> = {};
+        for (const slot of data.slots as Slot[]) {
+          const day = slot.start.slice(0, 10);
+          if (!grouped[day]) grouped[day] = [];
+          grouped[day].push(slot);
+        }
+        setSlotsByDate((prev) => ({ ...prev, ...grouped }));
+      } catch {
+        // Silently fail; calendar will show no available dates
+      } finally {
+        setLoadingSlots(false);
+      }
+    },
+    [mentorId, durationMin]
+  );
+
+  useEffect(() => {
+    fetchMonthSlots(monthCursor.year, monthCursor.month);
+  }, [monthCursor, fetchMonthSlots]);
+
+  const handleMonthChange = (delta: number) => {
+    setMonthCursor((prev) => {
+      const d = new Date(prev.year, prev.month + delta, 1);
+      return { year: d.getFullYear(), month: d.getMonth() };
+    });
+  };
+
+  const handleDateSelect = (iso: string) => {
+    setSelectedDate(iso);
+    setSelectedSlot(null);
+  };
 
   const handleSlotSelect = (slot: Slot) => {
     if (!user) {
@@ -53,131 +452,303 @@ export function MentorProfileBookingPanel({
       router.push(`/login?redirect=/mentors/${mentorId}`);
       return;
     }
-
     setSelectedSlot(slot);
-    setShowModal(true);
   };
+
+  const stepIdx = STEPS.findIndex((s) => s.key === step);
+  const canAdvanceDate = selectedDate && selectedSlot;
+
+  const dateSlotsForSelected = selectedDate ? (slotsByDate[selectedDate] || []) : [];
 
   return (
     <>
-      <AppPanel id="booking-panel" className="sticky top-24 overflow-hidden p-5">
-        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-brand/20 to-transparent" />
-
-        <div className="relative z-10 space-y-5">
-          <div>
-            <AppSectionLabel>Book This Mentor</AppSectionLabel>
-            <h2 className="mt-3 text-2xl font-semibold text-slate-900">Start with the right session</h2>
-            <p className="mt-2 text-sm leading-6 text-slate-500">
-              Pick an offer, check live availability, and confirm a time without leaving the page.
-            </p>
+      <div
+        id="booking-panel"
+        style={{
+          background: ED.card,
+          border: `1px solid ${ED.rule}`,
+          padding: 28,
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 20,
+          position: 'sticky',
+          top: 24,
+        }}
+      >
+        {/* Header */}
+        <div>
+          <div style={ed.mono(10, ED.inkMuted)}>
+            Booking · Step {step === 'done' ? '✓' : `${stepIdx + 1}/3`}
           </div>
-
-          {introVideoUrl ? (
-            <a
-              href="#intro-video"
-              className="inline-flex items-center gap-2 rounded-full border border-brand/20 bg-brand/10 px-3 py-1.5 text-xs font-medium text-brand transition-colors hover:bg-brand/20"
-            >
-              <PlayCircle className="h-3.5 w-3.5" />
-              Watch intro video first
-            </a>
-          ) : null}
-
-          {offers.length > 0 ? (
-            <div className="space-y-3">
-              <AppSectionLabel>Session Type</AppSectionLabel>
-              {offers.map((offer) => {
-                const active = offer.id === selectedOffer?.id;
-                return (
-                  <button
-                    key={offer.id}
-                    type="button"
-                    onClick={() => {
-                      setSelectedOfferId(offer.id);
-                      setSelectedSlot(null);
-                    }}
-                    className={cn(
-                      'w-full rounded-2xl border px-4 py-4 text-left transition-all',
-                      active
-                        ? 'border-brand/50 bg-brand/10 shadow-[0_0_0_1px_rgba(124,58,237,0.12)]'
-                        : 'border-slate-200 bg-white hover:border-slate-300'
-                    )}
-                  >
-                    <div className="flex items-start justify-between gap-4">
-                      <div>
-                        <p className="text-sm font-semibold text-slate-900">{offer.title}</p>
-                        {offer.description ? (
-                          <p className="mt-1 text-xs leading-5 text-slate-500">
-                            {offer.description}
-                          </p>
-                        ) : null}
-                      </div>
-                      <div className="text-right">
-                        <p className="text-base font-bold text-slate-900">${offer.price}</p>
-                        <p className="mt-1 text-xs text-slate-500">{offer.durationMinutes} min</p>
-                      </div>
-                    </div>
-                  </button>
-                );
-              })}
-            </div>
-          ) : (
-            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-              <p className="text-sm text-slate-700">Custom session pricing available</p>
-              <p className="mt-1 text-xs text-slate-500">
-                Pricing will be based on the mentor&apos;s default rate.
-              </p>
-            </div>
-          )}
-
-          <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-            <div className="flex items-start gap-3">
-              <CalendarDays className="mt-0.5 h-4 w-4 text-brand" />
-              <div>
-                <p className="text-sm font-medium text-slate-900">Selected session</p>
-                <p className="mt-1 text-sm text-slate-500">
-                  {selectedOffer ? selectedOffer.title : 'Mentoring Session'}
-                </p>
-                <p className="mt-1 text-xs text-slate-500">
-                  {selectedOffer ? `$${selectedOffer.price}` : hourlyRate ? `From $${hourlyRate}` : 'Custom pricing'} · {durationMin} min
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <div className="space-y-3 border-t border-slate-200 pt-5">
-            <AppSectionLabel>Pick a Time</AppSectionLabel>
-            <SlotPicker
-              mentorId={mentorId}
-              durationMin={durationMin}
-              onSlotSelect={handleSlotSelect}
-            />
-
-            {!selectedSlot ? (
-              <div className="rounded-2xl border border-dashed border-slate-300 px-4 py-3 text-center text-xs text-slate-500">
-                Select a slot above to continue to secure checkout.
-              </div>
-            ) : (
-              <div className="rounded-2xl border border-brand/20 bg-brand/10 px-4 py-3">
-                <div className="flex items-start gap-3">
-                  <Clock3 className="mt-0.5 h-4 w-4 text-brand" />
-                  <div>
-                    <p className="text-sm font-medium text-slate-900">Selected slot</p>
-                    <p className="mt-1 text-xs leading-5 text-slate-600">
-                      {new Date(selectedSlot.start).toLocaleString([], {
-                        weekday: 'short',
-                        month: 'short',
-                        day: 'numeric',
-                        hour: '2-digit',
-                        minute: '2-digit',
-                      })}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
+          <h3 style={ed.serif(28, ED.ink, { margin: '4px 0 0', letterSpacing: -0.3 })}>
+            {step === 'date' && 'Pick a time'}
+            {step === 'service' && 'Pick a format'}
+            {step === 'confirm' && 'One last look'}
+            {step === 'done' && "You're booked."}
+          </h3>
         </div>
-      </AppPanel>
+
+        {/* Progress bar */}
+        {step !== 'done' && (
+          <div style={{ display: 'flex', gap: 6 }}>
+            {STEPS.map((s, i) => (
+              <div
+                key={s.key}
+                style={{
+                  flex: 1,
+                  height: 3,
+                  background: i <= stepIdx ? ED.ink : ED.rule,
+                  transition: 'background 200ms ease',
+                }}
+              />
+            ))}
+          </div>
+        )}
+
+        {/* Step: date + time */}
+        {step === 'date' && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+            <EditorialCalendar
+              slotsByDate={slotsByDate}
+              selectedDate={selectedDate}
+              onSelectDate={handleDateSelect}
+              loading={loadingSlots}
+              monthCursor={monthCursor}
+              onMonthChange={handleMonthChange}
+            />
+            <TimeSlots
+              date={selectedDate}
+              slots={dateSlotsForSelected}
+              selectedSlot={selectedSlot}
+              onSelectSlot={handleSlotSelect}
+            />
+          </div>
+        )}
+
+        {/* Step: service selection */}
+        {step === 'service' && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+            {offers.map((offer) => {
+              const active = offer.id === selectedOfferId;
+              return (
+                <label
+                  key={offer.id}
+                  style={{
+                    display: 'grid',
+                    gridTemplateColumns: '20px 1fr auto',
+                    gap: 14,
+                    alignItems: 'start',
+                    padding: 16,
+                    cursor: 'pointer',
+                    background: active ? ED.cream : 'transparent',
+                    border: `1px solid ${active ? ED.ink : ED.rule}`,
+                    transition: 'all 100ms ease',
+                  }}
+                >
+                  <input
+                    type="radio"
+                    name="svc"
+                    checked={active}
+                    onChange={() => setSelectedOfferId(offer.id)}
+                    style={{ accentColor: ED.ink, marginTop: 3 }}
+                  />
+                  <div>
+                    <div style={ed.serif(20, ED.ink, { lineHeight: 1.1 })}>{offer.title}</div>
+                    <div style={ed.mono(10, ED.inkMuted, { marginTop: 2 })}>
+                      {offer.durationMinutes} min
+                    </div>
+                    {offer.description && (
+                      <div
+                        style={{
+                          fontFamily: 'Inter, sans-serif',
+                          fontSize: 12.5,
+                          color: ED.inkSoft,
+                          marginTop: 6,
+                          lineHeight: 1.5,
+                        }}
+                      >
+                        {offer.description}
+                      </div>
+                    )}
+                  </div>
+                  <div style={ed.serif(20, offer.price === 0 ? ED.accent : ED.ink)}>
+                    {offer.price === 0 ? 'Free' : `$${offer.price}`}
+                  </div>
+                </label>
+              );
+            })}
+          </div>
+        )}
+
+        {/* Step: confirm */}
+        {step === 'confirm' && selectedSlot && selectedOffer && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+            <ConfirmRow label="With" value={mentorName} />
+            <ConfirmRow
+              label="Format"
+              value={`${selectedOffer.title} · ${selectedOffer.durationMinutes} min`}
+            />
+            <ConfirmRow
+              label="Date"
+              value={new Date(selectedSlot.start).toLocaleDateString('en-GB', {
+                weekday: 'long',
+                day: 'numeric',
+                month: 'long',
+                year: 'numeric',
+              })}
+            />
+            <ConfirmRow
+              label="Time"
+              value={formatTime(selectedSlot.start)}
+            />
+            <ConfirmRow
+              label="Total"
+              value={selectedOffer.price === 0 ? 'Free' : `$${selectedOffer.price}`}
+              emphasis
+            />
+            <div
+              style={{
+                padding: 14,
+                background: ED.creamDeep,
+                fontFamily: 'Inter, sans-serif',
+                fontSize: 12.5,
+                color: ED.inkSoft,
+                lineHeight: 1.5,
+              }}
+            >
+              You&apos;ll get a calendar invite and a video link by email within a few minutes.
+              Cancel or reschedule up to 24 hours before — no charge.
+            </div>
+          </div>
+        )}
+
+        {/* Done state */}
+        {step === 'done' && selectedSlot && selectedOffer && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+            <div
+              style={{
+                padding: 20,
+                border: `1px solid ${ED.ink}`,
+                background: ED.cream,
+              }}
+            >
+              <Check size={22} color={ED.accent} strokeWidth={1.6} />
+              <div style={ed.serif(26, ED.ink, { marginTop: 10, lineHeight: 1.15 })}>
+                Confirmation sent.
+              </div>
+              <div
+                style={{
+                  fontFamily: 'Inter, sans-serif',
+                  fontSize: 13,
+                  color: ED.inkSoft,
+                  marginTop: 6,
+                  lineHeight: 1.5,
+                }}
+              >
+                {selectedOffer.title} with {mentorName.split(' ')[0]} —{' '}
+                {new Date(selectedSlot.start).toLocaleDateString('en-GB', {
+                  weekday: 'short',
+                  day: 'numeric',
+                  month: 'short',
+                })}{' '}
+                at {formatTime(selectedSlot.start)}.
+              </div>
+            </div>
+            <button
+              onClick={() => {
+                setStep('date');
+                setSelectedDate(null);
+                setSelectedSlot(null);
+              }}
+              style={{
+                padding: '12px 22px',
+                background: 'transparent',
+                border: `1px solid ${ED.ink}`,
+                color: ED.ink,
+                cursor: 'pointer',
+                fontFamily: 'Inter, sans-serif',
+                fontSize: 14,
+                fontWeight: 500,
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 8,
+              }}
+            >
+              Book another →
+            </button>
+          </div>
+        )}
+
+        {/* Footer actions */}
+        {step !== 'done' && (
+          <div
+            style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              gap: 12,
+              paddingTop: 16,
+              borderTop: `1px solid ${ED.rule}`,
+            }}
+          >
+            <button
+              onClick={() => {
+                if (step === 'service') setStep('date');
+                else if (step === 'confirm') setStep('service');
+              }}
+              disabled={step === 'date'}
+              style={{
+                background: 'transparent',
+                border: 'none',
+                cursor: step === 'date' ? 'default' : 'pointer',
+                color: step === 'date' ? ED.rule : ED.ink,
+                fontFamily: 'Inter, sans-serif',
+                fontSize: 13,
+                padding: 0,
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 6,
+              }}
+            >
+              ← Back
+            </button>
+
+            <button
+              disabled={
+                (step === 'date' && !canAdvanceDate) ||
+                (step === 'service' && !selectedOfferId)
+              }
+              onClick={() => {
+                if (step === 'date') setStep('service');
+                else if (step === 'service') setStep('confirm');
+                else if (step === 'confirm') setShowModal(true);
+              }}
+              style={{
+                padding: '12px 22px',
+                background: ED.ink,
+                color: ED.cream,
+                border: 'none',
+                cursor:
+                  (step === 'date' && !canAdvanceDate) || (step === 'service' && !selectedOfferId)
+                    ? 'not-allowed'
+                    : 'pointer',
+                opacity:
+                  (step === 'date' && !canAdvanceDate) || (step === 'service' && !selectedOfferId)
+                    ? 0.4
+                    : 1,
+                fontFamily: 'Inter, sans-serif',
+                fontSize: 14,
+                fontWeight: 500,
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 8,
+                transition: 'opacity 150ms',
+              }}
+            >
+              {step === 'confirm' ? 'Confirm booking →' : 'Continue →'}
+            </button>
+          </div>
+        )}
+      </div>
 
       {showModal && selectedSlot ? (
         <BookingModal
@@ -186,11 +757,11 @@ export function MentorProfileBookingPanel({
           offer={selectedOffer}
           hourlyRate={hourlyRate}
           slot={selectedSlot}
-          onClose={() => {
+          onClose={() => setShowModal(false)}
+          onSuccess={() => {
             setShowModal(false);
-            setSelectedSlot(null);
+            setStep('done');
           }}
-          onSuccess={() => setShowModal(false)}
         />
       ) : null}
     </>
@@ -199,15 +770,31 @@ export function MentorProfileBookingPanel({
 
 export function MentorProfileBookingPanelFallback() {
   return (
-    <AppPanel className="sticky top-24 p-5">
-      <div className="space-y-4 animate-pulse">
-        <div className="h-4 w-28 rounded bg-slate-200" />
-        <div className="h-8 w-48 rounded bg-slate-200" />
-        <div className="h-16 rounded-2xl bg-slate-100" />
-        <div className="h-16 rounded-2xl bg-slate-100" />
-        <div className="h-16 rounded-2xl bg-slate-100" />
-        <div className="h-40 rounded-2xl bg-slate-100" />
+    <div
+      style={{
+        background: ED.card,
+        border: `1px solid ${ED.rule}`,
+        padding: 28,
+        position: 'sticky',
+        top: 24,
+      }}
+    >
+      <div
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 12,
+          opacity: 0.5,
+          animation: 'pulse 2s infinite',
+        }}
+      >
+        {[28, 48, 60, 120, 80].map((h, i) => (
+          <div
+            key={i}
+            style={{ height: h, background: ED.rule, borderRadius: 2 }}
+          />
+        ))}
       </div>
-    </AppPanel>
+    </div>
   );
 }

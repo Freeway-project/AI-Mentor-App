@@ -5,11 +5,12 @@ import nextDynamic from 'next/dynamic';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { useDispatch } from 'react-redux';
-import { login } from '@/store/slices/auth.slice';
+import { setUser, setToken } from '@/store/slices/auth.slice';
 import { useAuth } from '@/lib/auth-context';
 import { apiClient } from '@/lib/api-client';
 import { toast } from 'sonner';
 import type { AppDispatch } from '@/store';
+import { BrandLogo, BrandLogoImage } from '@/components/brand/brand-logo';
 
 const GoogleAuthButton = nextDynamic(
   () => import('@/components/auth/google-auth-button').then((module) => module.GoogleAuthButton),
@@ -34,12 +35,14 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      const result = await dispatch(login({ email, password })).unwrap();
-      await ctxLogin(email, password);
+      const { user, token } = await ctxLogin(email, password);
+      // Sync Redux state without a second API call
+      dispatch(setUser(user as any));
+      dispatch(setToken(token));
 
-      if (result.user.roles.includes('admin')) {
+      if (user.roles.includes('admin')) {
         router.push('/admin');
-      } else if (result.user.roles.includes('mentor')) {
+      } else if (user.roles.includes('mentor')) {
         try {
           const profile = await apiClient.getMyMentorProfile();
           window.location.href = profile.onboardingStep !== 'completed' ? '/onboarding' : '/mentor/dashboard';
@@ -50,7 +53,7 @@ export default function LoginPage() {
         router.push(redirect || '/mentee/dashboard');
       }
     } catch (err: any) {
-      if (err?.code === 'EMAIL_NOT_VERIFIED' || err?.message?.includes('verify your email')) {
+      if (err?.code === 'EMAIL_NOT_VERIFIED') {
         toast.error('Please verify your email first. A new code has been sent to your inbox.');
         if (err?.data?.token) {
           localStorage.setItem('auth_token', err.data.token);
@@ -107,7 +110,7 @@ export default function LoginPage() {
         <div
           className="absolute inset-0 pointer-events-none"
           style={{
-            background: 'radial-gradient(ellipse 80% 60% at 50% 110%, rgba(124,58,237,0.1) 0%, transparent 70%)',
+            background: 'radial-gradient(ellipse 80% 60% at 50% 110%, rgba(160,120,48,0.10) 0%, transparent 70%)',
           }}
         />
         {/* Dot grid */}
@@ -122,12 +125,7 @@ export default function LoginPage() {
         {/* Logo */}
         <div className="relative z-10 p-8 lg:p-10">
           <Link href="/" className="inline-flex items-center gap-2 group">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-violet-500 to-brand flex items-center justify-center shadow-lg shadow-brand/20">
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                <path d="M8 2L14 5.5V10.5L8 14L2 10.5V5.5L8 2Z" fill="white" fillOpacity="0.9" />
-              </svg>
-            </div>
-            <span className="text-slate-900 font-bold text-lg tracking-tight group-hover:text-brand transition-colors">OWL Mentor</span>
+            <BrandLogoImage className="h-16 w-16" />
           </Link>
         </div>
 
@@ -140,7 +138,7 @@ export default function LoginPage() {
             </div>
             <h1 className="text-3xl xl:text-4xl font-bold text-slate-900 leading-tight tracking-tight">
               Grow faster with<br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-400 to-purple-300">
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-600 to-amber-400">
                 expert mentors
               </span>
             </h1>
@@ -155,7 +153,7 @@ export default function LoginPage() {
               &ldquo;Within 3 months of working with my mentor I landed a senior engineering role at a FAANG company.&rdquo;
             </p>
             <div className="flex items-center gap-3 mt-4">
-              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-violet-500 to-fuchsia-500 flex items-center justify-center text-white text-xs font-bold shadow-sm">
+              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-amber-600 to-amber-700 flex items-center justify-center text-white text-xs font-bold shadow-sm">
                 A
               </div>
               <div>
@@ -179,12 +177,7 @@ export default function LoginPage() {
         {/* Mobile logo */}
         <div className="lg:hidden p-6">
           <Link href="/" className="inline-flex items-center gap-2">
-            <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-brand to-purple-600 flex items-center justify-center shadow-sm">
-              <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
-                <path d="M8 2L14 5.5V10.5L8 14L2 10.5V5.5L8 2Z" fill="white" fillOpacity="0.9" />
-              </svg>
-            </div>
-            <span className="text-slate-900 font-bold tracking-tight">OWL Mentor</span>
+            <BrandLogoImage className="h-12 w-12" />
           </Link>
         </div>
 

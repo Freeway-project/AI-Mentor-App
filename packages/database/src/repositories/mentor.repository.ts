@@ -103,6 +103,60 @@ export class MentorRepository {
     }
   }
 
+  async createFull(data: {
+    userId: string;
+    name: string;
+    headline?: string;
+    bio?: string;
+    specialties?: string[];
+    expertise?: string[];
+    languages?: string[];
+    hourlyRate?: number;
+    approvalStatus?: 'pending' | 'approved' | 'rejected';
+    isActive?: boolean;
+    onboardingStep?: string;
+    createdBy?: string;
+  }): Promise<Mentor> {
+    const startTime = Date.now();
+    try {
+      const doc = await MentorModel.create({
+        userId: new mongoose.Types.ObjectId(data.userId),
+        name: data.name,
+        headline: data.headline,
+        bio: data.bio,
+        specialties: data.specialties ?? [],
+        expertise: data.expertise ?? [],
+        topicIds: [],
+        languages: data.languages ?? ['English'],
+        hourlyRate: data.hourlyRate,
+        totalMeetings: 0,
+        totalReviews: 0,
+        verified: false,
+        isActive: data.isActive ?? false,
+        onboardingStep: data.onboardingStep ?? 'basics',
+        approvalStatus: data.approvalStatus ?? 'pending',
+        createdBy: data.createdBy ? new mongoose.Types.ObjectId(data.createdBy) : undefined,
+      });
+      logger.db({ operation: 'insert', collection: 'providers', duration: Date.now() - startTime });
+      return toMentor(doc);
+    } catch (error) {
+      logger.db({ operation: 'insert', collection: 'providers', duration: Date.now() - startTime, error: (error as Error).message });
+      throw error;
+    }
+  }
+
+  async findManyByUserId(userId: string): Promise<Mentor[]> {
+    const startTime = Date.now();
+    try {
+      const docs = await MentorModel.find({ userId: new mongoose.Types.ObjectId(userId) }).sort({ createdAt: 1 });
+      logger.db({ operation: 'find', collection: 'providers', duration: Date.now() - startTime });
+      return docs.map(toMentor);
+    } catch (error) {
+      logger.db({ operation: 'find', collection: 'providers', duration: Date.now() - startTime, error: (error as Error).message });
+      throw error;
+    }
+  }
+
   async findByUserId(userId: string): Promise<Mentor | null> {
     const startTime = Date.now();
     try {

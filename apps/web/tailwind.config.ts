@@ -13,9 +13,9 @@ const config: Config = {
       // Use Tailwind's opacity modifier syntax: bg-brand/10, ring-brand/50, etc.
       colors: {
         brand: {
-          DEFAULT: '#7c3aed', // violet-600  — primary CTA, links
-          light:   '#8b5cf6', // violet-500  — hover state
-          lighter: '#a78bfa', // violet-400  — muted links
+          DEFAULT: '#A07830', // antique gold — primary CTA, links
+          light:   '#B8923C', // warm gold    — hover state
+          lighter: '#C9A85A', // pale gold    — muted links
         },
         // ─── Surface / panel backgrounds ─────────────────────────────────
         // Use slash-notation for opacity: bg-surface/50, bg-surface-deep/80
