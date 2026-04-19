@@ -127,9 +127,20 @@ export default function CoachesPage() {
 
   return (
     <div className="p-4 sm:p-6 lg:p-8 space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-slate-900">Coach Management</h1>
-        <p className="text-slate-500 text-sm mt-1">Review and approve coach applications</p>
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold text-slate-900">Coach Management</h1>
+          <p className="text-slate-500 text-sm mt-1">Review and approve coach applications</p>
+        </div>
+        <Link
+          href="/admin/coaches/create"
+          className="flex items-center gap-2 px-4 py-2.5 bg-violet-600 hover:bg-violet-700 text-white rounded-xl text-sm font-medium transition-colors whitespace-nowrap"
+        >
+          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+          </svg>
+          Create Mentor
+        </Link>
       </div>
 
       {/* Tabs */}

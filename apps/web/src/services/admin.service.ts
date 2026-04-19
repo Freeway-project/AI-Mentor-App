@@ -1,5 +1,41 @@
 import { apiFetch } from './api';
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+
+function getToken(): string | null {
+  if (typeof window === 'undefined') return null;
+  return localStorage.getItem('auth_token');
+}
+
+export interface CreateCoachInput {
+  email: string;
+  password?: string;
+  name: string;
+  headline?: string;
+  bio?: string;
+  specialties?: string[];
+  expertise?: string[];
+  languages?: string[];
+  hourlyRate?: number;
+}
+
+export interface CreateCoachResult {
+  mentor: AdminCoach & { id: string };
+  user: { id: string; email: string; name: string };
+  isExistingUser: boolean;
+  generatedPassword?: string;
+}
+
+export interface MentorExtractedFields {
+  name: string;
+  headline: string;
+  bio: string;
+  specialties: string[];
+  expertise: string[];
+  languages: string[];
+  certificationNames: string[];
+}
+
 export interface AdminStats {
   totalUsers: number;
   activeCoaches: number;
@@ -217,4 +253,28 @@ export const adminService = {
   getCampaignRun: (runId: string) => apiFetch<any>(`/admin/marketing/campaigns/${runId}`),
 
   listCampaignRuns: () => apiFetch<any[]>('/admin/marketing/campaigns'),
+
+  createCoach: (data: CreateCoachInput) =>
+    apiFetch<CreateCoachResult>('/admin/coaches', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
+
+  parseResumeForMentor: async (file: File): Promise<{ mentorFields: MentorExtractedFields }> => {
+    const formData = new FormData();
+    formData.append('resume', file);
+    const token = getToken();
+    const res = await fetch(`${API_URL}/api/admin/coaches/parse-resume`, {
+      method: 'POST',
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+      body: formData,
+    });
+    const json = await res.json();
+    if (!json.success) {
+      const err = new Error(json.error?.message || 'Resume parse failed') as any;
+      err.code = json.error?.code;
+      throw err;
+    }
+    return json.data;
+  },
 };

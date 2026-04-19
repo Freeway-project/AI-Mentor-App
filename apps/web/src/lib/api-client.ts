@@ -293,6 +293,10 @@ class ApiClient {
     return this.request<any>('/mentors/me');
   }
 
+  async getMyMentorProfiles() {
+    return this.request<any[]>('/mentors/me/profiles');
+  }
+
   async updateMyMentorProfile(data: any) {
     return this.request<any>('/mentors/me', {
       method: 'PUT',

@@ -1,4 +1,6 @@
 import { Router, Request, Response, NextFunction } from 'express';
+import bcrypt from 'bcryptjs';
+import crypto from 'crypto';
 import {
   UserRepository,
   MentorRepository,
@@ -13,6 +15,14 @@ import { ReviewMessageModel, toReviewMessage } from '../../../../packages/databa
 import { authenticate, authorize } from '../middleware/auth.middleware';
 import { AppError } from '../middleware/error.middleware';
 import { logger } from '@owl-mentors/utils';
+import { uploadResume } from '../middleware/upload.middleware';
+import { ResumeParserService } from '../services/resume-parser.service';
+import { MentorProfileExtractorService } from '../services/mentor-profile-extractor.service';
+
+let resumeParser: ResumeParserService;
+let mentorExtractor: MentorProfileExtractorService;
+function getResumeParser() { if (!resumeParser) resumeParser = new ResumeParserService(); return resumeParser; }
+function getMentorExtractor() { if (!mentorExtractor) mentorExtractor = new MentorProfileExtractorService(); return mentorExtractor; }
 
 const router: Router = Router();
 
@@ -570,6 +580,92 @@ router.get('/marketing/campaigns/:runId', async (req: Request, res: Response, ne
     if (!run) throw new AppError(404, 'NOT_FOUND', 'Campaign run not found');
     res.json({ success: true, data: toCR(run) });
   } catch (error) { next(error); }
+});
+
+// ─── Admin Mentor Creation ───────────────────────────────────────────────────
+
+// POST /admin/coaches/parse-resume
+router.post('/coaches/parse-resume', uploadResume.single('resume'), async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    if (!req.file) throw new AppError(400, 'MISSING_FILE', 'No resume file uploaded');
+
+    const rawText = await getResumeParser().extractText(req.file.buffer, req.file.mimetype);
+    const mentorFields = await getMentorExtractor().extractMentorFields(rawText);
+
+    res.json({ success: true, data: { mentorFields } });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// POST /admin/coaches
+router.post('/coaches', async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { email, password, name, headline, bio, specialties, expertise, languages, hourlyRate } = req.body;
+
+    if (!email || !name) throw new AppError(400, 'MISSING_FIELDS', 'email and name are required');
+
+    const normalizedEmail = email.toLowerCase().trim();
+
+    let existingUser = await getUserRepo().findByEmail(normalizedEmail);
+    let isExistingUser = false;
+    let generatedPassword: string | undefined;
+    let userId: string;
+
+    if (existingUser) {
+      isExistingUser = true;
+      userId = existingUser.id;
+      // Ensure mentor role is present
+      if (!existingUser.roles.includes('mentor')) {
+        await getUserRepo().addRole(userId, 'mentor');
+      }
+    } else {
+      // Generate password if not provided
+      const plainPassword = password || crypto.randomBytes(12).toString('hex');
+      if (!password) generatedPassword = plainPassword;
+
+      const hashedPassword = await bcrypt.hash(plainPassword, 10);
+      const newUser = await getUserRepo().create({
+        email: normalizedEmail,
+        password: hashedPassword,
+        name,
+        roles: ['mentor'],
+        emailVerified: true,
+      });
+      userId = newUser.id;
+    }
+
+    const mentor = await getMentorRepo().createFull({
+      userId,
+      name,
+      headline,
+      bio,
+      specialties: Array.isArray(specialties) ? specialties : [],
+      expertise: Array.isArray(expertise) ? expertise : [],
+      languages: Array.isArray(languages) && languages.length > 0 ? languages : ['English'],
+      hourlyRate: hourlyRate ? Number(hourlyRate) : undefined,
+      approvalStatus: 'approved',
+      isActive: true,
+      onboardingStep: 'published',
+      createdBy: req.userId,
+    });
+
+    const user = await getUserRepo().findById(userId);
+
+    logger.info(`[Admin] Created mentor profile ${mentor.id} for user ${userId} (existingUser=${isExistingUser})`);
+
+    res.status(201).json({
+      success: true,
+      data: {
+        mentor,
+        user: { id: user.id, email: user.email, name: user.name },
+        isExistingUser,
+        ...(generatedPassword ? { generatedPassword } : {}),
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
 });
 
 export default router;
