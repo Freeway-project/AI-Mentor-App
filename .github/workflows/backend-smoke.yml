@@ -25,7 +25,10 @@ jobs:
           SMOKE_BASE_URL: https://ladyfinger.ca/owl-api
           SMOKE_MODE: remote
           SMOKE_ALLOW_WRITES: false
-          SMOKE_ADMIN_EMAIL: admin@owlmentor.com
-          SMOKE_ADMIN_PASSWORD: Admin@123456
+          SMOKE_ADMIN_EMAIL: ${{ secrets.SMOKE_ADMIN_EMAIL }}
+          SMOKE_ADMIN_PASSWORD: ${{ secrets.SMOKE_ADMIN_PASSWORD }}
         run: |
+          test -n "$SMOKE_BASE_URL"
+          test -n "$SMOKE_ADMIN_EMAIL"
+          test -n "$SMOKE_ADMIN_PASSWORD"
           bun apps/api/scripts/smoke-test.ts
