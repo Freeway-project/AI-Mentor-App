@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { Suspense, useState } from 'react';
 import nextDynamic from 'next/dynamic';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
@@ -17,7 +17,7 @@ const GoogleAuthButton = nextDynamic(
   }
 );
 
-export default function MenteeLoginPage() {
+function MenteeLoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const redirect = searchParams.get('redirect');
@@ -176,5 +176,13 @@ export default function MenteeLoginPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function MenteeLoginPage() {
+  return (
+    <Suspense>
+      <MenteeLoginForm />
+    </Suspense>
   );
 }

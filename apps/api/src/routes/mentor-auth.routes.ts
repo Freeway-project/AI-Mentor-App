@@ -51,7 +51,9 @@ router.post('/register', authRateLimit, async (req: Request, res: Response, next
       if (existing.emailVerified) {
         throw new AppError(409, 'USER_EXISTS', 'An account with this email already exists');
       }
-      // Unverified — resend OTP and return fresh token
+      // Unverified — update password in case it changed, then resend OTP
+      const refreshedHash = await bcrypt.hash(password, 10);
+      await getUserRepo().updatePassword(existing.id, refreshedHash);
       const emailCode = await getOtpRepo().createOtp(existing.id, 'email', existing.email);
       await EmailService.sendOtp(existing.email, emailCode);
       const token = generateToken(existing.id, existing.email, existing.roles);

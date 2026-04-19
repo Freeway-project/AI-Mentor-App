@@ -11,6 +11,17 @@ interface ApiResponse<T = any> {
   };
 }
 
+export class ApiError extends Error {
+  code: string;
+  data?: any;
+  constructor(message: string, code: string, data?: any) {
+    super(message);
+    this.name = 'ApiError';
+    this.code = code;
+    this.data = data;
+  }
+}
+
 export interface MentorSearchQueryAnalysis {
   experienceLevel?: 'beginner' | 'intermediate' | 'advanced';
   focusTerms: string[];
@@ -159,6 +170,17 @@ class ApiClient {
     this.onUnauthorized = cb;
   }
 
+  private isPublicAuthRequest(endpoint: string): boolean {
+    return [
+      '/auth/login',
+      '/auth/register',
+      '/auth/google',
+      '/auth/forgot-password',
+      '/auth/reset-password',
+      '/mentor-auth/register',
+    ].includes(endpoint);
+  }
+
   private async request<T>(
     endpoint: string,
     options: RequestInit = {}
@@ -168,7 +190,9 @@ class ApiClient {
       ...options.headers as Record<string, string>,
     };
 
-    if (this.token) {
+    const shouldAttachToken = this.token && !this.isPublicAuthRequest(endpoint);
+
+    if (shouldAttachToken) {
       headers.Authorization = `Bearer ${this.token}`;
     }
 
@@ -177,16 +201,27 @@ class ApiClient {
       headers,
     });
 
-    if (response.status === 401) {
-      this.clearToken();
-      this.onUnauthorized?.();
-      throw new Error('Unauthorized');
-    }
-
     const data: ApiResponse<T> = await response.json();
 
+    if (response.status === 401) {
+      if (shouldAttachToken) {
+        this.clearToken();
+        this.onUnauthorized?.();
+      }
+
+      throw new ApiError(
+        data.error?.message || 'Unauthorized',
+        data.error?.code || 'UNAUTHORIZED',
+        data.data,
+      );
+    }
+
     if (!data.success) {
-      throw new Error(data.error?.message || 'Request failed');
+      throw new ApiError(
+        data.error?.message || 'Request failed',
+        data.error?.code || 'UNKNOWN_ERROR',
+        data.data,
+      );
     }
 
     return data.data as T;

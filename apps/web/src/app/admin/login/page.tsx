@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { apiClient } from '@/lib/api-client';
 import { useAuth } from '@/lib/auth-context';
 import { useDispatch } from 'react-redux';
 import { setUser, setToken } from '@/store/slices/auth.slice';
@@ -12,7 +11,7 @@ import { BrandLogoImage } from '@/components/brand/brand-logo';
 
 export default function AdminLoginPage() {
     const router = useRouter();
-    const { login: ctxLogin, user, loading } = useAuth();
+    const { login: ctxLogin, user, loading, logout } = useAuth();
     const dispatch = useDispatch<AppDispatch>();
     const [form, setForm] = useState({ email: '', password: '' });
     const [submitting, setSubmitting] = useState(false);
@@ -28,17 +27,17 @@ export default function AdminLoginPage() {
         e.preventDefault();
         setSubmitting(true);
         try {
-            // Update both Redux store and auth-context so a refresh isn't needed
-            const result = await dispatch(reduxLogin({ email: form.email, password: form.password })).unwrap();
+            const { user, token } = await ctxLogin(form.email, form.password);
 
-            if (!result.user?.roles?.includes('admin')) {
+            if (!user?.roles?.includes('admin')) {
+                logout();
                 toast.error('Access denied: admin account required');
-                apiClient.clearToken();
                 return;
             }
 
-            // Sync with Provider
-            await ctxLogin(form.email, form.password);
+            // Sync Redux state without a second API call
+            dispatch(setUser(user as any));
+            dispatch(setToken(token));
 
             toast.success('Welcome, admin!');
             router.push('/admin');
@@ -75,7 +74,7 @@ export default function AdminLoginPage() {
                             value={form.email}
                             onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
                             placeholder="admin@owlmentor.com"
-                            className="w-full px-3 py-2.5 bg-slate-800 border border-slate-700 rounded-lg text-sm text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent"
+                            className="w-full px-3 py-2.5 bg-slate-800 border border-slate-700 rounded-lg text-sm text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
                         />
                     </div>
                     <div>
@@ -86,13 +85,13 @@ export default function AdminLoginPage() {
                             value={form.password}
                             onChange={(e) => setForm((f) => ({ ...f, password: e.target.value }))}
                             placeholder="••••••••"
-                            className="w-full px-3 py-2.5 bg-slate-800 border border-slate-700 rounded-lg text-sm text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent"
+                            className="w-full px-3 py-2.5 bg-slate-800 border border-slate-700 rounded-lg text-sm text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
                         />
                     </div>
                     <button
                         type="submit"
                         disabled={submitting}
-                        className="w-full py-2.5 rounded-lg bg-gradient-to-r from-violet-600 to-violet-600 text-white text-sm font-semibold hover:opacity-90 transition-opacity disabled:opacity-50"
+                        className="w-full py-2.5 rounded-lg bg-amber-700 text-white text-sm font-semibold hover:bg-amber-800 transition-colors disabled:opacity-50"
                     >
                         {submitting ? 'Signing in...' : 'Sign in to Admin'}
                     </button>
