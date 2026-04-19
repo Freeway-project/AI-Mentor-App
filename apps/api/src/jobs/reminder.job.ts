@@ -39,7 +39,7 @@ async function sendDueReminders(): Promise<void> {
       const sharedParams = {
         meetingId: meeting._id.toString(),
         title: meeting.title,
-        scheduledAt: meeting.scheduledAt,
+        scheduledAt: meeting.scheduledAt ?? new Date(),
         durationMin: meeting.duration,
         dailyRoomUrl: meeting.dailyRoomUrl,
         meetUrl: meeting.meetingLink,
