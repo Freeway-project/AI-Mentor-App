@@ -10,6 +10,7 @@ export const meetingStatusEnum = z.enum([
   'rescheduled',
   'no_show',
   'refunded',
+  'request',
 ]);
 
 export const sessionDurationEnum = z.enum(['30', '60']);
@@ -20,9 +21,10 @@ export const meetingSchema = z.object({
   mentorId: z.string(),
   title: z.string().min(1).max(200),
   description: z.string().max(1000).optional(),
-  scheduledAt: z.date(),
+  scheduledAt: z.date().optional(),
   duration: z.number().int().positive(), // in minutes
   status: meetingStatusEnum,
+  requestMessage: z.string().max(2000).optional(),
   creditCost: z.number(), // 0.5 or 1.0
   offerId: z.string().optional(),
   paymentIntentId: z.string().optional(),

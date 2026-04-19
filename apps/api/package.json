@@ -10,6 +10,7 @@
     "clean": "rm -rf dist",
     "smoke": "bun scripts/smoke-test.ts",
     "seed:admin": "bun --env-file ../../.env src/scripts/seed-admin.ts",
+    "seed:mentees": "bun --env-file ../../.env src/scripts/seed-mentees.ts",
     "seed:mentors": "bun --env-file ../../.env src/scripts/seed-mentors.ts"
   },
   "dependencies": {

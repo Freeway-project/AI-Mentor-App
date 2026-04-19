@@ -873,4 +873,150 @@ export const EmailService = {
       logger.warn(`[MARKETING EMAIL FALLBACK] Could not send to ${to}: ${(err as Error).message}`);
     }
   },
+
+  async sendSessionRequestToMentor(params: {
+    mentorName: string;
+    mentorEmail: string;
+    menteeName: string;
+    menteeEmail: string;
+    message: string;
+    dashboardUrl: string;
+  }): Promise<void> {
+    const fromName = process.env.SMTP_FROM_NAME || 'OWL Mentor';
+    const fromEmail = process.env.SMTP_FROM_EMAIL || process.env.SMTP_FROM || 'noreply@owlmentor.com';
+    const from = `${fromName} <${fromEmail}>`;
+    const subject = `New session request from ${escapeHtml(params.menteeName)}`;
+    const html = `
+      <div style="font-family:sans-serif;max-width:520px;margin:auto;padding:32px">
+        <h2 style="color:#1e40af;font-size:22px;margin-bottom:4px">New Session Request</h2>
+        <p style="color:#475569;margin-bottom:24px;font-size:14px">
+          Hi ${escapeHtml(params.mentorName)}, someone wants to work with you.
+        </p>
+        <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:20px;margin-bottom:24px">
+          <p style="margin:0 0 4px;font-size:12px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:.05em">From</p>
+          <p style="margin:0 0 16px;font-size:15px;font-weight:600;color:#0f172a">${escapeHtml(params.menteeName)} &lt;${escapeHtml(params.menteeEmail)}&gt;</p>
+          <p style="margin:0 0 4px;font-size:12px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:.05em">Message</p>
+          <p style="margin:0;font-size:14px;color:#334155;line-height:1.6">${escapeHtml(params.message)}</p>
+        </div>
+        <a href="${params.dashboardUrl}/mentor/dashboard"
+           style="display:inline-block;padding:12px 24px;background:#1e40af;color:#fff;border-radius:8px;text-decoration:none;font-weight:600;font-size:14px">
+          View in Dashboard →
+        </a>
+        <p style="color:#94a3b8;font-size:12px;margin-top:24px">
+          Set up your availability so mentees can book sessions directly.
+        </p>
+      </div>
+    `;
+
+    const transport = createTransport();
+    if (transport) {
+      try {
+        await sendTrackedMail({
+          transport,
+          provider: 'smtp',
+          operation: 'send_session_request',
+          mailOptions: { from, to: params.mentorEmail, subject, html },
+          metadata: { emailType: 'session_request' },
+        });
+        logger.info(`[SESSION REQUEST EMAIL] Sent to ${params.mentorEmail}`);
+        return;
+      } catch (error) {
+        logger.error(`[SESSION REQUEST EMAIL] SMTP failed: ${(error as Error).message}`);
+      }
+    }
+
+    try {
+      const devTransport = await getDevTransport();
+      const info = await sendTrackedMail({
+        transport: devTransport,
+        provider: 'ethereal',
+        operation: 'send_session_request',
+        mailOptions: { from, to: params.mentorEmail, subject, html },
+        metadata: { emailType: 'session_request' },
+      });
+      const previewUrl = nodemailer.getTestMessageUrl(info);
+      logger.info(`[SESSION REQUEST EMAIL DEV] Sent to ${params.mentorEmail} | Preview: ${previewUrl}`);
+    } catch (err) {
+      await recordEmailFallbackFailure('send_session_request', (err as Error).message, { emailType: 'session_request' });
+      logger.warn(`[SESSION REQUEST EMAIL FALLBACK] Could not send to ${params.mentorEmail}`);
+    }
+  },
+
+  async sendMentorWelcomeByAdmin(params: {
+    mentorName: string;
+    mentorEmail: string;
+    headline?: string;
+    bio?: string;
+    dashboardUrl: string;
+  }): Promise<void> {
+    const fromName = process.env.SMTP_FROM_NAME || 'OWL Mentor';
+    const fromEmail = process.env.SMTP_FROM_EMAIL || process.env.SMTP_FROM || 'noreply@owlmentor.com';
+    const from = `${fromName} <${fromEmail}>`;
+    const subject = 'Your mentor profile is ready — action needed';
+    const profileSection = (params.headline || params.bio) ? `
+      <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:20px;margin-bottom:24px">
+        <p style="margin:0 0 4px;font-size:12px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:.05em">Your Profile</p>
+        ${params.headline ? `<p style="margin:0 0 8px;font-size:15px;font-weight:600;color:#0f172a">${escapeHtml(params.headline)}</p>` : ''}
+        ${params.bio ? `<p style="margin:0;font-size:14px;color:#334155;line-height:1.6">${escapeHtml(params.bio)}</p>` : ''}
+      </div>` : '';
+    const html = `
+      <div style="font-family:sans-serif;max-width:520px;margin:auto;padding:32px">
+        <h2 style="color:#1e40af;font-size:22px;margin-bottom:4px">Welcome to OWL Mentors, ${escapeHtml(params.mentorName)}!</h2>
+        <p style="color:#475569;margin-bottom:20px;font-size:14px">
+          Your mentor profile has been set up by our team. Here&apos;s what we&apos;ve filled in so far:
+        </p>
+        ${profileSection}
+        <div style="background:#fffbeb;border:1px solid #fde68a;border-radius:12px;padding:16px;margin-bottom:24px">
+          <p style="margin:0;font-size:14px;color:#92400e;font-weight:500">
+            ⚠️ Next step: set your availability so mentees can book sessions with you.
+          </p>
+        </div>
+        <a href="${params.dashboardUrl}/mentor/dashboard/availability"
+           style="display:inline-block;padding:12px 24px;background:#1e40af;color:#fff;border-radius:8px;text-decoration:none;font-weight:600;font-size:14px;margin-bottom:12px">
+          Set up availability →
+        </a>
+        <br/>
+        <a href="${params.dashboardUrl}/mentor/dashboard"
+           style="font-size:13px;color:#475569;text-decoration:underline">
+          View your full dashboard
+        </a>
+        <p style="color:#94a3b8;font-size:12px;margin-top:24px">
+          If you have any questions, reply to this email or contact our support team.
+        </p>
+      </div>
+    `;
+
+    const transport = createTransport();
+    if (transport) {
+      try {
+        await sendTrackedMail({
+          transport,
+          provider: 'smtp',
+          operation: 'send_mentor_welcome_admin',
+          mailOptions: { from, to: params.mentorEmail, subject, html },
+          metadata: { emailType: 'mentor_welcome_admin' },
+        });
+        logger.info(`[MENTOR WELCOME EMAIL] Sent to ${params.mentorEmail}`);
+        return;
+      } catch (error) {
+        logger.error(`[MENTOR WELCOME EMAIL] SMTP failed: ${(error as Error).message}`);
+      }
+    }
+
+    try {
+      const devTransport = await getDevTransport();
+      const info = await sendTrackedMail({
+        transport: devTransport,
+        provider: 'ethereal',
+        operation: 'send_mentor_welcome_admin',
+        mailOptions: { from, to: params.mentorEmail, subject, html },
+        metadata: { emailType: 'mentor_welcome_admin' },
+      });
+      const previewUrl = nodemailer.getTestMessageUrl(info);
+      logger.info(`[MENTOR WELCOME EMAIL DEV] Sent to ${params.mentorEmail} | Preview: ${previewUrl}`);
+    } catch (err) {
+      await recordEmailFallbackFailure('send_mentor_welcome_admin', (err as Error).message, { emailType: 'mentor_welcome_admin' });
+      logger.warn(`[MENTOR WELCOME EMAIL FALLBACK] Could not send to ${params.mentorEmail}`);
+    }
+  },
 };

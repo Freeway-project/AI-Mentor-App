@@ -23,7 +23,7 @@ const API = 'http://localhost:3001/api';
 const MENTOR_DATA = [
   // 1. Frontend — React/Next.js specialist
   {
-    register: {
+    register: {se
       name: 'Lena Fischer',
       email: 'lena.fischer.mentor@example.com',
       phone: '+14151110001',

@@ -6,8 +6,9 @@ export interface IMeetingDocument extends mongoose.Document {
   mentorId: mongoose.Types.ObjectId;
   title: string;
   description?: string;
-  scheduledAt: Date;
+  scheduledAt?: Date;
   duration: number;
+  requestMessage?: string;
   status: string;
   creditCost: number;
   offerId?: string;
@@ -37,13 +38,14 @@ const meetingSchema = new Schema<IMeetingDocument>(
     mentorId: { type: Schema.Types.ObjectId, ref: 'Mentor', required: true },
     title: { type: String, required: true },
     description: { type: String },
-    scheduledAt: { type: Date, required: true },
+    scheduledAt: { type: Date },
     duration: { type: Number, required: true },
     status: {
       type: String,
-      enum: ['draft', 'booked', 'confirmed', 'in_progress', 'completed', 'cancelled', 'rescheduled', 'no_show', 'refunded'],
+      enum: ['draft', 'booked', 'confirmed', 'in_progress', 'completed', 'cancelled', 'rescheduled', 'no_show', 'refunded', 'request'],
       default: 'booked',
     },
+    requestMessage: { type: String },
     creditCost: { type: Number, required: true, default: 1.0 },
     offerId: { type: String },
     paymentIntentId: { type: String },
@@ -85,6 +87,7 @@ export function toMeeting(doc: IMeetingDocument): Meeting {
     scheduledAt: doc.scheduledAt,
     duration: doc.duration,
     status: doc.status as any,
+    requestMessage: doc.requestMessage,
     creditCost: doc.creditCost,
     offerId: doc.offerId,
     paymentIntentId: doc.paymentIntentId,

@@ -29,6 +29,27 @@ export class MeetingRepository {
     }
   }
 
+  async createRequest(menteeId: string, data: { mentorId: string; message: string; menteeName?: string }): Promise<Meeting> {
+    const startTime = Date.now();
+    try {
+      const doc = await MeetingModel.create({
+        menteeId: new mongoose.Types.ObjectId(menteeId),
+        mentorId: new mongoose.Types.ObjectId(data.mentorId),
+        title: 'Session Request',
+        duration: 60,
+        status: 'request',
+        creditCost: 0,
+        requestMessage: data.message,
+        menteeName: data.menteeName,
+      });
+      logger.db({ operation: 'insert', collection: 'meetings', duration: Date.now() - startTime });
+      return toMeeting(doc);
+    } catch (error) {
+      logger.db({ operation: 'insert', collection: 'meetings', duration: Date.now() - startTime, error: (error as Error).message });
+      throw error;
+    }
+  }
+
   async findById(id: string): Promise<Meeting> {
     const startTime = Date.now();
     try {
