@@ -130,6 +130,17 @@ export class UserRepository {
     }
   }
 
+  async updatePassword(userId: string, hashedPassword: string): Promise<void> {
+    const startTime = Date.now();
+    try {
+      await UserModel.findByIdAndUpdate(userId, { $set: { password: hashedPassword } });
+      logger.db({ operation: 'update', collection: 'users', duration: Date.now() - startTime });
+    } catch (error) {
+      logger.db({ operation: 'update', collection: 'users', duration: Date.now() - startTime, error: (error as Error).message });
+      throw error;
+    }
+  }
+
   async resetPassword(userId: string, hashedPassword: string): Promise<void> {
     const startTime = Date.now();
     try {

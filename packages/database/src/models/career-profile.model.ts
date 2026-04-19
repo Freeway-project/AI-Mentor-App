@@ -193,9 +193,6 @@ const careerProfileSchema = new Schema<ICareerProfileDocument>(
   },
   { timestamps: true }
 );
-
-careerProfileSchema.index({ userId: 1 }, { unique: true });
-
 export const CareerProfileModel = mongoose.model<ICareerProfileDocument>('CareerProfile', careerProfileSchema);
 
 export function toCareerProfile(doc: ICareerProfileDocument): CareerProfile {

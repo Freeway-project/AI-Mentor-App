@@ -1,12 +1,46 @@
-import { v1 as documentai } from '@google-cloud/documentai';
 import { AppError } from '../middleware/error.middleware';
 import { createRequire } from 'module';
 const _require = createRequire(import.meta.url);
-const { PDFParse } = _require('pdf-parse') as { PDFParse: new (opts: { data: Buffer }) => { getText(): Promise<{ text: string }> } };
-import mammoth from 'mammoth';
+
+type DocumentAIProcessResult = {
+  document?: {
+    text?: string | null;
+  };
+};
+
+type PDFParseInstance = {
+  getText(): Promise<{ text: string }>;
+};
+
+type PDFParseConstructor = new (opts: { data: Buffer }) => PDFParseInstance;
+
+type MammothModule = {
+  extractRawText(input: { buffer: Buffer }): Promise<{ value?: string | null }>;
+};
+
+type DocumentAIClient = {
+  processorPath(projectId: string, location: string, processorId: string): string;
+  processDocument(request: {
+    name: string;
+    rawDocument: {
+      content: Buffer;
+      mimeType: string;
+    };
+    skipHumanReview: boolean;
+  }): Promise<[DocumentAIProcessResult]>;
+};
+
+type DocumentAIModule = {
+  v1: {
+    DocumentProcessorServiceClient: new (opts: { apiEndpoint: string }) => DocumentAIClient;
+  };
+};
 
 export class ResumeParserService {
-  private client: documentai.DocumentProcessorServiceClient | null = null;
+  private client: DocumentAIClient | null = null;
+  private documentAIModule: DocumentAIModule | null = null;
+  private pdfParseCtor: PDFParseConstructor | null = null;
+  private mammoth: MammothModule | null = null;
 
   private isDocumentAIConfigured() {
     return !!(process.env.DOCUMENT_AI_PROJECT_ID && process.env.DOCUMENT_AI_PROCESSOR_ID && process.env.GOOGLE_APPLICATION_CREDENTIALS);
@@ -28,6 +62,29 @@ export class ResumeParserService {
     return { projectId, location, processorId };
   }
 
+  private getDocumentAIModule() {
+    if (this.documentAIModule) {
+      return this.documentAIModule;
+    }
+
+    try {
+      this.documentAIModule = _require('@google-cloud/documentai') as DocumentAIModule;
+      return this.documentAIModule;
+    } catch (error) {
+      const message = (error as Error).message || '';
+
+      if (/Cannot find module|Cannot resolve module|MODULE_NOT_FOUND/i.test(message)) {
+        throw new AppError(
+          503,
+          'DOCUMENT_AI_PACKAGE_MISSING',
+          'Document AI package is not installed. Run bun install to add @google-cloud/documentai, or leave Document AI unset to use local resume parsing.'
+        );
+      }
+
+      throw error;
+    }
+  }
+
   private getClient(location: string) {
     if (!this.client) {
       const credentialPath = process.env.GOOGLE_APPLICATION_CREDENTIALS;
@@ -40,6 +97,8 @@ export class ResumeParserService {
         );
       }
 
+      const { v1: documentai } = this.getDocumentAIModule();
+
       this.client = new documentai.DocumentProcessorServiceClient({
         apiEndpoint: `${location}-documentai.googleapis.com`,
       });
@@ -48,9 +107,57 @@ export class ResumeParserService {
     return this.client;
   }
 
+  private getPDFParseConstructor() {
+    if (this.pdfParseCtor) {
+      return this.pdfParseCtor;
+    }
+
+    try {
+      const { PDFParse } = _require('pdf-parse') as { PDFParse: PDFParseConstructor };
+      this.pdfParseCtor = PDFParse;
+      return this.pdfParseCtor;
+    } catch (error) {
+      const message = (error as Error).message || '';
+
+      if (/Cannot find module|Cannot resolve module|MODULE_NOT_FOUND/i.test(message)) {
+        throw new AppError(
+          503,
+          'LOCAL_PDF_PARSER_MISSING',
+          'pdf-parse is not installed. Run bun install to enable local PDF resume parsing.'
+        );
+      }
+
+      throw error;
+    }
+  }
+
+  private getMammoth() {
+    if (this.mammoth) {
+      return this.mammoth;
+    }
+
+    try {
+      this.mammoth = _require('mammoth') as MammothModule;
+      return this.mammoth;
+    } catch (error) {
+      const message = (error as Error).message || '';
+
+      if (/Cannot find module|Cannot resolve module|MODULE_NOT_FOUND/i.test(message)) {
+        throw new AppError(
+          503,
+          'LOCAL_DOCX_PARSER_MISSING',
+          'mammoth is not installed. Run bun install to enable local DOCX resume parsing.'
+        );
+      }
+
+      throw error;
+    }
+  }
+
   /** Fallback: extract text locally using pdf-parse / mammoth */
   private async extractTextLocally(buffer: Buffer, mimeType: string): Promise<string> {
     if (mimeType === 'application/pdf') {
+      const PDFParse = this.getPDFParseConstructor();
       const parser = new PDFParse({ data: buffer });
       const result = await parser.getText();
       return result.text?.trim() ?? '';
@@ -60,6 +167,7 @@ export class ResumeParserService {
       mimeType === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' ||
       mimeType === 'application/msword'
     ) {
+      const mammoth = this.getMammoth();
       const result = await mammoth.extractRawText({ buffer });
       return result.value?.trim() ?? '';
     }

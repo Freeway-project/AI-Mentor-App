@@ -310,4 +310,14 @@ router.get('/', searchRateLimit, validateQuery(searchMentorsSchema), async (req:
   }
 });
 
+// Get all mentor profiles for the authenticated user (for shared-email / multi-profile scenario)
+router.get('/me/profiles', authenticate, requireEmailVerified, authorize('mentor'), async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const mentors = await getMentorRepo().findManyByUserId(req.userId!);
+    res.json({ success: true, data: mentors });
+  } catch (error) {
+    next(error);
+  }
+});
+
 export default router;

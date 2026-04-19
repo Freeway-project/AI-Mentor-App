@@ -1,10 +1,10 @@
 'use client';
 
-import type { ReactNode } from 'react';
+import { Suspense, type ReactNode } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { usePathname, useSearchParams } from 'next/navigation';
 
-export function RouteTransition({ children }: { children: ReactNode }) {
+function RouteTransitionInner({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const routeKey = `${pathname}?${searchParams.toString()}`;
@@ -22,5 +22,13 @@ export function RouteTransition({ children }: { children: ReactNode }) {
         {children}
       </motion.div>
     </AnimatePresence>
+  );
+}
+
+export function RouteTransition({ children }: { children: ReactNode }) {
+  return (
+    <Suspense fallback={<div className="min-h-screen">{children}</div>}>
+      <RouteTransitionInner>{children}</RouteTransitionInner>
+    </Suspense>
   );
 }

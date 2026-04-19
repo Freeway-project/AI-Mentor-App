@@ -57,6 +57,7 @@ export const mentorSchema = z.object({
   approvalNote: z.string().optional(),
   approvedAt: z.date().optional(),
   approvedBy: z.string().optional(),
+  createdBy: z.string().optional(),
   createdAt: z.date(),
   updatedAt: z.date(),
 });

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { Suspense, useState } from 'react';
 import nextDynamic from 'next/dynamic';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
@@ -10,7 +10,7 @@ import { useAuth } from '@/lib/auth-context';
 import { apiClient } from '@/lib/api-client';
 import { toast } from 'sonner';
 import type { AppDispatch } from '@/store';
-import { BrandLogo, BrandLogoImage } from '@/components/brand/brand-logo';
+import { BrandLogoImage } from '@/components/brand/brand-logo';
 
 const GoogleAuthButton = nextDynamic(
   () => import('@/components/auth/google-auth-button').then((module) => module.GoogleAuthButton),
@@ -20,7 +20,7 @@ const GoogleAuthButton = nextDynamic(
   }
 );
 
-export default function LoginPage() {
+function LoginForm() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -274,4 +274,12 @@ export default function LoginPage() {
   );
 
   return content;
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense>
+      <LoginForm />
+    </Suspense>
+  );
 }

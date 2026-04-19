@@ -16,10 +16,11 @@ interface User {
 interface AuthContextType {
   user: User | null;
   loading: boolean;
-  login: (email: string, password: string) => Promise<void>;
+  login: (email: string, password: string) => Promise<{ user: User; token: string }>;
   register: (email: string, password: string, name: string, role: string) => Promise<any>;
   loginWithGoogle: (idToken: string, role?: 'mentee' | 'mentor') => Promise<{ isNew: boolean }>;
   logout: () => void;
+  clearAuthState: () => void;
 }
 
 function readCachedUser(): User | null {
@@ -70,8 +71,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const login = useCallback(async (email: string, password: string) => {
     const data = await apiClient.login(email, password);
     apiClient.setToken(data.token);
+    localStorage.setItem('auth_token', data.token);
     localStorage.setItem('auth_user', JSON.stringify(data.user));
     setUser(data.user);
+    return data;
   }, []);
 
   const register = useCallback(async (email: string, password: string, name: string, role: string) => {
@@ -96,8 +99,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(null);
   }, []);
 
+  const clearAuthState = useCallback(() => {
+    apiClient.clearToken();
+    localStorage.removeItem('auth_user');
+    setUser(null);
+  }, []);
+
   return (
-    <AuthContext.Provider value={{ user, loading, login, register, loginWithGoogle, logout }}>
+    <AuthContext.Provider value={{ user, loading, login, register, loginWithGoogle, logout, clearAuthState }}>
       {children}
     </AuthContext.Provider>
   );

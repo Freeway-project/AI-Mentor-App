@@ -45,6 +45,7 @@ export interface IMentorDocument extends mongoose.Document {
   approvalNote?: string;
   approvedAt?: Date;
   approvedBy?: mongoose.Types.ObjectId;
+  createdBy?: mongoose.Types.ObjectId;
   /** Atlas Vector Search embedding (1024 floats from voyage-3). Excluded from normal queries via select:false. */
   profileEmbedding?: number[];
   /** Timestamp of last embedding generation — useful for backfill auditing. */
@@ -65,7 +66,7 @@ const certificationSubSchema = new Schema(
 
 const mentorSchema = new Schema<IMentorDocument>(
   {
-    userId: { type: Schema.Types.ObjectId, ref: 'User', required: true, unique: true },
+    userId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
     name: { type: String, required: true },
     headline: { type: String },
     bio: { type: String },
@@ -96,6 +97,7 @@ const mentorSchema = new Schema<IMentorDocument>(
     approvalNote: { type: String },
     approvedAt: { type: Date },
     approvedBy: { type: Schema.Types.ObjectId, ref: 'User' },
+    createdBy: { type: Schema.Types.ObjectId, ref: 'User' },
     /**
      * Semantic embedding for Atlas Vector Search.
      * 1024 floats from voyage-3 (Voyage AI).
@@ -149,6 +151,7 @@ export function toMentor(doc: IMentorDocument): Mentor {
     approvalNote: doc.approvalNote,
     approvedAt: doc.approvedAt,
     approvedBy: doc.approvedBy?.toString(),
+    createdBy: doc.createdBy?.toString(),
     createdAt: doc.createdAt,
     updatedAt: doc.updatedAt,
   };
