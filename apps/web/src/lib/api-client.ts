@@ -514,6 +514,13 @@ class ApiClient {
     return this.request<any[]>(`/mentors/${mentorId}/offers`);
   }
 
+  async requestSession(mentorId: string, data: { message: string }): Promise<{ meetingId: string }> {
+    return this.request<{ meetingId: string }>(`/mentors/${mentorId}/session-request`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
   // Credits
   async getCreditsBalance(): Promise<{ balance: number; heldBalance: number }> {
     return this.request<{ balance: number; heldBalance: number }>('/credits/balance');

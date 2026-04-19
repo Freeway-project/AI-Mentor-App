@@ -98,6 +98,7 @@ export default async function MentorProfilePage({ params }: PageProps) {
                   offers={offers}
                   hourlyRate={mentor.hourlyRate}
                   introVideoUrl={mentor.introVideoUrl}
+                  hasAvailability={!!(mentor.availability?.schedule?.length)}
                 />
               </aside>
             </div>

@@ -667,6 +667,16 @@ router.post('/coaches', async (req: Request, res: Response, next: NextFunction) 
       }),
     ]);
 
+    // Welcome email — non-blocking, failure must not affect the response
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+    EmailService.sendMentorWelcomeByAdmin({
+      mentorName: name,
+      mentorEmail: normalizedEmail,
+      headline: headline,
+      bio: bio,
+      dashboardUrl: appUrl,
+    }).catch((err: Error) => logger.warn(`[Admin] Welcome email failed: ${err.message}`));
+
     const user = await getUserRepo().findById(userId);
 
     logger.info(`[Admin] Created mentor profile ${mentor.id} for user ${userId} (existingUser=${isExistingUser})`);

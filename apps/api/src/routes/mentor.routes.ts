@@ -1,5 +1,5 @@
 import { Router, Request, Response, NextFunction } from 'express';
-import { MentorRepository, UserRepository, OfferRepository, PolicyRepository } from '@owl-mentors/database';
+import { MentorRepository, UserRepository, OfferRepository, PolicyRepository, MeetingRepository } from '@owl-mentors/database';
 import { updateMentorSchema, updateAvailabilitySchema, searchMentorsSchema, OnboardingStep } from '@owl-mentors/types';
 import { validate, validateQuery } from '../middleware/validation.middleware';
 import { authenticate, authorize, requireEmailVerified } from '../middleware/auth.middleware';
@@ -19,6 +19,7 @@ let mentorRepo: MentorRepository;
 let userRepo: UserRepository;
 let offerRepo: OfferRepository;
 let policyRepo: PolicyRepository;
+let meetingRepo: MeetingRepository;
 
 function getMentorRepo() {
   if (!mentorRepo) mentorRepo = new MentorRepository();
@@ -35,6 +36,10 @@ function getOfferRepo() {
 function getPolicyRepo() {
   if (!policyRepo) policyRepo = new PolicyRepository();
   return policyRepo;
+}
+function getMeetingRepo() {
+  if (!meetingRepo) meetingRepo = new MeetingRepository();
+  return meetingRepo;
 }
 
 function getFirstString(value: unknown): string | undefined {
@@ -315,6 +320,52 @@ router.get('/me/profiles', authenticate, requireEmailVerified, authorize('mentor
   try {
     const mentors = await getMentorRepo().findManyByUserId(req.userId!);
     res.json({ success: true, data: mentors });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// POST /mentors/:mentorId/session-request — mentee sends a lead when mentor has no availability
+router.post('/:mentorId/session-request', authenticate, async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { mentorId } = req.params;
+    const { message } = req.body as { message?: string };
+    if (!message?.trim()) {
+      throw new AppError(400, 'VALIDATION_ERROR', 'message is required');
+    }
+
+    const mentor = await getMentorRepo().findById(mentorId);
+    if (!mentor || !mentor.isActive) {
+      throw new AppError(404, 'NOT_FOUND', 'Mentor not found');
+    }
+
+    const user = await getUserRepo().findById(req.userId!);
+
+    const meeting = await getMeetingRepo().createRequest(req.userId!, {
+      mentorId,
+      message: message.trim(),
+      menteeName: user.name,
+    });
+
+    // Fire email to mentor — non-blocking
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+    (async () => {
+      try {
+        const mentorUser = await getUserRepo().findById(mentor.userId);
+        await EmailService.sendSessionRequestToMentor({
+          mentorName: mentor.name,
+          mentorEmail: mentorUser.email,
+          menteeName: user.name,
+          menteeEmail: user.email,
+          message: message.trim(),
+          dashboardUrl: appUrl,
+        });
+      } catch (err) {
+        logger.warn(`[SessionRequest] Email failed for mentor ${mentorId}: ${(err as Error).message}`);
+      }
+    })();
+
+    res.status(201).json({ success: true, data: { meetingId: meeting.id } });
   } catch (error) {
     next(error);
   }

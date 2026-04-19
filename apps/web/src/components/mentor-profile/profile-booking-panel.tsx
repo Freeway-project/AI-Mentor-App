@@ -2,7 +2,7 @@
 
 import { useMemo, useState, useEffect, useCallback } from 'react';
 import nextDynamic from 'next/dynamic';
-import { ChevronLeft, ChevronRight, Check } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Check, Send } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth-context';
 import { apiClient } from '@/lib/api-client';
@@ -375,15 +375,29 @@ export function MentorProfileBookingPanel({
   offers,
   hourlyRate,
   introVideoUrl,
+  hasAvailability = true,
 }: {
   mentorId: string;
   mentorName: string;
   offers: MentorOffer[];
   hourlyRate?: number;
   introVideoUrl?: string;
+  hasAvailability?: boolean;
 }) {
   const router = useRouter();
   const { user } = useAuth();
+
+  // ─── Request-a-session panel (no availability) ───────────────────────────
+  if (!hasAvailability) {
+    return (
+      <RequestSessionPanel
+        mentorId={mentorId}
+        mentorName={mentorName}
+        user={user}
+        onSignIn={() => router.push(`/login?redirect=/mentors/${mentorId}`)}
+      />
+    );
+  }
 
   const [step, setStep] = useState<Step>('date');
   const [monthCursor, setMonthCursor] = useState(() => {
