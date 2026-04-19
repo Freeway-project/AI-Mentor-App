@@ -11,6 +11,11 @@ interface ApiResponse<T = any> {
   };
 }
 
+export interface GoogleAuthOptions {
+  intent?: 'login' | 'register';
+  role?: 'mentee' | 'mentor';
+}
+
 export class ApiError extends Error {
   code: string;
   data?: any;
@@ -290,10 +295,10 @@ class ApiClient {
     });
   }
 
-  async googleAuth(idToken: string, role?: 'mentee' | 'mentor') {
+  async googleAuth(idToken: string, options?: GoogleAuthOptions) {
     return this.request<{ user: any; token: string; isNew: boolean }>('/auth/google', {
       method: 'POST',
-      body: JSON.stringify({ idToken, role }),
+      body: JSON.stringify({ idToken, role: options?.role, intent: options?.intent }),
     });
   }
 

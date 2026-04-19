@@ -5,6 +5,7 @@ import nextDynamic from 'next/dynamic';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/lib/auth-context';
+import { apiClient } from '@/lib/api-client';
 import { BrandLogoImage } from '@/components/brand/brand-logo';
 
 const GoogleAuthButton = nextDynamic(
@@ -26,6 +27,20 @@ export default function RegisterPage() {
   const { register, loginWithGoogle } = useAuth();
   const router = useRouter();
 
+  const routeAfterGoogleAuth = async (user: { roles: string[] }) => {
+    if (user.roles.includes('mentor')) {
+      try {
+        const profile = await apiClient.getMyMentorProfile();
+        window.location.href = profile.onboardingStep !== 'completed' ? '/onboarding' : '/mentor/dashboard';
+      } catch {
+        window.location.href = '/onboarding';
+      }
+      return;
+    }
+
+    router.push('/mentee/dashboard');
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
@@ -40,7 +55,7 @@ export default function RegisterPage() {
       const response = await register(email, password, name, role);
 
       if (response?.nextStep === 'verify-otp') {
-        router.push(`/verify-otp?email=${encodeURIComponent(email)}`);
+        router.push(role === 'mentor' ? '/mentor/verify-otp' : '/mentee/verify-otp');
       } else if (role === 'mentor') {
         router.push('/onboarding');
       } else {
@@ -57,14 +72,8 @@ export default function RegisterPage() {
     setError('');
     setLoading(true);
     try {
-      const result = await loginWithGoogle(credentialResponse.credential, role);
-      if (result.isNew && role === 'mentor') {
-        router.push('/onboarding');
-      } else if (role === 'mentor') {
-        window.location.href = '/mentor/dashboard';
-      } else {
-        router.push('/mentee/dashboard');
-      }
+      const { user } = await loginWithGoogle(credentialResponse.credential, { role, intent: 'register' });
+      await routeAfterGoogleAuth(user);
     } catch (err: any) {
       setError(err.message || 'Google sign-up failed');
     } finally {

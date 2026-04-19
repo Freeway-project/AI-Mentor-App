@@ -30,6 +30,25 @@ function LoginForm() {
   const searchParams = useSearchParams();
   const redirect = searchParams.get('redirect');
 
+  const routeAfterAuth = async (user: { roles: string[] }) => {
+    if (user.roles.includes('admin')) {
+      router.push('/admin');
+      return;
+    }
+
+    if (user.roles.includes('mentor')) {
+      try {
+        const profile = await apiClient.getMyMentorProfile();
+        window.location.href = profile.onboardingStep !== 'completed' ? '/onboarding' : '/mentor/dashboard';
+      } catch {
+        window.location.href = '/onboarding';
+      }
+      return;
+    }
+
+    router.push(redirect || '/mentee/dashboard');
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -39,19 +58,7 @@ function LoginForm() {
       // Sync Redux state without a second API call
       dispatch(setUser(user as any));
       dispatch(setToken(token));
-
-      if (user.roles.includes('admin')) {
-        router.push('/admin');
-      } else if (user.roles.includes('mentor')) {
-        try {
-          const profile = await apiClient.getMyMentorProfile();
-          window.location.href = profile.onboardingStep !== 'completed' ? '/onboarding' : '/mentor/dashboard';
-        } catch {
-          window.location.href = '/onboarding';
-        }
-      } else {
-        router.push(redirect || '/mentee/dashboard');
-      }
+      await routeAfterAuth(user);
     } catch (err: any) {
       if (err?.code === 'EMAIL_NOT_VERIFIED') {
         toast.error('Please verify your email first. A new code has been sent to your inbox.');
@@ -71,26 +78,14 @@ function LoginForm() {
   const handleGoogleSuccess = async (credentialResponse: any) => {
     setLoading(true);
     try {
-      const { isNew } = await loginWithGoogle(credentialResponse.credential);
-      if (isNew) {
+      const { user } = await loginWithGoogle(credentialResponse.credential, { intent: 'login' });
+      await routeAfterAuth(user);
+    } catch (err: any) {
+      if (err?.code === 'ACCOUNT_NOT_FOUND') {
         toast.info('No account found. Please sign up and choose your role.');
         router.push('/register');
         return;
       }
-      const me = await apiClient.getMe();
-      if (me.roles.includes('admin')) {
-        router.push('/admin');
-      } else if (me.roles.includes('mentor')) {
-        try {
-          const profile = await apiClient.getMyMentorProfile();
-          window.location.href = profile.onboardingStep !== 'completed' ? '/onboarding' : '/mentor/dashboard';
-        } catch {
-          window.location.href = '/onboarding';
-        }
-      } else {
-        router.push(redirect || '/mentee/dashboard');
-      }
-    } catch (err: any) {
       toast.error(err.message || 'Google sign-in failed');
     } finally {
       setLoading(false);

@@ -1,7 +1,7 @@
 'use client';
 
 import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
-import { apiClient } from './api-client';
+import { apiClient, type GoogleAuthOptions } from './api-client';
 
 interface User {
   id: string;
@@ -18,7 +18,7 @@ interface AuthContextType {
   loading: boolean;
   login: (email: string, password: string) => Promise<{ user: User; token: string }>;
   register: (email: string, password: string, name: string, role: string) => Promise<any>;
-  loginWithGoogle: (idToken: string, role?: 'mentee' | 'mentor') => Promise<{ isNew: boolean }>;
+  loginWithGoogle: (idToken: string, options?: GoogleAuthOptions) => Promise<{ isNew: boolean; user: User }>;
   logout: () => void;
   clearAuthState: () => void;
 }
@@ -85,12 +85,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return data;
   }, []);
 
-  const loginWithGoogle = useCallback(async (idToken: string, role?: 'mentee' | 'mentor') => {
-    const data = await apiClient.googleAuth(idToken, role);
+  const loginWithGoogle = useCallback(async (idToken: string, options?: GoogleAuthOptions) => {
+    const data = await apiClient.googleAuth(idToken, options);
     apiClient.setToken(data.token);
     localStorage.setItem('auth_user', JSON.stringify(data.user));
     setUser(data.user);
-    return { isNew: data.isNew };
+    return { isNew: data.isNew, user: data.user };
   }, []);
 
   const logout = useCallback(() => {

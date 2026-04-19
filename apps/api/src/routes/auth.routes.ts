@@ -62,6 +62,10 @@ router.post('/register', authRateLimit, validate(registerSchema), async (req: Re
   try {
     const { email, password, name, role, timezone } = req.body;
 
+    if (role !== 'mentee') {
+      throw new AppError(400, 'INVALID_ROLE', 'This endpoint only supports mentee registration');
+    }
+
     const existingUser = await getUserRepo().findByEmail(email);
     if (existingUser) {
       // If already verified, reject
@@ -195,10 +199,7 @@ router.post('/login', authRateLimit, validate(loginSchema), async (req: Request,
   try {
     const { email, password } = req.body;
 
-    console.log('[LOGIN DEBUG] email:', JSON.stringify(email), 'password length:', password?.length);
-
     const user = await getUserRepo().findByEmail(email);
-    console.log('[LOGIN DEBUG] user found:', !!user, 'has password:', !!user?.password);
     if (!user) {
       throw new AppError(401, 'INVALID_CREDENTIALS', 'Invalid email or password');
     }
@@ -212,7 +213,6 @@ router.post('/login', authRateLimit, validate(loginSchema), async (req: Request,
     }
 
     const isValidPassword = await bcrypt.compare(password, user.password);
-    console.log('[LOGIN DEBUG] bcrypt result:', isValidPassword);
     if (!isValidPassword) {
       throw new AppError(401, 'INVALID_CREDENTIALS', 'Invalid email or password');
     }
@@ -358,7 +358,7 @@ router.post('/logout', (req: Request, res: Response) => {
 // Google OAuth
 router.post('/google', validate(googleAuthSchema), async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { idToken, role } = req.body;
+    const { idToken, role, intent = 'login' } = req.body;
 
     const clientId = process.env.GOOGLE_CLIENT_ID;
     if (!clientId) {
@@ -390,6 +390,10 @@ router.post('/google', validate(googleAuthSchema), async (req: Request, res: Res
       // Link Google provider if not already linked
       await getUserRepo().linkOAuthProvider(user.id, 'google', googleId!);
     } else {
+      if (intent === 'login') {
+        throw new AppError(404, 'ACCOUNT_NOT_FOUND', 'No account exists for this Google email. Please sign up first');
+      }
+
       user = await getUserRepo().create({
         email,
         name: name || email.split('@')[0],

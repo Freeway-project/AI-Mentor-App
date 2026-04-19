@@ -33,7 +33,7 @@ export const registerSchema = z.object({
   email: z.string().email(),
   password: z.string().min(8).max(100),
   name: z.string().min(1).max(100),
-  role: userRoleEnum,
+  role: z.enum(['mentee']),
   timezone: z.string().optional(),
 });
 
@@ -70,6 +70,7 @@ export const verifyEmailSchema = z.object({
 export const googleAuthSchema = z.object({
   idToken: z.string().min(1),
   role: z.enum(['mentee', 'mentor']).optional(),
+  intent: z.enum(['login', 'register']).optional(),
 });
 
 export type RegisterInput = z.infer<typeof registerSchema>;

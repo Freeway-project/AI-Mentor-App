@@ -30,15 +30,13 @@ function MenteeLoginForm() {
   const set = (k: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement>) =>
     setForm((f) => ({ ...f, [k]: e.target.value }));
 
-  const routeAfterAuth = async () => {
-    const me = await apiClient.getMe();
-
-    if (me.roles.includes('admin')) {
+  const routeAfterAuth = async (user: { roles: string[] }) => {
+    if (user.roles.includes('admin')) {
       router.push('/admin');
       return;
     }
 
-    if (me.roles.includes('mentor')) {
+    if (user.roles.includes('mentor')) {
       try {
         const profile = await apiClient.getMyMentorProfile();
         window.location.href = profile.onboardingStep !== 'completed' ? '/onboarding' : '/mentor/dashboard';
@@ -56,9 +54,17 @@ function MenteeLoginForm() {
     setError('');
     setLoading(true);
     try {
-      await login(form.email, form.password);
-      await routeAfterAuth();
+      const { user } = await login(form.email, form.password);
+      await routeAfterAuth(user);
     } catch (err: any) {
+      if (err?.code === 'EMAIL_NOT_VERIFIED') {
+        if (err?.data?.token) {
+          localStorage.setItem('auth_token', err.data.token);
+        }
+        const isMentor = err?.data?.nextStep === 'mentor-verify-otp';
+        window.location.href = isMentor ? '/mentor/verify-otp' : '/mentee/verify-otp';
+        return;
+      }
       setError(err.message || 'Login failed');
     } finally {
       setLoading(false);
@@ -69,13 +75,13 @@ function MenteeLoginForm() {
     setError('');
     setLoading(true);
     try {
-      const { isNew } = await loginWithGoogle(credentialResponse.credential, 'mentee');
-      if (isNew) {
-        router.push('/mentee/dashboard');
+      const { user } = await loginWithGoogle(credentialResponse.credential, { intent: 'login' });
+      await routeAfterAuth(user);
+    } catch (err: any) {
+      if (err?.code === 'ACCOUNT_NOT_FOUND') {
+        router.push('/register');
         return;
       }
-      await routeAfterAuth();
-    } catch (err: any) {
       setError(err.message || 'Google sign-in failed');
     } finally {
       setLoading(false);
