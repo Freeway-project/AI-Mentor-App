@@ -359,6 +359,180 @@ function ConfirmRow({
   );
 }
 
+// ─── Request Session Panel ──────────────────────────────────────────────────
+
+function RequestSessionPanel({
+  mentorId,
+  mentorName,
+  user,
+  onSignIn,
+}: {
+  mentorId: string;
+  mentorName: string;
+  user: any;
+  onSignIn: () => void;
+}) {
+  const [message, setMessage] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+  const [done, setDone] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const handleSubmit = async () => {
+    if (!message.trim()) return;
+    setSubmitting(true);
+    setError(null);
+    try {
+      await apiClient.requestSession(mentorId, { message: message.trim() });
+      setDone(true);
+    } catch (err: any) {
+      setError(err?.message || 'Something went wrong. Please try again.');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  return (
+    <div
+      id="booking-panel"
+      style={{
+        background: ED.card,
+        border: `1px solid ${ED.rule}`,
+        padding: 28,
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 20,
+        position: 'sticky',
+        top: 24,
+      }}
+    >
+      <div>
+        <div style={ed.mono(10, ED.inkMuted)}>Session Request</div>
+        <h3 style={ed.serif(28, ED.ink, { margin: '4px 0 0', letterSpacing: -0.3 })}>
+          {done ? 'Request sent!' : 'Request a Session'}
+        </h3>
+      </div>
+
+      <div style={{ height: 1, background: ED.rule }} />
+
+      {done ? (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+          <div
+            style={{
+              padding: 20,
+              border: `1px solid ${ED.ink}`,
+              background: ED.cream,
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 10,
+            }}
+          >
+            <Check size={22} color={ED.accent} strokeWidth={1.6} />
+            <div style={ed.serif(22, ED.ink, { lineHeight: 1.2 })}>
+              {mentorName.split(' ')[0]} will be in touch soon.
+            </div>
+            <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, color: ED.inkSoft, lineHeight: 1.5 }}>
+              Your request has been sent. Once they set their availability, you can book directly.
+            </div>
+          </div>
+        </div>
+      ) : !user ? (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+          <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 13.5, color: ED.inkSoft, lineHeight: 1.55, margin: 0 }}>
+            {mentorName.split(' ')[0]} hasn&apos;t set availability yet — send them a request and
+            they&apos;ll reach out to schedule.
+          </p>
+          <button
+            onClick={onSignIn}
+            style={{
+              padding: '13px 22px',
+              background: ED.ink,
+              color: ED.cream,
+              border: 'none',
+              cursor: 'pointer',
+              fontFamily: 'Inter, sans-serif',
+              fontSize: 14,
+              fontWeight: 500,
+              display: 'inline-flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: 8,
+            }}
+          >
+            Sign in to send a request →
+          </button>
+        </div>
+      ) : (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+          <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 13.5, color: ED.inkSoft, lineHeight: 1.55, margin: 0 }}>
+            {mentorName.split(' ')[0]} hasn&apos;t set availability yet — send them a request and
+            they&apos;ll reach out to schedule.
+          </p>
+
+          <div>
+            <div style={ed.mono(9, ED.inkMuted, { marginBottom: 5 })}>FROM</div>
+            <div style={{ padding: '10px 14px', background: ED.creamDeep, border: `1px solid ${ED.rule}`, fontFamily: 'Inter, sans-serif', fontSize: 13, color: ED.inkSoft }}>
+              {user.name}
+            </div>
+          </div>
+
+          <div>
+            <div style={ed.mono(9, ED.inkMuted, { marginBottom: 5 })}>MESSAGE *</div>
+            <textarea
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
+              rows={5}
+              placeholder={`Hi ${mentorName.split(' ')[0]}, I'd love to discuss…`}
+              style={{
+                width: '100%',
+                padding: '10px 14px',
+                background: ED.cream,
+                border: `1px solid ${ED.rule}`,
+                fontFamily: 'Inter, sans-serif',
+                fontSize: 13.5,
+                color: ED.ink,
+                resize: 'vertical',
+                outline: 'none',
+                boxSizing: 'border-box',
+                lineHeight: 1.5,
+              }}
+            />
+          </div>
+
+          {error && (
+            <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 12.5, color: '#b91c1c', padding: '8px 12px', background: '#fef2f2', border: '1px solid #fecaca' }}>
+              {error}
+            </div>
+          )}
+
+          <button
+            disabled={submitting || !message.trim()}
+            onClick={handleSubmit}
+            style={{
+              padding: '13px 22px',
+              background: ED.ink,
+              color: ED.cream,
+              border: 'none',
+              cursor: submitting || !message.trim() ? 'not-allowed' : 'pointer',
+              opacity: submitting || !message.trim() ? 0.5 : 1,
+              fontFamily: 'Inter, sans-serif',
+              fontSize: 14,
+              fontWeight: 500,
+              display: 'inline-flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: 8,
+              transition: 'opacity 150ms',
+            }}
+          >
+            <Send size={15} />
+            {submitting ? 'Sending…' : 'Send Request'}
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ─── Main panel ──────────────────────────────────────────────────────────────
 
 type Step = 'date' | 'service' | 'confirm' | 'done';

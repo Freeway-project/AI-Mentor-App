@@ -85,10 +85,10 @@ router.get('/mentors/:coachId/slots', async (req: Request, res: Response, next: 
 
     // Only booked/confirmed meetings block slots
     const existingBookings = existingMeetings
-      .filter(m => ['booked', 'confirmed', 'in_progress'].includes(m.status))
+      .filter(m => ['booked', 'confirmed', 'in_progress'].includes(m.status) && m.scheduledAt)
       .map(m => ({
-        start: new Date(m.scheduledAt).toISOString(),
-        end: new Date(new Date(m.scheduledAt).getTime() + m.duration * 60 * 1000).toISOString(),
+        start: new Date(m.scheduledAt!).toISOString(),
+        end: new Date(new Date(m.scheduledAt!).getTime() + m.duration * 60 * 1000).toISOString(),
       }));
 
     // Check Google Calendar integration
@@ -174,6 +174,7 @@ router.post('/bookings', authenticate, requireEmailVerified, async (req: Request
 
     const conflict = nearbyMeetings.some(m => {
       if (!['booked', 'confirmed', 'in_progress'].includes(m.status)) return false;
+      if (!m.scheduledAt) return false;
       const mStart = new Date(m.scheduledAt).getTime();
       const mEnd = mStart + m.duration * 60 * 1000;
       return slotStart.getTime() < mEnd && slotEnd.getTime() > mStart;
@@ -445,7 +446,7 @@ router.post('/bookings/:id/reschedule', authenticate, requireEmailVerified, asyn
     const updated = await meetingRepo.update(meeting.id, {
       scheduledAt: newStart.toISOString(),
       status: 'booked',
-      rescheduledFrom: meeting.scheduledAt.toISOString(),
+      rescheduledFrom: meeting.scheduledAt ? meeting.scheduledAt.toISOString() : undefined,
       rescheduledAt: new Date().toISOString(),
     } as any);
 
