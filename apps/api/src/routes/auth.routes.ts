@@ -195,7 +195,10 @@ router.post('/login', authRateLimit, validate(loginSchema), async (req: Request,
   try {
     const { email, password } = req.body;
 
+    console.log('[LOGIN DEBUG] email:', JSON.stringify(email), 'password length:', password?.length);
+
     const user = await getUserRepo().findByEmail(email);
+    console.log('[LOGIN DEBUG] user found:', !!user, 'has password:', !!user?.password);
     if (!user) {
       throw new AppError(401, 'INVALID_CREDENTIALS', 'Invalid email or password');
     }
@@ -209,6 +212,7 @@ router.post('/login', authRateLimit, validate(loginSchema), async (req: Request,
     }
 
     const isValidPassword = await bcrypt.compare(password, user.password);
+    console.log('[LOGIN DEBUG] bcrypt result:', isValidPassword);
     if (!isValidPassword) {
       throw new AppError(401, 'INVALID_CREDENTIALS', 'Invalid email or password');
     }

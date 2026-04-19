@@ -8,6 +8,7 @@
     "start": "bun --env-file ../../.env dist/server.js",
     "type-check": "tsc --noEmit",
     "clean": "rm -rf dist",
+    "smoke": "bun scripts/smoke-test.ts",
     "seed:admin": "bun --env-file ../../.env src/scripts/seed-admin.ts",
     "seed:mentors": "bun --env-file ../../.env src/scripts/seed-mentors.ts"
   },

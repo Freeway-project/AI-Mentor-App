@@ -13,6 +13,7 @@
     "build": "bun run --filter '*' build",
     "build:web": "bun run --filter @owl-mentors/web build",
     "build:api": "bun run --filter @owl-mentors/api build",
+    "smoke:api": "bun run --filter @owl-mentors/api smoke",
     "start:web": "bun run --filter @owl-mentors/web start",
     "start:api": "bun run --filter @owl-mentors/api start",
     "type-check": "bun run --filter '*' type-check",

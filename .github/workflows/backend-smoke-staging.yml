@@ -1,0 +1,34 @@
+name: Backend Smoke Staging
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 10 * * *'
+
+concurrency:
+  group: backend-smoke-staging
+  cancel-in-progress: false
+
+jobs:
+  smoke-staging:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: "1.2.0"
+
+      - name: Run staging backend smoke test
+        env:
+          SMOKE_BASE_URL: ${{ secrets.STAGING_SMOKE_BASE_URL }}
+          SMOKE_MODE: remote
+          SMOKE_ALLOW_WRITES: true
+          SMOKE_ADMIN_EMAIL: ${{ secrets.STAGING_SMOKE_ADMIN_EMAIL }}
+          SMOKE_ADMIN_PASSWORD: ${{ secrets.STAGING_SMOKE_ADMIN_PASSWORD }}
+        run: |
+          test -n "$SMOKE_BASE_URL"
+          test -n "$SMOKE_ADMIN_EMAIL"
+          test -n "$SMOKE_ADMIN_PASSWORD"
+          bun apps/api/scripts/smoke-test.ts

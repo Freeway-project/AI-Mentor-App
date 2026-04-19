@@ -1,0 +1,34 @@
+name: Backend Smoke Production
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 9 * * *'
+
+concurrency:
+  group: backend-smoke-production
+  cancel-in-progress: false
+
+jobs:
+  smoke-production:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: "1.2.0"
+
+      - name: Run production backend smoke test
+        env:
+          SMOKE_BASE_URL: https://ladyfinger.ca/owl-api
+          SMOKE_MODE: remote
+          SMOKE_ALLOW_WRITES: false
+          SMOKE_ADMIN_EMAIL: ${{ secrets.SMOKE_ADMIN_EMAIL }}
+          SMOKE_ADMIN_PASSWORD: ${{ secrets.SMOKE_ADMIN_PASSWORD }}
+        run: |
+          test -n "$SMOKE_BASE_URL"
+          test -n "$SMOKE_ADMIN_EMAIL"
+          test -n "$SMOKE_ADMIN_PASSWORD"
+          bun apps/api/scripts/smoke-test.ts
