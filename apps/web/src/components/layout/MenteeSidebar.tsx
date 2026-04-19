@@ -2,7 +2,8 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { BookOpen, Compass, LayoutDashboard, LogOut, Rocket, User } from 'lucide-react';
+import { BookOpen, Compass, LayoutDashboard, LogOut, User } from 'lucide-react';
+import { BrandLogo } from '@/components/brand/brand-logo';
 import { useAuth } from '@/lib/auth-context';
 
 const NAV = [
@@ -25,10 +26,10 @@ export function MenteeSidebar() {
     <aside className="hidden h-screen w-64 shrink-0 flex-col bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900 text-white lg:flex">
       <div className="border-b border-white/10 px-5 py-5">
         <Link href="/" className="flex items-center gap-2.5">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-violet-500 to-purple-500">
-            <Rocket className="h-4 w-4 text-white" />
-          </div>
-          <span className="text-lg font-bold tracking-tight">OWL Mentor</span>
+          <BrandLogo
+            markClassName="h-9 w-9"
+            wordmarkClassName="text-xs tracking-[0.24em]"
+          />
         </Link>
         <p className="mt-1 pl-0.5 text-xs text-slate-400">Mentee Portal</p>
       </div>

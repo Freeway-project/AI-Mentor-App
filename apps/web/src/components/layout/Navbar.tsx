@@ -3,7 +3,8 @@
 import Link from 'next/link';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Menu, X, Rocket, LogOut, User } from 'lucide-react';
+import { Menu, X, LogOut, User } from 'lucide-react';
+import { BrandLogo } from '@/components/brand/brand-logo';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/lib/auth-context';
 
@@ -28,8 +29,10 @@ export function Navbar() {
             <div className="container mx-auto flex h-16 items-center justify-between px-4 md:px-6">
                 {/* Logo */}
                 <Link href="/" className="flex items-center space-x-2">
-                    <Rocket className="h-6 w-6 text-brand" />
-                    <span className="text-xl font-bold tracking-tight text-slate-900">OWL Mentor</span>
+                    <BrandLogo
+                        markClassName="h-9 w-9"
+                        wordmarkClassName="text-[0.92rem] tracking-[0.22em]"
+                    />
                 </Link>
 
                 {/* Desktop Navigation */}

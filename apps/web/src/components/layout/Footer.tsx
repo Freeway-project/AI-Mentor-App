@@ -1,5 +1,6 @@
 import Link from 'next/link';
-import { Rocket, Github, Twitter, Linkedin } from 'lucide-react';
+import { Github, Twitter, Linkedin } from 'lucide-react';
+import { BrandLogo } from '@/components/brand/brand-logo';
 
 export function Footer() {
     return (
@@ -10,8 +11,10 @@ export function Footer() {
                 <div className="grid grid-cols-1 gap-8 md:grid-cols-4">
                     <div className="space-y-4">
                         <Link href="/" className="flex items-center space-x-2">
-                            <Rocket className="h-6 w-6 text-brand" />
-                            <span className="text-xl font-bold tracking-tight text-slate-900">OWL Mentor</span>
+                            <BrandLogo
+                                markClassName="h-10 w-10"
+                                wordmarkClassName="text-sm tracking-[0.24em]"
+                            />
                         </Link>
                         <p className="text-sm text-slate-500 max-w-xs">
                             Connect with expert mentors to accelerate your career and personal growth.

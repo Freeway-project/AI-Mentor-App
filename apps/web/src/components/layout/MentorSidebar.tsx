@@ -2,7 +2,8 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { Rocket, LayoutDashboard, User, Calendar, Settings, LogOut, Clock, CalendarCheck, FileUp, X, ChevronDown } from 'lucide-react';
+import { LayoutDashboard, User, Calendar, Settings, LogOut, Clock, CalendarCheck, FileUp, X, ChevronDown } from 'lucide-react';
+import { BrandLogo } from '@/components/brand/brand-logo';
 import { useAuth } from '@/lib/auth-context';
 import { useState, useRef, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
@@ -19,6 +20,12 @@ const NAV = [
 interface MentorSidebarProps {
     approvalStatus?: 'pending' | 'approved' | 'rejected' | string;
 }
+
+type MentorSidebarProfile = {
+    id: string;
+    name: string;
+    headline?: string;
+};
 
 const statusConfig = {
     pending: { label: 'Under Review', classes: 'bg-amber-100 text-amber-700 border-amber-200' },
@@ -40,9 +47,12 @@ export function MentorSidebar({ approvalStatus }: MentorSidebarProps) {
     const [showProfileSwitch, setShowProfileSwitch] = useState(false);
     const [activeProfileId, setActiveProfileId] = useState<string | null>(null);
 
-    const { data: profiles } = useQuery({
+    const { data: profiles = [] } = useQuery<MentorSidebarProfile[]>({
         queryKey: ['mentor-profiles'],
-        queryFn: () => apiClient.getMyMentorProfiles(),
+        queryFn: async () => {
+            const profile = await apiClient.getMyMentorProfile();
+            return profile ? [profile as MentorSidebarProfile] : [];
+        },
         enabled: !!user,
     });
 
@@ -58,7 +68,7 @@ export function MentorSidebar({ approvalStatus }: MentorSidebarProps) {
         router.refresh();
     }
 
-    const multiProfile = profiles && profiles.length > 1;
+    const multiProfile = profiles.length > 1;
     const activeProfile = profiles?.find(p => p.id === activeProfileId) ?? profiles?.[0];
 
     const handleUpload = async () => {
@@ -96,10 +106,10 @@ export function MentorSidebar({ approvalStatus }: MentorSidebarProps) {
             {/* Logo */}
             <div className="px-5 py-5 border-b border-white/10">
                 <Link href="/" className="flex items-center gap-2.5">
-                    <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-amber-600 to-amber-700 flex items-center justify-center">
-                        <Rocket className="w-4 h-4 text-white" />
-                    </div>
-                    <span className="text-lg font-bold tracking-tight">OWL Mentor</span>
+                    <BrandLogo
+                        markClassName="h-9 w-9"
+                        wordmarkClassName="text-xs tracking-[0.24em]"
+                    />
                 </Link>
                 <p className="mt-1 text-xs text-slate-400 pl-0.5">Mentor Portal</p>
             </div>

@@ -5,6 +5,7 @@ import nextDynamic from 'next/dynamic';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/lib/auth-context';
+import { BrandLogoImage } from '@/components/brand/brand-logo';
 
 const GoogleAuthButton = nextDynamic(
   () => import('@/components/auth/google-auth-button').then((module) => module.GoogleAuthButton),
@@ -101,12 +102,7 @@ export default function RegisterPage() {
         {/* Logo */}
         <div className="relative z-10 p-8 lg:p-10">
           <Link href="/" className="inline-flex items-center gap-2 group">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-violet-500 to-brand flex items-center justify-center shadow-lg shadow-brand/20">
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                <path d="M8 2L14 5.5V10.5L8 14L2 10.5V5.5L8 2Z" fill="white" fillOpacity="0.9" />
-              </svg>
-            </div>
-            <span className="text-slate-900 font-bold text-lg tracking-tight group-hover:text-brand transition-colors">OWL Mentor</span>
+            <BrandLogoImage className="h-16 w-16" />
           </Link>
         </div>
 
@@ -149,12 +145,7 @@ export default function RegisterPage() {
         {/* Mobile logo */}
         <div className="lg:hidden p-6">
           <Link href="/" className="inline-flex items-center gap-2">
-            <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-brand to-purple-600 flex items-center justify-center shadow-sm">
-              <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
-                <path d="M8 2L14 5.5V10.5L8 14L2 10.5V5.5L8 2Z" fill="white" fillOpacity="0.9" />
-              </svg>
-            </div>
-            <span className="text-slate-900 font-bold tracking-tight">OWL Mentor</span>
+            <BrandLogoImage className="h-12 w-12" />
           </Link>
         </div>
 
