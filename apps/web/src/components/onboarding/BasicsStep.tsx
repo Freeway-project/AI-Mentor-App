@@ -14,9 +14,10 @@ interface BasicsStepProps {
   profile: any;
   userAvatar?: string;
   onComplete: () => void;
+  onAvatarChange?: (url: string) => void;
 }
 
-export function BasicsStep({ profile, userAvatar, onComplete }: BasicsStepProps) {
+export function BasicsStep({ profile, userAvatar, onComplete, onAvatarChange }: BasicsStepProps) {
   const { refreshUser } = useAuth();
   const [headline, setHeadline] = useState(profile?.headline || '');
   const [bio, setBio] = useState(profile?.bio || '');
@@ -34,7 +35,9 @@ export function BasicsStep({ profile, userAvatar, onComplete }: BasicsStepProps)
     const toastId = toast.loading('Uploading photo…');
     try {
       const { avatarUrl: url } = await apiClient.uploadAvatar(file);
-      setAvatarUrl(withCacheBust(url));
+      const busted = withCacheBust(url);
+      setAvatarUrl(busted);
+      onAvatarChange?.(busted);
       await refreshUser();
       toast.success('Profile photo updated', { id: toastId });
     } catch (err: any) {

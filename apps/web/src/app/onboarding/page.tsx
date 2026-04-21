@@ -25,6 +25,7 @@ export default function OnboardingPage() {
   const [currentStep, setCurrentStep] = useState(0);
   const [loading, setLoading] = useState(true);
   const [showTermsModal, setShowTermsModal] = useState(false);
+  const [liveAvatar, setLiveAvatar] = useState<string>('');
 
   useEffect(() => {
     if (authLoading) return;
@@ -146,7 +147,8 @@ export default function OnboardingPage() {
             {currentStep === 0 && (
               <BasicsStep
                 profile={mentorProfile}
-                userAvatar={user?.avatar || ''}
+                userAvatar={liveAvatar || user?.avatar || ''}
+                onAvatarChange={setLiveAvatar}
                 onComplete={async () => {
                   await refreshProfile();
                   goToStep(1);
@@ -174,6 +176,7 @@ export default function OnboardingPage() {
             {currentStep === 3 && (
               <OffersStep
                 mentorId={mentorProfile?.id}
+                hourlyRate={mentorProfile?.hourlyRate}
                 onComplete={async () => {
                   await refreshProfile();
                   goToStep(4);
