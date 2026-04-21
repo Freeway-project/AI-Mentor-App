@@ -4,23 +4,26 @@ import { useState, useEffect } from 'react';
 import { apiClient } from '@/lib/api-client';
 import { Button } from '@/components/ui/button';
 import { Trash2 } from 'lucide-react';
+import { appTheme } from '@/components/ui/app-theme';
+import { cn } from '@/lib/utils';
+
+const SESSION_MINUTES = 60;
 
 interface OffersStepProps {
   mentorId: string;
   onComplete: () => void;
 }
 
-export function OffersStep({ mentorId, onComplete }: OffersStepProps) {
+export function OffersStep({ mentorId: _mentorId, onComplete }: OffersStepProps) {
   const [offers, setOffers] = useState<any[]>([]);
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
-  const [durationMinutes, setDurationMinutes] = useState('60');
   const [price, setPrice] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    apiClient.getMyOffers().then(setOffers).catch(() => { });
+    apiClient.getMyOffers().then(setOffers).catch(() => {});
   }, []);
 
   const handleAdd = async (e: React.FormEvent) => {
@@ -31,13 +34,12 @@ export function OffersStep({ mentorId, onComplete }: OffersStepProps) {
       const offer = await apiClient.createOffer({
         title,
         description: description || undefined,
-        durationMinutes: Number(durationMinutes),
+        durationMinutes: SESSION_MINUTES,
         price: Number(price),
       });
       setOffers([...offers, offer]);
       setTitle('');
       setDescription('');
-      setDurationMinutes('60');
       setPrice('');
     } catch (err: any) {
       setError(err.message || 'Failed to create offer');
@@ -55,34 +57,42 @@ export function OffersStep({ mentorId, onComplete }: OffersStepProps) {
     }
   };
 
-  const inputCls = 'w-full px-3 py-2.5 border border-slate-700/60 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500/50 bg-slate-800/60 text-white placeholder:text-slate-500 text-sm';
-  const labelCls = 'block text-xs font-semibold text-slate-400 mb-1.5 uppercase tracking-wider';
+  const inputCls = cn(appTheme.input, 'text-sm py-2.5');
+  const labelCls = 'block text-xs font-semibold text-slate-500 mb-1.5 uppercase tracking-wider';
 
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-xl font-bold text-white">Session Offers</h2>
-        <p className="text-sm text-slate-400 mt-1">Define what types of sessions you offer to mentees.</p>
+        <h2 className="text-xl font-bold text-slate-900">Session Offers</h2>
+        <p className="mt-1 text-sm text-slate-600">Define what types of sessions you offer to mentees.</p>
+        <p className="mt-3 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700">
+          Each session is <strong>{SESSION_MINUTES} minutes</strong> total, including time to join the call, wrap up,
+          and any virtual setup — not just the conversation itself.
+        </p>
       </div>
 
       {error && (
-        <div className="bg-red-900/30 border border-red-700/50 text-red-400 px-4 py-3 rounded-xl text-sm">{error}</div>
+        <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">{error}</div>
       )}
 
-      {/* Existing offers */}
       {offers.length > 0 && (
         <div className="space-y-2">
           {offers.map((offer) => (
-            <div key={offer.id} className="flex items-center justify-between p-4 bg-slate-800/40 border border-slate-700/50 rounded-xl hover:border-violet-500/20 transition-colors">
+            <div
+              key={offer.id}
+              className="flex items-center justify-between rounded-xl border border-slate-200 bg-white p-4 transition-colors hover:border-brand/30"
+            >
               <div>
-                <p className="font-semibold text-white text-sm">{offer.title}</p>
-                <p className="text-xs text-slate-400 mt-0.5">
-                  {offer.durationMinutes} min &middot; <span className="text-amber-400 font-medium">${offer.price}</span>
+                <p className="text-sm font-semibold text-slate-900">{offer.title}</p>
+                <p className="mt-0.5 text-xs text-slate-600">
+                  {offer.durationMinutes} min (standard session) &middot;{' '}
+                  <span className="font-medium text-amber-700">${offer.price}</span>
                 </p>
               </div>
               <button
+                type="button"
                 onClick={() => handleDelete(offer.id)}
-                className="text-slate-500 hover:text-red-400 transition-colors p-1.5 rounded-lg hover:bg-red-900/20"
+                className="rounded-lg p-1.5 text-slate-400 transition-colors hover:bg-red-50 hover:text-red-600"
               >
                 <Trash2 className="h-4 w-4" />
               </button>
@@ -91,9 +101,8 @@ export function OffersStep({ mentorId, onComplete }: OffersStepProps) {
         </div>
       )}
 
-      {/* Add offer form */}
-      <form onSubmit={handleAdd} className="space-y-3 border-t border-slate-700/50 pt-5">
-        <h3 className="text-sm font-semibold text-slate-300">Add an offer</h3>
+      <form onSubmit={handleAdd} className="space-y-3 border-t border-slate-200 pt-5">
+        <h3 className="text-sm font-semibold text-slate-800">Add an offer</h3>
 
         <div>
           <label className={labelCls}>Session Title</label>
@@ -118,42 +127,42 @@ export function OffersStep({ mentorId, onComplete }: OffersStepProps) {
           />
         </div>
 
-        <div className="grid grid-cols-2 gap-3">
-          <div>
-            <label className={labelCls}>Duration (minutes)</label>
-            <input
-              type="number"
-              required
-              min="15"
-              value={durationMinutes}
-              onChange={(e) => setDurationMinutes(e.target.value)}
-              className={inputCls}
-            />
-          </div>
-          <div>
-            <label className={labelCls}>Price (USD)</label>
-            <input
-              type="number"
-              required
-              min="0"
-              value={price}
-              onChange={(e) => setPrice(e.target.value)}
-              className={inputCls}
-              placeholder="e.g. 75"
-            />
+        <div>
+          <label className={labelCls}>Duration</label>
+          <div className={cn(inputCls, 'cursor-not-allowed bg-slate-50 text-slate-600')}>
+            {SESSION_MINUTES} minutes (fixed)
           </div>
         </div>
 
-        <Button type="submit" variant="outline" disabled={loading} className="bg-slate-100 border-slate-300 text-slate-900 hover:bg-slate-200">
+        <div>
+          <label className={labelCls}>Price (USD)</label>
+          <input
+            type="number"
+            required
+            min="0"
+            value={price}
+            onChange={(e) => setPrice(e.target.value)}
+            className={inputCls}
+            placeholder="e.g. 75"
+          />
+        </div>
+
+        <Button
+          type="submit"
+          variant="outline"
+          disabled={loading}
+          className="border-slate-200 bg-white text-slate-900 hover:bg-slate-50"
+        >
           {loading ? 'Adding…' : '+ Add Offer'}
         </Button>
       </form>
 
       <div className="flex justify-end pt-2">
         <Button
+          type="button"
           onClick={onComplete}
           disabled={offers.length === 0}
-          className="bg-violet-600 hover:bg-violet-700 text-white"
+          className="bg-brand text-white hover:bg-brand-light"
         >
           Continue →
         </Button>

@@ -21,6 +21,8 @@ interface AuthContextType {
   loginWithGoogle: (idToken: string, role?: 'mentee' | 'mentor') => Promise<{ isNew: boolean }>;
   logout: () => void;
   clearAuthState: () => void;
+  /** Re-fetch the current user from the API and update cached state (e.g. after avatar upload). */
+  refreshUser: () => Promise<User | null>;
 }
 
 function readCachedUser(): User | null {
@@ -105,8 +107,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(null);
   }, []);
 
+  const refreshUser = useCallback(async () => {
+    try {
+      const data = await apiClient.getMe();
+      setUser(data);
+      localStorage.setItem('auth_user', JSON.stringify(data));
+      return data;
+    } catch {
+      return null;
+    }
+  }, []);
+
   return (
-    <AuthContext.Provider value={{ user, loading, login, register, loginWithGoogle, logout, clearAuthState }}>
+    <AuthContext.Provider
+      value={{ user, loading, login, register, loginWithGoogle, logout, clearAuthState, refreshUser }}
+    >
       {children}
     </AuthContext.Provider>
   );
