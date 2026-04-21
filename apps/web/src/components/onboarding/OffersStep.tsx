@@ -7,18 +7,28 @@ import { Trash2 } from 'lucide-react';
 import { appTheme } from '@/components/ui/app-theme';
 import { cn } from '@/lib/utils';
 
-const SESSION_MINUTES = 60;
+const PACKAGES = [
+  { label: '½ session (30 min)', sessions: 0.5, minutes: 30 },
+  { label: '1 session (60 min)', sessions: 1, minutes: 60 },
+  { label: '5 sessions (5 × 60 min)', sessions: 5, minutes: 300 },
+  { label: '10 sessions (10 × 60 min)', sessions: 10, minutes: 600 },
+  { label: '20 sessions (20 × 60 min)', sessions: 20, minutes: 1200 },
+];
+
+const DISCOUNT_OPTIONS = [0, 5, 10, 15, 20, 25, 30];
 
 interface OffersStepProps {
   mentorId: string;
+  hourlyRate?: number;
   onComplete: () => void;
 }
 
-export function OffersStep({ mentorId: _mentorId, onComplete }: OffersStepProps) {
+export function OffersStep({ mentorId: _mentorId, hourlyRate, onComplete }: OffersStepProps) {
   const [offers, setOffers] = useState<any[]>([]);
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
-  const [price, setPrice] = useState('');
+  const [packageIndex, setPackageIndex] = useState(1); // default: 1 session
+  const [discount, setDiscount] = useState(0);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -26,21 +36,28 @@ export function OffersStep({ mentorId: _mentorId, onComplete }: OffersStepProps)
     apiClient.getMyOffers().then(setOffers).catch(() => {});
   }, []);
 
+  const pkg = PACKAGES[packageIndex];
+  const base = hourlyRate ? +(hourlyRate * pkg.sessions * (1 - discount / 100)).toFixed(2) : null;
+  const gst = base !== null ? +(base * 0.05).toFixed(2) : null;
+  const total = base !== null && gst !== null ? +(base + gst).toFixed(2) : null;
+
   const handleAdd = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (base === null) return;
     setError('');
     setLoading(true);
     try {
       const offer = await apiClient.createOffer({
         title,
         description: description || undefined,
-        durationMinutes: SESSION_MINUTES,
-        price: Number(price),
+        durationMinutes: pkg.minutes,
+        price: base,
       });
       setOffers([...offers, offer]);
       setTitle('');
       setDescription('');
-      setPrice('');
+      setPackageIndex(1);
+      setDiscount(0);
     } catch (err: any) {
       setError(err.message || 'Failed to create offer');
     } finally {
@@ -64,10 +81,8 @@ export function OffersStep({ mentorId: _mentorId, onComplete }: OffersStepProps)
     <div className="space-y-6">
       <div>
         <h2 className="text-xl font-bold text-slate-900">Session Offers</h2>
-        <p className="mt-1 text-sm text-slate-600">Define what types of sessions you offer to mentees.</p>
-        <p className="mt-3 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700">
-          Each session is <strong>{SESSION_MINUTES} minutes</strong> total, including time to join the call, wrap up,
-          and any virtual setup — not just the conversation itself.
+        <p className="mt-1 text-sm text-slate-600">
+          Create packages for mentees to book. Each session is 60 minutes including call setup and wrap-up.
         </p>
       </div>
 
@@ -85,8 +100,9 @@ export function OffersStep({ mentorId: _mentorId, onComplete }: OffersStepProps)
               <div>
                 <p className="text-sm font-semibold text-slate-900">{offer.title}</p>
                 <p className="mt-0.5 text-xs text-slate-600">
-                  {offer.durationMinutes} min (standard session) &middot;{' '}
+                  {offer.durationMinutes} min &middot;{' '}
                   <span className="font-medium text-amber-700">${offer.price}</span>
+                  {' '}(+5% GST)
                 </p>
               </div>
               <button
@@ -101,7 +117,7 @@ export function OffersStep({ mentorId: _mentorId, onComplete }: OffersStepProps)
         </div>
       )}
 
-      <form onSubmit={handleAdd} className="space-y-3 border-t border-slate-200 pt-5">
+      <form onSubmit={handleAdd} className="space-y-4 border-t border-slate-200 pt-5">
         <h3 className="text-sm font-semibold text-slate-800">Add an offer</h3>
 
         <div>
@@ -127,30 +143,53 @@ export function OffersStep({ mentorId: _mentorId, onComplete }: OffersStepProps)
           />
         </div>
 
-        <div>
-          <label className={labelCls}>Duration</label>
-          <div className={cn(inputCls, 'cursor-not-allowed bg-slate-50 text-slate-600')}>
-            {SESSION_MINUTES} minutes (fixed)
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <label className={labelCls}>Package</label>
+            <select
+              value={packageIndex}
+              onChange={(e) => setPackageIndex(Number(e.target.value))}
+              className={cn(inputCls, 'cursor-pointer')}
+            >
+              {PACKAGES.map((p, i) => (
+                <option key={p.label} value={i}>{p.label}</option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label className={labelCls}>Discount</label>
+            <select
+              value={discount}
+              onChange={(e) => setDiscount(Number(e.target.value))}
+              className={cn(inputCls, 'cursor-pointer')}
+            >
+              {DISCOUNT_OPTIONS.map((d) => (
+                <option key={d} value={d}>{d === 0 ? 'No discount' : `${d}% off`}</option>
+              ))}
+            </select>
           </div>
         </div>
 
-        <div>
-          <label className={labelCls}>Price (USD)</label>
-          <input
-            type="number"
-            required
-            min="0"
-            value={price}
-            onChange={(e) => setPrice(e.target.value)}
-            className={inputCls}
-            placeholder="e.g. 75"
-          />
-        </div>
+        {/* Pricing breakdown */}
+        {hourlyRate ? (
+          <div className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm space-y-1">
+            <p className="text-slate-600">
+              ${hourlyRate}/hr × {pkg.sessions} session{pkg.sessions !== 1 ? 's' : ''}
+              {discount > 0 && <> × {discount}% discount</>}
+              {' '}= <span className="font-semibold text-slate-900">${base}</span>
+            </p>
+            <p className="text-slate-500 text-xs">+ ${gst} GST (5%) = <span className="font-semibold text-slate-800">${total} total</span></p>
+          </div>
+        ) : (
+          <p className="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-xl px-3 py-2">
+            Set your hourly rate in the Expertise step to enable auto-pricing.
+          </p>
+        )}
 
         <Button
           type="submit"
           variant="outline"
-          disabled={loading}
+          disabled={loading || base === null}
           className="border-slate-200 bg-white text-slate-900 hover:bg-slate-50"
         >
           {loading ? 'Adding…' : '+ Add Offer'}

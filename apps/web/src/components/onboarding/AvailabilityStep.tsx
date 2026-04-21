@@ -182,26 +182,32 @@ export function AvailabilityStep({ profile, onComplete }: AvailabilityStepProps)
         <h3 className="text-sm font-semibold text-slate-800">Cancellation Policies</h3>
 
         <div>
-          <label className={labelCls}>Cancellation Notice (hours)</label>
-          <input
-            type="number"
-            min="0"
+          <label className={labelCls}>Cancellation Notice</label>
+          <select
             value={cancellationHours}
             onChange={(e) => setCancellationHours(e.target.value)}
-            className={inputCls}
-          />
+            className={cn(inputCls, 'cursor-pointer')}
+          >
+            <option value="12">12 hours before</option>
+            <option value="24">24 hours before</option>
+            <option value="48">48 hours before</option>
+            <option value="72">72 hours before</option>
+          </select>
           <p className={hintCls}>How many hours before a session can a mentee cancel?</p>
         </div>
 
         <div>
-          <label className={labelCls}>Reschedule Notice (hours)</label>
-          <input
-            type="number"
-            min="0"
+          <label className={labelCls}>Reschedule Notice</label>
+          <select
             value={rescheduleHours}
             onChange={(e) => setRescheduleHours(e.target.value)}
-            className={inputCls}
-          />
+            className={cn(inputCls, 'cursor-pointer')}
+          >
+            <option value="12">12 hours before</option>
+            <option value="24">24 hours before</option>
+            <option value="48">48 hours before</option>
+            <option value="72">72 hours before</option>
+          </select>
           <p className={hintCls}>How many hours before a session can a mentee reschedule?</p>
         </div>
 
