@@ -91,15 +91,15 @@ function escapeHtml(input: string): string {
 
 export const EmailService = {
   async sendOtp(to: string, code: string): Promise<void> {
-    const fromName = process.env.SMTP_FROM_NAME || 'OWL Mentor';
-    const fromEmail = process.env.SMTP_FROM_EMAIL || process.env.SMTP_FROM || 'noreply@owlmentor.com';
+    const fromName = process.env.SMTP_FROM_NAME || 'Owl Mentors';
+    const fromEmail = process.env.SMTP_FROM_EMAIL || process.env.SMTP_FROM || 'noreply@owlmentors.com';
     const from = `${fromName} <${fromEmail}>`;
-    const subject = 'Your OWL Mentor verification code';
+    const subject = 'Your Owl Mentors verification code';
     const html = `
       <div style="font-family:sans-serif;max-width:480px;margin:auto;padding:32px">
         <h2 style="color:#1e40af;font-size:24px;margin-bottom:8px">Verify your email</h2>
         <p style="color:#475569;margin-bottom:24px">
-          Enter the 6-digit code below to verify your OWL Mentor account.
+          Enter the 6-digit code below to verify your Owl Mentors account.
           This code expires in <strong>10 minutes</strong>.
         </p>
         <div style="background:#f1f5f9;border-radius:12px;padding:24px;text-align:center;letter-spacing:12px;font-size:36px;font-weight:700;color:#0f172a">

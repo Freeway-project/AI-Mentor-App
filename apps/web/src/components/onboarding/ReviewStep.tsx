@@ -8,12 +8,13 @@ const DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 
 
 interface ReviewStepProps {
   profile: any;
-  onPublish: () => void;
+  onPublish: () => Promise<void>;
 }
 
 export function ReviewStep({ profile, onPublish }: ReviewStepProps) {
   const [offers, setOffers] = useState<any[]>([]);
   const [policy, setPolicy] = useState<any>(null);
+  const [dataLoading, setDataLoading] = useState(true);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -21,7 +22,7 @@ export function ReviewStep({ profile, onPublish }: ReviewStepProps) {
     Promise.all([
       apiClient.getMyOffers().then(setOffers).catch(() => {}),
       apiClient.getMyPolicies().then(setPolicy).catch(() => {}),
-    ]);
+    ]).finally(() => setDataLoading(false));
   }, []);
 
   const handlePublish = async () => {
@@ -30,7 +31,11 @@ export function ReviewStep({ profile, onPublish }: ReviewStepProps) {
     try {
       await onPublish();
     } catch (err: any) {
-      setError(err.message || 'Failed to submit profile');
+      if (err.code === 'EMAIL_NOT_VERIFIED' || err.message?.toLowerCase().includes('verify your email')) {
+        setError('Your email is not verified. Please log out and verify your email before submitting.');
+      } else {
+        setError(err.message || 'Failed to submit profile');
+      }
     } finally {
       setLoading(false);
     }
@@ -38,6 +43,16 @@ export function ReviewStep({ profile, onPublish }: ReviewStepProps) {
 
   const sectionCls = 'space-y-3 rounded-xl border border-slate-200 bg-slate-50/80 p-4';
   const rowCls = 'grid grid-cols-[120px_1fr] gap-2 text-sm';
+
+  if (dataLoading) {
+    return (
+      <div className="space-y-4 animate-pulse">
+        {[...Array(4)].map((_, i) => (
+          <div key={i} className="h-24 rounded-xl bg-slate-100" />
+        ))}
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">

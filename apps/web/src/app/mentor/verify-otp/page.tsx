@@ -2,7 +2,8 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Navbar } from '@/components/layout/Navbar';
+import Link from 'next/link';
+import { BrandLogoImage } from '@/components/brand/brand-logo';
 import { Mail } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -129,11 +130,18 @@ export default function VerifyOtpPage() {
   }
 
   return (
-    <div className="h-screen flex flex-col overflow-hidden">
-      <Navbar />
-      <div className="flex-1 overflow-y-auto flex items-center justify-center bg-slate-50 px-4">
+    <div className="min-h-screen flex flex-col bg-slate-50">
+      <div className="flex items-center px-6 py-4 border-b border-slate-200 bg-white">
+        <Link href="/">
+          <BrandLogoImage className="h-10 w-10" />
+        </Link>
+      </div>
+      <div className="flex-1 flex items-center justify-center px-4 py-10">
         <div className="w-full max-w-md space-y-8">
           <div className="text-center">
+            <div className="mb-6 flex justify-center">
+              <BrandLogoImage className="h-16 w-16" />
+            </div>
             <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-violet-100 mb-4">
               <Mail className="w-6 h-6 text-violet-600" />
             </div>

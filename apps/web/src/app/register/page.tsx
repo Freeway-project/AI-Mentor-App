@@ -40,7 +40,8 @@ export default function RegisterPage() {
       const response = await register(email, password, name, role);
 
       if (response?.nextStep === 'verify-otp') {
-        router.push(`/verify-otp?email=${encodeURIComponent(email)}`);
+        const otpPath = role === 'mentor' ? '/mentor/verify-otp' : '/mentee/verify-otp';
+        router.push(`${otpPath}?email=${encodeURIComponent(email)}`);
       } else if (role === 'mentor') {
         router.push('/onboarding');
       } else {
