@@ -5,20 +5,25 @@ import { apiClient } from '@/lib/api-client';
 import { Button } from '@/components/ui/button';
 import { Upload, Camera, X } from 'lucide-react';
 import { toast } from 'sonner';
+import { useAuth } from '@/lib/auth-context';
+import { withCacheBust } from '@/lib/cache-bust-url';
+import { appTheme } from '@/components/ui/app-theme';
+import { cn } from '@/lib/utils';
 
 interface BasicsStepProps {
   profile: any;
   userAvatar?: string;
   onComplete: () => void;
+  onAvatarChange?: (url: string) => void;
 }
 
-export function BasicsStep({ profile, userAvatar, onComplete }: BasicsStepProps) {
+export function BasicsStep({ profile, userAvatar, onComplete, onAvatarChange }: BasicsStepProps) {
+  const { refreshUser } = useAuth();
   const [headline, setHeadline] = useState(profile?.headline || '');
   const [bio, setBio] = useState(profile?.bio || '');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  // avatar
   const [avatarUrl, setAvatarUrl] = useState<string>(userAvatar || profile?.avatarUrl || '');
   const [avatarLoading, setAvatarLoading] = useState(false);
   const avatarInputRef = useRef<HTMLInputElement>(null);
@@ -30,7 +35,10 @@ export function BasicsStep({ profile, userAvatar, onComplete }: BasicsStepProps)
     const toastId = toast.loading('Uploading photo…');
     try {
       const { avatarUrl: url } = await apiClient.uploadAvatar(file);
-      setAvatarUrl(url);
+      const busted = withCacheBust(url);
+      setAvatarUrl(busted);
+      onAvatarChange?.(busted);
+      await refreshUser();
       toast.success('Profile photo updated', { id: toastId });
     } catch (err: any) {
       toast.error(err.message || 'Failed to upload photo', { id: toastId });
@@ -54,38 +62,41 @@ export function BasicsStep({ profile, userAvatar, onComplete }: BasicsStepProps)
     }
   };
 
-  const inputCls = 'w-full px-3 py-2.5 border border-slate-700/60 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500/50 bg-slate-800/60 text-white placeholder:text-slate-500 text-sm';
-  const labelCls = 'block text-xs font-semibold text-slate-400 mb-1.5 uppercase tracking-wider';
+  const inputCls = cn(appTheme.input, 'text-sm py-2.5');
+  const labelCls = 'block text-xs font-semibold text-slate-500 mb-1.5 uppercase tracking-wider';
 
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-xl font-bold text-white">The basics</h2>
-        <p className="text-sm text-slate-400 mt-1">Add a photo and introduce yourself to potential mentees.</p>
+        <h2 className="text-xl font-bold text-slate-900">The basics</h2>
+        <p className="mt-1 text-sm text-slate-600">Add a photo and introduce yourself to potential mentees.</p>
       </div>
 
       {error && (
-        <div className="bg-red-900/30 border border-red-700/50 text-red-400 px-4 py-3 rounded-xl text-sm flex items-center justify-between">
+        <div className="flex items-center justify-between rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
           {error}
-          <button onClick={() => setError('')}><X className="w-4 h-4" /></button>
+          <button type="button" onClick={() => setError('')}>
+            <X className="h-4 w-4" />
+          </button>
         </div>
       )}
 
-      {/* Profile Photo */}
       <div className="space-y-3">
         <div>
-          <p className={labelCls}>Profile Photo <span className="normal-case font-normal text-slate-600">(optional)</span></p>
-          <p className="text-xs text-slate-600">JPEG, PNG or WebP · max 5 MB</p>
+          <p className={labelCls}>
+            Profile Photo <span className="normal-case font-normal text-slate-500">(optional)</span>
+          </p>
+          <p className="text-xs text-slate-500">JPEG, PNG or WebP · max 5 MB</p>
         </div>
         <div className="flex items-center gap-5">
           <div className="relative shrink-0">
-            <div className="w-20 h-20 rounded-full bg-slate-800/80 border-2 border-slate-700/60 overflow-hidden shadow-lg">
+            <div className="h-20 w-20 overflow-hidden rounded-full border-2 border-slate-200 bg-slate-100 shadow-md">
               {avatarUrl ? (
                 // eslint-disable-next-line @next/next/no-img-element
-                <img src={avatarUrl} alt="Profile" className="w-full h-full object-cover" />
+                <img src={avatarUrl} alt="Profile" className="h-full w-full object-cover" />
               ) : (
-                <div className="w-full h-full flex items-center justify-center text-slate-600">
-                  <Camera className="w-7 h-7" />
+                <div className="flex h-full w-full items-center justify-center text-slate-400">
+                  <Camera className="h-7 w-7" />
                 </div>
               )}
             </div>
@@ -93,31 +104,43 @@ export function BasicsStep({ profile, userAvatar, onComplete }: BasicsStepProps)
               type="button"
               disabled={avatarLoading}
               onClick={() => avatarInputRef.current?.click()}
-              className="absolute inset-0 rounded-full bg-black/50 opacity-0 hover:opacity-100 transition-opacity flex items-center justify-center"
+              className="absolute inset-0 flex items-center justify-center rounded-full bg-black/40 opacity-0 transition-opacity hover:opacity-100"
             >
-              <Upload className="w-5 h-5 text-white" />
+              <Upload className="h-5 w-5 text-white" />
             </button>
           </div>
           <div className="space-y-1.5">
-            <input ref={avatarInputRef} type="file" accept="image/jpeg,image/png,image/webp,image/gif" className="hidden" onChange={handleAvatarChange} />
-            <Button type="button" variant="outline" size="sm" disabled={avatarLoading} onClick={() => avatarInputRef.current?.click()} className="bg-slate-100 border-slate-300 text-slate-900 hover:bg-slate-200">
+            <input
+              ref={avatarInputRef}
+              type="file"
+              accept="image/jpeg,image/png,image/webp,image/gif"
+              className="hidden"
+              onChange={handleAvatarChange}
+            />
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              disabled={avatarLoading}
+              onClick={() => avatarInputRef.current?.click()}
+              className="border-slate-200 bg-white text-slate-900 hover:bg-slate-50"
+            >
               {avatarLoading ? 'Uploading…' : avatarUrl ? 'Change photo' : 'Upload photo'}
             </Button>
-            {avatarUrl && <p className="text-xs text-green-400">✓ Photo uploaded</p>}
+            {avatarUrl ? <p className="text-xs text-emerald-600">✓ Photo uploaded</p> : null}
           </div>
         </div>
       </div>
 
-      <div className="border-t border-slate-700/50" />
+      <div className="border-t border-slate-200" />
 
-      {/* Headline & Bio */}
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
           <label className={labelCls}>Headline</label>
           <input
             type="text"
             value={headline}
-            onChange={e => setHeadline(e.target.value)}
+            onChange={(e) => setHeadline(e.target.value)}
             className={inputCls}
             placeholder="e.g. Senior React Developer & Mentor"
             maxLength={200}
@@ -128,7 +151,7 @@ export function BasicsStep({ profile, userAvatar, onComplete }: BasicsStepProps)
           <label className={labelCls}>Bio</label>
           <textarea
             value={bio}
-            onChange={e => setBio(e.target.value)}
+            onChange={(e) => setBio(e.target.value)}
             className={inputCls}
             rows={5}
             placeholder="Share your background, experience, and what you can help with…"
@@ -136,7 +159,7 @@ export function BasicsStep({ profile, userAvatar, onComplete }: BasicsStepProps)
           />
         </div>
 
-        <Button type="submit" disabled={loading} className="w-full bg-violet-600 hover:bg-violet-700 text-white">
+        <Button type="submit" disabled={loading} className="w-full bg-brand text-white hover:bg-brand-light">
           {loading ? 'Saving…' : 'Save & Continue →'}
         </Button>
       </form>

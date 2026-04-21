@@ -19,7 +19,7 @@ type BrandLogoImageProps = {
   alt?: string;
 };
 
-export function BrandMark({ className, title = 'OWL Mentors owl logo' }: BrandMarkProps) {
+export function BrandMark({ className, title = 'Owl Mentors owl logo' }: BrandMarkProps) {
   const id = useId().replace(/:/g, '');
   const goldGradientId = `${id}-gold`;
   const glowGradientId = `${id}-glow`;
@@ -91,12 +91,12 @@ export function BrandLogo({
       {showWordmark ? (
         <span
           className={cn(
-            'bg-gradient-to-r from-amber-200 via-yellow-400 to-amber-600 bg-clip-text font-semibold uppercase leading-none text-transparent',
+            'bg-gradient-to-r from-amber-200 via-yellow-400 to-amber-600 bg-clip-text font-semibold leading-none text-transparent',
             stacked ? 'text-lg tracking-[0.32em]' : 'text-sm tracking-[0.24em]',
             wordmarkClassName
           )}
         >
-          OWL MENTORS
+          Owl Mentors
         </span>
       ) : null}
     </div>
@@ -105,7 +105,7 @@ export function BrandLogo({
 
 export function BrandLogoImage({
   className,
-  alt = 'OWL Mentors logo',
+  alt = 'Owl Mentors logo',
 }: BrandLogoImageProps) {
   return (
     <img

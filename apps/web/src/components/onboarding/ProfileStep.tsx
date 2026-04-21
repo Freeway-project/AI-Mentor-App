@@ -5,6 +5,8 @@ import { apiClient } from '@/lib/api-client';
 import { Button } from '@/components/ui/button';
 import { Trash2, Upload, FileText, Video, X, Camera, CheckCircle2 } from 'lucide-react';
 import { toast } from 'sonner';
+import { useAuth } from '@/lib/auth-context';
+import { withCacheBust } from '@/lib/cache-bust-url';
 
 interface ProfileStepProps {
   profile: any;
@@ -13,6 +15,7 @@ interface ProfileStepProps {
 }
 
 export function ProfileStep({ profile, userAvatar, onComplete }: ProfileStepProps) {
+  const { refreshUser } = useAuth();
   // ── text fields ──────────────────────────────────────────────────────────
   const [headline, setHeadline] = useState(profile?.headline || '');
   const [bio, setBio] = useState(profile?.bio || '');
@@ -35,7 +38,8 @@ export function ProfileStep({ profile, userAvatar, onComplete }: ProfileStepProp
     const toastId = toast.loading('Uploading photo…');
     try {
       const { avatarUrl: url } = await apiClient.uploadAvatar(file);
-      setAvatarUrl(url);
+      setAvatarUrl(withCacheBust(url));
+      await refreshUser();
       toast.success('Profile photo updated', { id: toastId });
     } catch (err: any) {
       toast.error(err.message || 'Failed to upload photo', { id: toastId });

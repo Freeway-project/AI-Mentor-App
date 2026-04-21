@@ -12,6 +12,8 @@ import { OffersStep } from '@/components/onboarding/OffersStep';
 import { AvailabilityStep } from '@/components/onboarding/AvailabilityStep';
 import { ReviewStep } from '@/components/onboarding/ReviewStep';
 import { TermsAcceptanceModal } from '@/components/onboarding/TermsAcceptanceModal';
+import { AppPageShell } from '@/components/ui/app-theme';
+import { cn } from '@/lib/utils';
 
 const STEPS = ['basics', 'expertise', 'verification', 'offers', 'availability', 'review'] as const;
 const STEP_LABELS = ['Basics', 'Expertise', 'Verification', 'Offers', 'Schedule', 'Review'];
@@ -20,10 +22,10 @@ export default function OnboardingPage() {
   const { user, loading: authLoading } = useAuth();
   const router = useRouter();
   const [mentorProfile, setMentorProfile] = useState<any>(null);
-  const [userAvatar, setUserAvatar] = useState<string>('');
   const [currentStep, setCurrentStep] = useState(0);
   const [loading, setLoading] = useState(true);
   const [showTermsModal, setShowTermsModal] = useState(false);
+  const [liveAvatar, setLiveAvatar] = useState<string>('');
 
   useEffect(() => {
     if (authLoading) return;
@@ -34,16 +36,11 @@ export default function OnboardingPage() {
 
     const loadProfile = async () => {
       try {
-        const [profile, me] = await Promise.all([
-          apiClient.getMyMentorProfile().catch(() => null),
-          apiClient.getMe().catch(() => null),
-        ]);
-
-        if (me?.avatar) setUserAvatar(me.avatar);
+        const profile = await apiClient.getMyMentorProfile().catch(() => null);
 
         if (profile) {
           setMentorProfile(profile);
-          const stepIndex = STEPS.indexOf(profile.onboardingStep as typeof STEPS[number]);
+          const stepIndex = STEPS.indexOf(profile.onboardingStep as (typeof STEPS)[number]);
           if (stepIndex >= 0) setCurrentStep(stepIndex);
           if (profile.onboardingStep === 'published') {
             router.push('/mentor/dashboard');
@@ -61,7 +58,6 @@ export default function OnboardingPage() {
           }
         }
 
-        // Show terms modal if the user has not accepted yet
         const termsKey = `owl-terms-accepted-${user.id}`;
         if (!localStorage.getItem(termsKey)) {
           setShowTermsModal(true);
@@ -91,90 +87,109 @@ export default function OnboardingPage() {
 
   if (authLoading || loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #0a0a1a 0%, #0d1117 30%, #0f0b1e 60%, #0a0e1a 100%)' }}>
-        <div className="w-8 h-8 border-4 border-violet-500 border-t-transparent rounded-full animate-spin" />
-      </div>
+      <AppPageShell>
+        <div className="flex flex-1 items-center justify-center py-24">
+          <div className="h-8 w-8 animate-spin rounded-full border-4 border-brand border-t-transparent" />
+        </div>
+      </AppPageShell>
     );
   }
 
   return (
-    <div className="min-h-screen flex flex-col relative overflow-hidden" style={{ background: 'linear-gradient(135deg, #0a0a1a 0%, #0d1117 30%, #0f0b1e 60%, #0a0e1a 100%)' }}>
-      <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute inset-0 opacity-[0.07]" style={{ backgroundImage: 'radial-gradient(circle, #475569 1px, transparent 1px)', backgroundSize: '32px 32px' }} />
-        <div className="absolute top-1/4 right-1/4 w-[600px] h-[600px] rounded-full bg-violet-600/5 blur-[120px]" />
-        <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-violet-500/30 to-transparent" />
-      </div>
-
+    <AppPageShell>
       <Navbar />
 
       <TermsAcceptanceModal open={showTermsModal} onAccept={handleTermsAccepted} />
 
-      <div className="flex-1 relative z-10 w-full py-10 pb-16">
+      <div className="relative z-10 flex w-full flex-1 py-10 pb-16">
         <div className="container mx-auto max-w-2xl px-4">
-          <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold tracking-tight text-white">Set up your mentor profile</h1>
-            <p className="text-slate-400 mt-2 text-sm">Complete each step to submit your profile for review</p>
+          <div className="mb-8 text-center">
+            <h1 className="text-3xl font-bold tracking-tight text-slate-900">Set up your mentor profile</h1>
+            <p className="mt-2 text-sm text-slate-600">Complete each step to submit your profile for review</p>
           </div>
 
-          {/* Progress stepper */}
-          <div className="flex items-center mb-8">
+          <div className="mb-8 flex items-center">
             {STEP_LABELS.map((label, i) => (
-              <div key={label} className="flex items-center flex-1">
+              <div key={label} className="flex flex-1 items-center">
                 <button
+                  type="button"
                   onClick={() => goToStep(i)}
-                  className={`flex items-center justify-center w-9 h-9 rounded-full text-sm font-semibold transition-all shadow-md ${
-                    i === currentStep
-                      ? 'bg-violet-600 text-white shadow-violet-500/30 ring-2 ring-violet-500/40'
-                      : i < currentStep
-                        ? 'bg-green-500/20 text-green-400 border border-green-500/40'
-                        : 'bg-slate-800/80 text-slate-500 border border-slate-700/60'
-                  }`}
+                  className={cn(
+                    'flex h-9 w-9 items-center justify-center rounded-full text-sm font-semibold shadow-md transition-all',
+                    i === currentStep &&
+                      'bg-brand text-white shadow-brand/25 ring-2 ring-brand/40 ring-offset-2 ring-offset-[#faf8f4]',
+                    i < currentStep && 'border border-emerald-300 bg-emerald-50 text-emerald-700',
+                    i > currentStep && 'border border-slate-200 bg-white text-slate-400'
+                  )}
                 >
                   {i < currentStep ? '✓' : i + 1}
                 </button>
-                <span className={`ml-2 text-xs hidden sm:inline font-medium ${
-                  i === currentStep ? 'text-violet-300' : i < currentStep ? 'text-green-400' : 'text-slate-600'
-                }`}>
+                <span
+                  className={cn(
+                    'ml-2 hidden text-xs font-medium sm:inline',
+                    i === currentStep && 'text-brand',
+                    i < currentStep && 'text-emerald-600',
+                    i > currentStep && 'text-slate-400'
+                  )}
+                >
                   {label}
                 </span>
                 {i < STEP_LABELS.length - 1 && (
-                  <div className={`flex-1 h-px mx-3 ${i < currentStep ? 'bg-green-500/40' : 'bg-slate-700/60'}`} />
+                  <div
+                    className={cn('mx-3 h-px flex-1', i < currentStep ? 'bg-emerald-200' : 'bg-slate-200')}
+                  />
                 )}
               </div>
             ))}
           </div>
 
-          {/* Step content card */}
-          <div className="bg-slate-900/50 backdrop-blur-md rounded-2xl border border-slate-800/80 p-6 md:p-8 shadow-2xl">
+          <div className="rounded-2xl border border-slate-200 bg-white/90 p-6 shadow-[0_4px_24px_rgba(0,0,0,0.06)] backdrop-blur-md md:p-8">
             {currentStep === 0 && (
               <BasicsStep
                 profile={mentorProfile}
-                userAvatar={userAvatar}
-                onComplete={async () => { await refreshProfile(); goToStep(1); }}
+                userAvatar={liveAvatar || user?.avatar || ''}
+                onAvatarChange={setLiveAvatar}
+                onComplete={async () => {
+                  await refreshProfile();
+                  goToStep(1);
+                }}
               />
             )}
             {currentStep === 1 && (
               <ExpertiseStep
                 profile={mentorProfile}
-                onComplete={async () => { await refreshProfile(); goToStep(2); }}
+                onComplete={async () => {
+                  await refreshProfile();
+                  goToStep(2);
+                }}
               />
             )}
             {currentStep === 2 && (
               <VerificationStep
                 profile={mentorProfile}
-                onComplete={async () => { await refreshProfile(); goToStep(3); }}
+                onComplete={async () => {
+                  await refreshProfile();
+                  goToStep(3);
+                }}
               />
             )}
             {currentStep === 3 && (
               <OffersStep
                 mentorId={mentorProfile?.id}
-                onComplete={async () => { await refreshProfile(); goToStep(4); }}
+                hourlyRate={mentorProfile?.hourlyRate}
+                onComplete={async () => {
+                  await refreshProfile();
+                  goToStep(4);
+                }}
               />
             )}
             {currentStep === 4 && (
               <AvailabilityStep
                 profile={mentorProfile}
-                onComplete={async () => { await refreshProfile(); goToStep(5); }}
+                onComplete={async () => {
+                  await refreshProfile();
+                  goToStep(5);
+                }}
               />
             )}
             {currentStep === 5 && (
@@ -189,6 +204,6 @@ export default function OnboardingPage() {
           </div>
         </div>
       </div>
-    </div>
+    </AppPageShell>
   );
 }

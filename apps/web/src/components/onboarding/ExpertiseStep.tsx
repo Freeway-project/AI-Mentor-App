@@ -4,6 +4,11 @@ import { useState } from 'react';
 import { apiClient } from '@/lib/api-client';
 import { Button } from '@/components/ui/button';
 import { X } from 'lucide-react';
+import { SkillTokenInput } from '@/components/onboarding/SkillTokenInput';
+import { LanguageMultiSelect } from '@/components/onboarding/LanguageMultiSelect';
+import { SKILL_SUGGESTIONS } from '@/data/skill-suggestions';
+import { appTheme } from '@/components/ui/app-theme';
+import { cn } from '@/lib/utils';
 
 interface ExpertiseStepProps {
   profile: any;
@@ -11,9 +16,11 @@ interface ExpertiseStepProps {
 }
 
 export function ExpertiseStep({ profile, onComplete }: ExpertiseStepProps) {
-  const [specialties, setSpecialties] = useState(profile?.specialties?.join(', ') || '');
-  const [expertise, setExpertise] = useState(profile?.expertise?.join(', ') || '');
-  const [languages, setLanguages] = useState(profile?.languages?.join(', ') || 'English');
+  const [specialties, setSpecialties] = useState<string[]>(profile?.specialties?.length ? profile.specialties : []);
+  const [expertise, setExpertise] = useState<string[]>(profile?.expertise?.length ? profile.expertise : []);
+  const [languages, setLanguages] = useState<string[]>(
+    profile?.languages?.length ? profile.languages : ['English']
+  );
   const [hourlyRate, setHourlyRate] = useState(profile?.hourlyRate?.toString() || '');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -24,9 +31,9 @@ export function ExpertiseStep({ profile, onComplete }: ExpertiseStepProps) {
     setLoading(true);
     try {
       await apiClient.updateMyMentorProfile({
-        specialties: specialties.split(',').map((s: string) => s.trim()).filter(Boolean),
-        expertise: expertise.split(',').map((s: string) => s.trim()).filter(Boolean),
-        languages: languages.split(',').map((s: string) => s.trim()).filter(Boolean),
+        specialties,
+        expertise,
+        languages: languages.length ? languages : ['English'],
         hourlyRate: hourlyRate ? Number(hourlyRate) : undefined,
       });
       onComplete();
@@ -37,58 +44,53 @@ export function ExpertiseStep({ profile, onComplete }: ExpertiseStepProps) {
     }
   };
 
-  const inputCls = 'w-full px-3 py-2.5 border border-slate-700/60 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500/50 bg-slate-800/60 text-white placeholder:text-slate-500 text-sm';
-  const labelCls = 'block text-xs font-semibold text-slate-400 mb-1.5 uppercase tracking-wider';
-  const hintCls = 'text-xs text-slate-600 mt-1';
+  const inputCls = cn(appTheme.input, 'text-sm py-2.5');
+  const labelCls = 'block text-xs font-semibold text-slate-500 mb-1.5 uppercase tracking-wider';
+  const hintCls = 'text-xs text-slate-500 mt-1';
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       <div>
-        <h2 className="text-xl font-bold text-white">Your expertise</h2>
-        <p className="text-sm text-slate-400 mt-1">Help mentees find you based on what you know and teach.</p>
+        <h2 className="text-xl font-bold text-slate-900">Your expertise</h2>
+        <p className="mt-1 text-sm text-slate-600">Help mentees find you based on what you know and teach.</p>
       </div>
 
       {error && (
-        <div className="bg-red-900/30 border border-red-700/50 text-red-400 px-4 py-3 rounded-xl text-sm flex items-center justify-between">
+        <div className="flex items-center justify-between rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
           {error}
-          <button type="button" onClick={() => setError('')}><X className="w-4 h-4" /></button>
+          <button type="button" onClick={() => setError('')}>
+            <X className="h-4 w-4" />
+          </button>
         </div>
       )}
 
-      <div>
-        <label className={labelCls}>Specialties <span className="normal-case font-normal text-slate-600">(comma-separated)</span></label>
-        <input
-          type="text"
-          value={specialties}
-          onChange={e => setSpecialties(e.target.value)}
-          className={inputCls}
-          placeholder="e.g. React, TypeScript, System Design"
-        />
-        <p className={hintCls}>Topics you specialize in — used to match you with mentees</p>
-      </div>
+      <SkillTokenInput
+        label={
+          <span className={labelCls}>
+            Specialties <span className="normal-case font-normal text-slate-500">(add tags)</span>
+          </span>
+        }
+        hint="Topics you specialize in — type to see suggestions, Enter to add"
+        tokens={specialties}
+        onChange={setSpecialties}
+        suggestions={SKILL_SUGGESTIONS}
+        placeholder="e.g. React, TypeScript…"
+      />
 
-      <div>
-        <label className={labelCls}>Expertise areas <span className="normal-case font-normal text-slate-600">(comma-separated)</span></label>
-        <input
-          type="text"
-          value={expertise}
-          onChange={e => setExpertise(e.target.value)}
-          className={inputCls}
-          placeholder="e.g. Frontend, Full-stack, Cloud Architecture"
-        />
-        <p className={hintCls}>Broader domains of experience</p>
-      </div>
+      <SkillTokenInput
+        label={
+          <span className={labelCls}>
+            Expertise areas <span className="normal-case font-normal text-slate-500">(add tags)</span>
+          </span>
+        }
+        hint="Broader domains — same suggestions as specialties"
+        tokens={expertise}
+        onChange={setExpertise}
+        suggestions={SKILL_SUGGESTIONS}
+        placeholder="e.g. Frontend, Cloud…"
+      />
 
-      <div>
-        <label className={labelCls}>Languages <span className="normal-case font-normal text-slate-600">(comma-separated)</span></label>
-        <input
-          type="text"
-          value={languages}
-          onChange={e => setLanguages(e.target.value)}
-          className={inputCls}
-          placeholder="e.g. English, Spanish"
-        />
-      </div>
+      <LanguageMultiSelect selected={languages} onChange={setLanguages} />
 
       <div>
         <label className={labelCls}>Hourly Rate (USD)</label>
@@ -96,14 +98,14 @@ export function ExpertiseStep({ profile, onComplete }: ExpertiseStepProps) {
           type="number"
           min="0"
           value={hourlyRate}
-          onChange={e => setHourlyRate(e.target.value)}
+          onChange={(e) => setHourlyRate(e.target.value)}
           className={inputCls}
           placeholder="e.g. 75"
         />
         <p className={hintCls}>Leave blank if you prefer to negotiate per session</p>
       </div>
 
-      <Button type="submit" disabled={loading} className="w-full bg-violet-600 hover:bg-violet-700 text-white">
+      <Button type="submit" disabled={loading} className="w-full bg-brand text-white hover:bg-brand-light">
         {loading ? 'Saving…' : 'Save & Continue →'}
       </Button>
     </form>
