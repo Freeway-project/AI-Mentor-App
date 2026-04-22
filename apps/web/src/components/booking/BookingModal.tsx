@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { loadStripe } from '@stripe/stripe-js';
 import { Elements, PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js';
@@ -200,6 +200,16 @@ export function BookingModal({ mentorId, mentorName, offer, hourlyRate, slot, ca
     onSuccess(b);
   };
 
+  const onCloseRef = useRef(onClose);
+  onCloseRef.current = onClose;
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onCloseRef.current();
+    };
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
+  }, []);
+
   const modal = (
     // Portal to body so `fixed` is viewport-centered (not trapped in sticky column / transforms).
     <div
@@ -211,6 +221,7 @@ export function BookingModal({ mentorId, mentorName, offer, hourlyRate, slot, ca
       role="dialog"
       aria-modal="true"
       aria-labelledby="booking-modal-title"
+      onClick={onClose}
     >
       <div
         className="relative w-full max-w-md max-h-[min(90dvh,720px)] overflow-y-auto rounded-2xl shadow-2xl border"
@@ -219,6 +230,7 @@ export function BookingModal({ mentorId, mentorName, offer, hourlyRate, slot, ca
           borderColor: ED.rule,
           boxShadow: '0 25px 50px -12px rgba(28, 18, 8, 0.25)',
         }}
+        onClick={(e) => e.stopPropagation()}
       >
         <div
           className="absolute inset-x-0 top-0 h-1 rounded-t-2xl"

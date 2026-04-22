@@ -399,9 +399,12 @@ export function MentorProfileBookingPanel({
   const dispatch = useDispatch<AppDispatch>();
   const { user } = useAuth();
   const hasRestoredRef = useRef(false);
+  /** After post-login auto-open, user closing the modal must not re-trigger the auto-open effect. */
+  const paymentModalDismissedRef = useRef(false);
 
   useEffect(() => {
     hasRestoredRef.current = false;
+    paymentModalDismissedRef.current = false;
   }, [mentorId]);
 
   // Cal.com embed state
@@ -495,9 +498,10 @@ export function MentorProfileBookingPanel({
     // eslint-disable-next-line react-hooks/exhaustive-deps -- run once per mentor mount; LS read is synchronous
   }, [mentorId]);
 
-  // After auth, open payment modal when restored onto confirm step
+  // After auth, open payment modal once when restored onto confirm step (do not re-open after user dismisses)
   useEffect(() => {
     if (!user || !hasRestoredRef.current) return;
+    if (paymentModalDismissedRef.current) return;
     if (step === 'confirm' && selectedSlot && !showModal && !calPendingBooking) {
       setShowModal(true);
     }
@@ -906,6 +910,7 @@ export function MentorProfileBookingPanel({
                     router.push(`/login?redirect=/mentors/${mentorId}`);
                     return;
                   }
+                  paymentModalDismissedRef.current = false;
                   setShowModal(true);
                 }
               }}
@@ -944,7 +949,10 @@ export function MentorProfileBookingPanel({
           offer={selectedOffer}
           hourlyRate={hourlyRate}
           slot={selectedSlot}
-          onClose={() => setShowModal(false)}
+          onClose={() => {
+            paymentModalDismissedRef.current = true;
+            setShowModal(false);
+          }}
           onSuccess={() => {
             setShowModal(false);
             setStep('done');
