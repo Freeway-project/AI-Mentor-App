@@ -37,6 +37,7 @@ interface Props {
   offer: Offer | null;
   hourlyRate?: number;
   slot: { start: string; end: string };
+  calBookingUid?: string;
   onClose: () => void;
   onSuccess: (booking: any) => void;
 }
@@ -59,7 +60,7 @@ function StripePaymentForm({
   onBack,
 }: {
   amountUsd: number;
-  bookingPayload: { mentorId: string; offerId?: string; scheduledAt: string; duration: number; title: string };
+  bookingPayload: { mentorId: string; offerId?: string; scheduledAt: string; duration: number; title: string; calBookingUid?: string };
   onSuccess: (booking: any) => void;
   onBack: () => void;
 }) {
@@ -139,7 +140,7 @@ function StripePaymentForm({
   );
 }
 
-export function BookingModal({ mentorId, mentorName, offer, hourlyRate, slot, onClose, onSuccess }: Props) {
+export function BookingModal({ mentorId, mentorName, offer, hourlyRate, slot, calBookingUid, onClose, onSuccess }: Props) {
   const durationMin = offer?.durationMinutes ?? 30;
   const amountUsd = offer?.price ?? (hourlyRate ? (durationMin <= 30 ? hourlyRate / 2 : hourlyRate) : 50);
   const sessionTitle = offer?.title ?? 'Mentoring Session';
@@ -252,6 +253,7 @@ export function BookingModal({ mentorId, mentorName, offer, hourlyRate, slot, on
                   scheduledAt: slot.start,
                   duration: durationMin,
                   title: sessionTitle,
+                  calBookingUid,
                 }}
                 onSuccess={handleSuccess}
                 onBack={() => setStep('summary')}

@@ -24,9 +24,9 @@ export function BrandLogoAsset({
   alt = 'Owl Mentors logo',
 }: BrandLogoImageProps) {
   return (
-    <picture className={cn('block', className)}>
+    <picture className={cn('block max-h-full max-w-full', className)}>
       <source srcSet="/logo.svg" type="image/svg+xml" />
-      <img src="/logo.png" alt={alt} className="h-full w-full object-contain" />
+      <img src="/logo.png" alt={alt} className="h-full w-full max-h-full max-w-full object-contain" />
     </picture>
   );
 }
@@ -50,7 +50,7 @@ export function BrandLogo({
         className
       )}
     >
-      <BrandLogoAsset className={cn(stacked ? 'h-28 w-28' : 'h-12 w-12', markClassName)} />
+      <BrandLogoAsset className={cn(stacked ? 'h-32 w-32' : 'h-16 w-16', markClassName)} />
       {showWordmark ? (
         <span
           className={cn(

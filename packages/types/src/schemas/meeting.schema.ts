@@ -40,6 +40,7 @@ export const meetingSchema = z.object({
   googleEventId: z.string().optional(),
   dailyRoomUrl: z.string().optional(),
   dailyRoomName: z.string().optional(),
+  calBookingUid: z.string().optional(),
   createdAt: z.date(),
   updatedAt: z.date(),
 });

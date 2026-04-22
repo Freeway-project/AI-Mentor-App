@@ -480,8 +480,12 @@ class ApiClient {
     return this.request('/payments/create-payment-intent', { method: 'POST', body: JSON.stringify(data) });
   }
 
-  async createBooking(data: { mentorId: string; offerId?: string; scheduledAt: string; duration: number; title?: string; description?: string; paymentIntentId?: string }): Promise<any> {
+  async createBooking(data: { mentorId: string; offerId?: string; scheduledAt: string; duration: number; title?: string; description?: string; paymentIntentId?: string; calBookingUid?: string }): Promise<any> {
     return this.request<any>('/bookings', { method: 'POST', body: JSON.stringify(data) });
+  }
+
+  async cancelCalBooking(uid: string): Promise<void> {
+    return this.request(`/calcom/booking/${uid}`, { method: 'DELETE' });
   }
 
   async getMyBookings(params?: { status?: string; startDate?: string; endDate?: string }): Promise<{ meetings: any[] }> {

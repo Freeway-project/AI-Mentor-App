@@ -15,6 +15,11 @@ const BookingModal = nextDynamic(
   { ssr: false }
 );
 
+const CalBookingEmbed = nextDynamic(
+  () => import('@/components/booking/CalBookingEmbed').then((m) => m.CalBookingEmbed),
+  { ssr: false }
+);
+
 interface Slot {
   start: string;
   end: string;
@@ -375,15 +380,21 @@ export function MentorProfileBookingPanel({
   offers,
   hourlyRate,
   introVideoUrl,
+  calLink,
 }: {
   mentorId: string;
   mentorName: string;
   offers: MentorOffer[];
   hourlyRate?: number;
   introVideoUrl?: string;
+  calLink?: string;
 }) {
   const router = useRouter();
   const { user } = useAuth();
+
+  // Cal.com embed state
+  const [calPendingBooking, setCalPendingBooking] = useState<{ startTime: string; endTime: string; uid: string } | null>(null);
+  const [calDone, setCalDone] = useState(false);
 
   const [step, setStep] = useState<Step>('date');
   const [monthCursor, setMonthCursor] = useState(() => {
@@ -459,6 +470,92 @@ export function MentorProfileBookingPanel({
   const canAdvanceDate = selectedDate && selectedSlot;
 
   const dateSlotsForSelected = selectedDate ? (slotsByDate[selectedDate] || []) : [];
+
+  // ── Cal.com embed path ──────────────────────────────────────────────────────
+  if (calLink) {
+    const calOffer = offers[0] ?? null;
+
+    const handleCalBookingSuccess = (data: { startTime: string; endTime: string; uid: string }) => {
+      if (!user) {
+        toast.error('Sign in to complete your booking');
+        router.push(`/login?redirect=/mentors/${mentorId}`);
+        return;
+      }
+      setCalPendingBooking(data);
+    };
+
+    const handleCalModalClose = async () => {
+      if (calPendingBooking) {
+        try {
+          await apiClient.cancelCalBooking(calPendingBooking.uid);
+        } catch {
+          // Best-effort cancel
+        }
+        setCalPendingBooking(null);
+      }
+    };
+
+    return (
+      <>
+        <div
+          style={{
+            background: ED.card,
+            border: `1px solid ${ED.rule}`,
+            padding: 28,
+            position: 'sticky',
+            top: 24,
+          }}
+        >
+          {calDone ? (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+              <div style={ed.mono(10, ED.inkMuted)}>Booking complete</div>
+              <div style={{ padding: 20, border: `1px solid ${ED.ink}`, background: ED.cream }}>
+                <Check size={22} color={ED.accent} strokeWidth={1.6} />
+                <div style={ed.serif(26, ED.ink, { marginTop: 10, lineHeight: 1.15 })}>
+                  Confirmation sent.
+                </div>
+                <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, color: ED.inkSoft, marginTop: 6, lineHeight: 1.5 }}>
+                  Check your email for your booking details and video link.
+                </div>
+              </div>
+              <button
+                onClick={() => setCalDone(false)}
+                style={{ padding: '12px 22px', background: 'transparent', border: `1px solid ${ED.ink}`, color: ED.ink, cursor: 'pointer', fontFamily: 'Inter, sans-serif', fontSize: 14, fontWeight: 500 }}
+              >
+                Book another →
+              </button>
+            </div>
+          ) : (
+            <>
+              <div style={{ marginBottom: 16 }}>
+                <div style={ed.mono(10, ED.inkMuted)}>Book a session</div>
+                <h3 style={ed.serif(28, ED.ink, { margin: '4px 0 0', letterSpacing: -0.3 })}>
+                  Pick a time
+                </h3>
+              </div>
+              <CalBookingEmbed calLink={calLink} onBookingSuccess={handleCalBookingSuccess} />
+            </>
+          )}
+        </div>
+
+        {calPendingBooking && (
+          <BookingModal
+            mentorId={mentorId}
+            mentorName={mentorName}
+            offer={calOffer}
+            hourlyRate={hourlyRate}
+            slot={{ start: calPendingBooking.startTime, end: calPendingBooking.endTime }}
+            calBookingUid={calPendingBooking.uid}
+            onClose={handleCalModalClose}
+            onSuccess={() => {
+              setCalPendingBooking(null);
+              setCalDone(true);
+            }}
+          />
+        )}
+      </>
+    );
+  }
 
   return (
     <>

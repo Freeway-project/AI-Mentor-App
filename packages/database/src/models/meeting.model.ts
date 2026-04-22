@@ -23,6 +23,7 @@ export interface IMeetingDocument extends mongoose.Document {
   cancellationReason?: string;
   rescheduledFrom?: string;
   rescheduledAt?: Date;
+  calBookingUid?: string;
   googleEventId?: string;
   dailyRoomUrl?: string;
   dailyRoomName?: string;
@@ -58,6 +59,7 @@ const meetingSchema = new Schema<IMeetingDocument>(
     cancellationReason: { type: String },
     rescheduledFrom: { type: String },
     rescheduledAt: { type: Date },
+    calBookingUid: { type: String },
     googleEventId: { type: String },
     dailyRoomUrl: { type: String },
     dailyRoomName: { type: String, index: true },
@@ -102,6 +104,7 @@ export function toMeeting(doc: IMeetingDocument): Meeting {
     googleEventId: doc.googleEventId,
     dailyRoomUrl: doc.dailyRoomUrl,
     dailyRoomName: doc.dailyRoomName,
+    calBookingUid: doc.calBookingUid,
     createdAt: doc.createdAt,
     updatedAt: doc.updatedAt,
   };
