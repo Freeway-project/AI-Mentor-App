@@ -23,8 +23,8 @@ export function MenteeSidebar() {
   };
 
   return (
-    <aside className="hidden h-screen w-64 shrink-0 flex-col bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900 text-white lg:flex">
-      <div className="border-b border-white/10 px-5 py-5">
+    <aside className="hidden min-h-0 w-64 shrink-0 flex-col self-stretch border-r border-white/5 bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900 text-white lg:flex">
+      <div className="shrink-0 border-b border-white/10 px-5 py-5">
         <Link href="/" className="flex items-center gap-2.5">
           <BrandLogo
             markClassName="h-9 w-9"
@@ -34,7 +34,7 @@ export function MenteeSidebar() {
         <p className="mt-1 pl-0.5 text-xs text-slate-400">Mentee Portal</p>
       </div>
 
-      <nav className="flex-1 space-y-0.5 overflow-y-auto px-3 py-4">
+      <nav className="min-h-0 flex-1 space-y-0.5 overflow-y-auto px-3 py-4">
         {NAV.map(({ href, label, icon: Icon }) => {
           const isActive =
             pathname === href || (href !== '/browse' && pathname.startsWith(href));
@@ -56,7 +56,7 @@ export function MenteeSidebar() {
         })}
       </nav>
 
-      <div className="space-y-3 border-t border-white/10 px-3 py-4">
+      <div className="shrink-0 space-y-3 border-t border-white/10 px-3 py-4">
         <div className="flex items-center gap-3 px-2">
           <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-violet-500 to-purple-500 text-xs font-bold">
             {user?.name?.charAt(0)?.toUpperCase() || 'U'}

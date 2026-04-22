@@ -25,8 +25,8 @@ export function Navbar() {
     const isMentee = user && !isMentor && !isAdmin;
 
     return (
-        <nav className="sticky top-0 z-50 w-full border-b border-slate-200 bg-white/90 backdrop-blur-md">
-            <div className="container mx-auto flex h-16 items-center justify-between px-4 md:px-6">
+        <nav className="sticky top-0 z-50 w-full shrink-0 border-b border-slate-200 bg-white/90 backdrop-blur-md">
+            <div className="container mx-auto flex h-16 items-center justify-between gap-3 px-4 md:px-6">
                 {/* Logo */}
                 <Link href="/" className="flex items-center space-x-2">
                     <BrandLogo

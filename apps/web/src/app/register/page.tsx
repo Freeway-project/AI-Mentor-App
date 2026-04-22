@@ -5,6 +5,7 @@ import nextDynamic from 'next/dynamic';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/lib/auth-context';
+import { loadPendingBooking } from '@/lib/pending-booking';
 import { BrandLogoImage } from '@/components/brand/brand-logo';
 
 const GoogleAuthButton = nextDynamic(
@@ -45,7 +46,8 @@ export default function RegisterPage() {
       } else if (role === 'mentor') {
         router.push('/onboarding');
       } else {
-        router.push('/mentee/dashboard');
+        const pending = loadPendingBooking();
+        router.push(pending ? `/mentors/${pending.mentorId}` : '/mentee/dashboard');
       }
     } catch (err: any) {
       setError(err.message || 'Registration failed');
@@ -64,7 +66,8 @@ export default function RegisterPage() {
       } else if (role === 'mentor') {
         window.location.href = '/mentor/dashboard';
       } else {
-        router.push('/mentee/dashboard');
+        const pending = loadPendingBooking();
+        router.push(pending ? `/mentors/${pending.mentorId}` : '/mentee/dashboard');
       }
     } catch (err: any) {
       setError(err.message || 'Google sign-up failed');

@@ -4,9 +4,9 @@ import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Mail } from 'lucide-react';
-import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { BrandLogoImage } from '@/components/brand/brand-logo';
+import { loadPendingBooking } from '@/lib/pending-booking';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 
@@ -95,7 +95,10 @@ export default function MenteeVerifyOtpPage() {
             await apiPost('verify-otp', { type: 'email', code }, token);
             toast.success('Email verified!');
             setDone(true);
-            setTimeout(() => router.push('/browse'), 1500);
+            setTimeout(() => {
+              const pending = loadPendingBooking();
+              router.push(pending ? `/mentors/${pending.mentorId}` : '/browse');
+            }, 1500);
         } catch (err: any) {
             toast.error(err.message || 'Invalid code');
         } finally {
@@ -124,7 +127,9 @@ export default function MenteeVerifyOtpPage() {
                         </svg>
                     </div>
                     <h2 className="text-2xl font-bold text-slate-900">Email Verified!</h2>
-                    <p className="text-slate-600">Taking you to your dashboard...</p>
+                    <p className="text-slate-600">
+                      {loadPendingBooking() ? 'Taking you back to complete your booking...' : 'Taking you to browse mentors...'}
+                    </p>
                 </div>
             </div>
         );

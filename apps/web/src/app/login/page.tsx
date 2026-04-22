@@ -7,6 +7,7 @@ import Link from 'next/link';
 import { useDispatch } from 'react-redux';
 import { setUser, setToken } from '@/store/slices/auth.slice';
 import { useAuth } from '@/lib/auth-context';
+import { loadPendingBooking } from '@/lib/pending-booking';
 import { apiClient } from '@/lib/api-client';
 import { toast } from 'sonner';
 import type { AppDispatch } from '@/store';
@@ -50,7 +51,8 @@ function LoginForm() {
           window.location.href = '/onboarding';
         }
       } else {
-        router.push(redirect || '/mentee/dashboard');
+        const pending = loadPendingBooking();
+        router.push(pending ? `/mentors/${pending.mentorId}` : (redirect || '/mentee/dashboard'));
       }
     } catch (err: any) {
       if (err?.code === 'EMAIL_NOT_VERIFIED') {
@@ -88,7 +90,8 @@ function LoginForm() {
           window.location.href = '/onboarding';
         }
       } else {
-        router.push(redirect || '/mentee/dashboard');
+        const pending = loadPendingBooking();
+        router.push(pending ? `/mentors/${pending.mentorId}` : (redirect || '/mentee/dashboard'));
       }
     } catch (err: any) {
       toast.error(err.message || 'Google sign-in failed');
