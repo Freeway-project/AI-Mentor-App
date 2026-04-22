@@ -1,26 +1,34 @@
 'use client';
 
 import { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { loadStripe } from '@stripe/stripe-js';
 import { Elements, PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js';
 import { X, ArrowLeft, Calendar, Clock, User } from 'lucide-react';
 import { apiClient } from '@/lib/api-client';
 import { BookingConfirmation } from './BookingConfirmation';
 import { toast } from 'sonner';
+import { ED } from '@/components/mentor-profile/editorial-theme';
 
 const stripePromise = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY
   ? loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY)
   : null;
 
 const stripeAppearance = {
-  theme: 'night' as const,
+  theme: 'stripe' as const,
   variables: {
-    colorPrimary: '#7c3aed',
-    colorBackground: '#1e293b',
-    colorText: '#e2e8f0',
-    colorDanger: '#f87171',
-    borderRadius: '8px',
-    fontFamily: 'system-ui, sans-serif',
+    colorPrimary: ED.accent,
+    colorBackground: ED.card,
+    colorText: ED.ink,
+    colorDanger: '#b45309',
+    borderRadius: '10px',
+    fontFamily: 'Inter, ui-sans-serif, system-ui, sans-serif',
+  },
+  rules: {
+    '.Input': {
+      borderColor: ED.rule,
+      boxShadow: 'none',
+    },
   },
 };
 
@@ -118,20 +126,37 @@ function StripePaymentForm({
     <div className="space-y-4">
       <PaymentElement />
       {error && (
-        <p className="text-sm text-red-400 bg-red-400/10 rounded-lg px-3 py-2">{error}</p>
+        <p
+          className="text-sm rounded-lg px-3 py-2 border"
+          style={{
+            color: '#991b1b',
+            background: 'rgba(254, 226, 226, 0.6)',
+            borderColor: 'rgba(252, 165, 165, 0.8)',
+          }}
+        >
+          {error}
+        </p>
       )}
       <div className="flex gap-3 pt-1">
         <button
+          type="button"
           onClick={onBack}
           disabled={paying}
-          className="flex items-center gap-1.5 px-4 py-2.5 text-sm text-slate-400 hover:text-white border border-slate-700 hover:border-slate-500 rounded-lg transition-colors disabled:opacity-40"
+          className="flex items-center gap-1.5 px-4 py-2.5 text-sm rounded-lg transition-colors disabled:opacity-40 border font-medium"
+          style={{
+            color: ED.inkSoft,
+            borderColor: ED.rule,
+            background: 'transparent',
+          }}
         >
           <ArrowLeft className="w-4 h-4" /> Back
         </button>
         <button
+          type="button"
           onClick={handlePay}
           disabled={!stripe || paying}
-          className="flex-1 py-2.5 bg-violet-600 hover:bg-violet-500 text-white font-bold rounded-lg transition-colors disabled:opacity-50 text-sm"
+          className="flex-1 py-2.5 text-white font-semibold rounded-lg transition-colors disabled:opacity-50 text-sm"
+          style={{ background: ED.ink }}
         >
           {paying ? 'Processing...' : `Pay $${amountUsd.toFixed(2)}`}
         </button>
@@ -175,67 +200,114 @@ export function BookingModal({ mentorId, mentorName, offer, hourlyRate, slot, ca
     onSuccess(b);
   };
 
-  return (
-    // Backdrop
+  const modal = (
+    // Portal to body so `fixed` is viewport-centered (not trapped in sticky column / transforms).
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4"
-      style={{ background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(4px)' }}
+      className="fixed inset-0 z-[200] flex items-center justify-center p-4 sm:p-6"
+      style={{
+        background: 'rgba(28, 18, 8, 0.55)',
+        backdropFilter: 'blur(8px)',
+      }}
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="booking-modal-title"
     >
-      <div className="relative w-full max-w-md bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl overflow-hidden">
-        {/* Top accent line */}
-        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-violet-500/50 to-transparent" />
+      <div
+        className="relative w-full max-w-md max-h-[min(90dvh,720px)] overflow-y-auto rounded-2xl shadow-2xl border"
+        style={{
+          background: ED.card,
+          borderColor: ED.rule,
+          boxShadow: '0 25px 50px -12px rgba(28, 18, 8, 0.25)',
+        }}
+      >
+        <div
+          className="absolute inset-x-0 top-0 h-1 rounded-t-2xl"
+          style={{
+            background: `linear-gradient(90deg, transparent, ${ED.accent}66, transparent)`,
+          }}
+        />
 
-        {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-800">
-          <h2 className="text-base font-semibold text-white">
+        <div
+          className="flex items-center justify-between px-6 py-4 border-b"
+          style={{ borderColor: ED.rule }}
+        >
+          <h2
+            id="booking-modal-title"
+            className="text-xl tracking-tight"
+            style={{ fontFamily: '"Instrument Serif", serif', color: ED.ink, fontWeight: 400 }}
+          >
             {step === 'summary' && 'Confirm Session'}
             {step === 'payment' && 'Secure Payment'}
             {step === 'success' && 'Booking Confirmed'}
           </h2>
-          <button onClick={onClose} className="text-slate-500 hover:text-white transition-colors">
+          <button
+            type="button"
+            onClick={onClose}
+            className="rounded-lg p-1 transition-colors"
+            style={{ color: ED.inkMuted }}
+            aria-label="Close"
+          >
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        {/* Body */}
         <div className="px-6 py-5">
           {step === 'summary' && (
             <div className="space-y-5">
-              {/* Session details */}
-              <div className="bg-slate-800/50 rounded-xl p-4 space-y-3 text-sm">
-                <div className="flex items-center gap-2.5 text-slate-300">
-                  <User className="w-4 h-4 text-violet-400 flex-shrink-0" />
-                  <span>with <strong className="text-white">{mentorName}</strong></span>
+              <div
+                className="rounded-xl p-4 space-y-3 text-sm border"
+                style={{ background: ED.creamDeep + '99', borderColor: ED.rule, color: ED.inkSoft }}
+              >
+                <div className="flex items-center gap-2.5">
+                  <User className="w-4 h-4 flex-shrink-0" style={{ color: ED.accent }} />
+                  <span>
+                    with <strong style={{ color: ED.ink }}>{mentorName}</strong>
+                  </span>
                 </div>
-                <div className="flex items-center gap-2.5 text-slate-300">
-                  <Calendar className="w-4 h-4 text-violet-400 flex-shrink-0" />
+                <div className="flex items-center gap-2.5">
+                  <Calendar className="w-4 h-4 flex-shrink-0" style={{ color: ED.accent }} />
                   <span>{formatSlotDate(slot.start)}</span>
                 </div>
-                <div className="flex items-center gap-2.5 text-slate-300">
-                  <Clock className="w-4 h-4 text-violet-400 flex-shrink-0" />
-                  <span>{formatSlotTime(slot.start)} — {durationMin} min</span>
+                <div className="flex items-center gap-2.5">
+                  <Clock className="w-4 h-4 flex-shrink-0" style={{ color: ED.accent }} />
+                  <span>
+                    {formatSlotTime(slot.start)} — {durationMin} min
+                  </span>
                 </div>
               </div>
 
-              {/* Price summary */}
-              <div className="flex items-center justify-between bg-violet-500/10 border border-violet-500/20 rounded-xl px-4 py-3">
+              <div
+                className="flex items-center justify-between rounded-xl px-4 py-3 border"
+                style={{
+                  background: ED.accentTint,
+                  borderColor: ED.rule,
+                }}
+              >
                 <div>
-                  <p className="text-sm font-medium text-white">{sessionTitle}</p>
-                  <p className="text-xs text-slate-400">{durationMin}-minute session</p>
+                  <p className="text-sm font-medium" style={{ color: ED.ink }}>
+                    {sessionTitle}
+                  </p>
+                  <p className="text-xs" style={{ color: ED.inkMuted }}>
+                    {durationMin}-minute session
+                  </p>
                 </div>
-                <p className="text-xl font-bold text-white">${amountUsd.toFixed(2)}</p>
+                <p className="text-xl font-semibold tabular-nums" style={{ color: ED.ink }}>
+                  ${amountUsd.toFixed(2)}
+                </p>
               </div>
 
               <button
+                type="button"
                 onClick={handleContinue}
                 disabled={loadingIntent}
-                className="w-full py-3 bg-violet-600 hover:bg-violet-500 text-white font-bold rounded-lg transition-colors disabled:opacity-50"
+                className="w-full py-3 text-white font-semibold rounded-lg transition-opacity disabled:opacity-50"
+                style={{ background: ED.ink }}
               >
                 {loadingIntent ? 'Preparing payment...' : 'Continue to Payment →'}
               </button>
 
-              <p className="text-center text-xs text-slate-500">
-                Secured by Stripe &bull; Your card details are never stored on our servers
+              <p className="text-center text-xs" style={{ color: ED.inkMuted }}>
+                Secured by Stripe · Your card details are never stored on our servers
               </p>
             </div>
           )}
@@ -262,7 +334,7 @@ export function BookingModal({ mentorId, mentorName, offer, hourlyRate, slot, ca
           )}
 
           {step === 'payment' && (!clientSecret || !stripePromise) && (
-            <p className="text-center text-slate-400 text-sm py-6">
+            <p className="text-center text-sm py-6" style={{ color: ED.inkMuted }}>
               {!stripePromise ? 'Stripe is not configured.' : 'Loading payment form...'}
             </p>
           )}
@@ -274,4 +346,7 @@ export function BookingModal({ mentorId, mentorName, offer, hourlyRate, slot, ca
       </div>
     </div>
   );
+
+  if (typeof document === 'undefined') return null;
+  return createPortal(modal, document.body);
 }

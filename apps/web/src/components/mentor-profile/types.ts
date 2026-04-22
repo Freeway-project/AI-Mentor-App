@@ -35,6 +35,8 @@ export interface PublicMentorProfile {
     uploadedAt: string | Date;
   }>;
   introVideoUrl?: string;
+  /** Cal.com username or event path for embedded booking (e.g. `user` or `user/event`). */
+  calLink?: string | null;
   rating?: number;
   totalMeetings: number;
   totalReviews: number;

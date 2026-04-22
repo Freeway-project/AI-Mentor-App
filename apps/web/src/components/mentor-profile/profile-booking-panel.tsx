@@ -4,10 +4,11 @@ import { useMemo, useState, useEffect, useCallback, useRef } from 'react';
 import nextDynamic from 'next/dynamic';
 import { ChevronLeft, ChevronRight, Check } from 'lucide-react';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { useAuth } from '@/lib/auth-context';
-import type { RootState, AppDispatch } from '@/store';
+import type { AppDispatch } from '@/store';
 import { pendingBookingActions } from '@/store/slices/pending-booking.slice';
+import { readPendingIntentFromStorage } from '@/lib/pending-booking';
 import { apiClient } from '@/lib/api-client';
 import { toast } from 'sonner';
 import { ed, ED } from './editorial-theme';
@@ -390,13 +391,12 @@ export function MentorProfileBookingPanel({
   offers: MentorOffer[];
   hourlyRate?: number;
   introVideoUrl?: string;
-  calLink?: string;
+  calLink?: string | null;
 }) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const dispatch = useDispatch<AppDispatch>();
-  const pendingIntent = useSelector((s: RootState) => s.pendingBooking.intent);
   const { user } = useAuth();
   const hasRestoredRef = useRef(false);
 
@@ -457,9 +457,12 @@ export function MentorProfileBookingPanel({
     fetchMonthSlots(monthCursor.year, monthCursor.month);
   }, [monthCursor, fetchMonthSlots]);
 
+  // Restore from localStorage (source of truth). Redux can still be null on first paint / Strict Mode remount.
+  // Do not clear intent here — clearing before Strict Mode's remount left storage empty and locked UI on step 1.
+  // Intent is cleared after a successful booking or when overwritten by a new saveIntent.
   useEffect(() => {
     if (hasRestoredRef.current) return;
-    const intent = pendingIntent;
+    const intent = readPendingIntentFromStorage();
     if (!intent || intent.mentorId !== mentorId) return;
 
     hasRestoredRef.current = true;
@@ -477,13 +480,11 @@ export function MentorProfileBookingPanel({
 
     if (intent.calPendingBooking) {
       setCalPendingBooking(intent.calPendingBooking);
-    } else if (intent.bookingStep === 'service' || intent.bookingStep === 'date') {
+    } else if (intent.bookingStep === 'date' || intent.bookingStep === 'service') {
       setStep(intent.bookingStep);
-    } else if (intent.selectedSlot) {
+    } else if (intent.bookingStep === 'confirm' || intent.selectedSlot) {
       setStep('confirm');
-      if (user) setShowModal(true);
     }
-    dispatch(pendingBookingActions.clearIntent());
 
     if (searchParams?.get('restore')) {
       const params = new URLSearchParams(searchParams.toString());
@@ -491,9 +492,10 @@ export function MentorProfileBookingPanel({
       const qs = params.toString();
       router.replace(qs ? `${pathname}?${qs}` : pathname);
     }
-  }, [mentorId, pendingIntent, dispatch, pathname, router, searchParams, user]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- run once per mentor mount; LS read is synchronous
+  }, [mentorId]);
 
-  // After auth restore or when user loads on confirm step, open payment modal
+  // After auth, open payment modal when restored onto confirm step
   useEffect(() => {
     if (!user || !hasRestoredRef.current) return;
     if (step === 'confirm' && selectedSlot && !showModal && !calPendingBooking) {
@@ -606,6 +608,7 @@ export function MentorProfileBookingPanel({
             onSuccess={() => {
               setCalPendingBooking(null);
               setCalDone(true);
+              dispatch(pendingBookingActions.clearIntent());
             }}
           />
         )}
@@ -945,6 +948,7 @@ export function MentorProfileBookingPanel({
           onSuccess={() => {
             setShowModal(false);
             setStep('done');
+            dispatch(pendingBookingActions.clearIntent());
           }}
         />
       ) : null}

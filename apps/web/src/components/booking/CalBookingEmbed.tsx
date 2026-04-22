@@ -1,6 +1,6 @@
 'use client';
 import { getCalApi } from '@calcom/embed-react';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 
 interface CalBookingEmbedProps {
   calLink: string;
@@ -8,6 +8,9 @@ interface CalBookingEmbedProps {
 }
 
 export function CalBookingEmbed({ calLink, onBookingSuccess }: CalBookingEmbedProps) {
+  const onSuccessRef = useRef(onBookingSuccess);
+  onSuccessRef.current = onBookingSuccess;
+
   useEffect(() => {
     getCalApi().then((cal) => {
       cal('inline', {
@@ -19,7 +22,7 @@ export function CalBookingEmbed({ calLink, onBookingSuccess }: CalBookingEmbedPr
         action: 'bookingSuccessful',
         callback: (e: any) => {
           const d = e.detail?.data;
-          onBookingSuccess({
+          onSuccessRef.current({
             startTime: d?.startTime ?? '',
             endTime: d?.endTime ?? '',
             uid: d?.uid ?? '',

@@ -2,7 +2,7 @@ import { Router, Request, Response, NextFunction } from 'express';
 import { authenticate } from '../middleware/auth.middleware';
 import { AppError } from '../middleware/error.middleware';
 
-const router = Router();
+const router: Router = Router();
 
 // DELETE /api/calcom/booking/:uid — cancel a Cal.com booking (called when payment fails)
 router.delete('/calcom/booking/:uid', authenticate, async (req: Request, res: Response, next: NextFunction) => {
