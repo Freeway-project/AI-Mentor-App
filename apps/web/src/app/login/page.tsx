@@ -52,7 +52,7 @@ function LoginForm() {
         }
       } else {
         const pending = loadPendingBooking();
-        router.push(pending ? `/mentors/${pending.mentorId}` : (redirect || '/mentee/dashboard'));
+        router.push(pending ? `/mentors/${pending.mentorId}?restore=1` : (redirect || '/mentee/dashboard'));
       }
     } catch (err: any) {
       if (err?.code === 'EMAIL_NOT_VERIFIED') {
@@ -76,7 +76,9 @@ function LoginForm() {
       const { isNew } = await loginWithGoogle(credentialResponse.credential);
       if (isNew) {
         toast.info('No account found. Please sign up and choose your role.');
-        router.push('/register');
+        router.push(
+          redirect ? `/register?redirect=${encodeURIComponent(redirect)}` : '/register'
+        );
         return;
       }
       const me = await apiClient.getMe();
@@ -91,7 +93,7 @@ function LoginForm() {
         }
       } else {
         const pending = loadPendingBooking();
-        router.push(pending ? `/mentors/${pending.mentorId}` : (redirect || '/mentee/dashboard'));
+        router.push(pending ? `/mentors/${pending.mentorId}?restore=1` : (redirect || '/mentee/dashboard'));
       }
     } catch (err: any) {
       toast.error(err.message || 'Google sign-in failed');
@@ -266,7 +268,14 @@ function LoginForm() {
 
             <p className="text-center text-sm text-slate-600 mt-6 md:mt-8">
               Don&apos;t have an account?{' '}
-              <Link href="/register" className="text-brand hover:text-brand-light font-bold transition-colors">
+              <Link
+                href={
+                  redirect
+                    ? `/register?redirect=${encodeURIComponent(redirect)}`
+                    : '/register'
+                }
+                className="text-brand hover:text-brand-light font-bold transition-colors"
+              >
                 Create one free
               </Link>
             </p>

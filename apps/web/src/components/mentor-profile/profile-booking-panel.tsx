@@ -3,9 +3,11 @@
 import { useMemo, useState, useEffect, useCallback, useRef } from 'react';
 import nextDynamic from 'next/dynamic';
 import { ChevronLeft, ChevronRight, Check } from 'lucide-react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams, usePathname } from 'next/navigation';
+import { useDispatch, useSelector } from 'react-redux';
 import { useAuth } from '@/lib/auth-context';
-import { savePendingBooking, loadPendingBooking, clearPendingBooking } from '@/lib/pending-booking';
+import type { RootState, AppDispatch } from '@/store';
+import { pendingBookingActions } from '@/store/slices/pending-booking.slice';
 import { apiClient } from '@/lib/api-client';
 import { toast } from 'sonner';
 import { ed, ED } from './editorial-theme';
@@ -391,8 +393,16 @@ export function MentorProfileBookingPanel({
   calLink?: string;
 }) {
   const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const dispatch = useDispatch<AppDispatch>();
+  const pendingIntent = useSelector((s: RootState) => s.pendingBooking.intent);
   const { user } = useAuth();
   const hasRestoredRef = useRef(false);
+
+  useEffect(() => {
+    hasRestoredRef.current = false;
+  }, [mentorId]);
 
   // Cal.com embed state
   const [calPendingBooking, setCalPendingBooking] = useState<{ startTime: string; endTime: string; uid: string } | null>(null);
@@ -448,24 +458,48 @@ export function MentorProfileBookingPanel({
   }, [monthCursor, fetchMonthSlots]);
 
   useEffect(() => {
-    if (!user || hasRestoredRef.current) return;
-    const intent = loadPendingBooking();
+    if (hasRestoredRef.current) return;
+    const intent = pendingIntent;
     if (!intent || intent.mentorId !== mentorId) return;
 
     hasRestoredRef.current = true;
+    if (intent.monthCursor) {
+      setMonthCursor(intent.monthCursor);
+    } else if (intent.selectedDate) {
+      const d = new Date(`${intent.selectedDate}T12:00:00`);
+      if (!Number.isNaN(d.getTime())) {
+        setMonthCursor({ year: d.getFullYear(), month: d.getMonth() });
+      }
+    }
     if (intent.selectedDate) setSelectedDate(intent.selectedDate);
     if (intent.selectedSlot) setSelectedSlot(intent.selectedSlot);
     if (intent.offerId) setSelectedOfferId(intent.offerId);
 
     if (intent.calPendingBooking) {
       setCalPendingBooking(intent.calPendingBooking);
+    } else if (intent.bookingStep === 'service' || intent.bookingStep === 'date') {
+      setStep(intent.bookingStep);
     } else if (intent.selectedSlot) {
       setStep('confirm');
+      if (user) setShowModal(true);
+    }
+    dispatch(pendingBookingActions.clearIntent());
+
+    if (searchParams?.get('restore')) {
+      const params = new URLSearchParams(searchParams.toString());
+      params.delete('restore');
+      const qs = params.toString();
+      router.replace(qs ? `${pathname}?${qs}` : pathname);
+    }
+  }, [mentorId, pendingIntent, dispatch, pathname, router, searchParams, user]);
+
+  // After auth restore or when user loads on confirm step, open payment modal
+  useEffect(() => {
+    if (!user || !hasRestoredRef.current) return;
+    if (step === 'confirm' && selectedSlot && !showModal && !calPendingBooking) {
       setShowModal(true);
     }
-    clearPendingBooking();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user, mentorId]);
+  }, [user, step, selectedSlot, showModal, calPendingBooking]);
 
   const handleMonthChange = (delta: number) => {
     setMonthCursor((prev) => {
@@ -494,7 +528,12 @@ export function MentorProfileBookingPanel({
 
     const handleCalBookingSuccess = (data: { startTime: string; endTime: string; uid: string }) => {
       if (!user) {
-        savePendingBooking({ mentorId, calPendingBooking: data });
+        dispatch(
+          pendingBookingActions.saveIntent({
+            mentorId,
+            calPendingBooking: data,
+          })
+        );
         router.push(`/login?redirect=/mentors/${mentorId}`);
         return;
       }
@@ -833,15 +872,34 @@ export function MentorProfileBookingPanel({
               }
               onClick={() => {
                 if (step === 'date') setStep('service');
-                else if (step === 'service') setStep('confirm');
-                else if (step === 'confirm') {
+                else if (step === 'service') {
                   if (!user) {
-                    savePendingBooking({
-                      mentorId,
-                      offerId: selectedOfferId || undefined,
-                      selectedDate: selectedDate ?? undefined,
-                      selectedSlot: selectedSlot ?? undefined,
-                    });
+                    dispatch(
+                      pendingBookingActions.saveIntent({
+                        mentorId,
+                        offerId: selectedOfferId || undefined,
+                        selectedDate: selectedDate ?? undefined,
+                        selectedSlot: selectedSlot ?? undefined,
+                        monthCursor: { year: monthCursor.year, month: monthCursor.month },
+                        bookingStep: 'confirm',
+                      })
+                    );
+                    router.push(`/login?redirect=/mentors/${mentorId}`);
+                    return;
+                  }
+                  setStep('confirm');
+                } else if (step === 'confirm') {
+                  if (!user) {
+                    dispatch(
+                      pendingBookingActions.saveIntent({
+                        mentorId,
+                        offerId: selectedOfferId || undefined,
+                        selectedDate: selectedDate ?? undefined,
+                        selectedSlot: selectedSlot ?? undefined,
+                        monthCursor: { year: monthCursor.year, month: monthCursor.month },
+                        bookingStep: 'confirm',
+                      })
+                    );
                     router.push(`/login?redirect=/mentors/${mentorId}`);
                     return;
                   }

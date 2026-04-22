@@ -1,11 +1,20 @@
 'use client';
 
-import { Provider } from 'react-redux';
+import { Provider, useDispatch } from 'react-redux';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
-import { useState } from 'react';
+import { useState, useLayoutEffect } from 'react';
 import { store } from '@/store';
 import { AuthProvider } from '@/lib/auth-context';
+import { pendingBookingActions } from '@/store/slices/pending-booking.slice';
+
+function PendingBookingHydrate() {
+  const dispatch = useDispatch();
+  useLayoutEffect(() => {
+    dispatch(pendingBookingActions.hydrate());
+  }, [dispatch]);
+  return null;
+}
 
 export function AppProviders({ children }: { children: React.ReactNode }) {
   const [queryClient] = useState(
@@ -19,6 +28,7 @@ export function AppProviders({ children }: { children: React.ReactNode }) {
 
   return (
     <Provider store={store}>
+      <PendingBookingHydrate />
       <QueryClientProvider client={queryClient}>
         <AuthProvider>
           {children}

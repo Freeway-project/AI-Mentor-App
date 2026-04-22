@@ -1,8 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { Suspense, useState } from 'react';
 import nextDynamic from 'next/dynamic';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/lib/auth-context';
 import { loadPendingBooking } from '@/lib/pending-booking';
@@ -16,7 +16,7 @@ const GoogleAuthButton = nextDynamic(
   }
 );
 
-export default function RegisterPage() {
+function RegisterPageInner() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -26,6 +26,9 @@ export default function RegisterPage() {
   const [loading, setLoading] = useState(false);
   const { register, loginWithGoogle } = useAuth();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const redirect = searchParams.get('redirect');
+  const loginHref = redirect ? `/login?redirect=${encodeURIComponent(redirect)}` : '/login';
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -47,7 +50,7 @@ export default function RegisterPage() {
         router.push('/onboarding');
       } else {
         const pending = loadPendingBooking();
-        router.push(pending ? `/mentors/${pending.mentorId}` : '/mentee/dashboard');
+        router.push(pending ? `/mentors/${pending.mentorId}?restore=1` : '/mentee/dashboard');
       }
     } catch (err: any) {
       setError(err.message || 'Registration failed');
@@ -67,7 +70,7 @@ export default function RegisterPage() {
         window.location.href = '/mentor/dashboard';
       } else {
         const pending = loadPendingBooking();
-        router.push(pending ? `/mentors/${pending.mentorId}` : '/mentee/dashboard');
+        router.push(pending ? `/mentors/${pending.mentorId}?restore=1` : '/mentee/dashboard');
       }
     } catch (err: any) {
       setError(err.message || 'Google sign-up failed');
@@ -309,7 +312,7 @@ export default function RegisterPage() {
 
             <p className="text-center text-sm text-slate-600 mt-6 pt-2">
               Already have an account?{' '}
-              <Link href="/login" className="text-brand hover:text-brand-light font-bold transition-colors">
+              <Link href={loginHref} className="text-brand hover:text-brand-light font-bold transition-colors">
                 Sign in
               </Link>
             </p>
@@ -320,4 +323,18 @@ export default function RegisterPage() {
   );
 
   return content;
+}
+
+export default function RegisterPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex min-h-screen items-center justify-center bg-slate-50 text-sm text-slate-500">
+          Loading…
+        </div>
+      }
+    >
+      <RegisterPageInner />
+    </Suspense>
+  );
 }

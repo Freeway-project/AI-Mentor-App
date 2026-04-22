@@ -97,7 +97,7 @@ export default function MenteeVerifyOtpPage() {
             setDone(true);
             setTimeout(() => {
               const pending = loadPendingBooking();
-              router.push(pending ? `/mentors/${pending.mentorId}` : '/browse');
+              router.push(pending ? `/mentors/${pending.mentorId}?restore=1` : '/browse');
             }, 1500);
         } catch (err: any) {
             toast.error(err.message || 'Invalid code');
