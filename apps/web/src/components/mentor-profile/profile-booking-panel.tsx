@@ -1,10 +1,14 @@
 'use client';
 
-import { useMemo, useState, useEffect, useCallback } from 'react';
+import { useMemo, useState, useEffect, useCallback, useRef } from 'react';
 import nextDynamic from 'next/dynamic';
 import { ChevronLeft, ChevronRight, Check } from 'lucide-react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams, usePathname } from 'next/navigation';
+import { useDispatch } from 'react-redux';
 import { useAuth } from '@/lib/auth-context';
+import type { AppDispatch } from '@/store';
+import { pendingBookingActions } from '@/store/slices/pending-booking.slice';
+import { readPendingIntentFromStorage } from '@/lib/pending-booking';
 import { apiClient } from '@/lib/api-client';
 import { toast } from 'sonner';
 import { ed, ED } from './editorial-theme';
@@ -12,6 +16,11 @@ import type { MentorOffer } from './types';
 
 const BookingModal = nextDynamic(
   () => import('@/components/booking/BookingModal').then((m) => m.BookingModal),
+  { ssr: false }
+);
+
+const CalBookingEmbed = nextDynamic(
+  () => import('@/components/booking/CalBookingEmbed').then((m) => m.CalBookingEmbed),
   { ssr: false }
 );
 
@@ -375,15 +384,32 @@ export function MentorProfileBookingPanel({
   offers,
   hourlyRate,
   introVideoUrl,
+  calLink,
 }: {
   mentorId: string;
   mentorName: string;
   offers: MentorOffer[];
   hourlyRate?: number;
   introVideoUrl?: string;
+  calLink?: string | null;
 }) {
   const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const dispatch = useDispatch<AppDispatch>();
   const { user } = useAuth();
+  const hasRestoredRef = useRef(false);
+  /** After post-login auto-open, user closing the modal must not re-trigger the auto-open effect. */
+  const paymentModalDismissedRef = useRef(false);
+
+  useEffect(() => {
+    hasRestoredRef.current = false;
+    paymentModalDismissedRef.current = false;
+  }, [mentorId]);
+
+  // Cal.com embed state
+  const [calPendingBooking, setCalPendingBooking] = useState<{ startTime: string; endTime: string; uid: string } | null>(null);
+  const [calDone, setCalDone] = useState(false);
 
   const [step, setStep] = useState<Step>('date');
   const [monthCursor, setMonthCursor] = useState(() => {
@@ -434,6 +460,53 @@ export function MentorProfileBookingPanel({
     fetchMonthSlots(monthCursor.year, monthCursor.month);
   }, [monthCursor, fetchMonthSlots]);
 
+  // Restore from localStorage (source of truth). Redux can still be null on first paint / Strict Mode remount.
+  // Do not clear intent here — clearing before Strict Mode's remount left storage empty and locked UI on step 1.
+  // Intent is cleared after a successful booking or when overwritten by a new saveIntent.
+  useEffect(() => {
+    if (hasRestoredRef.current) return;
+    const intent = readPendingIntentFromStorage();
+    if (!intent || intent.mentorId !== mentorId) return;
+
+    hasRestoredRef.current = true;
+    if (intent.monthCursor) {
+      setMonthCursor(intent.monthCursor);
+    } else if (intent.selectedDate) {
+      const d = new Date(`${intent.selectedDate}T12:00:00`);
+      if (!Number.isNaN(d.getTime())) {
+        setMonthCursor({ year: d.getFullYear(), month: d.getMonth() });
+      }
+    }
+    if (intent.selectedDate) setSelectedDate(intent.selectedDate);
+    if (intent.selectedSlot) setSelectedSlot(intent.selectedSlot);
+    if (intent.offerId) setSelectedOfferId(intent.offerId);
+
+    if (intent.calPendingBooking) {
+      setCalPendingBooking(intent.calPendingBooking);
+    } else if (intent.bookingStep === 'date' || intent.bookingStep === 'service') {
+      setStep(intent.bookingStep);
+    } else if (intent.bookingStep === 'confirm' || intent.selectedSlot) {
+      setStep('confirm');
+    }
+
+    if (searchParams?.get('restore')) {
+      const params = new URLSearchParams(searchParams.toString());
+      params.delete('restore');
+      const qs = params.toString();
+      router.replace(qs ? `${pathname}?${qs}` : pathname);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- run once per mentor mount; LS read is synchronous
+  }, [mentorId]);
+
+  // After auth, open payment modal once when restored onto confirm step (do not re-open after user dismisses)
+  useEffect(() => {
+    if (!user || !hasRestoredRef.current) return;
+    if (paymentModalDismissedRef.current) return;
+    if (step === 'confirm' && selectedSlot && !showModal && !calPendingBooking) {
+      setShowModal(true);
+    }
+  }, [user, step, selectedSlot, showModal, calPendingBooking]);
+
   const handleMonthChange = (delta: number) => {
     setMonthCursor((prev) => {
       const d = new Date(prev.year, prev.month + delta, 1);
@@ -447,11 +520,6 @@ export function MentorProfileBookingPanel({
   };
 
   const handleSlotSelect = (slot: Slot) => {
-    if (!user) {
-      toast.error('Sign in to book a session');
-      router.push(`/login?redirect=/mentors/${mentorId}`);
-      return;
-    }
     setSelectedSlot(slot);
   };
 
@@ -459,6 +527,98 @@ export function MentorProfileBookingPanel({
   const canAdvanceDate = selectedDate && selectedSlot;
 
   const dateSlotsForSelected = selectedDate ? (slotsByDate[selectedDate] || []) : [];
+
+  // ── Cal.com embed path ──────────────────────────────────────────────────────
+  if (calLink) {
+    const calOffer = offers[0] ?? null;
+
+    const handleCalBookingSuccess = (data: { startTime: string; endTime: string; uid: string }) => {
+      if (!user) {
+        dispatch(
+          pendingBookingActions.saveIntent({
+            mentorId,
+            calPendingBooking: data,
+          })
+        );
+        router.push(`/login?redirect=/mentors/${mentorId}`);
+        return;
+      }
+      setCalPendingBooking(data);
+    };
+
+    const handleCalModalClose = async () => {
+      if (calPendingBooking) {
+        try {
+          await apiClient.cancelCalBooking(calPendingBooking.uid);
+        } catch {
+          // Best-effort cancel
+        }
+        setCalPendingBooking(null);
+      }
+    };
+
+    return (
+      <>
+        <div
+          style={{
+            background: ED.card,
+            border: `1px solid ${ED.rule}`,
+            padding: 28,
+            position: 'sticky',
+            top: 24,
+          }}
+        >
+          {calDone ? (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+              <div style={ed.mono(10, ED.inkMuted)}>Booking complete</div>
+              <div style={{ padding: 20, border: `1px solid ${ED.ink}`, background: ED.cream }}>
+                <Check size={22} color={ED.accent} strokeWidth={1.6} />
+                <div style={ed.serif(26, ED.ink, { marginTop: 10, lineHeight: 1.15 })}>
+                  Confirmation sent.
+                </div>
+                <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, color: ED.inkSoft, marginTop: 6, lineHeight: 1.5 }}>
+                  Check your email for your booking details and video link.
+                </div>
+              </div>
+              <button
+                onClick={() => setCalDone(false)}
+                style={{ padding: '12px 22px', background: 'transparent', border: `1px solid ${ED.ink}`, color: ED.ink, cursor: 'pointer', fontFamily: 'Inter, sans-serif', fontSize: 14, fontWeight: 500 }}
+              >
+                Book another →
+              </button>
+            </div>
+          ) : (
+            <>
+              <div style={{ marginBottom: 16 }}>
+                <div style={ed.mono(10, ED.inkMuted)}>Book a session</div>
+                <h3 style={ed.serif(28, ED.ink, { margin: '4px 0 0', letterSpacing: -0.3 })}>
+                  Pick a time
+                </h3>
+              </div>
+              <CalBookingEmbed calLink={calLink} onBookingSuccess={handleCalBookingSuccess} />
+            </>
+          )}
+        </div>
+
+        {calPendingBooking && (
+          <BookingModal
+            mentorId={mentorId}
+            mentorName={mentorName}
+            offer={calOffer}
+            hourlyRate={hourlyRate}
+            slot={{ start: calPendingBooking.startTime, end: calPendingBooking.endTime }}
+            calBookingUid={calPendingBooking.uid}
+            onClose={handleCalModalClose}
+            onSuccess={() => {
+              setCalPendingBooking(null);
+              setCalDone(true);
+              dispatch(pendingBookingActions.clearIntent());
+            }}
+          />
+        )}
+      </>
+    );
+  }
 
   return (
     <>
@@ -719,8 +879,40 @@ export function MentorProfileBookingPanel({
               }
               onClick={() => {
                 if (step === 'date') setStep('service');
-                else if (step === 'service') setStep('confirm');
-                else if (step === 'confirm') setShowModal(true);
+                else if (step === 'service') {
+                  if (!user) {
+                    dispatch(
+                      pendingBookingActions.saveIntent({
+                        mentorId,
+                        offerId: selectedOfferId || undefined,
+                        selectedDate: selectedDate ?? undefined,
+                        selectedSlot: selectedSlot ?? undefined,
+                        monthCursor: { year: monthCursor.year, month: monthCursor.month },
+                        bookingStep: 'confirm',
+                      })
+                    );
+                    router.push(`/login?redirect=/mentors/${mentorId}`);
+                    return;
+                  }
+                  setStep('confirm');
+                } else if (step === 'confirm') {
+                  if (!user) {
+                    dispatch(
+                      pendingBookingActions.saveIntent({
+                        mentorId,
+                        offerId: selectedOfferId || undefined,
+                        selectedDate: selectedDate ?? undefined,
+                        selectedSlot: selectedSlot ?? undefined,
+                        monthCursor: { year: monthCursor.year, month: monthCursor.month },
+                        bookingStep: 'confirm',
+                      })
+                    );
+                    router.push(`/login?redirect=/mentors/${mentorId}`);
+                    return;
+                  }
+                  paymentModalDismissedRef.current = false;
+                  setShowModal(true);
+                }
               }}
               style={{
                 padding: '12px 22px',
@@ -757,10 +949,14 @@ export function MentorProfileBookingPanel({
           offer={selectedOffer}
           hourlyRate={hourlyRate}
           slot={selectedSlot}
-          onClose={() => setShowModal(false)}
+          onClose={() => {
+            paymentModalDismissedRef.current = true;
+            setShowModal(false);
+          }}
           onSuccess={() => {
             setShowModal(false);
             setStep('done');
+            dispatch(pendingBookingActions.clearIntent());
           }}
         />
       ) : null}

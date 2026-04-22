@@ -142,24 +142,24 @@ export default function MenteeCareerPage() {
 
   if (loading || authLoading) {
     return (
-      <div className="mx-auto max-w-5xl p-8">
+      <div className="mx-auto w-full min-w-0 max-w-6xl px-4 py-8 sm:px-6 md:px-8">
         <p className="text-sm text-slate-500 animate-pulse">Loading career analysis…</p>
       </div>
     );
   }
 
   return (
-    <div className="mx-auto max-w-6xl space-y-8 p-6 md:p-8">
+    <div className="mx-auto w-full min-w-0 max-w-6xl space-y-8 px-4 py-6 sm:px-6 md:py-8 md:px-8">
       <AppPageHeader
         title="Career Analysis"
         description="Upload your resume, define a target role or growth goal, and turn that into a broader development plan across skills, domain depth, communication, leadership, and mentor recommendations."
       />
 
-      <div className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
-        <AppPanel className="p-5 space-y-5">
+      <div className="grid min-w-0 gap-6 lg:grid-cols-[1.1fr_0.9fr] lg:items-start">
+        <AppPanel className="min-w-0 space-y-5 p-5">
           <div className="flex items-center gap-3">
             <div className="rounded-xl border border-brand/20 bg-brand/10 p-2.5 text-brand">
-              <FileUp className="h-5 w-5" />
+              <FileUp className="h-5 w-5 shrink-0" />
             </div>
             <div>
               <h2 className="font-semibold text-slate-900">Resume Upload</h2>
@@ -195,19 +195,19 @@ export default function MenteeCareerPage() {
           ) : null}
         </AppPanel>
 
-        <AppPanel className="p-5 space-y-5">
+        <AppPanel className="min-w-0 space-y-5 p-5">
           <div className="flex items-center gap-3">
             <div className="rounded-xl border border-purple-500/20 bg-purple-500/10 p-2.5 text-purple-600">
-              <Target className="h-5 w-5" />
+              <Target className="h-5 w-5 shrink-0" />
             </div>
-            <div>
+            <div className="min-w-0">
               <h2 className="font-semibold text-slate-900">Optional Goal Form</h2>
               <p className="text-sm text-slate-500">Use it to anchor the analysis around a role target, growth path, exploratory interests, and constraints.</p>
             </div>
           </div>
 
           <div className="space-y-4">
-            <div>
+            <div className="min-w-0">
               <p className="mb-2 text-sm text-slate-700">Role targeting</p>
               <div className="flex flex-wrap gap-2">
                 {ROLE_SUGGESTIONS.map(role => (
@@ -228,8 +228,8 @@ export default function MenteeCareerPage() {
               </div>
             </div>
 
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div>
+            <div className="grid min-w-0 gap-4 sm:grid-cols-2">
+              <div className="min-w-0">
                 <label className="mb-2 block text-sm text-slate-700">Target role</label>
                 <input
                   value={goalForm.targetRole ?? ''}
@@ -238,7 +238,7 @@ export default function MenteeCareerPage() {
                   placeholder="e.g. Backend Engineer"
                 />
               </div>
-              <div>
+              <div className="min-w-0">
                 <label className="mb-2 block text-sm text-slate-700">Career stage goal</label>
                 <input
                   value={goalForm.careerStageGoal ?? ''}
@@ -249,7 +249,7 @@ export default function MenteeCareerPage() {
               </div>
             </div>
 
-            <div>
+            <div className="min-w-0">
               <p className="mb-2 text-sm text-slate-700">Suggested focus areas</p>
               <div className="flex flex-wrap gap-2">
                 {FOCUS_SUGGESTIONS.map(area => (
@@ -305,8 +305,8 @@ export default function MenteeCareerPage() {
               </div>
             </div>
 
-            <div className="grid gap-4 sm:grid-cols-3">
-              <div>
+            <div className="grid min-w-0 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              <div className="min-w-0">
                 <label className="mb-2 block text-sm text-slate-700">Weekly hours</label>
                 <input
                   type="number"
@@ -318,7 +318,7 @@ export default function MenteeCareerPage() {
                   placeholder="5"
                 />
               </div>
-              <div>
+              <div className="min-w-0">
                 <label className="mb-2 block text-sm text-slate-700">Mentor budget</label>
                 <input
                   type="number"
@@ -329,7 +329,7 @@ export default function MenteeCareerPage() {
                   placeholder="100"
                 />
               </div>
-              <div>
+              <div className="min-w-0">
                 <label className="mb-2 block text-sm text-slate-700">Preferred language</label>
                 <input
                   value={goalForm.preferredLanguage ?? ''}
@@ -358,8 +358,8 @@ export default function MenteeCareerPage() {
       </div>
 
       {profile?.extractedProfile ? (
-        <div className="grid gap-6 xl:grid-cols-[0.9fr_1.1fr]">
-          <AppPanel className="p-5 space-y-5">
+        <div className="grid min-w-0 gap-6 xl:grid-cols-[0.9fr_1.1fr] xl:items-start">
+          <AppPanel className="min-w-0 space-y-5 p-5">
             <div className="flex items-center gap-3">
               <div className="rounded-xl border border-brand/20 bg-brand/10 p-2.5 text-brand">
                 <Briefcase className="h-5 w-5" />
@@ -465,9 +465,9 @@ export default function MenteeCareerPage() {
             ) : null}
           </AppPanel>
 
-          <div className="space-y-6">
+          <div className="min-w-0 space-y-6">
             {profile.goalProfile ? (
-              <AppPanel className="p-5">
+              <AppPanel className="min-w-0 p-5">
                 <div className="flex items-center gap-3">
                   <div className="rounded-xl border border-amber-500/20 bg-amber-500/10 p-2.5 text-amber-600">
                     <Target className="h-5 w-5" />
@@ -488,7 +488,7 @@ export default function MenteeCareerPage() {
             ) : null}
 
             {profile.latestAnalysis ? (
-              <AppPanel className="p-5 space-y-5">
+              <AppPanel className="min-w-0 space-y-5 p-5">
                 <div className="flex items-center gap-3">
                   <div className="rounded-xl border border-purple-500/20 bg-purple-500/10 p-2.5 text-purple-600">
                     <Brain className="h-5 w-5" />
@@ -499,8 +499,8 @@ export default function MenteeCareerPage() {
                   </div>
                 </div>
 
-                <div className="grid gap-4 lg:grid-cols-3">
-                  <div>
+                <div className="grid min-w-0 gap-4 lg:grid-cols-3">
+                  <div className="min-w-0">
                     <AppSectionLabel className="mb-3">Strengths</AppSectionLabel>
                     <ul className="space-y-2 text-sm text-slate-700">
                       {profile.latestAnalysis.topStrengths.map(item => (
@@ -510,7 +510,7 @@ export default function MenteeCareerPage() {
                       ))}
                     </ul>
                   </div>
-                  <div>
+                  <div className="min-w-0">
                     <AppSectionLabel className="mb-3">Gaps</AppSectionLabel>
                     <ul className="space-y-2 text-sm text-slate-700">
                       {profile.latestAnalysis.primaryGaps.map(item => (
@@ -520,7 +520,7 @@ export default function MenteeCareerPage() {
                       ))}
                     </ul>
                   </div>
-                  <div>
+                  <div className="min-w-0">
                     <AppSectionLabel className="mb-3">Recommended Focus Areas</AppSectionLabel>
                     <ul className="space-y-2 text-sm text-slate-700">
                       {profile.latestAnalysis.recommendedFocusAreas.map(item => (
@@ -551,9 +551,9 @@ export default function MenteeCareerPage() {
                 ) : null}
               </AppPanel>
             ) : (
-              <AppPanel className="p-5">
+              <AppPanel className="min-w-0 p-5">
                 <div className="flex items-center gap-3">
-                  <Sparkles className="h-5 w-5 text-brand" />
+                  <Sparkles className="h-5 w-5 shrink-0 text-brand" />
                   <p className="text-sm text-slate-600">
                     Resume extraction is ready. Run analysis to generate strengths, broader development areas, and mentor recommendations.
                   </p>
@@ -562,7 +562,7 @@ export default function MenteeCareerPage() {
             )}
 
             {profile.mentorRecommendations.length > 0 ? (
-              <AppPanel className="p-5 space-y-4">
+              <AppPanel className="min-w-0 space-y-4 p-5">
                 <div className="flex items-center gap-3">
                   <div className="rounded-xl border border-brand/20 bg-brand/10 p-2.5 text-brand">
                     <GraduationCap className="h-5 w-5" />
@@ -573,7 +573,7 @@ export default function MenteeCareerPage() {
                   </div>
                 </div>
 
-                <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+                <div className="grid min-w-0 gap-4 md:grid-cols-2 xl:grid-cols-3">
                   {profile.mentorRecommendations.map(mentor => (
                     <Link
                       key={mentor.mentorId}
@@ -612,7 +612,7 @@ export default function MenteeCareerPage() {
           </div>
         </div>
       ) : (
-        <AppPanel className="p-6">
+        <AppPanel className="min-w-0 p-6">
           <p className="text-sm text-slate-500">
             Upload a resume to generate a career snapshot and tailored mentor suggestions.
           </p>

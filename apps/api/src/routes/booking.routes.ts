@@ -130,7 +130,7 @@ router.get('/mentors/:coachId/slots', async (req: Request, res: Response, next: 
 // POST /api/bookings — create booking
 router.post('/bookings', authenticate, requireEmailVerified, async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { mentorId, offerId, scheduledAt, duration, title, description, paymentIntentId } = req.body;
+    const { mentorId, offerId, scheduledAt, duration, title, description, paymentIntentId, calBookingUid } = req.body;
 
     if (!mentorId || !scheduledAt) {
       throw new AppError(400, 'VALIDATION_ERROR', 'mentorId and scheduledAt are required');
@@ -218,6 +218,7 @@ router.post('/bookings', authenticate, requireEmailVerified, async (req: Request
       paymentIntentId: paymentIntentId || undefined,
       amountPaid,
       menteeName: mentee.name,
+      calBookingUid: calBookingUid || undefined,
     });
 
     // Hold credits (legacy flow only)

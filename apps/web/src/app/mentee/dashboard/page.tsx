@@ -116,14 +116,14 @@ export default function MenteeDashboardPage() {
 
   if (loading) {
     return (
-      <div className="mx-auto max-w-5xl p-8">
+      <div className="mx-auto w-full min-w-0 max-w-5xl px-4 py-8 sm:px-6 md:px-8">
         <p className="text-slate-500 text-sm animate-pulse">Loading...</p>
       </div>
     );
   }
 
   return (
-    <div className="mx-auto max-w-5xl space-y-8 p-6 md:p-8">
+    <div className="mx-auto w-full min-w-0 max-w-5xl space-y-8 px-4 py-6 sm:px-6 md:py-8 md:px-8">
       <AppPageHeader
         title={`Welcome back, ${user?.name?.split(' ')[0] ?? 'Learner'}`}
         description="Track credits, upcoming sessions, and reschedules from the same shared dashboard system."

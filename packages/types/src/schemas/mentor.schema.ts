@@ -58,6 +58,7 @@ export const mentorSchema = z.object({
   approvedAt: z.date().optional(),
   approvedBy: z.string().optional(),
   createdBy: z.string().optional(),
+  calLink: z.string().max(300).optional(),
   createdAt: z.date(),
   updatedAt: z.date(),
 });
@@ -86,6 +87,7 @@ export const updateMentorSchema = z.object({
   expertise: z.array(z.string()).optional(),
   languages: z.array(z.string()).optional(),
   hourlyRate: z.number().positive().optional(),
+  calLink: z.string().max(300).optional(),
 });
 
 export const updateAvailabilitySchema = availabilitySchema;

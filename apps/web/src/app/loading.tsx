@@ -9,13 +9,18 @@ export default function Loading() {
             style={{ background: 'var(--gradient-auth)' }}
         >
             <div className="absolute inset-0 pointer-events-none">
-                <div className="absolute inset-0 opacity-[0.1]" style={{ backgroundImage: 'radial-gradient(circle, #475569 1px, transparent 1px)', backgroundSize: '36px 36px' }} />
-                <div className="absolute top-8 right-8 h-[28rem] w-[28rem] rounded-full bg-brand/10 blur-[120px]" />
-                <div className="absolute bottom-0 left-[-6rem] h-[20rem] w-[20rem] rounded-full bg-brand-light/10 blur-[120px]" />
-                <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-brand/30 to-transparent" />
+                <div
+                    className="absolute inset-0 opacity-[0.06]"
+                    style={{
+                        backgroundImage: 'radial-gradient(circle, #d97706 1px, transparent 1px)',
+                        backgroundSize: '32px 32px',
+                    }}
+                />
+                <div className="absolute top-8 right-8 h-[24rem] w-[24rem] rounded-full bg-amber-200/25 blur-[100px]" />
+                <div className="absolute bottom-0 left-[-5rem] h-[18rem] w-[18rem] rounded-full bg-amber-100/40 blur-[90px]" />
             </div>
 
-            <div className="relative z-10 rounded-3xl border border-white/10 bg-slate-900/50 px-10 py-9 backdrop-blur-md">
+            <div className="relative z-10 rounded-3xl border border-amber-100/90 bg-white/95 px-10 py-9 shadow-xl shadow-amber-950/5 backdrop-blur-sm">
                 <BrandLoader />
             </div>
         </div>

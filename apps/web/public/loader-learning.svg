@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="none" aria-hidden="true">
+  <defs>
+    <linearGradient id="loaderLearnStroke" x1="32" y1="48" x2="224" y2="208" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#CA8A04"/>
+      <stop offset="0.45" stop-color="#EAB308"/>
+      <stop offset="1" stop-color="#B45309"/>
+    </linearGradient>
+    <linearGradient id="loaderLearnHalo" x1="128" y1="40" x2="128" y2="200" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#FEF9C3"/>
+      <stop offset="1" stop-color="#FDE68A"/>
+    </linearGradient>
+  </defs>
+  <!-- warm tint only — no gray -->
+  <circle cx="128" cy="128" r="102" fill="url(#loaderLearnHalo)" opacity="0.85"/>
+  <path
+    d="M48 196V76c0-14 11.5-26 26-22l46 11 46-11c14.5-4 26 8 26 22v120"
+    stroke="url(#loaderLearnStroke)"
+    stroke-width="10"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  />
+  <path d="M128 76v120" stroke="url(#loaderLearnStroke)" stroke-width="10" stroke-linecap="round"/>
+  <path d="M68 112h36M68 134h28M68 156h34" stroke="url(#loaderLearnStroke)" stroke-width="6" stroke-linecap="round" opacity="0.82"/>
+  <path d="M152 112h36M152 134h28M152 156h34" stroke="url(#loaderLearnStroke)" stroke-width="6" stroke-linecap="round" opacity="0.82"/>
+  <path
+    d="M128 36l6.5 14.5L150 52l-14.5 6.5L128 73l-7.5-14.5L106 52l14.5-7.5L128 36z"
+    fill="url(#loaderLearnStroke)"
+  />
+</svg>

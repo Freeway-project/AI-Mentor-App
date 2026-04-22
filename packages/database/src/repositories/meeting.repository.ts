@@ -4,7 +4,7 @@ import { logger } from '@owl-mentors/utils';
 import { MeetingModel, toMeeting } from '../models/meeting.model';
 
 export class MeetingRepository {
-  async create(menteeId: string, data: CreateMeetingInput & { creditCost?: number; paymentIntentId?: string; amountPaid?: number; menteeName?: string }): Promise<Meeting> {
+  async create(menteeId: string, data: CreateMeetingInput & { creditCost?: number; paymentIntentId?: string; amountPaid?: number; menteeName?: string; calBookingUid?: string }): Promise<Meeting> {
     const startTime = Date.now();
     try {
       const doc = await MeetingModel.create({
@@ -20,6 +20,7 @@ export class MeetingRepository {
         paymentIntentId: data.paymentIntentId,
         amountPaid: data.amountPaid,
         menteeName: data.menteeName,
+        calBookingUid: data.calBookingUid,
       });
       logger.db({ operation: 'insert', collection: 'meetings', duration: Date.now() - startTime });
       return toMeeting(doc);
