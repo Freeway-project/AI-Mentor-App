@@ -42,6 +42,12 @@ router.get('/mentors/:coachId/offers', async (req: Request, res: Response, next:
     const mentor = await mentorRepo.findById(coachId);
     const offers = await offerRepo.findByMentorId(mentor.id);
     const activeOffers = offers.filter(o => o.isActive);
+    logger.info('[Booking] Mentor offers fetched', {
+      requestId: req.requestId,
+      coachId,
+      mentorId: mentor.id,
+      activeOffers: activeOffers.length,
+    });
     res.json({ success: true, data: activeOffers });
   } catch (error) {
     next(error);
@@ -65,6 +71,13 @@ router.get('/mentors/:coachId/slots', async (req: Request, res: Response, next: 
     if (isNaN(fromDate.getTime()) || isNaN(toDate.getTime())) {
       throw new AppError(400, 'VALIDATION_ERROR', 'Invalid date format');
     }
+    logger.info('[Booking] Slot query received', {
+      requestId: req.requestId,
+      coachId,
+      from,
+      to,
+      durationMin,
+    });
 
     const mentor = await mentorRepo.findById(coachId);
     if (!mentor.availability?.schedule?.length) {
@@ -106,6 +119,11 @@ router.get('/mentors/:coachId/slots', async (req: Request, res: Response, next: 
             timeMax: new Date(toDate.getTime() + 24 * 60 * 60 * 1000).toISOString(),
           });
         } catch (_) {
+          logger.warn('[Booking] Google busy time lookup failed', {
+            requestId: req.requestId,
+            coachId,
+            mentorUserId: mentor.userId,
+          });
           // Non-fatal: fall back to no Google busy times
         }
       }
@@ -119,6 +137,14 @@ router.get('/mentors/:coachId/slots', async (req: Request, res: Response, next: 
       durationMin,
       existingBookings,
       busyTimes,
+    });
+    logger.info('[Booking] Slot query completed', {
+      requestId: req.requestId,
+      coachId,
+      durationMin,
+      existingBookings: existingBookings.length,
+      busyTimes: busyTimes.length,
+      slots: slots.length,
     });
 
     res.json({ success: true, data: { slots } });
@@ -135,6 +161,15 @@ router.post('/bookings', authenticate, requireEmailVerified, async (req: Request
     if (!mentorId || !scheduledAt) {
       throw new AppError(400, 'VALIDATION_ERROR', 'mentorId and scheduledAt are required');
     }
+    logger.info('[Booking] Booking create started', {
+      requestId: req.requestId,
+      userId: req.userId,
+      mentorId,
+      offerId,
+      scheduledAt,
+      hasPaymentIntent: Boolean(paymentIntentId),
+      hasCalBookingUid: Boolean(calBookingUid),
+    });
 
     const durationMin = Number(duration) || 30;
     const slotStart = new Date(scheduledAt);
@@ -180,6 +215,13 @@ router.post('/bookings', authenticate, requireEmailVerified, async (req: Request
     });
 
     if (conflict) {
+      logger.warn('[Booking] Slot conflict detected', {
+        requestId: req.requestId,
+        userId: req.userId,
+        mentorId,
+        scheduledAt: slotStart.toISOString(),
+        durationMin,
+      });
       throw new AppError(409, 'SLOT_UNAVAILABLE', 'This time slot is no longer available');
     }
 
@@ -198,12 +240,26 @@ router.post('/bookings', authenticate, requireEmailVerified, async (req: Request
         throw new AppError(400, 'PAYMENT_AMOUNT_MISMATCH', 'Payment amount does not match session price');
       }
       amountPaid = pi.amount / 100;
+      logger.info('[Booking] Stripe payment verified', {
+        requestId: req.requestId,
+        userId: req.userId,
+        mentorId,
+        paymentIntentId,
+        amountPaid,
+      });
     } else {
       // Legacy credit flow
       const account = await creditRepo.getBalance(req.userId!);
       if (account.balance < creditCost) {
         throw new AppError(402, 'INSUFFICIENT_CREDITS', 'Not enough credits to book this session');
       }
+      logger.info('[Booking] Legacy credit flow verified', {
+        requestId: req.requestId,
+        userId: req.userId,
+        mentorId,
+        creditCost,
+        balance: account.balance,
+      });
     }
 
     // Create meeting
@@ -302,6 +358,16 @@ router.post('/bookings', authenticate, requireEmailVerified, async (req: Request
         dailyRoomUrl,
       },
     });
+    logger.info('[Booking] Booking create completed', {
+      requestId: req.requestId,
+      userId: req.userId,
+      mentorId,
+      meetingId: meeting.id,
+      durationMin,
+      creditCost,
+      hasMeetUrl: Boolean(meetUrl),
+      hasDailyRoomUrl: Boolean(dailyRoomUrl),
+    });
   } catch (error) {
     next(error);
   }
@@ -390,6 +456,12 @@ router.post('/bookings/:id/cancel', authenticate, requireEmailVerified, async (r
     }
 
     const cancelled = await meetingRepo.cancel(req.params.id, req.userId!, reason || 'Cancelled by user');
+    logger.info('[Booking] Booking cancelled', {
+      requestId: req.requestId,
+      meetingId: req.params.id,
+      actorUserId: req.userId,
+      reason: reason || 'Cancelled by user',
+    });
 
     // Return credits to mentee
     try {
@@ -409,7 +481,13 @@ router.post('/bookings/:id/cancel', authenticate, requireEmailVerified, async (r
         try {
           const tokens = await maybeRefreshTokens(mentor.userId, integration);
           await gcalService.deleteEvent(tokens, { calendarId: writeCalendarId, eventId: googleEventId });
-        } catch (_) {}
+        } catch (_) {
+          logger.warn('[Booking] Google Calendar delete failed during cancellation', {
+            requestId: req.requestId,
+            meetingId: req.params.id,
+            googleEventId,
+          });
+        }
       }
     }
 
@@ -449,6 +527,13 @@ router.post('/bookings/:id/reschedule', authenticate, requireEmailVerified, asyn
       rescheduledFrom: meeting.scheduledAt.toISOString(),
       rescheduledAt: new Date().toISOString(),
     } as any);
+    logger.info('[Booking] Booking rescheduled', {
+      requestId: req.requestId,
+      meetingId: req.params.id,
+      actorUserId: req.userId,
+      previousStart: meeting.scheduledAt,
+      newStart: newStart.toISOString(),
+    });
 
     // Update Google Calendar event
     const googleEventId = (meeting as any).googleEventId;
@@ -466,7 +551,13 @@ router.post('/bookings/:id/reschedule', authenticate, requireEmailVerified, asyn
             start: newStart.toISOString(),
             end: newEnd.toISOString(),
           });
-        } catch (_) {}
+        } catch (_) {
+          logger.warn('[Booking] Google Calendar update failed during reschedule', {
+            requestId: req.requestId,
+            meetingId: req.params.id,
+            googleEventId,
+          });
+        }
       }
     }
 

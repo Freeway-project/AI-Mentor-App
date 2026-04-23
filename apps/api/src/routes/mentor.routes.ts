@@ -237,8 +237,23 @@ router.get('/', searchRateLimit, validateQuery(searchMentorsSchema), async (req:
 
     if (params.query) {
       const query = params.query as string;
+      logger.info('[MentorSearch] Query received', {
+        requestId: req.requestId,
+        query,
+        limit,
+        offset,
+        userId: req.userId,
+      });
       const parsedIntent: ParsedIntent = await mentorSearchService.parseIntent(query)
         .catch(() => mentorSearchService.buildLocalIntent(query));
+      logger.info('[MentorSearch] Intent parsed', {
+        requestId: req.requestId,
+        query,
+        semanticQuery: parsedIntent.semanticQuery,
+        maxRate: parsedIntent.maxRate,
+        language: parsedIntent.language,
+        topic: parsedIntent.topic,
+      });
 
       const structuredFilters = {
         maxRate: parsedIntent.maxRate ?? (params.maxRate ? Number(params.maxRate) : undefined),
@@ -257,6 +272,17 @@ router.get('/', searchRateLimit, validateQuery(searchMentorsSchema), async (req:
         if (raw.length > 0) {
           semantic = true;
           vectorMentors = mentorSearchService.applyStructuredFilters(raw, structuredFilters);
+          logger.info('[MentorSearch] Vector search completed', {
+            requestId: req.requestId,
+            query,
+            rawCount: raw.length,
+            filteredCount: vectorMentors.length,
+          });
+        } else {
+          logger.info('[MentorSearch] Vector search returned no results', {
+            requestId: req.requestId,
+            query,
+          });
         }
       } catch (vectorErr) {
         logger.warn(`[VectorSearch] Falling back to keyword search: ${(vectorErr as Error).message}`);
@@ -269,6 +295,13 @@ router.get('/', searchRateLimit, validateQuery(searchMentorsSchema), async (req:
           mentorSearchService.applyStructuredFilters(raw, structuredFilters),
           parsedIntent
         );
+        logger.info('[MentorSearch] Keyword search completed', {
+          requestId: req.requestId,
+          query,
+          keywordQuery,
+          rawCount: raw.length,
+          filteredCount: keywordMentors.length,
+        });
       } catch (keywordErr) {
         logger.warn(`[KeywordSearch] Failed: ${(keywordErr as Error).message}`);
       }
@@ -279,6 +312,11 @@ router.get('/', searchRateLimit, validateQuery(searchMentorsSchema), async (req:
         try {
           mentors = await mentorSearchService.rerankAndExplain(query, mentors);
           llmEnhanced = true;
+          logger.info('[MentorSearch] LLM reranking completed', {
+            requestId: req.requestId,
+            query,
+            count: mentors.length,
+          });
         } catch (rankErr) {
           logger.warn(`[MentorSearch] Re-ranking failed, using hybrid order: ${(rankErr as Error).message}`);
         }
@@ -301,6 +339,13 @@ router.get('/', searchRateLimit, validateQuery(searchMentorsSchema), async (req:
     }
 
     const mentors = await getMentorRepo().search(params);
+    logger.info('[MentorSearch] Standard search completed', {
+      requestId: req.requestId,
+      query: params.query,
+      total: mentors.length,
+      limit,
+      offset,
+    });
     return res.json({
       success: true,
       data: { mentors, total: mentors.length, query: params.query, semantic: false },

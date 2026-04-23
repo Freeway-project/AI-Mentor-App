@@ -15,12 +15,18 @@ export class AppError extends Error {
 }
 
 export function errorHandler(err: Error, req: Request, res: Response, next: NextFunction) {
+  const statusCode = (err as any).statusCode || 500;
+
   // Log the error
   logger.error('Request error', err, {
     requestId: req.requestId,
     method: req.method,
     path: req.path,
+    statusCode,
+    ip: req.ip,
     userId: req.userId,
+    params: req.params,
+    query: req.query,
   });
 
   // Handle Zod validation errors
@@ -88,7 +94,6 @@ export function errorHandler(err: Error, req: Request, res: Response, next: Next
   }
 
   // Default error response
-  const statusCode = (err as any).statusCode || 500;
   const message = process.env.NODE_ENV === 'production'
     ? 'Internal server error'
     : err.message;

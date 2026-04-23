@@ -2,8 +2,23 @@ import app from './app';
 import { connectDatabase } from '@owl-mentors/database';
 import { logger } from '@owl-mentors/utils';
 import { startReminderJob, stopReminderJob } from './jobs/reminder.job';
+import type { Server } from 'http';
 
 const PORT = process.env.PORT || 3001;
+let httpServer: Server | undefined;
+
+function shutdown(exitCode: number, reason: string) {
+  logger.info(reason);
+  stopReminderJob();
+
+  if (httpServer) {
+    httpServer.close(() => process.exit(exitCode));
+    setTimeout(() => process.exit(exitCode), 5_000).unref();
+    return;
+  }
+
+  process.exit(exitCode);
+}
 
 async function startServer() {
   try {
@@ -22,7 +37,7 @@ async function startServer() {
     startReminderJob();
 
     // Start Express server
-    app.listen(PORT, () => {
+    httpServer = app.listen(PORT, () => {
       logger.info(`Server running on http://localhost:${PORT}`, {
         port: PORT,
         env: process.env.NODE_ENV || 'development',
@@ -30,21 +45,27 @@ async function startServer() {
     });
   } catch (error) {
     logger.error('Failed to start server', error as Error);
-    process.exit(1);
+    shutdown(1, 'Startup failed, exiting');
   }
 }
 
 // Handle shutdown gracefully
 process.on('SIGTERM', () => {
-  logger.info('SIGTERM received, shutting down gracefully');
-  stopReminderJob();
-  process.exit(0);
+  shutdown(0, 'SIGTERM received, shutting down gracefully');
 });
 
 process.on('SIGINT', () => {
-  logger.info('SIGINT received, shutting down gracefully');
-  stopReminderJob();
-  process.exit(0);
+  shutdown(0, 'SIGINT received, shutting down gracefully');
+});
+
+process.on('unhandledRejection', (reason) => {
+  const error = reason instanceof Error ? reason : new Error(String(reason));
+  logger.error('Unhandled promise rejection', error);
+});
+
+process.on('uncaughtException', (error) => {
+  logger.error('Uncaught exception', error);
+  shutdown(1, 'Uncaught exception received, shutting down');
 });
 
 startServer();

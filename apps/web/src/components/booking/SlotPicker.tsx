@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { apiClient } from '@/lib/api-client';
+import { frontendLogger } from '@/lib/frontend-logger';
 
 interface Slot {
   start: string;
@@ -44,9 +45,33 @@ export function SlotPicker({ mentorId, durationMin, onSlotSelect }: Props) {
     if (!from || !to) return;
     setLoading(true);
     setError('');
+    frontendLogger.info('Slot search started', {
+      mentorId,
+      from,
+      to,
+      durationMin,
+    });
     apiClient.getAvailableSlots(mentorId, from, to, durationMin)
-      .then(data => setSlots(data.slots))
-      .catch(err => setError(err.message || 'Failed to load slots'))
+      .then(data => {
+        setSlots(data.slots);
+        frontendLogger.info('Slot search completed', {
+          mentorId,
+          from,
+          to,
+          durationMin,
+          slots: data.slots.length,
+        });
+      })
+      .catch(err => {
+        frontendLogger.error('Slot search failed', {
+          mentorId,
+          from,
+          to,
+          durationMin,
+          error: err.message || 'Failed to load slots',
+        });
+        setError(err.message || 'Failed to load slots');
+      })
       .finally(() => setLoading(false));
   }, [mentorId, from, to, durationMin]);
 
