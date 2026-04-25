@@ -1,9 +1,9 @@
 'use client';
 
 import { useRef, useState } from 'react';
-import { apiClient } from '@/lib/api-client';
+import { apiClient, MentorExtractedFields } from '@/lib/api-client';
 import { Button } from '@/components/ui/button';
-import { Upload, Camera, X } from 'lucide-react';
+import { Upload, Camera, X, FileText } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuth } from '@/lib/auth-context';
 import { withCacheBust } from '@/lib/cache-bust-url';
@@ -15,9 +15,10 @@ interface BasicsStepProps {
   userAvatar?: string;
   onComplete: () => void;
   onAvatarChange?: (url: string) => void;
+  onParsedFields?: (fields: MentorExtractedFields) => void;
 }
 
-export function BasicsStep({ profile, userAvatar, onComplete, onAvatarChange }: BasicsStepProps) {
+export function BasicsStep({ profile, userAvatar, onComplete, onAvatarChange, onParsedFields }: BasicsStepProps) {
   const { refreshUser } = useAuth();
   const [headline, setHeadline] = useState(profile?.headline || '');
   const [bio, setBio] = useState(profile?.bio || '');
@@ -27,6 +28,11 @@ export function BasicsStep({ profile, userAvatar, onComplete, onAvatarChange }: 
   const [avatarUrl, setAvatarUrl] = useState<string>(userAvatar || profile?.avatarUrl || '');
   const [avatarLoading, setAvatarLoading] = useState(false);
   const avatarInputRef = useRef<HTMLInputElement>(null);
+
+  const resumeInputRef = useRef<HTMLInputElement>(null);
+  const [parsing, setParsing] = useState(false);
+  const [parsedNote, setParsedNote] = useState('');
+  const [parseError, setParseError] = useState('');
 
   const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -45,6 +51,23 @@ export function BasicsStep({ profile, userAvatar, onComplete, onAvatarChange }: 
     } finally {
       setAvatarLoading(false);
       if (avatarInputRef.current) avatarInputRef.current.value = '';
+    }
+  };
+
+  const handleResumeUpload = async (file: File) => {
+    setParsing(true);
+    setParseError('');
+    setParsedNote('');
+    try {
+      const { mentorFields } = await apiClient.parseResumeForProfile(file);
+      if (mentorFields.headline) setHeadline(mentorFields.headline);
+      if (mentorFields.bio) setBio(mentorFields.bio);
+      onParsedFields?.(mentorFields);
+      setParsedNote('Resume parsed — fields auto-filled. Review and edit as needed.');
+    } catch (err: any) {
+      setParseError(err.message || 'Failed to parse resume');
+    } finally {
+      setParsing(false);
     }
   };
 
@@ -70,6 +93,53 @@ export function BasicsStep({ profile, userAvatar, onComplete, onAvatarChange }: 
       <div>
         <h2 className="text-xl font-bold text-slate-900">The basics</h2>
         <p className="mt-1 text-sm text-slate-600">Add a photo and introduce yourself to potential mentees.</p>
+      </div>
+
+      {/* Resume upload to auto-fill */}
+      <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 space-y-3">
+        <div>
+          <p className="text-xs font-semibold text-slate-600 uppercase tracking-wider">Quick-fill from resume</p>
+          <p className="text-xs text-slate-500 mt-0.5">Upload a PDF or DOCX — we&apos;ll auto-fill your headline, bio, and expertise</p>
+        </div>
+        <div
+          onClick={() => resumeInputRef.current?.click()}
+          className="border-2 border-dashed border-slate-200 rounded-xl p-5 text-center cursor-pointer hover:border-violet-300 hover:bg-violet-50/50 transition-colors bg-white"
+        >
+          {parsing ? (
+            <div className="flex flex-col items-center gap-2">
+              <div className="w-6 h-6 border-2 border-violet-500 border-t-transparent rounded-full animate-spin" />
+              <p className="text-xs text-slate-500">Parsing resume…</p>
+            </div>
+          ) : (
+            <div className="flex flex-col items-center gap-1.5">
+              <FileText className="w-6 h-6 text-slate-300" />
+              <p className="text-xs text-slate-500">Click to upload PDF or DOCX</p>
+              <p className="text-xs text-slate-400">Max 15 MB · optional</p>
+            </div>
+          )}
+        </div>
+        <input
+          ref={resumeInputRef}
+          type="file"
+          accept=".pdf,.doc,.docx"
+          className="hidden"
+          onChange={e => {
+            const file = e.target.files?.[0];
+            if (file) handleResumeUpload(file);
+            e.target.value = '';
+          }}
+        />
+        {parsedNote && (
+          <div className="flex items-center gap-2 rounded-xl border border-green-200 bg-green-50 px-3 py-2 text-xs text-green-700">
+            <span className="shrink-0">✓</span>
+            {parsedNote}
+          </div>
+        )}
+        {parseError && (
+          <div className="rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-700">
+            {parseError}
+          </div>
+        )}
       </div>
 
       {error && (

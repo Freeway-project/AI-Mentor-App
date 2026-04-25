@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth-context';
-import { apiClient } from '@/lib/api-client';
+import { apiClient, MentorExtractedFields } from '@/lib/api-client';
 import { Navbar } from '@/components/layout/Navbar';
 import { BasicsStep } from '@/components/onboarding/BasicsStep';
 import { ExpertiseStep } from '@/components/onboarding/ExpertiseStep';
@@ -26,6 +26,7 @@ export default function OnboardingPage() {
   const [loading, setLoading] = useState(true);
   const [showTermsModal, setShowTermsModal] = useState(false);
   const [liveAvatar, setLiveAvatar] = useState<string>('');
+  const [parsedFields, setParsedFields] = useState<MentorExtractedFields | null>(null);
 
   useEffect(() => {
     if (authLoading) return;
@@ -149,6 +150,7 @@ export default function OnboardingPage() {
                 profile={mentorProfile}
                 userAvatar={liveAvatar || user?.avatar || ''}
                 onAvatarChange={setLiveAvatar}
+                onParsedFields={setParsedFields}
                 onComplete={async () => {
                   await refreshProfile();
                   goToStep(1);
@@ -158,6 +160,7 @@ export default function OnboardingPage() {
             {currentStep === 1 && (
               <ExpertiseStep
                 profile={mentorProfile}
+                prefillData={parsedFields}
                 onComplete={async () => {
                   await refreshProfile();
                   goToStep(2);

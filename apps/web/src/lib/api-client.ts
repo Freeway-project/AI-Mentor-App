@@ -142,6 +142,16 @@ export interface CareerProfile {
   updatedAt: string;
 }
 
+export interface MentorExtractedFields {
+  name: string;
+  headline: string;
+  bio: string;
+  specialties: string[];
+  expertise: string[];
+  languages: string[];
+  certificationNames: string[];
+}
+
 class ApiClient {
   private baseUrl: string;
   private token: string | null = null;
@@ -489,6 +499,12 @@ class ApiClient {
     const fd = new FormData();
     fd.append('resume', file);
     return this.upload<{ extractedProfile: CareerExtractedProfile }>('/career-profile/parse', fd);
+  }
+
+  async parseResumeForProfile(file: File) {
+    const fd = new FormData();
+    fd.append('resume', file);
+    return this.upload<{ mentorFields: MentorExtractedFields }>('/mentors/me/parse-resume', fd);
   }
 
   async getCareerProfile() {

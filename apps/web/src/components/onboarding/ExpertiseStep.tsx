@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { apiClient } from '@/lib/api-client';
+import { apiClient, MentorExtractedFields } from '@/lib/api-client';
 import { Button } from '@/components/ui/button';
 import { X } from 'lucide-react';
 import { SkillTokenInput } from '@/components/onboarding/SkillTokenInput';
@@ -13,13 +13,22 @@ import { cn } from '@/lib/utils';
 interface ExpertiseStepProps {
   profile: any;
   onComplete: () => void;
+  prefillData?: MentorExtractedFields | null;
 }
 
-export function ExpertiseStep({ profile, onComplete }: ExpertiseStepProps) {
-  const [specialties, setSpecialties] = useState<string[]>(profile?.specialties?.length ? profile.specialties : []);
-  const [expertise, setExpertise] = useState<string[]>(profile?.expertise?.length ? profile.expertise : []);
+export function ExpertiseStep({ profile, onComplete, prefillData }: ExpertiseStepProps) {
+  const [specialties, setSpecialties] = useState<string[]>(
+    profile?.specialties?.length ? profile.specialties : (prefillData?.specialties ?? [])
+  );
+  const [expertise, setExpertise] = useState<string[]>(
+    profile?.expertise?.length ? profile.expertise : (prefillData?.expertise ?? [])
+  );
   const [languages, setLanguages] = useState<string[]>(
-    profile?.languages?.length ? profile.languages : ['English']
+    profile?.languages?.length
+      ? profile.languages
+      : prefillData?.languages?.length
+        ? prefillData.languages
+        : ['English']
   );
   const [hourlyRate, setHourlyRate] = useState(profile?.hourlyRate?.toString() || '');
   const [error, setError] = useState('');
@@ -54,6 +63,13 @@ export function ExpertiseStep({ profile, onComplete }: ExpertiseStepProps) {
         <h2 className="text-xl font-bold text-slate-900">Your expertise</h2>
         <p className="mt-1 text-sm text-slate-600">Help mentees find you based on what you know and teach.</p>
       </div>
+
+      {prefillData && (specialties.length > 0 || expertise.length > 0) && (
+        <div className="flex items-center gap-2 rounded-xl border border-violet-200 bg-violet-50 px-3 py-2 text-xs text-violet-700">
+          <span className="shrink-0">✓</span>
+          Fields pre-filled from your resume — review and edit as needed.
+        </div>
+      )}
 
       {error && (
         <div className="flex items-center justify-between rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">

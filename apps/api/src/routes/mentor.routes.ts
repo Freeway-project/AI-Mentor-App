@@ -9,6 +9,14 @@ import { AppError } from '../middleware/error.middleware';
 import { EmailService } from '../services/email.service';
 import { EmbeddingService } from '../services/embedding.service';
 import { MentorSearchService, MentorWithReason, ParsedIntent } from '../services/mentor-search.service';
+import { uploadResume } from '../middleware/upload.middleware';
+import { ResumeParserService } from '../services/resume-parser.service';
+import { MentorProfileExtractorService } from '../services/mentor-profile-extractor.service';
+
+let resumeParser: ResumeParserService;
+let mentorExtractor: MentorProfileExtractorService;
+function getResumeParser() { if (!resumeParser) resumeParser = new ResumeParserService(); return resumeParser; }
+function getMentorExtractor() { if (!mentorExtractor) mentorExtractor = new MentorProfileExtractorService(); return mentorExtractor; }
 
 const embeddingService = new EmbeddingService();
 const mentorSearchService = new MentorSearchService();
@@ -137,6 +145,18 @@ router.put('/me/availability', authenticate, requireEmailVerified, authorize('me
       success: true,
       data: await getMentorRepo().findById(mentor.id),
     });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// Parse resume and extract mentor profile fields
+router.post('/me/parse-resume', authenticate, requireEmailVerified, authorize('mentor'), uploadResume.single('resume'), async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    if (!req.file) throw new AppError(400, 'MISSING_FILE', 'No resume file uploaded');
+    const rawText = await getResumeParser().extractText(req.file.buffer, req.file.mimetype);
+    const mentorFields = await getMentorExtractor().extractMentorFields(rawText);
+    res.json({ success: true, data: { mentorFields } });
   } catch (error) {
     next(error);
   }
