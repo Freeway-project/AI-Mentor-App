@@ -18,6 +18,7 @@ import {
 import { cn } from '@/lib/utils';
 import { AnimatedPlaceholderInput } from '@/components/ui/animated-placeholder-input';
 import { SearchLoadingScene } from '@/components/browse/search-loading-scene';
+import { frontendLogger } from '@/lib/frontend-logger';
 
 /** Suggested query chips shown below the search bar */
 const SUGGESTED_QUERIES = [
@@ -70,6 +71,9 @@ export default function BrowsePage() {
   const fetchMentors = async (searchQuery?: string) => {
     setLoading(true);
     try {
+      frontendLogger.info('Mentor search started', {
+        query: searchQuery || '',
+      });
       const data = await apiClient.searchMentors(searchQuery);
       setMentors(data.mentors || []);
       setIsSemantic(!!data.semantic);
@@ -79,7 +83,18 @@ export default function BrowsePage() {
         queryAnalysis: data.queryAnalysis,
         semantic: data.semantic,
       });
-    } catch {
+      frontendLogger.info('Mentor search completed', {
+        query: searchQuery || '',
+        mentors: data.mentors?.length ?? 0,
+        semantic: !!data.semantic,
+        hybrid: !!data.hybrid,
+        llmEnhanced: !!data.llmEnhanced,
+      });
+    } catch (error) {
+      frontendLogger.error('Mentor search failed', {
+        query: searchQuery || '',
+        error: error instanceof Error ? error.message : String(error),
+      });
       setMentors([]);
       setIsSemantic(false);
       setSearchMeta({});
@@ -127,6 +142,11 @@ export default function BrowsePage() {
   const handleResumeUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    frontendLogger.info('Resume upload started', {
+      name: file.name,
+      size: file.size,
+      type: file.type,
+    });
     setResumeUploading(true);
     setResumeError(null);
     setResumeProfile(null);
@@ -144,7 +164,15 @@ export default function BrowsePage() {
         const autoQuery = headline ? `${headline} ${skills}`.trim() : skills;
         if (autoQuery) setQuery(autoQuery);
       }
-    } catch {
+      frontendLogger.info('Resume upload parsed', {
+        name: file.name,
+        hasExtractedProfile: !!extracted,
+      });
+    } catch (error) {
+      frontendLogger.error('Resume upload failed', {
+        name: file.name,
+        error: error instanceof Error ? error.message : String(error),
+      });
       setResumeError('Resume upload failed. Please try again.');
     } finally {
       setResumeUploading(false);

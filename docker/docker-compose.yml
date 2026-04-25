@@ -14,5 +14,9 @@ services:
     environment:
       NODE_ENV: production
       PORT: 3001
+      BETTERSTACK_SOURCE_TOKEN: ${BETTERSTACK_SOURCE_TOKEN}
+      BETTERSTACK_INGESTING_URL: ${BETTERSTACK_INGESTING_URL:-https://in.logs.betterstack.com}
+      BETTERSTACK_SERVICE: ${BETTERSTACK_SERVICE:-owl-mentors-api}
+      BETTERSTACK_MIN_LEVEL: ${BETTERSTACK_MIN_LEVEL:-info}
     ports:
       - '6001:3001'

@@ -85,6 +85,14 @@ app.use('/api', routes);
 
 // 404 handler
 app.use((req, res) => {
+  logger.warn('Route not found', {
+    requestId: req.requestId,
+    method: req.method,
+    path: req.path,
+    ip: req.ip,
+    userId: req.userId,
+  });
+
   res.status(404).json({
     success: false,
     error: {

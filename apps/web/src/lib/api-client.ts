@@ -1,3 +1,5 @@
+import { frontendLogger } from './frontend-logger';
+
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 
 interface ApiResponse<T = any> {
@@ -196,14 +198,42 @@ class ApiClient {
       headers.Authorization = `Bearer ${this.token}`;
     }
 
-    const response = await fetch(`${this.baseUrl}/api${endpoint}`, {
-      ...options,
-      headers,
-    });
+    let response: Response;
+    try {
+      response = await fetch(`${this.baseUrl}/api${endpoint}`, {
+        ...options,
+        headers,
+      });
+    } catch (error) {
+      frontendLogger.error('API request network failure', {
+        endpoint,
+        method: options.method || 'GET',
+        error: error instanceof Error ? error.message : String(error),
+      });
+      throw new ApiError('Network error. Please try again.', 'NETWORK_ERROR');
+    }
 
-    const data: ApiResponse<T> = await response.json();
+    let data: ApiResponse<T>;
+    try {
+      data = await response.json();
+    } catch (error) {
+      frontendLogger.error('API response parse failure', {
+        endpoint,
+        method: options.method || 'GET',
+        status: response.status,
+        error: error instanceof Error ? error.message : String(error),
+      });
+      throw new ApiError('Invalid server response', 'INVALID_RESPONSE');
+    }
 
     if (response.status === 401) {
+      frontendLogger.warn('API unauthorized response', {
+        endpoint,
+        method: options.method || 'GET',
+        status: response.status,
+        code: data.error?.code,
+        requestId: data.error?.requestId,
+      });
       if (shouldAttachToken) {
         this.clearToken();
         this.onUnauthorized?.();
@@ -217,6 +247,14 @@ class ApiClient {
     }
 
     if (!data.success) {
+      frontendLogger.warn('API request failed', {
+        endpoint,
+        method: options.method || 'GET',
+        status: response.status,
+        code: data.error?.code,
+        message: data.error?.message,
+        requestId: data.error?.requestId,
+      });
       throw new ApiError(
         data.error?.message || 'Request failed',
         data.error?.code || 'UNKNOWN_ERROR',
@@ -232,20 +270,45 @@ class ApiClient {
     const headers: Record<string, string> = {};
     if (this.token) headers.Authorization = `Bearer ${this.token}`;
 
-    const response = await fetch(`${this.baseUrl}/api${endpoint}`, {
-      method,
-      headers,
-      body: formData,
-    });
+    let response: Response;
+    try {
+      response = await fetch(`${this.baseUrl}/api${endpoint}`, {
+        method,
+        headers,
+        body: formData,
+      });
+    } catch (error) {
+      frontendLogger.error('API upload network failure', {
+        endpoint,
+        method,
+        error: error instanceof Error ? error.message : String(error),
+      });
+      throw new ApiError('Network error. Please try again.', 'NETWORK_ERROR');
+    }
 
     if (response.status === 401) {
+      frontendLogger.warn('API upload unauthorized response', {
+        endpoint,
+        method,
+        status: response.status,
+      });
       this.clearToken();
       this.onUnauthorized?.();
       throw new Error('Unauthorized');
     }
 
     const data: ApiResponse<T> = await response.json();
-    if (!data.success) throw new Error(data.error?.message || 'Upload failed');
+    if (!data.success) {
+      frontendLogger.warn('API upload failed', {
+        endpoint,
+        method,
+        status: response.status,
+        code: data.error?.code,
+        message: data.error?.message,
+        requestId: data.error?.requestId,
+      });
+      throw new Error(data.error?.message || 'Upload failed');
+    }
     return data.data as T;
   }
 

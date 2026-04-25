@@ -9,6 +9,7 @@ import { apiClient } from '@/lib/api-client';
 import { BookingConfirmation } from './BookingConfirmation';
 import { toast } from 'sonner';
 import { ED } from '@/components/mentor-profile/editorial-theme';
+import { frontendLogger } from '@/lib/frontend-logger';
 
 const stripePromise = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY
   ? loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY)
@@ -84,6 +85,11 @@ function StripePaymentForm({
 
     const { error: submitError } = await elements.submit();
     if (submitError) {
+      frontendLogger.warn('Booking payment form submit failed', {
+        mentorId: bookingPayload.mentorId,
+        scheduledAt: bookingPayload.scheduledAt,
+        error: submitError.message,
+      });
       setError(submitError.message || 'Payment details are incomplete');
       setPaying(false);
       return;
@@ -97,6 +103,11 @@ function StripePaymentForm({
 
     if (confirmError) {
       const msg = confirmError.message || 'Payment failed. Please try again.';
+      frontendLogger.error('Stripe payment confirmation failed', {
+        mentorId: bookingPayload.mentorId,
+        scheduledAt: bookingPayload.scheduledAt,
+        error: msg,
+      });
       setError(msg);
       toast.error(msg);
       setPaying(false);
@@ -105,18 +116,39 @@ function StripePaymentForm({
 
     if (paymentIntent?.status === 'succeeded') {
       try {
+        frontendLogger.info('Booking creation after payment started', {
+          mentorId: bookingPayload.mentorId,
+          scheduledAt: bookingPayload.scheduledAt,
+          paymentIntentId: paymentIntent.id,
+        });
         const booking = await apiClient.createBooking({
           ...bookingPayload,
+          paymentIntentId: paymentIntent.id,
+        });
+        frontendLogger.info('Booking creation after payment succeeded', {
+          mentorId: bookingPayload.mentorId,
+          meetingId: booking?.id,
           paymentIntentId: paymentIntent.id,
         });
         onSuccess(booking);
       } catch (err: any) {
         const msg = err.message || 'Booking failed after payment — please contact support';
+        frontendLogger.error('Booking creation after payment failed', {
+          mentorId: bookingPayload.mentorId,
+          scheduledAt: bookingPayload.scheduledAt,
+          paymentIntentId: paymentIntent.id,
+          error: msg,
+        });
         setError(msg);
         toast.error('Booking failed after payment — please contact support');
         setPaying(false);
       }
     } else {
+      frontendLogger.warn('Stripe payment not completed', {
+        mentorId: bookingPayload.mentorId,
+        scheduledAt: bookingPayload.scheduledAt,
+        status: paymentIntent?.status,
+      });
       setError('Payment was not completed. Please try again.');
       setPaying(false);
     }
@@ -178,15 +210,34 @@ export function BookingModal({ mentorId, mentorName, offer, hourlyRate, slot, ca
   const handleContinue = async () => {
     setLoadingIntent(true);
     try {
+      frontendLogger.info('Create payment intent started', {
+        mentorId,
+        offerId: offer?.id,
+        scheduledAt: slot.start,
+        duration: durationMin,
+      });
       const result = await apiClient.createPaymentIntent({
         mentorId,
         offerId: offer?.id,
         scheduledAt: slot.start,
         duration: durationMin,
       });
+      frontendLogger.info('Create payment intent succeeded', {
+        mentorId,
+        offerId: offer?.id,
+        scheduledAt: slot.start,
+        paymentIntentId: result.paymentIntentId,
+        amountUsd: result.amountUsd,
+      });
       setClientSecret(result.clientSecret);
       setStep('payment');
     } catch (err: any) {
+      frontendLogger.error('Create payment intent failed', {
+        mentorId,
+        offerId: offer?.id,
+        scheduledAt: slot.start,
+        error: err.message || 'Failed to initialize payment',
+      });
       toast.error(err.message || 'Failed to initialize payment');
     } finally {
       setLoadingIntent(false);
