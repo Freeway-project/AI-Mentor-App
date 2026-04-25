@@ -97,23 +97,29 @@ export class LiveKitService {
 
     const startTime = Date.now();
     try {
-      const client = this.getRoomClient();
-
       // Use dynamic import since EgressClient is separate
       const { EgressClient, EncodedFileOutput, EncodedFileType } = await import('livekit-server-sdk');
       const egressClient = new EgressClient(getHost(), getApiKey(), getApiSecret());
+
+      const s3Output: any = {
+        accessKey: process.env.AWS_ACCESS_KEY_ID ?? '',
+        secret: process.env.AWS_SECRET_ACCESS_KEY ?? '',
+        region: process.env.AWS_REGION ?? 'us-east-1',
+        bucket,
+      };
+      if (process.env.AWS_S3_ENDPOINT) {
+        s3Output.endpoint = process.env.AWS_S3_ENDPOINT;
+      }
+      if (process.env.AWS_S3_FORCE_PATH_STYLE === 'true') {
+        s3Output.forcePathStyle = true;
+      }
 
       const output = new EncodedFileOutput({
         fileType: EncodedFileType.MP4,
         filepath: `recordings/${meetingId}/{time}.mp4`,
         output: {
           case: 's3',
-          value: {
-            accessKey: process.env.AWS_ACCESS_KEY_ID ?? '',
-            secret: process.env.AWS_SECRET_ACCESS_KEY ?? '',
-            region: process.env.AWS_REGION ?? 'us-east-1',
-            bucket,
-          },
+          value: s3Output,
         },
       });
 
@@ -146,7 +152,7 @@ export class LiveKitService {
     }
   }
 
-  verifyWebhook(body: string, authHeader: string): WebhookEvent {
+  async verifyWebhook(body: string, authHeader: string): Promise<WebhookEvent> {
     const receiver = new WebhookReceiver(getApiKey(), getApiSecret());
     return receiver.receive(body, authHeader);
   }

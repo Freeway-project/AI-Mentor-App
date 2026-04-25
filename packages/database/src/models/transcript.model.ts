@@ -4,8 +4,10 @@ export interface ITranscriptDocument extends mongoose.Document {
   meetingId: mongoose.Types.ObjectId;
   menteeId: mongoose.Types.ObjectId;
   mentorId: mongoose.Types.ObjectId;
-  dailyRecordingId: string;
-  dailyRoomName: string;
+  dailyRecordingId?: string;
+  dailyRoomName?: string;
+  livekitEgressId?: string;
+  livekitRoomName?: string;
   rawText: string;
   summary?: string;
   actionItems: string[];
@@ -22,8 +24,10 @@ const transcriptSchema = new Schema<ITranscriptDocument>(
     meetingId: { type: Schema.Types.ObjectId, ref: 'Meeting', required: true },
     menteeId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
     mentorId: { type: Schema.Types.ObjectId, ref: 'Mentor', required: true },
-    dailyRecordingId: { type: String, required: true },
-    dailyRoomName: { type: String, required: true },
+    dailyRecordingId: { type: String },
+    dailyRoomName: { type: String },
+    livekitEgressId: { type: String },
+    livekitRoomName: { type: String },
     rawText: { type: String, required: true },
     summary: { type: String },
     actionItems: { type: [String], default: [] },
@@ -40,7 +44,8 @@ const transcriptSchema = new Schema<ITranscriptDocument>(
 );
 
 transcriptSchema.index({ meetingId: 1 }, { unique: true });
-transcriptSchema.index({ dailyRecordingId: 1 }, { unique: true });
+transcriptSchema.index({ dailyRecordingId: 1 }, { unique: true, sparse: true });
+transcriptSchema.index({ livekitEgressId: 1 }, { unique: true, sparse: true });
 transcriptSchema.index({ menteeId: 1 });
 transcriptSchema.index({ mentorId: 1 });
 

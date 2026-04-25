@@ -27,6 +27,9 @@ export interface IMeetingDocument extends mongoose.Document {
   googleEventId?: string;
   dailyRoomUrl?: string;
   dailyRoomName?: string;
+  livekitRoomName?: string;
+  livekitRoomSid?: string;
+  livekitEgressId?: string;
   reminderSentAt?: Date;
   createdAt: Date;
   updatedAt: Date;
@@ -63,6 +66,9 @@ const meetingSchema = new Schema<IMeetingDocument>(
     googleEventId: { type: String },
     dailyRoomUrl: { type: String },
     dailyRoomName: { type: String, index: true },
+    livekitRoomName: { type: String, index: true },
+    livekitRoomSid: { type: String },
+    livekitEgressId: { type: String },
     reminderSentAt: { type: Date },
   },
   { timestamps: true }
@@ -104,6 +110,9 @@ export function toMeeting(doc: IMeetingDocument): Meeting {
     googleEventId: doc.googleEventId,
     dailyRoomUrl: doc.dailyRoomUrl,
     dailyRoomName: doc.dailyRoomName,
+    livekitRoomName: doc.livekitRoomName,
+    livekitRoomSid: doc.livekitRoomSid,
+    livekitEgressId: doc.livekitEgressId,
     calBookingUid: doc.calBookingUid,
     createdAt: doc.createdAt,
     updatedAt: doc.updatedAt,

@@ -6,10 +6,14 @@ export interface CreateTranscriptData {
   meetingId: string;
   menteeId: string;
   mentorId: string;
-  dailyRecordingId: string;
-  dailyRoomName: string;
   rawText: string;
   durationSeconds: number;
+  // Legacy fields
+  dailyRecordingId?: string;
+  dailyRoomName?: string;
+  // LiveKit fields
+  livekitEgressId?: string;
+  livekitRoomName?: string;
 }
 
 export interface UpdateSummaryData {
@@ -29,6 +33,8 @@ export class TranscriptRepository {
         mentorId: new mongoose.Types.ObjectId(data.mentorId),
         dailyRecordingId: data.dailyRecordingId,
         dailyRoomName: data.dailyRoomName,
+        livekitEgressId: data.livekitEgressId,
+        livekitRoomName: data.livekitRoomName,
         rawText: data.rawText,
         durationSeconds: data.durationSeconds,
         status: 'raw',
@@ -53,10 +59,10 @@ export class TranscriptRepository {
     }
   }
 
-  async findByDailyRecordingId(dailyRecordingId: string): Promise<ITranscriptDocument | null> {
+  async findByLivekitEgressId(livekitEgressId: string): Promise<ITranscriptDocument | null> {
     const startTime = Date.now();
     try {
-      const doc = await TranscriptModel.findOne({ dailyRecordingId });
+      const doc = await TranscriptModel.findOne({ livekitEgressId });
       logger.db({ operation: 'findOne', collection: 'transcripts', duration: Date.now() - startTime });
       return doc;
     } catch (error) {

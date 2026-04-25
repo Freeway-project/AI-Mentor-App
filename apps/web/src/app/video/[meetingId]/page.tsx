@@ -4,17 +4,16 @@ import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth-context';
 import { apiClient } from '@/lib/api-client';
-import { ArrowLeft, Loader2, AlertCircle } from 'lucide-react';
+import { Loader2, AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
-import { SessionRoomPlaceholder } from '@/components/video/SessionRoomPlaceholder';
-import { getSessionAccess } from '@/lib/session-access';
+import { SessionRoom } from '@/components/video/SessionRoom';
 
 export default function VideoCallPage() {
   const params = useParams();
   const router = useRouter();
   const { user, loading: authLoading } = useAuth();
-  
-  const [meeting, setMeeting] = useState<any>(null);
+
+  const [authorized, setAuthorized] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -22,30 +21,23 @@ export default function VideoCallPage() {
 
   useEffect(() => {
     if (authLoading) return;
-    
+
     if (!user) {
       router.push(`/login?redirect=/video/${meetingId}`);
       return;
     }
 
-re
-        }
-
-        setMeeting(data);
-      } catch (err: any) {
-        console.error('Failed to load meeting:', err);
-        setError(err.message || 'Failed to initialize video session');
+    // Backend enforces auth on getBooking (403 if not a participant)
+    apiClient.getBooking(meetingId)
+      .then(() => setAuthorized(true))
+      .catch((err: any) => {
+        setError(err.message || 'Failed to verify session access');
         toast.error('Could not join video session');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchMeeting();
+      })
+      .finally(() => setLoading(false));
   }, [meetingId, user, authLoading, router]);
 
   const handleLeave = () => {
-    // Navigate back to the appropriate dashboard
     if (user?.roles?.includes('mentor')) {
       router.push('/mentor/dashboard');
     } else {
@@ -55,38 +47,32 @@ re
 
   if (loading || authLoading) {
     return (
-      <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center p-4">
-        <Loader2 className="w-10 h-10 text-violet-500 animate-spin mb-4" />
-        <p className="text-slate-400 font-medium">Preparing your session room...</p>
+      <div className="flex min-h-screen flex-col items-center justify-center bg-slate-950 p-4">
+        <Loader2 className="mb-4 h-10 w-10 animate-spin text-violet-500" />
+        <p className="font-medium text-slate-400">Preparing your session room…</p>
       </div>
     );
   }
 
-  if (error) {
+  if (error || !authorized) {
     return (
-      <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center p-4">
-        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-8 max-w-md w-full text-center">
-          <div className="w-16 h-16 bg-red-500/10 rounded-full flex items-center justify-center mx-auto mb-4">
-            <AlertCircle className="w-8 h-8 text-red-500" />
+      <div className="flex min-h-screen flex-col items-center justify-center bg-slate-950 p-4">
+        <div className="w-full max-w-md rounded-2xl border border-slate-800 bg-slate-900 p-8 text-center">
+          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-red-500/10">
+            <AlertCircle className="h-8 w-8 text-red-500" />
           </div>
-          <h1 className="text-xl font-bold text-white mb-2">Access Denied</h1>
-          <p className="text-slate-400 mb-8">{error}</p>
+          <h1 className="mb-2 text-xl font-bold text-white">Access Denied</h1>
+          <p className="mb-8 text-slate-400">{error}</p>
           <button
             onClick={handleLeave}
-            className="flex items-center justify-center gap-2 w-full py-2.5 px-4 bg-slate-800 hover:bg-slate-700 text-white rounded-xl transition-colors font-medium border border-slate-700"
+            className="w-full rounded-xl border border-slate-700 bg-slate-800 px-4 py-2.5 font-medium text-white transition-colors hover:bg-slate-700"
           >
-            <ArrowLeft className="w-4 h-4" /> Return to Dashboard
+            Return to Dashboard
           </button>
         </div>
       </div>
     );
   }
 
-  return (
-    <div className="min-h-screen bg-slate-950 px-4 py-8 md:px-6 lg:px-8">
-      <div className="mx-auto flex min-h-[calc(100vh-4rem)] max-w-6xl items-center justify-center">
-        <SessionRoomPlaceholder meeting={meeting} onBack={handleLeave} />
-      </div>
-    </div>
-  );
+  return <SessionRoom meetingId={meetingId} onLeave={handleLeave} />;
 }

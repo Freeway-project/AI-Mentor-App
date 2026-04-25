@@ -576,6 +576,10 @@ class ApiClient {
     return this.request<any>(`/bookings/${id}`);
   }
 
+  async getSessionToken(meetingId: string): Promise<{ token: string; serverUrl: string; roomName: string }> {
+    return this.request<{ token: string; serverUrl: string; roomName: string }>(`/sessions/${meetingId}/token`);
+  }
+
   async cancelBooking(id: string, reason?: string): Promise<any> {
     return this.request<any>(`/bookings/${id}/cancel`, { method: 'POST', body: JSON.stringify({ reason }) });
   }
