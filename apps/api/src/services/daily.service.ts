@@ -14,6 +14,12 @@ function getApiKey(): string {
   return key;
 }
 
+function getApiBaseUrl(): string {
+  const base = process.env.DAILY_API_BASE_URL;
+  if (!base) throw new Error('DAILY_API_BASE_URL environment variable is required');
+  return base.replace(/\/+$/, '');
+}
+
 export class DailyService {
   async createRoom(params: { meetingId: string; expiresAt: Date }): Promise<DailyRoom> {
     const startTime = Date.now();
@@ -21,7 +27,7 @@ export class DailyService {
 
     try {
       const apiKey = getApiKey();
-      const res = await fetch('https://api.daily.co/v1/rooms', {
+      const res = await fetch(`${getApiBaseUrl()}/v1/rooms`, {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${apiKey}`,
@@ -77,7 +83,7 @@ export class DailyService {
     const startTime = Date.now();
     try {
       const apiKey = getApiKey();
-      const res = await fetch(`https://api.daily.co/v1/recordings/${recordingId}/access-link`, {
+      const res = await fetch(`${getApiBaseUrl()}/v1/recordings/${recordingId}/access-link`, {
         headers: { Authorization: `Bearer ${apiKey}` },
       });
 

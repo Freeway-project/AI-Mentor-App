@@ -13,7 +13,6 @@ interface Props {
     duration: number;
     meetUrl?: string;
     meetingLink?: string;
-    dailyRoomUrl?: string;
   };
   onClose: () => void;
 }

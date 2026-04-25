@@ -7,7 +7,7 @@ import { apiClient } from '@/lib/api-client';
 import { ArrowLeft, Loader2, AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
 import { SessionRoomPlaceholder } from '@/components/video/SessionRoomPlaceholder';
-import { getSessionAccess, hasLegacySessionRoom } from '@/lib/session-access';
+import { getSessionAccess } from '@/lib/session-access';
 
 export default function VideoCallPage() {
   const params = useParams();
@@ -28,27 +28,7 @@ export default function VideoCallPage() {
       return;
     }
 
-    const fetchMeeting = async () => {
-      try {
-        const data = await apiClient.getBooking(meetingId);
-        
-        // Ensure user is part of the meeting
-        if (user.roles?.includes('mentee') && data.menteeId !== user.id && !user.roles?.includes('mentor')) {
-          throw new Error('You are not authorized to join this session');
-        }
-        if (user.roles?.includes('mentor') && data.mentorId !== user.id && !user.roles?.includes('mentee')) {
-          throw new Error('You are not authorized to join this session');
-        }
-
-        const sessionAccess = getSessionAccess({
-          id: data.id,
-          dailyRoomUrl: data.dailyRoomUrl,
-          meetUrl: data.meetUrl,
-          meetingLink: data.meetingLink,
-        });
-
-        if (!sessionAccess && !hasLegacySessionRoom(data)) {
-          throw new Error('No session room has been generated for this booking yet');
+re
         }
 
         setMeeting(data);

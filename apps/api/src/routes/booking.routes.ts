@@ -2,7 +2,6 @@ import { Router, Request, Response, NextFunction } from 'express';
 import { authenticate, requireEmailVerified } from '../middleware/auth.middleware';
 import { AppError } from '../middleware/error.middleware';
 import { GoogleCalendarService } from '../services/google-calendar.service';
-import { DailyService } from '../services/daily.service';
 import { EmailService } from '../services/email.service';
 import { StripeService } from '../services/stripe.service';
 import { logger } from '@owl-mentors/utils';
@@ -32,7 +31,6 @@ const integrationRepo = new UserIntegrationRepository();
 const calSettingsRepo = new CalendarSettingsRepository();
 const transcriptRepo = new TranscriptRepository();
 const gcalService = new GoogleCalendarService();
-const dailyService = new DailyService();
 const stripeService = new StripeService();
 
 // GET /api/mentors/:coachId/offers (public — for booking flow)
@@ -282,22 +280,6 @@ router.post('/bookings', authenticate, requireEmailVerified, async (req: Request
       await creditRepo.holdCredits(req.userId!, creditCost, meeting.id);
     }
 
-    // Try to create Daily room (non-fatal)
-    let dailyRoomUrl: string | undefined;
-    try {
-      const roomExpiry = new Date(slotEnd.getTime() + 2 * 60 * 60 * 1000); // 2h after session end
-      const room = await dailyService.createRoom({ meetingId: meeting.id, expiresAt: roomExpiry });
-      await meetingRepo.update(meeting.id, { dailyRoomUrl: room.url, dailyRoomName: room.name } as any);
-      dailyRoomUrl = room.url;
-    } catch (err) {
-      logger.warn('[Booking] Daily room creation failed', {
-        meetingId: meeting.id,
-        mentorId: mentor.id,
-        menteeUserId: req.userId,
-        error: err instanceof Error ? err.message : String(err),
-      });
-    }
-
     // Try to create Google Calendar event
     let meetUrl: string | undefined;
     const integration = await integrationRepo.findByUser(mentor.userId, 'google');
@@ -335,7 +317,6 @@ router.post('/bookings', authenticate, requireEmailVerified, async (req: Request
         title: offerTitle,
         scheduledAt: slotStart,
         durationMin,
-        dailyRoomUrl,
         meetUrl,
       };
       await Promise.all([
@@ -355,7 +336,6 @@ router.post('/bookings', authenticate, requireEmailVerified, async (req: Request
       data: {
         ...meeting,
         meetUrl,
-        dailyRoomUrl,
       },
     });
     logger.info('[Booking] Booking create completed', {
@@ -366,7 +346,6 @@ router.post('/bookings', authenticate, requireEmailVerified, async (req: Request
       durationMin,
       creditCost,
       hasMeetUrl: Boolean(meetUrl),
-      hasDailyRoomUrl: Boolean(dailyRoomUrl),
     });
   } catch (error) {
     next(error);

@@ -41,7 +41,6 @@ async function sendDueReminders(): Promise<void> {
         title: meeting.title,
         scheduledAt: meeting.scheduledAt,
         durationMin: meeting.duration,
-        dailyRoomUrl: meeting.dailyRoomUrl,
         meetUrl: meeting.meetingLink,
         mentorName: mentor.name,
         menteeName: mentee.name,

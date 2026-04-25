@@ -1,6 +1,5 @@
 export interface SessionAccessInput {
   id?: string | null;
-  dailyRoomUrl?: string | null;
   meetUrl?: string | null;
   meetingLink?: string | null;
 }
@@ -29,18 +28,6 @@ export function getSessionAccess(session: SessionAccessInput): SessionAccess | n
     };
   }
 
-  if (normalizeLink(session.dailyRoomUrl) && session.id) {
-    return {
-      href: `/video/${session.id}`,
-      isExternal: false,
-      label: 'Open Session Room',
-      variant: 'native-placeholder',
-    };
-  }
-
   return null;
 }
 
-export function hasLegacySessionRoom(session: SessionAccessInput) {
-  return Boolean(normalizeLink(session.dailyRoomUrl));
-}
