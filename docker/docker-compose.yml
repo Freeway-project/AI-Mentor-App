@@ -1,6 +1,8 @@
 # Copy docker/.env.example → docker/.env and fill in your values before running.
 # Run from repo root: docker compose -f docker/docker-compose.yml up -d --build
 
+name: owl-mentors
+
 services:
   # ── MinIO (S3-compatible object storage) ──────────────────────────────────
   minio:
@@ -87,5 +89,25 @@ services:
     ports:
       - '6001:3001'
 
+  # ── Vector — container logs + VPS metrics → BetterStack ──────────────────
+  # Collects stdout/stderr from all containers and host CPU/RAM/disk/network.
+  # Two BetterStack sources keep logs and metrics in separate streams.
+  vector:
+    image: timberio/vector:0.42-alpine
+    restart: unless-stopped
+    user: "0"                             # root required for Docker socket + /proc
+    volumes:
+      - ./vector.toml:/etc/vector/vector.toml:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /proc:/host/proc:ro              # host CPU / memory / network stats
+      - /sys:/host/sys:ro                # host filesystem stats
+      - vector-data:/var/lib/vector
+    environment:
+      BETTERSTACK_LOGS_TOKEN: ${BETTERSTACK_LOGS_TOKEN}
+      BETTERSTACK_METRICS_TOKEN: ${BETTERSTACK_METRICS_TOKEN}
+      PROCFS_ROOT: /host/proc
+      SYSFS_ROOT: /host/sys
+
 volumes:
   minio-data:
+  vector-data:

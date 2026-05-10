@@ -17,6 +17,15 @@ import { serviceUsageService } from '../services/service-usage.service';
 
 const router: Router = Router();
 
+// Converts "s3://bucket/key" → "http://minio:9000/bucket/key" so the API container
+// can fetch the recording via HTTP from MinIO on the same Docker network.
+function s3LocationToHttpUrl(location: string): string {
+  const endpoint = (process.env.AWS_S3_ENDPOINT ?? '').replace(/\/$/, '');
+  if (!endpoint || !location.startsWith('s3://')) return location;
+  const withoutProtocol = location.slice('s3://'.length); // "bucket/key"
+  return `${endpoint}/${withoutProtocol}`;
+}
+
 const livekitService = new LiveKitService();
 const whisperService = new WhisperService();
 const transcriptRepo = new TranscriptRepository();
@@ -207,17 +216,19 @@ async function handleLiveKitEvent(event: any): Promise<void> {
     const menteeId = meetingDoc.menteeId.toString();
     const mentorId = meetingDoc.mentorId.toString();
 
-    // Get audio download URL from egress file results
+    // Get audio download URL from egress file results.
+    // LiveKit returns s3://bucket/key URIs — convert to HTTP via AWS_S3_ENDPOINT so
+    // the API container can fetch the file directly from MinIO on the same Docker network.
     const fileResults: any[] = event.egressInfo?.fileResults ?? [];
-    const audioUrl: string =
-      fileResults[0]?.downloadUrl ??
+    const rawLocation: string =
       fileResults[0]?.location ??
       event.egressInfo?.file?.location ??
       '';
-    if (!audioUrl) {
-      logger.warn(`[Webhook/LiveKit] No download URL in egress ${egressId}`);
+    if (!rawLocation) {
+      logger.warn(`[Webhook/LiveKit] No file location in egress ${egressId}`);
       return;
     }
+    const audioUrl = s3LocationToHttpUrl(rawLocation);
 
     const durationSeconds: number = event.egressInfo?.duration
       ? Number(event.egressInfo.duration) / 1_000_000_000  // nanoseconds → seconds
