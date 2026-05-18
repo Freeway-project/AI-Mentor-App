@@ -580,6 +580,34 @@ class ApiClient {
   async getCreditsBalance(): Promise<{ balance: number; heldBalance: number }> {
     return this.request<{ balance: number; heldBalance: number }>('/credits/balance');
   }
+
+  // Chat
+  async getConversations(): Promise<any[]> {
+    return this.request<any[]>('/chat/conversations');
+  }
+
+  async startConversation(mentorId: string): Promise<any> {
+    return this.request<any>('/chat/conversations', { method: 'POST', body: JSON.stringify({ mentorId }) });
+  }
+
+  async getMessages(conversationId: string, params?: { before?: string; limit?: number }): Promise<any[]> {
+    const qs = new URLSearchParams();
+    if (params?.before) qs.set('before', params.before);
+    if (params?.limit) qs.set('limit', String(params.limit));
+    const q = qs.toString();
+    return this.request<any[]>(`/chat/conversations/${conversationId}/messages${q ? '?' + q : ''}`);
+  }
+
+  async sendChatMessage(conversationId: string, content: string): Promise<any> {
+    return this.request<any>(`/chat/conversations/${conversationId}/messages`, {
+      method: 'POST',
+      body: JSON.stringify({ content }),
+    });
+  }
+
+  async markConversationRead(conversationId: string): Promise<void> {
+    await this.request<any>(`/chat/conversations/${conversationId}/read`, { method: 'POST' });
+  }
 }
 
 export const apiClient = new ApiClient(API_URL);

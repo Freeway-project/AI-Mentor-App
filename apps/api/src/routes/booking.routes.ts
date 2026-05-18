@@ -2,9 +2,9 @@ import { Router, Request, Response, NextFunction } from 'express';
 import { authenticate, requireEmailVerified } from '../middleware/auth.middleware';
 import { AppError } from '../middleware/error.middleware';
 import { GoogleCalendarService } from '../services/google-calendar.service';
-import { DailyService } from '../services/daily.service';
 import { EmailService } from '../services/email.service';
 import { StripeService } from '../services/stripe.service';
+import { LiveKitService } from '../services/livekit.service';
 import { logger } from '@owl-mentors/utils';
 import { generateSlots } from '../services/slot-generator.service';
 import { maybeRefreshTokens } from './integrations.routes';
@@ -32,8 +32,8 @@ const integrationRepo = new UserIntegrationRepository();
 const calSettingsRepo = new CalendarSettingsRepository();
 const transcriptRepo = new TranscriptRepository();
 const gcalService = new GoogleCalendarService();
-const dailyService = new DailyService();
 const stripeService = new StripeService();
+const livekitService = new LiveKitService();
 
 // GET /api/mentors/:coachId/offers (public — for booking flow)
 router.get('/mentors/:coachId/offers', async (req: Request, res: Response, next: NextFunction) => {
@@ -282,21 +282,9 @@ router.post('/bookings', authenticate, requireEmailVerified, async (req: Request
       await creditRepo.holdCredits(req.userId!, creditCost, meeting.id);
     }
 
-    // Try to create Daily room (non-fatal)
-    let dailyRoomUrl: string | undefined;
-    try {
-      const roomExpiry = new Date(slotEnd.getTime() + 2 * 60 * 60 * 1000); // 2h after session end
-      const room = await dailyService.createRoom({ meetingId: meeting.id, expiresAt: roomExpiry });
-      await meetingRepo.update(meeting.id, { dailyRoomUrl: room.url, dailyRoomName: room.name } as any);
-      dailyRoomUrl = room.url;
-    } catch (err) {
-      logger.warn('[Booking] Daily room creation failed', {
-        meetingId: meeting.id,
-        mentorId: mentor.id,
-        menteeUserId: req.userId,
-        error: err instanceof Error ? err.message : String(err),
-      });
-    }
+    // Create/store LiveKit room metadata for this meeting.
+    const roomName = livekitService.createRoomName(meeting.id);
+    await meetingRepo.update(meeting.id, { livekitRoomName: roomName } as any);
 
     // Try to create Google Calendar event
     let meetUrl: string | undefined;
@@ -335,7 +323,6 @@ router.post('/bookings', authenticate, requireEmailVerified, async (req: Request
         title: offerTitle,
         scheduledAt: slotStart,
         durationMin,
-        dailyRoomUrl,
         meetUrl,
       };
       await Promise.all([
@@ -355,7 +342,7 @@ router.post('/bookings', authenticate, requireEmailVerified, async (req: Request
       data: {
         ...meeting,
         meetUrl,
-        dailyRoomUrl,
+        livekitRoomName: roomName,
       },
     });
     logger.info('[Booking] Booking create completed', {
@@ -366,7 +353,7 @@ router.post('/bookings', authenticate, requireEmailVerified, async (req: Request
       durationMin,
       creditCost,
       hasMeetUrl: Boolean(meetUrl),
-      hasDailyRoomUrl: Boolean(dailyRoomUrl),
+      hasLiveKitRoom: Boolean(roomName),
     });
   } catch (error) {
     next(error);
@@ -402,6 +389,47 @@ router.get('/bookings/:id', authenticate, async (req: Request, res: Response, ne
       }
     }
     res.json({ success: true, data: meeting });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// GET /api/bookings/:id/token — generate LiveKit JWT for joining the session room
+router.get('/bookings/:id/token', authenticate, requireEmailVerified, async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const meeting = await meetingRepo.findById(req.params.id);
+
+    const isMentee = meeting.menteeId === req.userId;
+    let isMentor = meeting.mentorId === req.userId;
+    if (!isMentor) {
+      const mentor = await mentorRepo.findById(meeting.mentorId);
+      isMentor = mentor.userId === req.userId;
+    }
+    if (!isMentee && !isMentor) {
+      throw new AppError(403, 'FORBIDDEN', 'You are not a participant of this session');
+    }
+
+    const roomName = (meeting as any).livekitRoomName || livekitService.createRoomName(meeting.id);
+    if (!(meeting as any).livekitRoomName) {
+      await meetingRepo.update(meeting.id, { livekitRoomName: roomName } as any);
+    }
+
+    const user = await userRepo.findById(req.userId!);
+    const token = livekitService.generateToken({
+      roomName,
+      participantIdentity: req.userId!,
+      participantName: user.name || 'Participant',
+      isHost: isMentor,
+    });
+
+    res.json({
+      success: true,
+      data: {
+        token,
+        serverUrl: livekitService.getServerUrl(),
+        roomName,
+      },
+    });
   } catch (error) {
     next(error);
   }

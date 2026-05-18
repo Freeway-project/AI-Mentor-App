@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import authRoutes from './auth.routes';
+import chatRoutes from './chat.routes';
 import mentorRoutes from './mentor.routes';
 import offerRoutes from './offer.routes';
 import policyRoutes from './policy.routes';
@@ -32,6 +33,7 @@ router.use('/integrations', integrationRoutes);
 router.use('/webhooks', webhookRoutes);
 router.use('/payments', paymentRoutes);
 router.use('/career-profile', careerRoutes);
+router.use('/chat', chatRoutes);
 router.use('/', calcomRoutes);
 router.use('/', bookingRoutes);
 router.use('/', logsRoutes);

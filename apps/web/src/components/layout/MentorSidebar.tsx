@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { LayoutDashboard, User, Calendar, Settings, LogOut, Clock, CalendarCheck, FileUp, X, ChevronDown } from 'lucide-react';
+import { LayoutDashboard, User, Calendar, Settings, LogOut, Clock, CalendarCheck, FileUp, MessageSquare, X, ChevronDown } from 'lucide-react';
 import { BrandLogo } from '@/components/brand/brand-logo';
 import { useAuth } from '@/lib/auth-context';
 import { useState, useRef, useEffect } from 'react';
@@ -13,6 +13,7 @@ const NAV = [
     { href: '/mentor/dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { href: '/mentor/dashboard/profile', label: 'My Profile', icon: User },
     { href: '/mentor/bookings', label: 'Bookings', icon: CalendarCheck },
+    { href: '/mentor/dashboard/messages', label: 'Messages', icon: MessageSquare },
     { href: '/mentor/dashboard/availability', label: 'Availability', icon: Calendar },
     { href: '/mentor/dashboard/settings', label: 'Settings', icon: Settings },
 ];

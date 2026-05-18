@@ -2,13 +2,14 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { BookOpen, Compass, LayoutDashboard, LogOut, User } from 'lucide-react';
+import { BookOpen, Compass, LayoutDashboard, LogOut, MessageSquare, User } from 'lucide-react';
 import { BrandLogo } from '@/components/brand/brand-logo';
 import { useAuth } from '@/lib/auth-context';
 
 const NAV = [
   { href: '/mentee/dashboard', label: 'My Sessions', icon: LayoutDashboard },
   { href: '/mentee/career', label: 'Career Plan', icon: BookOpen },
+  { href: '/mentee/dashboard/messages', label: 'Messages', icon: MessageSquare },
   { href: '/browse', label: 'Browse Mentors', icon: Compass },
 ];
 

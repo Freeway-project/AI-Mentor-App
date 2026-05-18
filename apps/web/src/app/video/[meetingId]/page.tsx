@@ -42,7 +42,7 @@ export default function VideoCallPage() {
 
         const sessionAccess = getSessionAccess({
           id: data.id,
-          dailyRoomUrl: data.dailyRoomUrl,
+          livekitRoomName: data.livekitRoomName,
           meetUrl: data.meetUrl,
           meetingLink: data.meetingLink,
         });
