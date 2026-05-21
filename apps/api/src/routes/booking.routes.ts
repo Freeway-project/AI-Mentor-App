@@ -18,6 +18,7 @@ import {
   UserIntegrationRepository,
   CalendarSettingsRepository,
   TranscriptRepository,
+  NotificationRepository,
 } from '@owl-mentors/database';
 
 const router: Router = Router();
@@ -31,6 +32,7 @@ const userRepo = new UserRepository();
 const integrationRepo = new UserIntegrationRepository();
 const calSettingsRepo = new CalendarSettingsRepository();
 const transcriptRepo = new TranscriptRepository();
+const notificationRepo = new NotificationRepository();
 const gcalService = new GoogleCalendarService();
 const stripeService = new StripeService();
 const livekitService = new LiveKitService();
@@ -338,6 +340,14 @@ router.post('/bookings', authenticate, requireEmailVerified, async (req: Request
       logger.warn(`[Booking] Confirmation email failed: ${(err as Error).message}`);
     }
 
+    // Create in-app notifications (non-fatal)
+    const notifTitle = `Session booked: ${offerTitle}`;
+    const notifMsg = `Your session with ${mentor.name} is scheduled for ${slotStart.toLocaleString()}.`;
+    Promise.all([
+      notificationRepo.create({ userId: req.userId!, type: 'meeting_confirmed', channel: 'push', title: notifTitle, message: notifMsg }),
+      notificationRepo.create({ userId: mentor.userId, type: 'meeting_confirmed', channel: 'push', title: `New booking from ${mentee.name}`, message: `${mentee.name} booked a ${durationMin}-min session on ${slotStart.toLocaleString()}.` }),
+    ]).catch(() => {});
+
     res.status(201).json({
       success: true,
       data: {
@@ -606,6 +616,36 @@ router.post('/bookings/:id/reschedule', authenticate, requireEmailVerified, asyn
       }
     }
 
+    res.json({ success: true, data: updated });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// POST /api/bookings/:id/rate
+router.post('/bookings/:id/rate', authenticate, requireEmailVerified, async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { rating, review } = req.body;
+
+    if (!rating || typeof rating !== 'number' || rating < 1 || rating > 5) {
+      throw new AppError(400, 'VALIDATION_ERROR', 'rating must be a number between 1 and 5');
+    }
+
+    const meeting = await meetingRepo.findById(req.params.id);
+
+    if (meeting.menteeId !== req.userId) {
+      throw new AppError(403, 'FORBIDDEN', 'Only the mentee can rate a session');
+    }
+
+    if (meeting.status !== 'completed') {
+      throw new AppError(400, 'INVALID_STATUS', 'Only completed sessions can be rated');
+    }
+
+    if ((meeting as any).rating) {
+      throw new AppError(409, 'ALREADY_RATED', 'This session has already been rated');
+    }
+
+    const updated = await meetingRepo.rate(req.params.id, rating, review);
     res.json({ success: true, data: updated });
   } catch (error) {
     next(error);

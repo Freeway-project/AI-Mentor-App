@@ -574,6 +574,19 @@ class ApiClient {
     return this.request<any>(`/bookings/${meetingId}/transcript`);
   }
 
+  async rateBooking(id: string, body: { rating: number; review?: string }): Promise<any> {
+    return this.request<any>(`/bookings/${id}/rate`, { method: 'POST', body: JSON.stringify(body) });
+  }
+
+  // Notifications
+  async getNotifications(): Promise<{ notifications: any[]; unreadCount: number }> {
+    return this.request<{ notifications: any[]; unreadCount: number }>('/notifications');
+  }
+
+  async markNotificationsRead(ids?: string[]): Promise<void> {
+    await this.request<void>('/notifications/read', { method: 'POST', body: JSON.stringify({ ids }) });
+  }
+
   async getMentorOffers(mentorId: string): Promise<any[]> {
     return this.request<any[]>(`/mentors/${mentorId}/offers`);
   }

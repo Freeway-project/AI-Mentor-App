@@ -60,6 +60,12 @@ export default function MenteeMessagesPage() {
   }, [activeId, loadMessages]);
 
   useEffect(() => {
+    if (!activeId) return;
+    const interval = setInterval(() => loadMessages(activeId, true), 10_000);
+    return () => clearInterval(interval);
+  }, [activeId, loadMessages]);
+
+  useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 

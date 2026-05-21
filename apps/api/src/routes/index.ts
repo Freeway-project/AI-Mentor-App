@@ -16,6 +16,7 @@ import paymentRoutes from './payment.routes';
 import careerRoutes from './career.routes';
 import calcomRoutes from './calcom.routes';
 import logsRoutes from './logs.routes';
+import notificationsRoutes from './notifications.routes';
 
 const router: Router = Router();
 
@@ -34,6 +35,7 @@ router.use('/webhooks', webhookRoutes);
 router.use('/payments', paymentRoutes);
 router.use('/career-profile', careerRoutes);
 router.use('/chat', chatRoutes);
+router.use('/notifications', notificationsRoutes);
 router.use('/', calcomRoutes);
 router.use('/', bookingRoutes);
 router.use('/', logsRoutes);

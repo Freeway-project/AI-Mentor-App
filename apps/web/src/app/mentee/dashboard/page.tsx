@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/lib/auth-context';
 import { apiClient } from '@/lib/api-client';
-import { Calendar, Clock, CreditCard, ArrowRight, BookOpen, Video, X, RotateCcw } from 'lucide-react';
+import { Calendar, Clock, CreditCard, ArrowRight, BookOpen, Video, X, RotateCcw, ChevronDown, ChevronUp, Star, CheckCircle2, Tag } from 'lucide-react';
 import Link from 'next/link';
 import { toast } from 'sonner';
 import { SlotPicker } from '@/components/booking/SlotPicker';
@@ -59,6 +59,16 @@ export default function MenteeDashboardPage() {
   const [newSlot, setNewSlot] = useState<{ start: string; end: string } | null>(null);
   const [rescheduling, setRescheduling] = useState(false);
 
+  // Transcript state: sessionId -> transcript data or 'loading' | 'none'
+  const [transcripts, setTranscripts] = useState<Record<string, any>>({});
+  const [expandedTranscript, setExpandedTranscript] = useState<string | null>(null);
+
+  // Rating state
+  const [ratingId, setRatingId] = useState<string | null>(null);
+  const [ratingValue, setRatingValue] = useState(0);
+  const [reviewText, setReviewText] = useState('');
+  const [submittingRating, setSubmittingRating] = useState(false);
+
   const load = useCallback(async () => {
     try {
       const [upcomingData, pastData, creditsData] = await Promise.all([
@@ -108,6 +118,39 @@ export default function MenteeDashboardPage() {
       toast.error(e.message || 'Failed to reschedule');
     } finally {
       setRescheduling(false);
+    }
+  };
+
+  const handleToggleTranscript = async (sessionId: string) => {
+    if (expandedTranscript === sessionId) {
+      setExpandedTranscript(null);
+      return;
+    }
+    setExpandedTranscript(sessionId);
+    if (transcripts[sessionId]) return;
+    setTranscripts(prev => ({ ...prev, [sessionId]: 'loading' }));
+    try {
+      const data = await apiClient.getTranscript(sessionId);
+      setTranscripts(prev => ({ ...prev, [sessionId]: data }));
+    } catch {
+      setTranscripts(prev => ({ ...prev, [sessionId]: 'none' }));
+    }
+  };
+
+  const handleSubmitRating = async (sessionId: string) => {
+    if (!ratingValue) return;
+    setSubmittingRating(true);
+    try {
+      await apiClient.rateBooking(sessionId, { rating: ratingValue, review: reviewText || undefined });
+      toast.success('Rating submitted');
+      setPast(prev => prev.map(s => s.id === sessionId ? { ...s, rating: ratingValue, review: reviewText } : s));
+      setRatingId(null);
+      setRatingValue(0);
+      setReviewText('');
+    } catch (e: any) {
+      toast.error(e.message || 'Failed to submit rating');
+    } finally {
+      setSubmittingRating(false);
     }
   };
 
@@ -320,17 +363,139 @@ export default function MenteeDashboardPage() {
           </AppPanel>
         ) : (
           <div className="space-y-3">
-            {past.map(session => (
-              <AppPanel key={session.id} className="flex items-center justify-between gap-4 p-4">
-                <div>
-                  <p className="font-medium text-slate-900 text-sm">{session.title}</p>
-                  <p className="text-xs text-slate-500 mt-0.5">
-                    {formatDateTime(session.scheduledAt)} · {session.duration} min
-                  </p>
-                </div>
-                <StatusBadge status={session.status} />
-              </AppPanel>
-            ))}
+            {past.map(session => {
+              const transcript = transcripts[session.id];
+              const isExpanded = expandedTranscript === session.id;
+              const isRating = ratingId === session.id;
+              return (
+                <AppPanel key={session.id} className="p-4 space-y-3">
+                  {/* Header row */}
+                  <div className="flex items-center justify-between gap-4">
+                    <div>
+                      <p className="font-medium text-slate-900 text-sm">{session.title}</p>
+                      <p className="text-xs text-slate-500 mt-0.5">
+                        {formatDateTime(session.scheduledAt)} · {session.duration} min
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-2 shrink-0">
+                      <StatusBadge status={session.status} />
+                      {/* Transcript toggle */}
+                      <button
+                        onClick={() => handleToggleTranscript(session.id)}
+                        className="flex items-center gap-1 rounded-lg border border-slate-200 px-2.5 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-50 transition-colors"
+                      >
+                        {isExpanded ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
+                        Summary
+                      </button>
+                      {/* Rate button */}
+                      {!session.rating && (
+                        <button
+                          onClick={() => { setRatingId(session.id); setRatingValue(0); setReviewText(''); }}
+                          className="flex items-center gap-1 rounded-lg border border-brand/30 bg-brand/5 px-2.5 py-1.5 text-xs font-medium text-brand hover:bg-brand/10 transition-colors"
+                        >
+                          <Star className="w-3 h-3" />
+                          Rate
+                        </button>
+                      )}
+                      {session.rating && (
+                        <div className="flex items-center gap-1 text-xs text-amber-500 font-medium">
+                          <Star className="w-3 h-3 fill-amber-400" />
+                          {session.rating}/5
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Rating widget */}
+                  {isRating && (
+                    <div className="border-t border-slate-100 pt-3 space-y-3">
+                      <p className="text-xs font-medium text-slate-700">How was your session?</p>
+                      <div className="flex gap-1">
+                        {[1, 2, 3, 4, 5].map(star => (
+                          <button
+                            key={star}
+                            onClick={() => setRatingValue(star)}
+                            className="transition-transform hover:scale-110"
+                          >
+                            <Star className={cn('w-6 h-6', star <= ratingValue ? 'fill-amber-400 text-amber-400' : 'text-slate-300')} />
+                          </button>
+                        ))}
+                      </div>
+                      <textarea
+                        value={reviewText}
+                        onChange={e => setReviewText(e.target.value)}
+                        placeholder="Optional: share your thoughts (shown to mentor)..."
+                        rows={2}
+                        className={cn(appTheme.input, 'w-full text-xs px-3 py-2 resize-none')}
+                      />
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => handleSubmitRating(session.id)}
+                          disabled={!ratingValue || submittingRating}
+                          className="rounded-lg bg-brand px-3 py-1.5 text-xs font-medium text-white disabled:opacity-50 hover:bg-brand-light transition-colors"
+                        >
+                          {submittingRating ? 'Submitting...' : 'Submit Rating'}
+                        </button>
+                        <button
+                          onClick={() => setRatingId(null)}
+                          className="rounded-lg bg-slate-100 px-3 py-1.5 text-xs text-slate-600 hover:bg-slate-200 transition-colors"
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Transcript panel */}
+                  {isExpanded && (
+                    <div className="border-t border-slate-100 pt-3">
+                      {transcript === 'loading' && (
+                        <p className="text-xs text-slate-400 animate-pulse">Loading summary...</p>
+                      )}
+                      {transcript === 'none' && (
+                        <p className="text-xs text-slate-400">No summary available yet — check back after the recording is processed.</p>
+                      )}
+                      {transcript && transcript !== 'loading' && transcript !== 'none' && (
+                        <div className="space-y-3">
+                          {transcript.summary && (
+                            <p className="text-xs text-slate-600 leading-relaxed">{transcript.summary}</p>
+                          )}
+                          {transcript.actionItems?.length > 0 && (
+                            <div>
+                              <p className="text-[10px] font-semibold uppercase tracking-widest text-slate-400 mb-1.5">Action Items</p>
+                              <ul className="space-y-1">
+                                {transcript.actionItems.map((item: string, i: number) => (
+                                  <li key={i} className="flex items-start gap-1.5 text-xs text-slate-700">
+                                    <CheckCircle2 className="w-3.5 h-3.5 text-brand mt-0.5 shrink-0" />
+                                    {item}
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
+                          )}
+                          {transcript.keyTopics?.length > 0 && (
+                            <div>
+                              <p className="text-[10px] font-semibold uppercase tracking-widest text-slate-400 mb-1.5">Topics Covered</p>
+                              <div className="flex flex-wrap gap-1.5">
+                                {transcript.keyTopics.map((topic: string, i: number) => (
+                                  <span key={i} className="flex items-center gap-1 rounded-full border border-slate-200 bg-slate-50 px-2 py-0.5 text-[10px] text-slate-600">
+                                    <Tag className="w-2.5 h-2.5" />
+                                    {topic}
+                                  </span>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                          {transcript.status === 'raw' && (
+                            <p className="text-[10px] text-amber-500">Summary is still being generated...</p>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </AppPanel>
+              );
+            })}
           </div>
         )}
       </section>

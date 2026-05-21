@@ -8,6 +8,7 @@ import {
   UserRepository,
   MentorRepository,
   TranscriptRepository,
+  NotificationRepository,
 } from '@owl-mentors/database';
 import { WhisperService } from '../services/whisper.service';
 import { EmailService } from '../services/email.service';
@@ -23,6 +24,7 @@ const transcriptRepo = new TranscriptRepository();
 const meetingRepo = new MeetingRepository();
 const userRepo = new UserRepository();
 const mentorRepo = new MentorRepository();
+const notificationRepo = new NotificationRepository();
 
 function buildSummaryPrompt(params: {
   transcript: string;
@@ -62,6 +64,7 @@ async function processCompletedRecording(params: {
   recordingId: string;
   audioUrl: string;
   durationSeconds: number;
+  scheduledAt: Date;
 }): Promise<void> {
   const existing = await transcriptRepo.findByLivekitEgressId(params.recordingId);
   if (existing) {
@@ -138,13 +141,23 @@ async function processCompletedRecording(params: {
 
   await meetingRepo.update(params.meetingId, { notes: summary, status: 'completed' } as any);
 
+  // Notify mentee to rate the session (non-fatal)
+  notificationRepo.create({
+    userId: params.menteeId,
+    type: 'review_request',
+    channel: 'push',
+    title: 'How was your session?',
+    message: 'Your session has ended. Share your feedback to help your mentor improve.',
+    data: { meetingId: params.meetingId },
+  }).catch(() => {});
+
   try {
     await EmailService.sendSessionSummary({
       to: mentee.email,
       menteeName: mentee.name,
       mentorName: mentor.name,
       meetingId: params.meetingId,
-      scheduledAt: new Date(),
+      scheduledAt: params.scheduledAt,
       durationSeconds: params.durationSeconds,
       summary,
       actionItems,
@@ -157,7 +170,7 @@ async function processCompletedRecording(params: {
       menteeName: mentee.name,
       mentorName: mentor.name,
       meetingId: params.meetingId,
-      scheduledAt: new Date(),
+      scheduledAt: params.scheduledAt,
       durationSeconds: params.durationSeconds,
       summary,
       actionItems,
@@ -225,6 +238,7 @@ async function handleLiveKitEvent(decoded: any): Promise<void> {
     recordingId: egressId,
     audioUrl,
     durationSeconds: (meeting.duration || 30) * 60,
+    scheduledAt: meeting.scheduledAt,
   });
 }
 

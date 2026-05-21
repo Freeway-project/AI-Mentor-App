@@ -1,17 +1,62 @@
 'use client';
 
 import Link from 'next/link';
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { Menu, X, LogOut, User } from 'lucide-react';
+import { Menu, X, LogOut, User, Bell } from 'lucide-react';
 import { BrandLogo } from '@/components/brand/brand-logo';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/lib/auth-context';
+import { apiClient } from '@/lib/api-client';
+import { cn } from '@/lib/utils';
+
+function formatRelative(iso: string) {
+    const diff = Date.now() - new Date(iso).getTime();
+    const mins = Math.floor(diff / 60_000);
+    if (mins < 1) return 'just now';
+    if (mins < 60) return `${mins}m ago`;
+    const hrs = Math.floor(mins / 60);
+    if (hrs < 24) return `${hrs}h ago`;
+    return `${Math.floor(hrs / 24)}d ago`;
+}
 
 export function Navbar() {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const { user, logout } = useAuth();
     const router = useRouter();
+
+    const [notifications, setNotifications] = useState<any[]>([]);
+    const [unreadCount, setUnreadCount] = useState(0);
+    const [bellOpen, setBellOpen] = useState(false);
+    const bellRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        if (!user) return;
+        apiClient.getNotifications().then(data => {
+            setNotifications(data.notifications);
+            setUnreadCount(data.unreadCount);
+        }).catch(() => {});
+    }, [user]);
+
+    useEffect(() => {
+        const handler = (e: MouseEvent) => {
+            if (bellRef.current && !bellRef.current.contains(e.target as Node)) {
+                setBellOpen(false);
+            }
+        };
+        document.addEventListener('mousedown', handler);
+        return () => document.removeEventListener('mousedown', handler);
+    }, []);
+
+    const handleBellClick = async () => {
+        const wasOpen = bellOpen;
+        setBellOpen(!bellOpen);
+        if (!wasOpen && unreadCount > 0) {
+            setUnreadCount(0);
+            setNotifications(prev => prev.map(n => ({ ...n, read: true })));
+            apiClient.markNotificationsRead().catch(() => {});
+        }
+    };
 
     const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
 
@@ -66,6 +111,51 @@ export function Navbar() {
                 <div className="hidden md:flex md:items-center md:space-x-4">
                     {user ? (
                         <div className="flex items-center gap-3">
+                            {/* Notification Bell */}
+                            <div ref={bellRef} className="relative">
+                                <button
+                                    onClick={handleBellClick}
+                                    className="relative rounded-full p-1.5 text-slate-500 hover:bg-slate-100 hover:text-slate-800 transition-colors"
+                                    aria-label="Notifications"
+                                >
+                                    <Bell className="h-5 w-5" />
+                                    {unreadCount > 0 && (
+                                        <span className="absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-brand text-[9px] font-bold text-white">
+                                            {unreadCount > 9 ? '9+' : unreadCount}
+                                        </span>
+                                    )}
+                                </button>
+
+                                {bellOpen && (
+                                    <div className="absolute right-0 top-full mt-2 w-80 rounded-2xl border border-slate-200 bg-white shadow-xl z-50">
+                                        <div className="border-b border-slate-100 px-4 py-3">
+                                            <p className="text-sm font-semibold text-slate-800">Notifications</p>
+                                        </div>
+                                        <div className="max-h-80 overflow-y-auto">
+                                            {notifications.length === 0 ? (
+                                                <div className="px-4 py-8 text-center text-sm text-slate-400">
+                                                    No notifications yet
+                                                </div>
+                                            ) : (
+                                                notifications.map(n => (
+                                                    <div key={n.id} className={cn(
+                                                        'flex gap-3 px-4 py-3 border-b border-slate-50 last:border-0',
+                                                        !n.read && 'bg-brand/5'
+                                                    )}>
+                                                        <div className="mt-0.5 h-2 w-2 shrink-0 rounded-full bg-brand" style={{ visibility: n.read ? 'hidden' : 'visible' }} />
+                                                        <div className="min-w-0">
+                                                            <p className="text-xs font-medium text-slate-800 truncate">{n.title}</p>
+                                                            <p className="text-xs text-slate-500 mt-0.5 line-clamp-2">{n.message}</p>
+                                                            <p className="text-[10px] text-slate-400 mt-1">{formatRelative(n.createdAt)}</p>
+                                                        </div>
+                                                    </div>
+                                                ))
+                                            )}
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+
                             <div className="flex items-center gap-2 text-sm text-slate-600">
                                 <User className="h-4 w-4" />
                                 <span>{user.name}</span>
