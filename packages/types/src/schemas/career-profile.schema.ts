@@ -24,8 +24,6 @@ export const careerEducationSchema = z.object({
 });
 
 export const careerResumeSchema = z.object({
-  fileUrl: z.string().optional(),
-  fileKey: z.string().optional(),
   fileName: z.string(),
   mimeType: z.string(),
   uploadedAt: z.date(),

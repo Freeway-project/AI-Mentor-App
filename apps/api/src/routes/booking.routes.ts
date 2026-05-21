@@ -323,6 +323,7 @@ router.post('/bookings', authenticate, requireEmailVerified, async (req: Request
         title: offerTitle,
         scheduledAt: slotStart,
         durationMin,
+        livekitJoinUrl: `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/video/${meeting.id}`,
         meetUrl,
       };
       await Promise.all([
@@ -413,9 +414,25 @@ router.get('/bookings/:id/token', authenticate, requireEmailVerified, async (req
     if (!(meeting as any).livekitRoomName) {
       await meetingRepo.update(meeting.id, { livekitRoomName: roomName } as any);
     }
+    await livekitService.createRoom(roomName).catch(() => {});
+
+    if (!(meeting as any).livekitEgressId) {
+      try {
+        const egress = await livekitService.startRoomEgress({ roomName, meetingId: meeting.id });
+        if (egress.egressId) {
+          await meetingRepo.update(meeting.id, { livekitEgressId: egress.egressId, status: 'in_progress' } as any);
+        }
+      } catch (err) {
+        logger.warn('[Booking] Failed to start LiveKit egress', {
+          requestId: req.requestId,
+          meetingId: meeting.id,
+          error: (err as Error).message,
+        });
+      }
+    }
 
     const user = await userRepo.findById(req.userId!);
-    const token = livekitService.generateToken({
+    const token = await livekitService.generateToken({
       roomName,
       participantIdentity: req.userId!,
       participantName: user.name || 'Participant',

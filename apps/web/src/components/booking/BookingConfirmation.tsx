@@ -13,7 +13,7 @@ interface Props {
     duration: number;
     meetUrl?: string;
     meetingLink?: string;
-    dailyRoomUrl?: string;
+    livekitRoomName?: string;
   };
   onClose: () => void;
 }

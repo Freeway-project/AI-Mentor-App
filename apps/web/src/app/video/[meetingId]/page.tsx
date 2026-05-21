@@ -6,54 +6,44 @@ import { useAuth } from '@/lib/auth-context';
 import { apiClient } from '@/lib/api-client';
 import { ArrowLeft, Loader2, AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
-import { SessionRoomPlaceholder } from '@/components/video/SessionRoomPlaceholder';
-import { getSessionAccess, hasLegacySessionRoom } from '@/lib/session-access';
+import { SessionRoom } from '@/components/video/SessionRoom';
 
 export default function VideoCallPage() {
   const params = useParams();
   const router = useRouter();
   const { user, loading: authLoading } = useAuth();
-  
-  const [meeting, setMeeting] = useState<any>(null);
+
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [token, setToken] = useState<string | null>(null);
+  const [serverUrl, setServerUrl] = useState<string | null>(null);
 
   const meetingId = params.meetingId as string;
 
   useEffect(() => {
     if (authLoading) return;
-    
+
     if (!user) {
       router.push(`/login?redirect=/video/${meetingId}`);
       return;
     }
 
-    const fetchMeeting = async () => {
+    const initRoom = async () => {
       try {
-        const data = await apiClient.getBooking(meetingId);
-        
-        // Ensure user is part of the meeting
-        if (user.roles?.includes('mentee') && data.menteeId !== user.id && !user.roles?.includes('mentor')) {
+        const booking = await apiClient.getBooking(meetingId);
+
+        if (user.roles?.includes('mentee') && booking.menteeId !== user.id && !user.roles?.includes('mentor')) {
           throw new Error('You are not authorized to join this session');
         }
-        if (user.roles?.includes('mentor') && data.mentorId !== user.id && !user.roles?.includes('mentee')) {
+        if (user.roles?.includes('mentor') && booking.mentorId !== user.id && !user.roles?.includes('mentee')) {
           throw new Error('You are not authorized to join this session');
         }
 
-        const sessionAccess = getSessionAccess({
-          id: data.id,
-          livekitRoomName: data.livekitRoomName,
-          meetUrl: data.meetUrl,
-          meetingLink: data.meetingLink,
-        });
-
-        if (!sessionAccess && !hasLegacySessionRoom(data)) {
-          throw new Error('No session room has been generated for this booking yet');
-        }
-
-        setMeeting(data);
+        const tk = await apiClient.getLivekitToken(meetingId);
+        setToken(tk.token);
+        setServerUrl(tk.serverUrl);
       } catch (err: any) {
-        console.error('Failed to load meeting:', err);
+        console.error('Failed to initialize LiveKit room:', err);
         setError(err.message || 'Failed to initialize video session');
         toast.error('Could not join video session');
       } finally {
@@ -61,11 +51,10 @@ export default function VideoCallPage() {
       }
     };
 
-    fetchMeeting();
+    initRoom();
   }, [meetingId, user, authLoading, router]);
 
   const handleLeave = () => {
-    // Navigate back to the appropriate dashboard
     if (user?.roles?.includes('mentor')) {
       router.push('/mentor/dashboard');
     } else {
@@ -82,7 +71,7 @@ export default function VideoCallPage() {
     );
   }
 
-  if (error) {
+  if (error || !token || !serverUrl) {
     return (
       <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center p-4">
         <div className="bg-slate-900 border border-slate-800 rounded-2xl p-8 max-w-md w-full text-center">
@@ -90,7 +79,7 @@ export default function VideoCallPage() {
             <AlertCircle className="w-8 h-8 text-red-500" />
           </div>
           <h1 className="text-xl font-bold text-white mb-2">Access Denied</h1>
-          <p className="text-slate-400 mb-8">{error}</p>
+          <p className="text-slate-400 mb-8">{error || 'Could not prepare LiveKit room'}</p>
           <button
             onClick={handleLeave}
             className="flex items-center justify-center gap-2 w-full py-2.5 px-4 bg-slate-800 hover:bg-slate-700 text-white rounded-xl transition-colors font-medium border border-slate-700"
@@ -103,9 +92,9 @@ export default function VideoCallPage() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-950 px-4 py-8 md:px-6 lg:px-8">
-      <div className="mx-auto flex min-h-[calc(100vh-4rem)] max-w-6xl items-center justify-center">
-        <SessionRoomPlaceholder meeting={meeting} onBack={handleLeave} />
+    <div className="min-h-screen bg-slate-950 px-4 py-6 md:px-6 lg:px-8">
+      <div className="mx-auto flex max-w-7xl items-center justify-center">
+        <SessionRoom token={token} serverUrl={serverUrl} onLeave={handleLeave} />
       </div>
     </div>
   );

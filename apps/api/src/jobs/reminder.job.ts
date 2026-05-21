@@ -41,7 +41,7 @@ async function sendDueReminders(): Promise<void> {
         title: meeting.title,
         scheduledAt: meeting.scheduledAt,
         durationMin: meeting.duration,
-        dailyRoomUrl: meeting.dailyRoomUrl,
+        livekitJoinUrl: `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/video/${meeting._id.toString()}`,
         meetUrl: meeting.meetingLink,
         mentorName: mentor.name,
         menteeName: mentee.name,

@@ -14,7 +14,7 @@ export class WhisperService {
     let audioBytes = 0;
 
     try {
-      logger.info(`[Whisper] Downloading audio from Daily...`);
+      logger.info('[Whisper] Downloading audio for transcription...');
       const response = await fetch(audioUrl);
       if (!response.ok) {
         throw new Error(`Failed to download audio (${response.status}): ${response.statusText}`);

@@ -125,8 +125,6 @@ export interface CareerProfile {
   userId: string;
   status: 'idle' | 'ready' | 'failed';
   resume?: {
-    fileUrl?: string;
-    fileKey?: string;
     fileName: string;
     mimeType: string;
     uploadedAt: string;
@@ -558,6 +556,10 @@ class ApiClient {
 
   async getBooking(id: string): Promise<any> {
     return this.request<any>(`/bookings/${id}`);
+  }
+
+  async getLivekitToken(meetingId: string): Promise<{ token: string; serverUrl: string; roomName: string }> {
+    return this.request<{ token: string; serverUrl: string; roomName: string }>(`/bookings/${meetingId}/token`);
   }
 
   async cancelBooking(id: string, reason?: string): Promise<any> {

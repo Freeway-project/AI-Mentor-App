@@ -10,8 +10,6 @@ import { logger } from '@owl-mentors/utils';
 import { CareerProfileModel, toCareerProfile } from '../models/career-profile.model';
 
 interface ResumeUpsertInput {
-  fileUrl?: string;
-  fileKey?: string;
   fileName: string;
   mimeType: string;
   rawText: string;
@@ -41,8 +39,6 @@ export class CareerProfileRepository {
             userId: new mongoose.Types.ObjectId(userId),
             status: 'ready',
             resume: {
-              fileUrl: data.fileUrl,
-              fileKey: data.fileKey,
               fileName: data.fileName,
               mimeType: data.mimeType,
               uploadedAt: new Date(),
@@ -50,6 +46,9 @@ export class CareerProfileRepository {
             },
             rawText: data.rawText,
             extractedProfile: data.extractedProfile,
+            goalProfile: undefined,
+            latestAnalysis: undefined,
+            mentorRecommendations: [],
             errorMessage: undefined,
           },
         },

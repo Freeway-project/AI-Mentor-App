@@ -5,8 +5,6 @@ export interface ICareerProfileDocument extends mongoose.Document {
   userId: mongoose.Types.ObjectId;
   status: 'idle' | 'ready' | 'failed';
   resume?: {
-    fileUrl?: string;
-    fileKey?: string;
     fileName: string;
     mimeType: string;
     uploadedAt: Date;
@@ -120,8 +118,6 @@ const careerProfileSchema = new Schema<ICareerProfileDocument>(
       default: 'idle',
     },
     resume: {
-      fileUrl: { type: String },
-      fileKey: { type: String },
       fileName: { type: String },
       mimeType: { type: String },
       uploadedAt: { type: Date },

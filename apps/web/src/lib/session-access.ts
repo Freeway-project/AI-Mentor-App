@@ -9,7 +9,7 @@ export interface SessionAccess {
   href: string;
   isExternal: boolean;
   label: string;
-  variant: 'external' | 'native-placeholder';
+  variant: 'external' | 'native';
 }
 
 function normalizeLink(value?: string | null) {
@@ -34,7 +34,7 @@ export function getSessionAccess(session: SessionAccessInput): SessionAccess | n
       href: `/video/${session.id}`,
       isExternal: false,
       label: 'Open Session Room',
-      variant: 'native-placeholder',
+      variant: 'native',
     };
   }
 

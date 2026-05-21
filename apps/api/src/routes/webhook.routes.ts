@@ -9,28 +9,20 @@ import {
   MentorRepository,
   TranscriptRepository,
 } from '@owl-mentors/database';
-import { DailyService } from '../services/daily.service';
 import { WhisperService } from '../services/whisper.service';
 import { EmailService } from '../services/email.service';
 import { StripeService } from '../services/stripe.service';
 import { serviceUsageService } from '../services/service-usage.service';
+import { LiveKitService } from '../services/livekit.service';
 
 const router: Router = Router();
 
-const dailyService = new DailyService();
+const livekitService = new LiveKitService();
 const whisperService = new WhisperService();
 const transcriptRepo = new TranscriptRepository();
 const meetingRepo = new MeetingRepository();
 const userRepo = new UserRepository();
 const mentorRepo = new MentorRepository();
-
-interface DailyWebhookPayload {
-  action: string;
-  room_name?: string;
-  recording_id?: string;
-  duration?: number;
-  [key: string]: unknown;
-}
 
 function buildSummaryPrompt(params: {
   transcript: string;
@@ -63,61 +55,36 @@ Return the JSON summary now.`,
   ];
 }
 
-async function handleDailyEvent(payload: DailyWebhookPayload): Promise<void> {
-  if (payload.action !== 'recording.ready') return;
-
-  const recordingId = payload.recording_id;
-  const roomName = payload.room_name;
-
-  if (!recordingId || !roomName) {
-    logger.warn('[Webhook/Daily] recording.ready missing recording_id or room_name');
-    return;
-  }
-
-  // Idempotency: skip if already processed
-  const existing = await transcriptRepo.findByDailyRecordingId(recordingId);
+async function processCompletedRecording(params: {
+  meetingId: string;
+  mentorId: string;
+  menteeId: string;
+  recordingId: string;
+  audioUrl: string;
+  durationSeconds: number;
+}): Promise<void> {
+  const existing = await transcriptRepo.findByLivekitEgressId(params.recordingId);
   if (existing) {
-    logger.info(`[Webhook/Daily] Recording ${recordingId} already processed — skipping`);
+    logger.info(`[Webhook/LiveKit] Recording ${params.recordingId} already processed — skipping`);
     return;
   }
 
-  // Look up meeting by Daily room name
-  const meetingDoc = await MeetingModel.findOne({ dailyRoomName: roomName });
-  if (!meetingDoc) {
-    logger.warn(`[Webhook/Daily] No meeting found for room: ${roomName}`);
-    return;
-  }
+  const rawText = await whisperService.transcribe(params.audioUrl);
 
-  const meetingId = meetingDoc._id.toString();
-  const menteeId = meetingDoc.menteeId.toString();
-  const mentorId = meetingDoc.mentorId.toString();
-  const durationSeconds = payload.duration ?? meetingDoc.duration * 60;
-
-  // Get audio download link
-  logger.info(`[Webhook/Daily] Fetching download link for recording ${recordingId}`);
-  const audioUrl = await dailyService.getRecordingDownloadLink(recordingId);
-
-  // Transcribe with Whisper
-  const rawText = await whisperService.transcribe(audioUrl);
-
-  // Save raw transcript
   const transcript = await transcriptRepo.create({
-    meetingId,
-    menteeId,
-    mentorId,
-    dailyRecordingId: recordingId,
-    dailyRoomName: roomName,
+    meetingId: params.meetingId,
+    menteeId: params.menteeId,
+    mentorId: params.mentorId,
+    livekitEgressId: params.recordingId,
     rawText,
-    durationSeconds: Number(durationSeconds),
+    durationSeconds: params.durationSeconds,
   });
 
-  // Load user/mentor details for LLM prompt and email
   const [mentee, mentor] = await Promise.all([
-    userRepo.findById(menteeId),
-    mentorRepo.findById(mentorId),
+    userRepo.findById(params.menteeId),
+    mentorRepo.findById(params.mentorId),
   ]);
 
-  // LLM summary
   let summary = '';
   let actionItems: string[] = [];
   let keyTopics: string[] = [];
@@ -127,7 +94,7 @@ async function handleDailyEvent(payload: DailyWebhookPayload): Promise<void> {
     const llm = createLLMClient();
     const messages = buildSummaryPrompt({
       transcript: rawText,
-      durationSeconds: Number(durationSeconds),
+      durationSeconds: params.durationSeconds,
       menteeName: mentee.name,
       mentorName: mentor.name,
     });
@@ -143,18 +110,13 @@ async function handleDailyEvent(payload: DailyWebhookPayload): Promise<void> {
       promptTokens: llmResponse.tokens?.prompt,
       completionTokens: llmResponse.tokens?.completion,
       totalTokens: llmResponse.tokens?.total,
-      metadata: {
-        feature: 'session_summary',
-        meetingId,
-        messageCount: messages.length,
-      },
+      metadata: { feature: 'session_summary', meetingId: params.meetingId, messageCount: messages.length },
     });
     const parsed = JSON.parse(llmResponse.content);
     summary = parsed.summary ?? '';
     actionItems = parsed.actionItems ?? [];
     keyTopics = parsed.keyTopics ?? [];
     summaryStatus = 'summarized';
-    logger.info(`[Webhook/Daily] LLM summary generated for meeting ${meetingId}`);
   } catch (err) {
     await serviceUsageService.recordFailure({
       service: 'llm',
@@ -162,15 +124,11 @@ async function handleDailyEvent(payload: DailyWebhookPayload): Promise<void> {
       operation: 'chat_completion',
       usageCount: 1,
       errorMessage: (err as Error).message,
-      metadata: {
-        feature: 'session_summary',
-        meetingId,
-      },
+      metadata: { feature: 'session_summary', meetingId: params.meetingId },
     });
-    logger.error(`[Webhook/Daily] LLM summary failed for meeting ${meetingId}: ${(err as Error).message}`);
+    logger.error(`[Webhook/LiveKit] LLM summary failed for meeting ${params.meetingId}: ${(err as Error).message}`);
   }
 
-  // Update transcript with summary
   await transcriptRepo.updateSummary(transcript._id.toString(), {
     summary,
     actionItems,
@@ -178,45 +136,96 @@ async function handleDailyEvent(payload: DailyWebhookPayload): Promise<void> {
     status: summaryStatus,
   });
 
-  // Update meeting: notes + status completed
-  await meetingRepo.update(meetingId, { notes: summary, status: 'completed' } as any);
+  await meetingRepo.update(params.meetingId, { notes: summary, status: 'completed' } as any);
 
-  // Email mentee
   try {
     await EmailService.sendSessionSummary({
       to: mentee.email,
       menteeName: mentee.name,
       mentorName: mentor.name,
-      meetingId,
-      scheduledAt: meetingDoc.scheduledAt,
-      durationSeconds: Number(durationSeconds),
+      meetingId: params.meetingId,
+      scheduledAt: new Date(),
+      durationSeconds: params.durationSeconds,
       summary,
       actionItems,
       keyTopics,
     });
-  } catch (err) {
-    logger.error(`[Webhook/Daily] Email failed for meeting ${meetingId}: ${(err as Error).message}`);
-  }
 
-  // Email mentor
-  try {
     const mentorUser = await userRepo.findById(mentor.userId);
     await EmailService.sendSessionSummary({
       to: mentorUser.email,
       menteeName: mentee.name,
       mentorName: mentor.name,
-      meetingId,
-      scheduledAt: meetingDoc.scheduledAt,
-      durationSeconds: Number(durationSeconds),
+      meetingId: params.meetingId,
+      scheduledAt: new Date(),
+      durationSeconds: params.durationSeconds,
       summary,
       actionItems,
       keyTopics,
     });
   } catch (err) {
-    logger.error(`[Webhook/Daily] Mentor summary email failed for meeting ${meetingId}: ${(err as Error).message}`);
+    logger.error(`[Webhook/LiveKit] Summary email failed for meeting ${params.meetingId}: ${(err as Error).message}`);
+  }
+}
+
+async function handleLiveKitEvent(decoded: any): Promise<void> {
+  const eventType = decoded?.event || decoded?.eventType;
+
+  if (eventType === 'room_finished') {
+    const roomName = decoded?.room?.name;
+    if (!roomName) return;
+    const meeting = await MeetingModel.findOne({ livekitRoomName: roomName });
+    if (!meeting) return;
+
+    if ((meeting as any).livekitEgressId) {
+      try {
+        await livekitService.stopEgress((meeting as any).livekitEgressId);
+      } catch (err) {
+        logger.warn(`[Webhook/LiveKit] stopEgress failed: ${(err as Error).message}`);
+      }
+    }
+    return;
   }
 
-  logger.info(`[Webhook/Daily] Pipeline complete for meeting ${meetingId}`);
+  if (eventType !== 'egress_ended') return;
+
+  const egressInfo = decoded?.egressInfo || decoded?.egress_info;
+  const egressId = egressInfo?.egressId || egressInfo?.egress_id;
+  if (!egressId) return;
+
+  const existing = await transcriptRepo.findByLivekitEgressId(egressId);
+  if (existing) return;
+
+  const meeting = await MeetingModel.findOne({
+    $or: [
+      { livekitEgressId: egressId },
+      ...(egressInfo?.roomName ? [{ livekitRoomName: egressInfo.roomName }] : []),
+    ],
+  });
+
+  if (!meeting) {
+    logger.warn(`[Webhook/LiveKit] No meeting found for egress ${egressId}`);
+    return;
+  }
+
+  const fileResults = egressInfo?.fileResults || egressInfo?.file_results || [];
+  const audioOnly = fileResults.find((f: any) => f?.filename?.includes('audio') || f?.filepath?.includes('audio'));
+  const candidate = audioOnly || fileResults[0];
+  const audioUrl = candidate?.location || candidate?.downloadUrl || candidate?.url;
+
+  if (!audioUrl) {
+    logger.warn(`[Webhook/LiveKit] egress_ended missing file URL for ${egressId}`);
+    return;
+  }
+
+  await processCompletedRecording({
+    meetingId: meeting._id.toString(),
+    menteeId: meeting.menteeId.toString(),
+    mentorId: meeting.mentorId.toString(),
+    recordingId: egressId,
+    audioUrl,
+    durationSeconds: (meeting.duration || 30) * 60,
+  });
 }
 
 // POST /api/webhooks/stripe
@@ -269,7 +278,6 @@ async function handleStripeEvent(event: Stripe.Event): Promise<void> {
     return;
   }
 
-  // Check if the booking was already created via the synchronous flow
   const slotStart = new Date(scheduledAt);
   const slotEnd = new Date(slotStart.getTime() + 24 * 60 * 60 * 1000);
   const meetings = await MeetingModel.find({
@@ -288,27 +296,29 @@ async function handleStripeEvent(event: Stripe.Event): Promise<void> {
   }
 }
 
-// POST /api/webhooks/daily
-router.post('/daily', (req: Request, res: Response) => {
+// POST /api/webhooks/livekit
+router.post('/livekit', (req: Request, res: Response) => {
   const rawBody = (req as any).rawBody as string | undefined;
-  const signature = req.headers['x-daily-signature'] as string | undefined;
+  const authHeader = req.headers.authorization as string | undefined;
 
-  if (!rawBody || !signature) {
-    res.status(401).json({ error: 'Missing body or signature' });
+  if (!rawBody) {
+    res.status(400).json({ error: 'Missing body' });
     return;
   }
 
-  if (!dailyService.verifyWebhookSignature(rawBody, signature)) {
+  let decoded: any;
+  try {
+    decoded = livekitService.verifyAndDecodeWebhook(rawBody, authHeader);
+  } catch (err) {
+    logger.error(`[Webhook/LiveKit] Signature verification failed: ${(err as Error).message}`);
     res.status(401).json({ error: 'Invalid signature' });
     return;
   }
 
-  // Respond immediately, then process asynchronously
   res.status(200).json({ received: true });
 
-  const payload = req.body as DailyWebhookPayload;
-  handleDailyEvent(payload).catch(err => {
-    logger.error(`[Webhook/Daily] Unhandled error in handleDailyEvent: ${err.message}`, err);
+  handleLiveKitEvent(decoded).catch(err => {
+    logger.error(`[Webhook/LiveKit] Unhandled error: ${err.message}`, err);
   });
 });
 

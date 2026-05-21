@@ -493,7 +493,7 @@ export const EmailService = {
     title: string;
     scheduledAt: Date;
     durationMin: number;
-    dailyRoomUrl?: string;
+    livekitJoinUrl?: string;
     meetUrl?: string;
     dashboardPath?: string;
   }): Promise<void> {
@@ -502,7 +502,7 @@ export const EmailService = {
     const from = `${fromName} <${fromEmail}>`;
     const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
     const sessionUrl = `${appUrl}${params.dashboardPath ?? '/mentee/dashboard'}`;
-    const callUrl = params.dailyRoomUrl || params.meetUrl;
+    const callUrl = params.livekitJoinUrl || params.meetUrl;
 
     const dateStr = params.scheduledAt.toLocaleDateString('en-US', {
       weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
@@ -606,14 +606,14 @@ export const EmailService = {
     title: string;
     scheduledAt: Date;
     durationMin: number;
-    dailyRoomUrl?: string;
+    livekitJoinUrl?: string;
     meetUrl?: string;
   }): Promise<void> {
     const fromName = process.env.SMTP_FROM_NAME || 'OWL Mentor';
     const fromEmail = process.env.SMTP_FROM_EMAIL || process.env.SMTP_FROM || 'noreply@owlmentor.com';
     const from = `${fromName} <${fromEmail}>`;
     const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
-    const callUrl = params.dailyRoomUrl || params.meetUrl;
+    const callUrl = params.livekitJoinUrl || params.meetUrl;
 
     const timeStr = params.scheduledAt.toLocaleTimeString('en-US', {
       hour: '2-digit', minute: '2-digit', timeZoneName: 'short',

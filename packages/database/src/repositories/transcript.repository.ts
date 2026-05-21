@@ -6,8 +6,9 @@ export interface CreateTranscriptData {
   meetingId: string;
   menteeId: string;
   mentorId: string;
-  dailyRecordingId: string;
-  dailyRoomName: string;
+  dailyRecordingId?: string;
+  dailyRoomName?: string;
+  livekitEgressId?: string;
   rawText: string;
   durationSeconds: number;
 }
@@ -29,6 +30,7 @@ export class TranscriptRepository {
         mentorId: new mongoose.Types.ObjectId(data.mentorId),
         dailyRecordingId: data.dailyRecordingId,
         dailyRoomName: data.dailyRoomName,
+        livekitEgressId: data.livekitEgressId,
         rawText: data.rawText,
         durationSeconds: data.durationSeconds,
         status: 'raw',
@@ -57,6 +59,18 @@ export class TranscriptRepository {
     const startTime = Date.now();
     try {
       const doc = await TranscriptModel.findOne({ dailyRecordingId });
+      logger.db({ operation: 'findOne', collection: 'transcripts', duration: Date.now() - startTime });
+      return doc;
+    } catch (error) {
+      logger.db({ operation: 'findOne', collection: 'transcripts', duration: Date.now() - startTime, error: (error as Error).message });
+      throw error;
+    }
+  }
+
+  async findByLivekitEgressId(livekitEgressId: string): Promise<ITranscriptDocument | null> {
+    const startTime = Date.now();
+    try {
+      const doc = await TranscriptModel.findOne({ livekitEgressId });
       logger.db({ operation: 'findOne', collection: 'transcripts', duration: Date.now() - startTime });
       return doc;
     } catch (error) {

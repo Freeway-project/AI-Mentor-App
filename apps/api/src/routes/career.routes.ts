@@ -1,3 +1,4 @@
+import path from 'path';
 import { Router, Request, Response, NextFunction } from 'express';
 import { CareerProfileRepository } from '@owl-mentors/database';
 import { careerGoalInputSchema } from '@owl-mentors/types';
@@ -47,10 +48,12 @@ router.post(
     try {
       if (!req.file) throw new AppError(400, 'NO_FILE', 'No resume file provided');
 
+      const ext = path.extname(req.file.originalname) || '.pdf';
+      const safeBase = path.basename(req.file.originalname, ext).replace(/[^a-z0-9_-]/gi, '-').toLowerCase();
       const rawText = await resumeParserService.extractText(req.file.buffer, req.file.mimetype);
       const extractedProfile = await careerAnalysisService.extractCareerProfile(rawText);
       const profile = await repo.upsertResume(req.userId!, {
-        fileName: req.file.originalname,
+        fileName: req.file.originalname || `${safeBase}${ext}`,
         mimeType: req.file.mimetype,
         rawText,
         extractedProfile,
