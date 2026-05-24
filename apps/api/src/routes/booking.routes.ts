@@ -18,6 +18,7 @@ import {
   UserIntegrationRepository,
   CalendarSettingsRepository,
   TranscriptRepository,
+  NotificationRepository,
 } from '@owl-mentors/database';
 
 const router: Router = Router();
@@ -31,6 +32,7 @@ const userRepo = new UserRepository();
 const integrationRepo = new UserIntegrationRepository();
 const calSettingsRepo = new CalendarSettingsRepository();
 const transcriptRepo = new TranscriptRepository();
+const notifRepo = new NotificationRepository();
 const gcalService = new GoogleCalendarService();
 const stripeService = new StripeService();
 const livekitService = new LiveKitService();
@@ -337,6 +339,17 @@ router.post('/bookings', authenticate, requireEmailVerified, async (req: Request
       logger.warn(`[Booking] Confirmation email failed: ${(err as Error).message}`);
     }
 
+    // In-app notifications (non-fatal)
+    try {
+      const dateStr = slotStart.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+      await Promise.all([
+        notifRepo.create({ userId: req.userId!, type: 'meeting_confirmed', channel: 'in_app', title: 'Session booked!', message: `${offerTitle} on ${dateStr}`, scheduledAt: new Date().toISOString() } as any),
+        notifRepo.create({ userId: mentor.userId, type: 'meeting_confirmed', channel: 'in_app', title: 'New session booked', message: `${mentee.name} booked ${offerTitle}`, scheduledAt: new Date().toISOString() } as any),
+      ]);
+    } catch (err) {
+      logger.warn(`[Booking] In-app notification failed: ${(err as Error).message}`);
+    }
+
     res.status(201).json({
       success: true,
       data: {
@@ -519,6 +532,16 @@ router.post('/bookings/:id/cancel', authenticate, requireEmailVerified, async (r
       }
     }
 
+    // In-app notification for the other party (non-fatal)
+    try {
+      const isMentee = meeting.menteeId === req.userId;
+      const mentor = isMentee ? await mentorRepo.findById(meeting.mentorId) : null;
+      const otherUserId = isMentee ? mentor!.userId : meeting.menteeId;
+      await notifRepo.create({ userId: otherUserId, type: 'meeting_cancelled', channel: 'in_app', title: 'Session cancelled', message: `${meeting.title} was cancelled`, scheduledAt: new Date().toISOString() } as any);
+    } catch (err) {
+      logger.warn(`[Booking] Cancellation in-app notification failed: ${(err as Error).message}`);
+    }
+
     res.json({ success: true, data: cancelled });
   } catch (error) {
     next(error);
@@ -590,6 +613,54 @@ router.post('/bookings/:id/reschedule', authenticate, requireEmailVerified, asyn
     }
 
     res.json({ success: true, data: updated });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// POST /api/bookings/:id/review
+router.post('/bookings/:id/review', authenticate, requireEmailVerified, async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { rating, review } = req.body;
+
+    if (!rating || typeof rating !== 'number' || !Number.isInteger(rating) || rating < 1 || rating > 5) {
+      throw new AppError(400, 'VALIDATION_ERROR', 'rating must be an integer between 1 and 5');
+    }
+
+    const meeting = await meetingRepo.findById(req.params.id);
+
+    if (meeting.status !== 'completed') {
+      throw new AppError(400, 'INVALID_STATUS', 'Only completed sessions can be reviewed');
+    }
+    if (meeting.menteeId !== req.userId) {
+      throw new AppError(403, 'FORBIDDEN', 'Only the mentee can leave a review');
+    }
+    if (meeting.rating != null) {
+      throw new AppError(409, 'ALREADY_REVIEWED', 'This session has already been reviewed');
+    }
+
+    const rated = await meetingRepo.rate(req.params.id, rating, review || undefined);
+
+    // Recompute mentor aggregate rating
+    const ratingStats = await meetingRepo.getAverageRatingForMentor(meeting.mentorId);
+    if (ratingStats) {
+      await mentorRepo.updateRating(meeting.mentorId, Math.round(ratingStats.avg * 10) / 10, ratingStats.count);
+    }
+
+    logger.info('[Booking] Session rated', {
+      requestId: req.requestId,
+      meetingId: req.params.id,
+      userId: req.userId,
+      rating,
+    });
+
+    // Notify mentor (non-fatal)
+    try {
+      const mentor = await mentorRepo.findById(meeting.mentorId);
+      await notifRepo.create({ userId: mentor.userId, type: 'review_request', channel: 'in_app', title: 'New review received', message: `You received a ${rating}-star review for ${meeting.title}`, scheduledAt: new Date().toISOString() } as any);
+    } catch (_) {}
+
+    res.json({ success: true, data: rated });
   } catch (error) {
     next(error);
   }

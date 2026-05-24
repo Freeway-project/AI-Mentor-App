@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/lib/auth-context';
 import { apiClient } from '@/lib/api-client';
-import { Calendar, Clock, CreditCard, ArrowRight, BookOpen, Video, X, RotateCcw } from 'lucide-react';
+import { Calendar, Clock, CreditCard, ArrowRight, BookOpen, Video, X, RotateCcw, Star } from 'lucide-react';
 import Link from 'next/link';
 import { toast } from 'sonner';
 import { SlotPicker } from '@/components/booking/SlotPicker';
@@ -59,6 +59,11 @@ export default function MenteeDashboardPage() {
   const [newSlot, setNewSlot] = useState<{ start: string; end: string } | null>(null);
   const [rescheduling, setRescheduling] = useState(false);
 
+  // Review state
+  const [reviewingId, setReviewingId] = useState<string | null>(null);
+  const [reviewRating, setReviewRating] = useState(0);
+  const [reviewText, setReviewText] = useState('');
+
   const load = useCallback(async () => {
     try {
       const [upcomingData, pastData, creditsData] = await Promise.all([
@@ -108,6 +113,20 @@ export default function MenteeDashboardPage() {
       toast.error(e.message || 'Failed to reschedule');
     } finally {
       setRescheduling(false);
+    }
+  };
+
+  const handleReview = async (id: string) => {
+    if (!reviewRating) return;
+    try {
+      await apiClient.rateBooking(id, reviewRating, reviewText || undefined);
+      toast.success('Review submitted!');
+      setReviewingId(null);
+      setReviewRating(0);
+      setReviewText('');
+      load();
+    } catch (e: any) {
+      toast.error(e.message || 'Failed to submit review');
     }
   };
 
@@ -321,14 +340,76 @@ export default function MenteeDashboardPage() {
         ) : (
           <div className="space-y-3">
             {past.map(session => (
-              <AppPanel key={session.id} className="flex items-center justify-between gap-4 p-4">
-                <div>
-                  <p className="font-medium text-slate-900 text-sm">{session.title}</p>
-                  <p className="text-xs text-slate-500 mt-0.5">
-                    {formatDateTime(session.scheduledAt)} · {session.duration} min
-                  </p>
+              <AppPanel key={session.id} className="p-4">
+                <div className="flex items-center justify-between gap-4">
+                  <div>
+                    <p className="font-medium text-slate-900 text-sm">{session.title}</p>
+                    <p className="text-xs text-slate-500 mt-0.5">
+                      {formatDateTime(session.scheduledAt)} · {session.duration} min
+                    </p>
+                    {session.rating != null && (
+                      <div className="flex items-center gap-1 mt-1">
+                        {[1,2,3,4,5].map(i => (
+                          <Star key={i} className={`w-3 h-3 ${i <= session.rating ? 'text-amber-400 fill-amber-400' : 'text-slate-300'}`} />
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-2 flex-shrink-0">
+                    <StatusBadge status={session.status} />
+                    {session.rating == null && (
+                      <button
+                        onClick={() => {
+                          setReviewingId(reviewingId === session.id ? null : session.id);
+                          setReviewRating(0);
+                          setReviewText('');
+                        }}
+                        className="flex items-center gap-1 rounded-lg border border-slate-200 px-3 py-1.5 text-xs text-slate-600 transition-colors hover:border-amber-400 hover:text-amber-600"
+                      >
+                        <Star className="w-3 h-3" /> Rate
+                      </button>
+                    )}
+                  </div>
                 </div>
-                <StatusBadge status={session.status} />
+
+                {reviewingId === session.id && (
+                  <div className="mt-4 pt-4 border-t border-slate-200 space-y-3">
+                    <p className="text-sm text-slate-500">How was your session?</p>
+                    <div className="flex gap-1">
+                      {[1,2,3,4,5].map(i => (
+                        <button
+                          key={i}
+                          onClick={() => setReviewRating(i)}
+                          className="transition-transform hover:scale-110"
+                        >
+                          <Star className={`w-7 h-7 ${i <= reviewRating ? 'text-amber-400 fill-amber-400' : 'text-slate-300'}`} />
+                        </button>
+                      ))}
+                    </div>
+                    <input
+                      type="text"
+                      value={reviewText}
+                      onChange={e => setReviewText(e.target.value)}
+                      placeholder="Leave a comment (optional)"
+                      className={cn(appTheme.input, 'px-3 py-2 text-sm')}
+                    />
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => handleReview(session.id)}
+                        disabled={!reviewRating}
+                        className="rounded-lg bg-amber-500 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-amber-400 disabled:opacity-40 disabled:cursor-not-allowed"
+                      >
+                        Submit Review
+                      </button>
+                      <button
+                        onClick={() => { setReviewingId(null); setReviewRating(0); setReviewText(''); }}
+                        className="rounded-lg bg-slate-100 px-4 py-2 text-sm text-slate-600 transition-colors hover:bg-slate-200"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </div>
+                )}
               </AppPanel>
             ))}
           </div>
