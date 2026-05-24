@@ -197,21 +197,32 @@ export default function MenteeDashboardPage() {
           </div>
         </AppPanel>
       ) : (
-        <AppPanel className="flex flex-col sm:flex-row items-start gap-5 border-brand/20 bg-brand/10 p-6">
+        <AppPanel className="flex flex-col sm:flex-row items-start gap-5 border-brand/20 bg-brand/5 p-6">
           <div className="rounded-xl border border-brand/20 bg-brand/10 p-3 text-brand">
             <BookOpen className="h-7 w-7" />
           </div>
-          <div className="flex-1">
+          <div className="flex-1 w-full">
             <h2 className="font-semibold text-brand text-lg">Start your learning journey</h2>
             <p className="text-sm text-slate-600 mt-1 max-w-2xl">
               You haven&apos;t booked any sessions yet. Browse our list of expert mentors across popular categories to get started.
             </p>
-            <div className="mt-5 flex flex-wrap gap-3">
+            
+            <div className="mt-6 flex flex-wrap items-center gap-2">
               <Link
                 href="/browse"
-                className="inline-flex items-center gap-2 rounded-xl bg-brand px-5 py-2.5 text-sm font-medium text-white shadow-[0_0_15px_rgba(124,58,237,0.2)] transition-all hover:bg-brand-light"
+                className="inline-flex items-center gap-2 rounded-xl bg-brand px-5 py-2.5 text-sm font-medium text-white shadow-[0_0_15px_rgba(160,120,48,0.2)] transition-all hover:bg-brand-light mr-2"
               >
-                Find a mentor <ArrowRight className="w-4 h-4" />
+                Explore all mentors <ArrowRight className="w-4 h-4" />
+              </Link>
+              
+              <Link href="/browse?query=Software+Engineering" className="rounded-lg border border-slate-200 bg-white px-3.5 py-2 text-sm font-medium text-slate-600 transition-colors hover:border-brand/30 hover:text-brand shadow-sm">
+                Software Engineering
+              </Link>
+              <Link href="/browse?query=Career+Growth" className="rounded-lg border border-slate-200 bg-white px-3.5 py-2 text-sm font-medium text-slate-600 transition-colors hover:border-brand/30 hover:text-brand shadow-sm">
+                Career Growth
+              </Link>
+              <Link href="/browse?query=Product+Design" className="rounded-lg border border-slate-200 bg-white px-3.5 py-2 text-sm font-medium text-slate-600 transition-colors hover:border-brand/30 hover:text-brand shadow-sm">
+                Product Design
               </Link>
             </div>
           </div>

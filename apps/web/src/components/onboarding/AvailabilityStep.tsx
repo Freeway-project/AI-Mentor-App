@@ -22,7 +22,7 @@ interface Slot {
 
 export function AvailabilityStep({ profile, onComplete }: AvailabilityStepProps) {
   const [timezone, setTimezone] = useState(
-    profile?.availability?.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone
+    profile?.availability?.timezone || 'America/New_York'
   );
   const [slots, setSlots] = useState<Slot[]>(profile?.availability?.schedule || []);
   const [newDay, setNewDay] = useState(1);

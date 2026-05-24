@@ -115,7 +115,13 @@ export default function BrowsePage() {
   useEffect(() => {
     if (!hasLoadedInitialResults.current) {
       hasLoadedInitialResults.current = true;
-      fetchMentors();
+      const params = new URLSearchParams(window.location.search);
+      const initialQuery = params.get('query');
+      if (initialQuery) {
+        setQuery(initialQuery);
+      } else {
+        fetchMentors();
+      }
       return;
     }
 
