@@ -47,7 +47,7 @@ function RegisterPageInner() {
         const otpPath = role === 'mentor' ? '/mentor/verify-otp' : '/mentee/verify-otp';
         router.push(`${otpPath}?email=${encodeURIComponent(email)}`);
       } else if (role === 'mentor') {
-        router.push('/onboarding');
+        router.push('/mentor/dashboard');
       } else {
         const pending = loadPendingBooking();
         router.push(pending ? `/mentors/${pending.mentorId}?restore=1` : '/mentee/dashboard');
@@ -64,9 +64,7 @@ function RegisterPageInner() {
     setLoading(true);
     try {
       const result = await loginWithGoogle(credentialResponse.credential, role);
-      if (result.isNew && role === 'mentor') {
-        router.push('/onboarding');
-      } else if (role === 'mentor') {
+      if (role === 'mentor') {
         window.location.href = '/mentor/dashboard';
       } else {
         const pending = loadPendingBooking();

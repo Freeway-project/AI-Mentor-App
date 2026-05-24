@@ -44,12 +44,7 @@ function LoginForm() {
       if (user.roles.includes('admin')) {
         router.push('/admin');
       } else if (user.roles.includes('mentor')) {
-        try {
-          const profile = await apiClient.getMyMentorProfile();
-          window.location.href = profile.onboardingStep !== 'completed' ? '/onboarding' : '/mentor/dashboard';
-        } catch {
-          window.location.href = '/onboarding';
-        }
+        window.location.href = '/mentor/dashboard';
       } else {
         const pending = loadPendingBooking();
         router.push(pending ? `/mentors/${pending.mentorId}?restore=1` : (redirect || '/mentee/dashboard'));
@@ -85,12 +80,7 @@ function LoginForm() {
       if (me.roles.includes('admin')) {
         router.push('/admin');
       } else if (me.roles.includes('mentor')) {
-        try {
-          const profile = await apiClient.getMyMentorProfile();
-          window.location.href = profile.onboardingStep !== 'completed' ? '/onboarding' : '/mentor/dashboard';
-        } catch {
-          window.location.href = '/onboarding';
-        }
+        window.location.href = '/mentor/dashboard';
       } else {
         const pending = loadPendingBooking();
         router.push(pending ? `/mentors/${pending.mentorId}?restore=1` : (redirect || '/mentee/dashboard'));
