@@ -8,6 +8,7 @@ import { useAuth } from '@/lib/auth-context';
 import { useState, useRef, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { apiClient } from '@/lib/api-client';
+import { NotificationBell } from '@/components/notifications/NotificationBell';
 
 const NAV = [
     { href: '/mentor/dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -172,6 +173,11 @@ export function MentorSidebar({ approvalStatus }: MentorSidebarProps) {
                         Profile: {statusInfo.label}
                     </div>
                 )}
+
+                {/* Notification bell */}
+                <div className="flex items-center px-2">
+                    <NotificationBell />
+                </div>
 
                 {/* User info */}
                 <div className="flex items-center gap-3 px-2">
