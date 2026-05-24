@@ -206,7 +206,7 @@ export default function BrowsePage() {
             className="mb-2"
           />
 
-          <form onSubmit={handleSearch} className="mx-auto mb-4 flex max-w-3xl gap-3">
+          <form onSubmit={handleSearch} className="mx-auto mb-4 flex flex-col sm:flex-row max-w-3xl gap-3">
             <div className="relative flex-1 group">
               <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400 transition-colors group-focus-within:text-brand" />
               <AnimatedPlaceholderInput
@@ -218,34 +218,36 @@ export default function BrowsePage() {
                 placeholder="Try: I'm weak at TypeScript"
               />
             </div>
-            <Button
-              type="submit"
-              size="lg"
-              className="h-[52px] gap-2 rounded-xl bg-brand px-6 text-white shadow-[0_0_20px_rgba(124,58,237,0.22)] hover:bg-brand-light"
-            >
-              {query.length > 3 ? <Sparkles className="w-4 h-4" /> : <Search className="w-4 h-4" />}
-              Search
-            </Button>
-            <input
-              ref={resumeInputRef}
-              type="file"
-              accept=".pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-              className="hidden"
-              onChange={handleResumeUpload}
-            />
-            <Button
-              type="button"
-              size="lg"
-              disabled={resumeUploading}
-              onClick={() => resumeInputRef.current?.click()}
-              className="h-[52px] gap-2 rounded-xl bg-brand px-5 text-white shadow-[0_0_20px_rgba(124,58,237,0.22)] hover:bg-brand-light disabled:opacity-60"
-              title="Upload resume to find matching mentors"
-            >
-              {resumeUploading
-                ? <Loader2 className="w-4 h-4 animate-spin" />
-                : <Upload className="w-4 h-4" />}
-              Resume
-            </Button>
+            <div className="flex gap-3 sm:contents">
+              <Button
+                type="submit"
+                size="lg"
+                className="flex-1 sm:flex-none h-[52px] gap-2 rounded-xl bg-brand px-6 text-white shadow-[0_0_20px_rgba(160,120,48,0.22)] hover:bg-brand-light"
+              >
+                {query.length > 3 ? <Sparkles className="w-4 h-4" /> : <Search className="w-4 h-4" />}
+                Search
+              </Button>
+              <input
+                ref={resumeInputRef}
+                type="file"
+                accept=".pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                className="hidden"
+                onChange={handleResumeUpload}
+              />
+              <Button
+                type="button"
+                size="lg"
+                disabled={resumeUploading}
+                onClick={() => resumeInputRef.current?.click()}
+                className="h-[52px] gap-2 rounded-xl bg-brand px-5 text-white shadow-[0_0_20px_rgba(160,120,48,0.22)] hover:bg-brand-light disabled:opacity-60"
+                title="Upload resume to find matching mentors"
+              >
+                {resumeUploading
+                  ? <Loader2 className="w-4 h-4 animate-spin" />
+                  : <Upload className="w-4 h-4" />}
+                Resume
+              </Button>
+            </div>
           </form>
 
           {/* Resume processing — reuse the mentor search loading scene */}

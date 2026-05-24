@@ -224,7 +224,7 @@ function LoginForm() {
                   <label htmlFor="password" className="block text-xs font-semibold text-slate-600 uppercase tracking-wider">
                     Password
                   </label>
-                  <Link href="/forgot-password" className="text-xs font-medium text-brand hover:text-brand-light transition-colors">
+                  <Link href="/forgot-password" className="text-sm font-medium text-brand hover:text-brand-light transition-colors py-1">
                     Forgot password?
                   </Link>
                 </div>

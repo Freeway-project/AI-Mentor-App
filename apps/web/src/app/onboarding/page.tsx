@@ -108,25 +108,25 @@ export default function OnboardingPage() {
             <p className="mt-2 text-sm text-slate-600">Complete each step to submit your profile for review</p>
           </div>
 
-          <div className="mb-8 flex items-center">
+          <div className="mb-8 flex items-center overflow-x-auto pb-1">
             {STEP_LABELS.map((label, i) => (
-              <div key={label} className="flex flex-1 items-center">
+              <div key={label} className="flex flex-1 items-center min-w-0">
                 <button
                   type="button"
                   onClick={() => goToStep(i)}
                   className={cn(
-                    'flex h-9 w-9 items-center justify-center rounded-full text-sm font-semibold shadow-md transition-all',
+                    'flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-sm font-semibold shadow-md transition-all',
                     i === currentStep &&
-                      'bg-brand text-white shadow-brand/25 ring-2 ring-brand/40 ring-offset-2 ring-offset-[#faf8f4]',
+                      'bg-brand text-white shadow-brand/25 ring-2 ring-brand/40 ring-offset-2 ring-offset-[#f7f2e8]',
                     i < currentStep && 'border border-emerald-300 bg-emerald-50 text-emerald-700',
-                    i > currentStep && 'border border-slate-200 bg-white text-slate-400'
+                    i > currentStep && 'border border-amber-100 bg-[#fdfaf5] text-slate-400'
                   )}
                 >
                   {i < currentStep ? '✓' : i + 1}
                 </button>
                 <span
                   className={cn(
-                    'ml-2 hidden text-xs font-medium sm:inline',
+                    'ml-1.5 hidden truncate text-xs font-medium sm:inline',
                     i === currentStep && 'text-brand',
                     i < currentStep && 'text-emerald-600',
                     i > currentStep && 'text-slate-400'
@@ -136,14 +136,14 @@ export default function OnboardingPage() {
                 </span>
                 {i < STEP_LABELS.length - 1 && (
                   <div
-                    className={cn('mx-3 h-px flex-1', i < currentStep ? 'bg-emerald-200' : 'bg-slate-200')}
+                    className={cn('mx-2 h-px flex-1 shrink', i < currentStep ? 'bg-emerald-200' : 'bg-amber-100')}
                   />
                 )}
               </div>
             ))}
           </div>
 
-          <div className="rounded-2xl border border-slate-200 bg-white/90 p-6 shadow-[0_4px_24px_rgba(0,0,0,0.06)] backdrop-blur-md md:p-8">
+          <div className="rounded-2xl border border-amber-100/70 bg-[#fdfaf5]/90 p-6 shadow-[0_4px_24px_rgba(160,120,48,0.08)] backdrop-blur-md md:p-8">
             {currentStep === 0 && (
               <BasicsStep
                 profile={mentorProfile}

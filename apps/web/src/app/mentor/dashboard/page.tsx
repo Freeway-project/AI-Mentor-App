@@ -88,7 +88,7 @@ export default function MentorDashboardPage() {
     }
 
     return (
-        <div className="p-8 max-w-5xl mx-auto space-y-8">
+        <div className="px-4 py-6 sm:px-6 sm:py-8 md:px-8 max-w-5xl mx-auto space-y-8">
             <AppPageHeader
                 title={`Welcome back, ${user?.name?.split(' ')[0] ?? 'Mentor'}`}
                 description="Here's your mentor portal overview, aligned to the same shared dashboard system as the rest of the app."

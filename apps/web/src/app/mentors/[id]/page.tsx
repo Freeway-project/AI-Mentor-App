@@ -80,7 +80,7 @@ export default async function MentorProfilePage({ params }: PageProps) {
             {/* Two-column: sections + sticky booking rail */}
             <div
               className="mentor-profile-grid"
-              style={{ padding: '56px 0 120px' }}
+              style={{ padding: 'clamp(28px, 4vw, 56px) 0 80px' }}
             >
               <div style={{ minWidth: 0 }}>
                 {mentor.introVideoUrl ? (
