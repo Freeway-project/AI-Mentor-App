@@ -43,15 +43,17 @@ export class MeetingRepository {
     }
   }
 
-  async list(userId: string, params: ListMeetingsInput): Promise<Meeting[]> {
+  async list(userId: string, params: ListMeetingsInput & { mentorProfileId?: string }): Promise<Meeting[]> {
     const startTime = Date.now();
     try {
-      const filter: any = {
-        $or: [
-          { menteeId: new mongoose.Types.ObjectId(userId) },
-          { mentorId: new mongoose.Types.ObjectId(userId) },
-        ],
-      };
+      const orClauses: any[] = [
+        { menteeId: new mongoose.Types.ObjectId(userId) },
+        { mentorId: new mongoose.Types.ObjectId(userId) },
+      ];
+      if (params.mentorProfileId) {
+        orClauses.push({ mentorId: new mongoose.Types.ObjectId(params.mentorProfileId) });
+      }
+      const filter: any = { $or: orClauses };
 
       if (params.status) filter.status = params.status;
       if (params.startDate) filter.scheduledAt = { $gte: new Date(params.startDate) };
