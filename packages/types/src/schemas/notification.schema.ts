@@ -17,7 +17,7 @@ export const notificationStatusEnum = z.enum([
   'cancelled',
 ]);
 
-export const notificationChannelEnum = z.enum(['email', 'push', 'sms']);
+export const notificationChannelEnum = z.enum(['email', 'push', 'sms', 'in_app']);
 
 export const notificationSchema = z.object({
   id: z.string(),
@@ -61,6 +61,7 @@ export const updateNotificationSchema = z.object({
 export const listNotificationsSchema = z.object({
   type: notificationTypeEnum.optional(),
   status: notificationStatusEnum.optional(),
+  channel: notificationChannelEnum.optional(),
   unreadOnly: z.boolean().default(false),
   limit: z.number().int().positive().max(100).default(20),
   offset: z.number().int().nonnegative().default(0),

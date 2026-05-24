@@ -364,12 +364,14 @@ router.post('/bookings', authenticate, requireEmailVerified, async (req: Request
 router.get('/bookings/me', authenticate, async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { status, startDate, endDate, limit, offset } = req.query as any;
+    const mentorProfile = await mentorRepo.findByUserId(req.userId!);
     const meetings = await meetingRepo.list(req.userId!, {
       status,
       startDate,
       endDate,
       limit: Number(limit) || 20,
       offset: Number(offset) || 0,
+      mentorProfileId: mentorProfile?.id,
     });
     res.json({ success: true, data: { meetings } });
   } catch (error) {

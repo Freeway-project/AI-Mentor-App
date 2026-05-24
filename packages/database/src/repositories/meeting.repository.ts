@@ -43,15 +43,17 @@ export class MeetingRepository {
     }
   }
 
-  async list(userId: string, params: ListMeetingsInput): Promise<Meeting[]> {
+  async list(userId: string, params: ListMeetingsInput & { mentorProfileId?: string }): Promise<Meeting[]> {
     const startTime = Date.now();
     try {
-      const filter: any = {
-        $or: [
-          { menteeId: new mongoose.Types.ObjectId(userId) },
-          { mentorId: new mongoose.Types.ObjectId(userId) },
-        ],
-      };
+      const orClauses: any[] = [
+        { menteeId: new mongoose.Types.ObjectId(userId) },
+        { mentorId: new mongoose.Types.ObjectId(userId) },
+      ];
+      if (params.mentorProfileId) {
+        orClauses.push({ mentorId: new mongoose.Types.ObjectId(params.mentorProfileId) });
+      }
+      const filter: any = { $or: orClauses };
 
       if (params.status) filter.status = params.status;
       if (params.startDate) filter.scheduledAt = { $gte: new Date(params.startDate) };
@@ -156,6 +158,27 @@ export class MeetingRepository {
       return toMeeting(doc);
     } catch (error) {
       logger.db({ operation: 'update', collection: 'meetings', duration: Date.now() - startTime, error: (error as Error).message });
+      throw error;
+    }
+  }
+
+  async getAverageRatingForMentor(mentorId: string): Promise<{ avg: number; count: number } | null> {
+    const startTime = Date.now();
+    try {
+      const results = await MeetingModel.aggregate([
+        {
+          $match: {
+            mentorId: new mongoose.Types.ObjectId(mentorId),
+            status: 'completed',
+            rating: { $exists: true, $ne: null },
+          },
+        },
+        { $group: { _id: null, avg: { $avg: '$rating' }, count: { $sum: 1 } } },
+      ]);
+      logger.db({ operation: 'aggregate', collection: 'meetings', duration: Date.now() - startTime });
+      return results.length > 0 ? { avg: results[0].avg, count: results[0].count } : null;
+    } catch (error) {
+      logger.db({ operation: 'aggregate', collection: 'meetings', duration: Date.now() - startTime, error: (error as Error).message });
       throw error;
     }
   }

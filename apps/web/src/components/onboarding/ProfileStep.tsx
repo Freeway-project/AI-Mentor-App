@@ -150,13 +150,13 @@ export function ProfileStep({ profile, userAvatar, onComplete }: ProfileStepProp
     }
   };
 
-  const inputCls = 'w-full px-3 py-2.5 border border-slate-700/60 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500/50 bg-slate-800/60 text-white placeholder:text-slate-500 text-sm';
-  const labelCls = 'block text-xs font-semibold text-slate-400 mb-1.5 uppercase tracking-wider';
+  const inputCls = 'w-full px-3 py-2.5 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand/50 bg-white text-slate-900 placeholder:text-slate-400 text-sm shadow-sm';
+  const labelCls = 'block text-xs font-semibold text-slate-700 mb-1.5 uppercase tracking-wider';
 
   return (
     <div className="space-y-8">
       {error && (
-        <div className="bg-red-900/30 border border-red-700/50 text-red-400 px-4 py-3 rounded-xl text-sm flex items-center justify-between">
+        <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-xl text-sm flex items-center justify-between">
           {error}
           <button onClick={() => setError('')}><X className="w-4 h-4" /></button>
         </div>
@@ -165,19 +165,19 @@ export function ProfileStep({ profile, userAvatar, onComplete }: ProfileStepProp
       {/* ── Profile Photo (optional) ───────────────────────────────────── */}
       <section className="space-y-3">
         <div>
-          <h3 className="text-base font-semibold text-white">
+          <h3 className="text-base font-semibold text-slate-900">
             Profile Photo <span className="text-xs font-normal text-slate-500 ml-1">(optional)</span>
           </h3>
           <p className="text-xs text-slate-500 mt-0.5">JPEG, PNG or WebP · max 5 MB</p>
         </div>
         <div className="flex items-center gap-5">
           <div className="relative shrink-0">
-            <div className="w-20 h-20 rounded-full bg-slate-800/80 border-2 border-slate-700/60 overflow-hidden shadow-lg">
+            <div className="w-20 h-20 rounded-full bg-slate-100 border-2 border-slate-200 overflow-hidden shadow-sm">
               {avatarUrl ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img src={avatarUrl} alt="Profile" className="w-full h-full object-cover" />
               ) : (
-                <div className="w-full h-full flex items-center justify-center text-slate-600">
+                <div className="w-full h-full flex items-center justify-center text-slate-400">
                   <Camera className="w-7 h-7" />
                 </div>
               )}
@@ -201,11 +201,11 @@ export function ProfileStep({ profile, userAvatar, onComplete }: ProfileStepProp
         </div>
       </section>
 
-      <div className="border-t border-slate-700/50" />
+      <div className="border-t border-slate-200" />
 
       {/* ── Profile Details ────────────────────────────────────────────── */}
       <form onSubmit={handleSubmit} className="space-y-4">
-        <h3 className="text-base font-semibold text-white">Profile Details</h3>
+        <h3 className="text-base font-semibold text-slate-900">Profile Details</h3>
 
         <div>
           <label className={labelCls}>Headline</label>
@@ -237,17 +237,17 @@ export function ProfileStep({ profile, userAvatar, onComplete }: ProfileStepProp
           <input type="number" min="0" value={hourlyRate} onChange={e => setHourlyRate(e.target.value)} className={inputCls} placeholder="e.g. 50" />
         </div>
 
-        <Button type="submit" disabled={loading} className="w-full bg-violet-600 hover:bg-violet-700 text-white">
+        <Button type="submit" disabled={loading} className="w-full bg-brand hover:bg-brand-light text-white">
           {loading ? 'Saving…' : 'Save & Continue →'}
         </Button>
       </form>
 
-      <div className="border-t border-slate-700/50" />
+      <div className="border-t border-slate-200" />
 
       {/* ── Certifications (optional) ──────────────────────────────────── */}
       <section className="space-y-4">
         <div>
-          <h3 className="text-base font-semibold text-white">
+          <h3 className="text-base font-semibold text-slate-900">
             Certifications <span className="text-xs font-normal text-slate-500 ml-1">(optional)</span>
           </h3>
           <p className="text-xs text-slate-500 mt-0.5">PDF or image · max 10 MB each</p>
@@ -256,15 +256,15 @@ export function ProfileStep({ profile, userAvatar, onComplete }: ProfileStepProp
         {certs.length > 0 && (
           <ul className="space-y-2">
             {certs.map((cert: any) => (
-              <li key={cert.fileKey} className="flex items-center justify-between bg-slate-800/40 border border-slate-700/50 rounded-xl px-4 py-3">
+              <li key={cert.fileKey} className="flex items-center justify-between bg-slate-50 border border-slate-200 rounded-xl px-4 py-3">
                 <div className="flex items-center gap-3">
                   <FileText className="w-4 h-4 text-slate-400 shrink-0" />
                   <div>
-                    <p className="text-sm font-medium text-white">{cert.name}</p>
-                    <a href={cert.fileUrl} target="_blank" rel="noreferrer" className="text-xs text-violet-400 hover:underline">View file</a>
+                    <p className="text-sm font-medium text-slate-900">{cert.name}</p>
+                    <a href={cert.fileUrl} target="_blank" rel="noreferrer" className="text-xs text-brand hover:underline">View file</a>
                   </div>
                 </div>
-                <button onClick={() => handleCertDelete(cert.fileKey)} disabled={certLoading} className="text-slate-500 hover:text-red-400 transition-colors p-1 rounded-lg hover:bg-red-900/20">
+                <button onClick={() => handleCertDelete(cert.fileKey)} disabled={certLoading} className="text-slate-400 hover:text-red-500 transition-colors p-1 rounded-lg hover:bg-red-50">
                   <Trash2 className="w-4 h-4" />
                 </button>
               </li>
@@ -272,28 +272,28 @@ export function ProfileStep({ profile, userAvatar, onComplete }: ProfileStepProp
           </ul>
         )}
 
-        <div className="bg-slate-800/30 border border-slate-700/40 rounded-xl p-4 space-y-3">
-          <p className="text-sm text-slate-400">Add a certification</p>
+        <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 space-y-3">
+          <p className="text-sm text-slate-600">Add a certification</p>
           <input type="text" value={certName} onChange={e => setCertName(e.target.value)} placeholder="Certification name (e.g. AWS Solutions Architect)" className={inputCls} />
           <div className="flex items-center gap-3">
             <input ref={certInputRef} type="file" accept="image/jpeg,image/png,image/webp,image/gif,application/pdf" className="hidden" onChange={e => setCertFile(e.target.files?.[0] || null)} />
             <button type="button" onClick={() => certInputRef.current?.click()}
-              className="flex-1 py-2 border border-dashed border-slate-600/60 rounded-xl text-sm text-slate-500 hover:border-violet-500/40 hover:text-slate-300 transition-colors text-center">
+              className="flex-1 py-2 border border-dashed border-slate-300 rounded-xl text-sm text-slate-600 hover:border-brand/40 hover:text-slate-900 transition-colors text-center bg-white">
               {certFile ? certFile.name : 'Choose file (PDF or image)'}
             </button>
-            <Button type="button" size="sm" disabled={certLoading || !certFile || !certName.trim()} onClick={handleCertUpload} className="bg-violet-600 hover:bg-violet-700 text-white">
+            <Button type="button" size="sm" disabled={certLoading || !certFile || !certName.trim()} onClick={handleCertUpload} className="bg-brand hover:bg-brand-light text-white">
               {certLoading ? 'Uploading…' : 'Upload'}
             </Button>
           </div>
         </div>
       </section>
 
-      <div className="border-t border-slate-700/50" />
+      <div className="border-t border-slate-200" />
 
       {/* ── Intro Video (optional) ─────────────────────────────────────── */}
       <section className="space-y-4">
         <div>
-          <h3 className="text-base font-semibold text-white">
+          <h3 className="text-base font-semibold text-slate-900">
             Intro Video <span className="text-xs font-normal text-slate-500 ml-1">(optional)</span>
           </h3>
           <p className="text-xs text-slate-500 mt-0.5">MP4, WebM or MOV · max 200 MB</p>
@@ -302,8 +302,8 @@ export function ProfileStep({ profile, userAvatar, onComplete }: ProfileStepProp
         {videoUrl ? (
           <div className="space-y-3">
             <div className="relative">
-              <video src={videoUrl} controls className="w-full max-h-56 rounded-xl bg-slate-800/60 border border-slate-700/50" />
-              <span className="absolute top-2 left-2 flex items-center gap-1 bg-green-900/80 text-green-400 text-xs font-medium px-2 py-1 rounded-full border border-green-700/50">
+              <video src={videoUrl} controls className="w-full max-h-56 rounded-xl bg-slate-100 border border-slate-200" />
+              <span className="absolute top-2 left-2 flex items-center gap-1 bg-green-100/90 text-green-700 text-xs font-medium px-2 py-1 rounded-full border border-green-200">
                 <CheckCircle2 className="w-3 h-3" /> Uploaded
               </span>
             </div>
@@ -312,7 +312,7 @@ export function ProfileStep({ profile, userAvatar, onComplete }: ProfileStepProp
               <Button type="button" variant="outline" size="sm" disabled={videoLoading} onClick={() => videoInputRef.current?.click()} className="bg-slate-100 border-slate-300 text-slate-900 hover:bg-slate-200">
                 Replace video
               </Button>
-              <Button type="button" variant="outline" size="sm" disabled={videoLoading} onClick={handleVideoDelete} className="border-slate-700/60 text-red-400 hover:bg-red-900/20">
+              <Button type="button" variant="outline" size="sm" disabled={videoLoading} onClick={handleVideoDelete} className="border-slate-200 text-red-500 hover:bg-red-50">
                 <Trash2 className="w-4 h-4 mr-1.5" />
                 {videoLoading ? 'Removing…' : 'Remove'}
               </Button>
@@ -322,7 +322,7 @@ export function ProfileStep({ profile, userAvatar, onComplete }: ProfileStepProp
           <div className="space-y-2">
             <input ref={videoInputRef} type="file" accept="video/mp4,video/webm,video/quicktime,video/x-msvideo" className="hidden" onChange={handleVideoChange} />
             <button type="button" onClick={() => videoInputRef.current?.click()} disabled={videoLoading}
-              className="w-full py-8 border-2 border-dashed border-slate-700/50 rounded-xl flex flex-col items-center gap-2 text-slate-500 hover:border-violet-500/30 hover:text-slate-400 transition-colors disabled:opacity-50">
+              className="w-full py-8 border-2 border-dashed border-slate-300 rounded-xl flex flex-col items-center gap-2 text-slate-500 hover:border-brand/30 hover:text-slate-800 transition-colors disabled:opacity-50 bg-slate-50">
               <Video className="w-8 h-8" />
               <span className="text-sm font-medium">{videoLoading ? 'Uploading…' : 'Click to upload intro video'}</span>
               {!videoLoading && <span className="text-xs text-slate-600">MP4, WebM or MOV · max 200 MB</span>}

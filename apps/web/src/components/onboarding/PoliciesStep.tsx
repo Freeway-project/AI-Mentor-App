@@ -47,19 +47,19 @@ export function PoliciesStep({ mentorId, onComplete }: PoliciesStepProps) {
     }
   };
 
-  const inputCls = 'w-full px-3 py-2.5 border border-slate-700/60 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500/50 bg-slate-800/60 text-white placeholder:text-slate-500 text-sm';
-  const labelCls = 'block text-xs font-semibold text-slate-400 mb-1.5 uppercase tracking-wider';
-  const hintCls = 'text-xs text-slate-600 mt-1';
+  const inputCls = 'w-full px-3 py-2.5 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand/50 bg-white text-slate-900 placeholder:text-slate-400 text-sm shadow-sm';
+  const labelCls = 'block text-xs font-semibold text-slate-700 mb-1.5 uppercase tracking-wider';
+  const hintCls = 'text-xs text-slate-500 mt-1';
 
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
       <div>
-        <h2 className="text-xl font-bold text-white">Session Policies</h2>
-        <p className="text-sm text-slate-400 mt-1">Set your cancellation and rescheduling rules for mentees.</p>
+        <h2 className="text-xl font-bold text-slate-900">Session Policies</h2>
+        <p className="text-sm text-slate-500 mt-1">Set your cancellation and rescheduling rules for mentees.</p>
       </div>
 
       {error && (
-        <div className="bg-red-900/30 border border-red-700/50 text-red-400 px-4 py-3 rounded-xl text-sm">{error}</div>
+        <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-xl text-sm">{error}</div>
       )}
 
       <div>
@@ -108,7 +108,7 @@ export function PoliciesStep({ mentorId, onComplete }: PoliciesStepProps) {
         />
       </div>
 
-      <Button type="submit" disabled={loading} className="bg-violet-600 hover:bg-violet-700 text-white w-full">
+      <Button type="submit" disabled={loading} className="bg-brand hover:bg-brand-light text-white w-full">
         {loading ? 'Saving…' : 'Save & Continue →'}
       </Button>
     </form>

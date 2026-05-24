@@ -42,6 +42,8 @@ coverage/
 bun.lockb
 # Docker secrets
 docker/.env
+/.env.bak.*
+/docker/.env.bak.*
 
 owl-mentors-0db451926f50.json
 client.json

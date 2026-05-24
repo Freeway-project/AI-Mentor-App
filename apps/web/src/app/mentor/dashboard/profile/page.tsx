@@ -42,8 +42,8 @@ export default function MentorProfilePage() {
         <div className="p-8 max-w-4xl mx-auto space-y-6">
             {/* Header */}
             <div>
-                <h1 className="text-2xl font-bold text-white">My Profile</h1>
-                <p className="text-slate-400 text-sm mt-1">
+                <h1 className="text-2xl font-bold text-slate-900">My Profile</h1>
+                <p className="text-slate-500 text-sm mt-1">
                     Any changes you save will require admin re-approval before going live.
                 </p>
             </div>
@@ -78,14 +78,14 @@ export default function MentorProfilePage() {
             )}
 
             {/* Tab bar */}
-            <div className="flex border-b border-slate-800 gap-1">
+            <div className="flex border-b border-slate-200 gap-1">
                 {TABS.map((tab) => (
                     <button
                         key={tab}
                         onClick={() => setActiveTab(tab)}
                         className={`px-4 py-2.5 text-sm font-medium border-b-2 -mb-px transition-colors ${activeTab === tab
-                                ? 'border-violet-500 text-violet-400'
-                                : 'border-transparent text-slate-500 hover:text-slate-300'
+                                ? 'border-brand text-brand'
+                                : 'border-transparent text-slate-500 hover:text-slate-700'
                             }`}
                     >
                         {tab}
@@ -96,10 +96,10 @@ export default function MentorProfilePage() {
             {/* Tab content */}
             {loading ? (
                 <div className="flex justify-center py-12">
-                    <div className="w-8 h-8 border-4 border-violet-500 border-t-transparent rounded-full animate-spin" />
+                    <div className="w-8 h-8 border-4 border-brand border-t-transparent rounded-full animate-spin" />
                 </div>
             ) : (
-                <div className="bg-slate-900 rounded-2xl border border-slate-800 p-6">
+                <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
                     {activeTab === 'Profile' && (
                         <ProfileStep
                             profile={profile}

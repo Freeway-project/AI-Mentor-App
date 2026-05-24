@@ -568,6 +568,13 @@ class ApiClient {
     return this.request<any>(`/bookings/${id}/reschedule`, { method: 'POST', body: JSON.stringify({ scheduledAt }) });
   }
 
+  async rateBooking(meetingId: string, rating: number, review?: string): Promise<any> {
+    return this.request<any>(`/bookings/${meetingId}/review`, {
+      method: 'POST',
+      body: JSON.stringify({ rating, review }),
+    });
+  }
+
   async getTranscript(meetingId: string): Promise<any> {
     return this.request<any>(`/bookings/${meetingId}/transcript`);
   }
@@ -607,6 +614,27 @@ class ApiClient {
 
   async markConversationRead(conversationId: string): Promise<void> {
     await this.request<any>(`/chat/conversations/${conversationId}/read`, { method: 'POST' });
+  }
+
+  // Notifications
+  async getNotifications(params?: { unreadOnly?: boolean; limit?: number }): Promise<any[]> {
+    const qs = new URLSearchParams();
+    if (params?.unreadOnly) qs.set('unreadOnly', 'true');
+    if (params?.limit) qs.set('limit', String(params.limit));
+    const q = qs.toString();
+    return this.request<any[]>(`/notifications${q ? '?' + q : ''}`);
+  }
+
+  async getUnreadNotificationCount(): Promise<{ count: number }> {
+    return this.request<{ count: number }>('/notifications/unread-count');
+  }
+
+  async markNotificationRead(id: string): Promise<void> {
+    await this.request<any>(`/notifications/${id}/read`, { method: 'POST' });
+  }
+
+  async markAllNotificationsRead(): Promise<void> {
+    await this.request<any>('/notifications/read-all', { method: 'POST' });
   }
 }
 

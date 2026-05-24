@@ -181,6 +181,9 @@ export const adminService = {
       body: JSON.stringify({ note }),
     }),
 
+  verifyCoach: (id: string) => apiFetch(`/admin/coaches/${id}/verify`, { method: 'PUT' }),
+  unverifyCoach: (id: string) => apiFetch(`/admin/coaches/${id}/unverify`, { method: 'PUT' }),
+
   listUsers: (params?: { search?: string; role?: string; isActive?: boolean; limit?: number; offset?: number }) => {
     const q = new URLSearchParams();
     if (params?.search) q.set('search', params.search);

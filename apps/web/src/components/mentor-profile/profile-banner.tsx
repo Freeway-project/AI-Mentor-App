@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { Star, MapPin, Globe, Clock, MessageSquare } from 'lucide-react';
+import { Star, MapPin, Globe, Clock, MessageSquare, ShieldCheck } from 'lucide-react';
 import type { MentorOffer, PublicMentorProfile } from './types';
 import { ed, ED } from './editorial-theme';
 
@@ -147,6 +147,21 @@ export function MentorProfileBanner({
           >
             {mentor.name}
           </h1>
+
+          {/* Verified badge */}
+          {mentor.verified && (
+            <div
+              style={ed.mono(10.5, ED.marker, {
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 6,
+                marginBottom: 12,
+              })}
+            >
+              <ShieldCheck size={13} color={ED.marker} />
+              Verified Mentor
+            </div>
+          )}
 
           {/* Title + headline */}
           {mentor.headline && (
