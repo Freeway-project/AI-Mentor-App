@@ -27,7 +27,7 @@ const notificationSchema = new Schema<INotificationDocument>(
       enum: ['meeting_reminder', 'meeting_confirmed', 'meeting_cancelled', 'meeting_rescheduled', 'new_message', 'review_request', 'system'],
       required: true,
     },
-    channel: { type: String, enum: ['email', 'push', 'sms'], required: true },
+    channel: { type: String, enum: ['email', 'push', 'sms', 'in_app'], required: true },
     status: { type: String, enum: ['pending', 'sent', 'failed', 'cancelled'], default: 'pending' },
     title: { type: String, required: true },
     message: { type: String, required: true },

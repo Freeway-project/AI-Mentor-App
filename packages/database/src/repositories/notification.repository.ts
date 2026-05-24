@@ -45,6 +45,7 @@ export class NotificationRepository {
       const filter: any = { userId: new mongoose.Types.ObjectId(userId) };
       if (params.type) filter.type = params.type;
       if (params.status) filter.status = params.status;
+      if ((params as any).channel) filter.channel = (params as any).channel;
       if (params.unreadOnly) filter.readAt = { $exists: false };
 
       const docs = await NotificationModel.find(filter)
@@ -111,6 +112,50 @@ export class NotificationRepository {
       logger.db({ operation: 'update', collection: 'notifications', duration: Date.now() - startTime });
     } catch (error) {
       logger.db({ operation: 'update', collection: 'notifications', duration: Date.now() - startTime, error: (error as Error).message });
+      throw error;
+    }
+  }
+
+  async markAsRead(id: string, userId: string): Promise<void> {
+    const startTime = Date.now();
+    try {
+      await NotificationModel.findOneAndUpdate(
+        { _id: new mongoose.Types.ObjectId(id), userId: new mongoose.Types.ObjectId(userId) },
+        { $set: { readAt: new Date() } },
+      );
+      logger.db({ operation: 'update', collection: 'notifications', duration: Date.now() - startTime });
+    } catch (error) {
+      logger.db({ operation: 'update', collection: 'notifications', duration: Date.now() - startTime, error: (error as Error).message });
+      throw error;
+    }
+  }
+
+  async markAllRead(userId: string): Promise<void> {
+    const startTime = Date.now();
+    try {
+      await NotificationModel.updateMany(
+        { userId: new mongoose.Types.ObjectId(userId), channel: 'in_app', readAt: { $exists: false }, status: { $in: ['pending', 'sent'] } },
+        { $set: { readAt: new Date() } },
+      );
+      logger.db({ operation: 'update', collection: 'notifications', duration: Date.now() - startTime });
+    } catch (error) {
+      logger.db({ operation: 'update', collection: 'notifications', duration: Date.now() - startTime, error: (error as Error).message });
+      throw error;
+    }
+  }
+
+  async getUnreadCount(userId: string): Promise<number> {
+    const startTime = Date.now();
+    try {
+      const count = await NotificationModel.countDocuments({
+        userId: new mongoose.Types.ObjectId(userId),
+        channel: 'in_app',
+        readAt: { $exists: false },
+      });
+      logger.db({ operation: 'count', collection: 'notifications', duration: Date.now() - startTime });
+      return count;
+    } catch (error) {
+      logger.db({ operation: 'count', collection: 'notifications', duration: Date.now() - startTime, error: (error as Error).message });
       throw error;
     }
   }

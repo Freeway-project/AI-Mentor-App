@@ -365,6 +365,19 @@ export class MentorRepository {
     }
   }
 
+  async setVerified(id: string, verified: boolean): Promise<Mentor> {
+    const startTime = Date.now();
+    try {
+      const doc = await MentorModel.findByIdAndUpdate(id, { $set: { verified } }, { new: true });
+      logger.db({ operation: 'update', collection: 'providers', duration: Date.now() - startTime });
+      if (!doc) throw new Error('Mentor not found');
+      return toMentor(doc);
+    } catch (error) {
+      logger.db({ operation: 'update', collection: 'providers', duration: Date.now() - startTime, error: (error as Error).message });
+      throw error;
+    }
+  }
+
   async findPendingApproval(limit = 20, offset = 0): Promise<{ mentors: Mentor[]; total: number }> {
     const startTime = Date.now();
     try {

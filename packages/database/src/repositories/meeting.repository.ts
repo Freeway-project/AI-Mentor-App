@@ -160,6 +160,27 @@ export class MeetingRepository {
     }
   }
 
+  async getAverageRatingForMentor(mentorId: string): Promise<{ avg: number; count: number } | null> {
+    const startTime = Date.now();
+    try {
+      const results = await MeetingModel.aggregate([
+        {
+          $match: {
+            mentorId: new mongoose.Types.ObjectId(mentorId),
+            status: 'completed',
+            rating: { $exists: true, $ne: null },
+          },
+        },
+        { $group: { _id: null, avg: { $avg: '$rating' }, count: { $sum: 1 } } },
+      ]);
+      logger.db({ operation: 'aggregate', collection: 'meetings', duration: Date.now() - startTime });
+      return results.length > 0 ? { avg: results[0].avg, count: results[0].count } : null;
+    } catch (error) {
+      logger.db({ operation: 'aggregate', collection: 'meetings', duration: Date.now() - startTime, error: (error as Error).message });
+      throw error;
+    }
+  }
+
   async getStatusCounts(): Promise<Record<string, number>> {
     const startTime = Date.now();
     try {

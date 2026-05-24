@@ -72,23 +72,23 @@ export function ReviewChat({ mentorId, viewAs, contextLabel }: ReviewChatProps) 
     };
 
     return (
-        <div className="flex flex-col h-full bg-slate-900/80 rounded-xl border border-slate-700/60 overflow-hidden shadow-sm">
+        <div className="flex flex-col h-full bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
 
             {/* Header */}
-            <div className="px-4 py-2.5 border-b border-slate-800 bg-slate-900/90">
-                <p className="text-sm font-semibold text-slate-100">
+            <div className="px-4 py-2.5 border-b border-slate-200 bg-slate-50">
+                <p className="text-sm font-semibold text-slate-900">
                     {viewAs === 'admin' ? 'Review Chat with Mentor' : 'Chat with OWL Mentor Admin'}
                 </p>
                 {contextLabel && (
-                    <p className="text-xs text-slate-400 mt-0.5 truncate">{contextLabel}</p>
+                    <p className="text-xs text-slate-500 mt-0.5 truncate">{contextLabel}</p>
                 )}
             </div>
 
             {/* Messages */}
-            <div className="flex-1 overflow-y-auto p-3 space-y-2.5 min-h-0 bg-slate-950/40">
+            <div className="flex-1 overflow-y-auto p-3 space-y-2.5 min-h-0 bg-slate-50/50">
                 {isLoading ? (
                     <div className="flex justify-center py-8">
-                        <div className="w-6 h-6 border-2 border-violet-600 border-t-transparent rounded-full animate-spin" />
+                        <div className="w-6 h-6 border-2 border-brand border-t-transparent rounded-full animate-spin" />
                     </div>
                 ) : messages.length === 0 ? (
                     <div className="text-center py-8 text-slate-500 text-sm">
@@ -106,13 +106,13 @@ export function ReviewChat({ mentorId, viewAs, contextLabel }: ReviewChatProps) 
                             <div key={msg.id} className={`flex ${isMe ? 'justify-end' : 'justify-start'}`}>
                                 <div
                                     className={`max-w-[85%] rounded-2xl px-3.5 py-2 text-sm leading-relaxed border ${isMe
-                                        ? 'bg-violet-600 text-white rounded-br-none border-violet-600'
-                                        : 'bg-slate-900 text-slate-100 rounded-bl-none border-slate-700'
+                                        ? 'bg-brand text-white rounded-br-none border-brand'
+                                        : 'bg-white text-slate-900 rounded-bl-none border-slate-200 shadow-sm'
                                         }`}
                                 >
                                     <p>{msg.content}</p>
                                     <p
-                                        className={`text-[10px] mt-1 ${isMe ? 'text-violet-200' : 'text-slate-500'}`}
+                                        className={`text-[10px] mt-1 ${isMe ? 'text-brand-lighter' : 'text-slate-500'}`}
                                     >
                                         {new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}{' '}
                                         · {new Date(msg.createdAt).toLocaleDateString()}
@@ -128,7 +128,7 @@ export function ReviewChat({ mentorId, viewAs, contextLabel }: ReviewChatProps) 
             {/* Input */}
             <form
                 onSubmit={handleSend}
-                className="flex items-end gap-2 px-3 py-2.5 border-t border-slate-800 bg-slate-900/90"
+                className="flex items-end gap-2 px-3 py-2.5 border-t border-slate-200 bg-white"
             >
                 <textarea
                     rows={1}
@@ -138,12 +138,12 @@ export function ReviewChat({ mentorId, viewAs, contextLabel }: ReviewChatProps) 
                         if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); }
                     }}
                     placeholder="Reply… (Enter to send)"
-                    className="flex-1 resize-none px-3 py-2 text-sm text-slate-100 bg-slate-800 border border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-500 placeholder:text-slate-500 min-h-[40px] max-h-28"
+                    className="flex-1 resize-none px-3 py-2 text-sm text-slate-900 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand placeholder:text-slate-500 min-h-[40px] max-h-28"
                 />
                 <button
                     type="submit"
                     disabled={!text.trim() || send.isPending}
-                    className="w-10 h-10 rounded-lg bg-violet-600 text-white flex items-center justify-center disabled:opacity-40 hover:bg-violet-700 transition-colors shrink-0"
+                    className="w-10 h-10 rounded-lg bg-brand text-white flex items-center justify-center disabled:opacity-40 hover:bg-brand-light transition-colors shrink-0"
                 >
                     <Send className="w-4 h-4" />
                 </button>

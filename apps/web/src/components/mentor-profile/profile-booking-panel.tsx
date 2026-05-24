@@ -613,6 +613,7 @@ export function MentorProfileBookingPanel({
               setCalPendingBooking(null);
               setCalDone(true);
               dispatch(pendingBookingActions.clearIntent());
+              router.push('/mentee/dashboard');
             }}
           />
         )}
@@ -957,6 +958,7 @@ export function MentorProfileBookingPanel({
             setShowModal(false);
             setStep('done');
             dispatch(pendingBookingActions.clearIntent());
+            router.push('/mentee/dashboard');
           }}
         />
       ) : null}
