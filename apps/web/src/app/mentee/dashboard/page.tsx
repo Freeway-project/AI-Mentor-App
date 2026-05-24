@@ -2,6 +2,8 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/lib/auth-context';
+import { BrandLoader } from '@/components/brand/brand-loader';
+import { motion } from 'framer-motion';
 import { apiClient } from '@/lib/api-client';
 import { Calendar, Clock, CreditCard, ArrowRight, BookOpen, Video, X, RotateCcw, Star } from 'lucide-react';
 import Link from 'next/link';
@@ -135,14 +137,14 @@ export default function MenteeDashboardPage() {
 
   if (loading) {
     return (
-      <div className="mx-auto w-full min-w-0 max-w-5xl px-4 py-8 sm:px-6 md:px-8">
-        <p className="text-slate-500 text-sm animate-pulse">Loading...</p>
+      <div className="flex h-[60vh] w-full items-center justify-center">
+        <BrandLoader label="Loading your dashboard..." />
       </div>
     );
   }
 
   return (
-    <div className="mx-auto w-full min-w-0 max-w-5xl space-y-8 px-4 py-6 sm:px-6 md:py-8 md:px-8">
+    <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} className="mx-auto w-full min-w-0 max-w-5xl space-y-8 px-4 py-6 sm:px-6 md:py-8 md:px-8">
       <AppPageHeader
         title={`Welcome back, ${user?.name?.split(' ')[0] ?? 'Learner'}`}
         description="Track credits, upcoming sessions, and reschedules from the same shared dashboard system."
@@ -195,21 +197,23 @@ export default function MenteeDashboardPage() {
           </div>
         </AppPanel>
       ) : (
-        <AppPanel className="flex items-start gap-4 border-brand/20 bg-brand/10 p-5">
-          <div className="rounded-xl border border-brand/20 bg-brand/10 p-2.5 text-brand">
-            <Clock className="h-6 w-6" />
+        <AppPanel className="flex flex-col sm:flex-row items-start gap-5 border-brand/20 bg-brand/10 p-6">
+          <div className="rounded-xl border border-brand/20 bg-brand/10 p-3 text-brand">
+            <BookOpen className="h-7 w-7" />
           </div>
-          <div>
-            <h2 className="font-semibold text-brand">Find your first mentor</h2>
-            <p className="text-sm text-slate-600 mt-0.5">
-              You haven&apos;t booked any sessions yet. Browse our list of expert mentors to get started.
+          <div className="flex-1">
+            <h2 className="font-semibold text-brand text-lg">Start your learning journey</h2>
+            <p className="text-sm text-slate-600 mt-1 max-w-2xl">
+              You haven&apos;t booked any sessions yet. Browse our list of expert mentors across popular categories to get started.
             </p>
-            <Link
-              href="/browse"
-              className="mt-3 inline-flex items-center gap-1.5 text-sm font-semibold text-brand hover:text-brand-light transition-colors"
-            >
-              Browse mentors <ArrowRight className="w-3.5 h-3.5" />
-            </Link>
+            <div className="mt-5 flex flex-wrap gap-3">
+              <Link
+                href="/browse"
+                className="inline-flex items-center gap-2 rounded-xl bg-brand px-5 py-2.5 text-sm font-medium text-white shadow-[0_0_15px_rgba(124,58,237,0.2)] transition-all hover:bg-brand-light"
+              >
+                Find a mentor <ArrowRight className="w-4 h-4" />
+              </Link>
+            </div>
           </div>
         </AppPanel>
       )}
@@ -415,6 +419,6 @@ export default function MenteeDashboardPage() {
           </div>
         )}
       </section>
-    </div>
+    </motion.div>
   );
 }

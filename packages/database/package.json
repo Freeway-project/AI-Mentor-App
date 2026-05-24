@@ -9,11 +9,12 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "mongodb": "^6.3.0",
     "@owl-mentors/types": "workspace:*",
     "@owl-mentors/utils": "workspace:*",
-    "zod": "^3.22.4",
-    "mongoose": "^8.0.0"
+    "bcryptjs": "^3.0.3",
+    "mongodb": "^6.3.0",
+    "mongoose": "^8.0.0",
+    "zod": "^3.22.4"
   },
   "devDependencies": {
     "@types/node": "^20.11.5",

@@ -17,8 +17,10 @@ import {
 } from '@/components/ui/app-theme';
 import { cn } from '@/lib/utils';
 import { AnimatedPlaceholderInput } from '@/components/ui/animated-placeholder-input';
-import { SearchLoadingScene } from '@/components/browse/search-loading-scene';
+import { BrandLoader } from '@/components/brand/brand-loader';
 import { frontendLogger } from '@/lib/frontend-logger';
+import { motion } from 'framer-motion';
+import { Code, PenTool, TrendingUp, MonitorSmartphone } from 'lucide-react';
 
 /** Suggested query chips shown below the search bar */
 const SUGGESTED_QUERIES = [
@@ -30,25 +32,32 @@ const SUGGESTED_QUERIES = [
   'Career growth for senior frontend',
 ];
 
+const QUICK_CATEGORIES = [
+  { label: 'Software Engineering', query: 'Software Engineering', icon: Code, color: 'text-blue-500', bg: 'bg-blue-50' },
+  { label: 'Product Design', query: 'Product Design UI UX', icon: PenTool, color: 'text-pink-500', bg: 'bg-pink-50' },
+  { label: 'Career Growth', query: 'Career Growth Leadership', icon: TrendingUp, color: 'text-emerald-500', bg: 'bg-emerald-50' },
+  { label: 'Frontend & UI', query: 'Frontend React UI', icon: MonitorSmartphone, color: 'text-violet-500', bg: 'bg-violet-50' },
+];
+
 type SearchMeta = Pick<MentorSearchResponse, 'hybrid' | 'llmEnhanced' | 'queryAnalysis' | 'semantic'>;
 
 /** Skeleton card shown while loading */
 function MentorSkeleton() {
   return (
-    <AppPanel className="animate-pulse p-6">
-      <div className="flex items-start gap-4">
-        <div className="w-12 h-12 rounded-full bg-slate-100 flex-shrink-0" />
-        <div className="flex-1 space-y-2">
-          <div className="h-4 bg-slate-100 rounded w-32" />
-          <div className="h-3 bg-slate-100 rounded w-48" />
+    <AppPanel className="p-6">
+      <div className="flex items-start gap-4 animate-pulse opacity-60">
+        <div className="w-12 h-12 rounded-full bg-slate-200 flex-shrink-0" />
+        <div className="flex-1 space-y-2.5 mt-1">
+          <div className="h-4 bg-slate-200 rounded-md w-1/2" />
+          <div className="h-3 bg-slate-100 rounded-md w-3/4" />
         </div>
       </div>
-      <div className="flex gap-1.5 mt-5">
-        {[1, 2, 3].map(i => <div key={i} className="h-5 w-16 bg-slate-100 rounded-full" />)}
+      <div className="flex gap-2 mt-6 animate-pulse opacity-60">
+        {[1, 2, 3].map(i => <div key={i} className="h-6 w-16 bg-slate-100 rounded-md" />)}
       </div>
-      <div className="flex justify-between mt-6 pt-4 border-t border-slate-100">
-        <div className="h-4 w-20 bg-slate-100 rounded" />
-        <div className="h-4 w-16 bg-slate-100 rounded" />
+      <div className="flex justify-between mt-6 pt-4 border-t border-slate-100 animate-pulse opacity-60">
+        <div className="h-4 w-24 bg-slate-100 rounded-md" />
+        <div className="h-4 w-16 bg-slate-100 rounded-md" />
       </div>
     </AppPanel>
   );
@@ -241,7 +250,9 @@ export default function BrowsePage() {
 
           {/* Resume processing — reuse the mentor search loading scene */}
           {resumeUploading && (
-            <SearchLoadingScene query={resumeStep ?? 'Analysing your resume…'} />
+            <div className="flex justify-center py-12">
+              <BrandLoader label={resumeStep ?? 'Analysing your resume…'} />
+            </div>
           )}
 
           {/* Resume profile result */}
@@ -307,18 +318,41 @@ export default function BrowsePage() {
             </div>
           )}
 
-          {/* Suggested query chips */}
+          {/* Suggested query chips and Categories */}
           {!isQuerySearch ? (
-            <div className="flex flex-wrap justify-center gap-2 mb-10 max-w-3xl mx-auto">
-              {SUGGESTED_QUERIES.map(chip => (
-                <button
-                  key={chip}
-                  onClick={() => handleChip(chip)}
-                  className="rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs text-slate-600 transition-colors hover:border-brand/40 hover:text-brand shadow-sm"
-                >
-                  {chip}
-                </button>
-              ))}
+            <div className="mb-10 max-w-3xl mx-auto space-y-8">
+              <div className="flex flex-wrap justify-center gap-2">
+                {SUGGESTED_QUERIES.map(chip => (
+                  <button
+                    key={chip}
+                    onClick={() => handleChip(chip)}
+                    className="rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs text-slate-600 transition-colors hover:border-brand/40 hover:text-brand shadow-sm"
+                  >
+                    {chip}
+                  </button>
+                ))}
+              </div>
+
+              <div>
+                <h3 className="text-sm font-semibold text-slate-900 mb-4 text-center">Explore Categories</h3>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  {QUICK_CATEGORIES.map((cat, i) => (
+                    <motion.button
+                      key={cat.label}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: i * 0.05 }}
+                      onClick={() => handleChip(cat.query)}
+                      className="group flex flex-col items-center gap-3 rounded-2xl border border-slate-200 bg-white p-4 transition-all hover:border-brand/30 hover:shadow-md"
+                    >
+                      <div className={cn('rounded-xl p-3 transition-transform group-hover:scale-110', cat.bg, cat.color)}>
+                        <cat.icon className="w-6 h-6" />
+                      </div>
+                      <span className="text-xs font-medium text-slate-700 text-center">{cat.label}</span>
+                    </motion.button>
+                  ))}
+                </div>
+              </div>
             </div>
           ) : null}
 
@@ -369,9 +403,11 @@ export default function BrowsePage() {
 
           {/* Results */}
           {loading ? (
-            <div className="space-y-8">
+            <div className="space-y-12">
               {isQuerySearch && showSearchScene ? (
-                <SearchLoadingScene query={query} />
+                <div className="flex justify-center py-4">
+                  <BrandLoader label={`Searching for "${query}"...`} />
+                </div>
               ) : null}
 
               <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
@@ -379,87 +415,99 @@ export default function BrowsePage() {
               </div>
             </div>
           ) : mentors.length === 0 ? (
-            <div className="text-center py-20 text-slate-500">
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center py-20 text-slate-500">
               <p>No mentors found. Try a different search.</p>
               {searchMeta.queryAnalysis?.focusTerms?.length ? (
                 <p className="mt-3 text-sm text-slate-400">
                   Current focus terms: {searchMeta.queryAnalysis.focusTerms.join(', ')}
                 </p>
               ) : null}
-            </div>
+            </motion.div>
           ) : (
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            <motion.div 
+              initial="hidden" 
+              animate="show" 
+              variants={{
+                hidden: { opacity: 0 },
+                show: {
+                  opacity: 1,
+                  transition: { staggerChildren: 0.05 }
+                }
+              }}
+              className="grid gap-6 md:grid-cols-2 lg:grid-cols-3"
+            >
               {mentors.map(mentor => (
-                <Link
-                  key={mentor.id}
-                  href={`/mentors/${mentor.id}`}
-                  className="group relative block overflow-hidden rounded-2xl border border-slate-200 bg-white p-6 transition-all duration-300 hover:border-brand/30 hover:shadow-[0_4px_24px_rgba(124,58,237,0.10)]"
-                >
-                  <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-brand/0 to-transparent transition-all duration-300 group-hover:via-brand/40" />
+                <motion.div key={mentor.id} variants={{ hidden: { opacity: 0, y: 15 }, show: { opacity: 1, y: 0 } }}>
+                  <Link
+                    href={`/mentors/${mentor.id}`}
+                    className="group relative flex flex-col h-full overflow-hidden rounded-2xl border border-slate-200 bg-white p-6 transition-all duration-300 hover:border-brand/30 hover:shadow-[0_4px_24px_rgba(124,58,237,0.10)]"
+                  >
+                    <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-brand/0 to-transparent transition-all duration-300 group-hover:via-brand/40" />
 
-                  <div className="flex items-start gap-4">
-                    <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full border border-brand/20 bg-brand/10 text-lg font-semibold text-brand shadow-sm">
-                      {mentor.name?.charAt(0)?.toUpperCase()}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-start justify-between gap-2">
-                        <div className="flex items-center gap-1.5 min-w-0">
-                          <h3 className="truncate font-semibold text-slate-900 transition-colors group-hover:text-brand">
-                            {mentor.name}
-                          </h3>
-                          {mentor.verified && (
-                            <ShieldCheck className="h-4 w-4 flex-shrink-0 text-emerald-500" aria-label="Verified mentor" />
+                    <div className="flex items-start gap-4">
+                      <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full border border-brand/20 bg-brand/10 text-lg font-semibold text-brand shadow-sm">
+                        {mentor.name?.charAt(0)?.toUpperCase()}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-start justify-between gap-2">
+                          <div className="flex items-center gap-1.5 min-w-0">
+                            <h3 className="truncate font-semibold text-slate-900 transition-colors group-hover:text-brand">
+                              {mentor.name}
+                            </h3>
+                            {mentor.verified && (
+                              <ShieldCheck className="h-4 w-4 flex-shrink-0 text-emerald-500" aria-label="Verified mentor" />
+                            )}
+                          </div>
+                          {mentor.matchScore != null && (
+                            <AppStatusBadge tone="brand" className="flex-shrink-0 px-1.5 py-0.5 text-[10px]">
+                              {Math.round(mentor.matchScore * 100)}% match
+                            </AppStatusBadge>
                           )}
                         </div>
-                        {mentor.matchScore != null && (
-                          <AppStatusBadge tone="brand" className="flex-shrink-0 px-1.5 py-0.5 text-[10px]">
-                            {Math.round(mentor.matchScore * 100)}% match
-                          </AppStatusBadge>
+                        {mentor.headline && (
+                          <p className="text-sm text-slate-500 truncate mt-0.5">{mentor.headline}</p>
                         )}
                       </div>
-                      {mentor.headline && (
-                        <p className="text-sm text-slate-500 truncate mt-0.5">{mentor.headline}</p>
-                      )}
                     </div>
-                  </div>
 
-                  {mentor.specialties?.length > 0 && (
-                    <div className="flex flex-wrap gap-1.5 mt-5">
-                      {mentor.specialties.slice(0, 4).map((s: string) => (
-                        <Badge key={s} variant="outline" className="border-slate-200 bg-slate-50 text-xs text-slate-600">
-                          {s}
-                        </Badge>
-                      ))}
-                    </div>
-                  )}
+                    {mentor.specialties?.length > 0 && (
+                      <div className="flex flex-wrap gap-1.5 mt-5">
+                        {mentor.specialties.slice(0, 4).map((s: string) => (
+                          <Badge key={s} variant="outline" className="border-slate-200 bg-slate-50 text-xs text-slate-600">
+                            {s}
+                          </Badge>
+                        ))}
+                      </div>
+                    )}
 
-                  {mentor.matchReason && (
-                    <p className="mt-4 rounded-xl border border-violet-100 bg-violet-50 px-3.5 py-3 text-sm leading-6 text-slate-600">
-                      {mentor.matchReason}
-                    </p>
-                  )}
+                    {mentor.matchReason && (
+                      <p className="mt-4 rounded-xl border border-violet-100 bg-violet-50 px-3.5 py-3 text-sm leading-6 text-slate-600">
+                        {mentor.matchReason}
+                      </p>
+                    )}
 
-                  <div className="flex items-center justify-between mt-6 pt-4 border-t border-slate-100 text-sm">
-                    <div className="flex items-center gap-3 text-slate-500">
-                      {mentor.rating && (
-                        <span className="flex items-center gap-1 font-medium">
-                          <span className="text-amber-400">&#9733;</span>
-                          <span className="text-slate-700">{mentor.rating.toFixed(1)}</span>
+                    <div className="flex items-center justify-between mt-auto pt-6 border-t border-slate-100 text-sm">
+                      <div className="flex items-center gap-3 text-slate-500">
+                        {mentor.rating && (
+                          <span className="flex items-center gap-1 font-medium">
+                            <span className="text-amber-400">&#9733;</span>
+                            <span className="text-slate-700">{mentor.rating.toFixed(1)}</span>
+                          </span>
+                        )}
+                        {mentor.totalMeetings > 0 && (
+                          <span>{mentor.totalMeetings} sessions</span>
+                        )}
+                      </div>
+                      {mentor.hourlyRate && (
+                        <span className="rounded-md bg-amber-50 border border-amber-200 px-2.5 py-1 font-semibold text-amber-700">
+                          ${mentor.hourlyRate}/hr
                         </span>
                       )}
-                      {mentor.totalMeetings > 0 && (
-                        <span>{mentor.totalMeetings} sessions</span>
-                      )}
                     </div>
-                    {mentor.hourlyRate && (
-                      <span className="rounded-md bg-amber-50 border border-amber-200 px-2.5 py-1 font-semibold text-amber-700">
-                        ${mentor.hourlyRate}/hr
-                      </span>
-                    )}
-                  </div>
-                </Link>
+                  </Link>
+                </motion.div>
               ))}
-            </div>
+            </motion.div>
           )}
         </div>
       </div>
