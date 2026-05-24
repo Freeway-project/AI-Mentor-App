@@ -328,7 +328,7 @@ export default function BrowsePage() {
                   <button
                     key={chip}
                     onClick={() => handleChip(chip)}
-                    className="rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs text-slate-600 transition-colors hover:border-brand/40 hover:text-brand shadow-sm"
+                    className="rounded-full border border-amber-100 bg-[#fdfaf5] px-4 py-2.5 text-sm text-slate-600 transition-colors hover:border-brand/40 hover:text-brand shadow-sm min-h-[44px]"
                   >
                     {chip}
                   </button>
@@ -337,7 +337,7 @@ export default function BrowsePage() {
 
               <div>
                 <h3 className="text-sm font-semibold text-slate-900 mb-4 text-center">Explore Categories</h3>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
                   {QUICK_CATEGORIES.map((cat, i) => (
                     <motion.button
                       key={cat.label}
@@ -345,7 +345,7 @@ export default function BrowsePage() {
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: i * 0.05 }}
                       onClick={() => handleChip(cat.query)}
-                      className="group flex flex-col items-center gap-3 rounded-2xl border border-slate-200 bg-white p-4 transition-all hover:border-brand/30 hover:shadow-md"
+                      className="group flex flex-col items-center gap-3 rounded-2xl border border-amber-100/80 bg-[#fdfaf5] p-4 transition-all hover:border-brand/30 hover:shadow-md min-h-[44px]"
                     >
                       <div className={cn('rounded-xl p-3 transition-transform group-hover:scale-110', cat.bg, cat.color)}>
                         <cat.icon className="w-6 h-6" />
