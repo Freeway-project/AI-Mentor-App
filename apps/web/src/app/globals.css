@@ -16,14 +16,14 @@
   --color-brand-lighter:#C9A85A; /* = brand.lighter */
 
   /* Surface / page backgrounds */
-  --color-surface:      #ffffff;
-  --color-surface-deep: #faf8f4;
+  --color-surface:      #fdfaf5;
+  --color-surface-deep: #f7f2e8;
 
-  /* Shared page gradient — warm cream/gold, no purple */
-  --gradient-page: linear-gradient(145deg, #faf8f4 0%, #f5f0e8 25%, #fdf6e8 65%, #faf8f0 100%);
+  /* Shared page gradient — warm cream/gold, richer amber depth */
+  --gradient-page: linear-gradient(145deg, #f7f2e8 0%, #ede5d0 20%, #f5edda 50%, #f2ece0 80%, #f7f2e8 100%);
 
   /* Auth-specific warm gradient */
-  --gradient-auth: linear-gradient(135deg, #faf8f4 0%, #f5edd8 30%, #faf5eb 60%, #faf8f4 100%);
+  --gradient-auth: linear-gradient(135deg, #f7f2e8 0%, #e8d9b8 30%, #f2e8d0 60%, #f7f2e8 100%);
 
   color-scheme: light;
 }
@@ -38,7 +38,7 @@ html {
 }
 
 body {
-  color: #1c1208;
+  color: #1a1108;
   background: var(--color-surface-deep);
 }
 

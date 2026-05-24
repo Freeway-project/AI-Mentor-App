@@ -25,7 +25,7 @@ export function Navbar() {
     const isMentee = user && !isMentor && !isAdmin;
 
     return (
-        <nav className="sticky top-0 z-50 w-full shrink-0 border-b border-slate-200 bg-white/90 backdrop-blur-md">
+        <nav className="sticky top-0 z-50 w-full shrink-0 border-b border-amber-100/80 bg-[#f7f2e8]/90 backdrop-blur-md">
             <div className="container mx-auto flex h-16 items-center justify-between gap-3 px-4 md:px-6">
                 {/* Logo */}
                 <Link href="/" className="flex items-center space-x-2">
@@ -103,7 +103,7 @@ export function Navbar() {
 
             {/* Mobile Navigation */}
             {isMenuOpen && (
-                <div className="absolute left-0 w-full space-y-4 border-t border-slate-200 bg-white px-4 py-4 shadow-lg md:hidden">
+                <div className="absolute left-0 w-full space-y-4 border-t border-amber-100/80 bg-[#f7f2e8] px-4 py-4 shadow-lg md:hidden">
                     <div className="flex flex-col space-y-4">
                         <Link href="/browse" className="text-sm font-medium text-slate-600 hover:text-slate-900" onClick={toggleMenu}>
                             Browse Mentors

@@ -52,26 +52,26 @@ export const appTheme = {
   pageShell: 'min-h-screen flex flex-col relative overflow-hidden text-slate-900',
   pageBackdrop: 'absolute inset-0 pointer-events-none',
   pageGrid:
-    'absolute inset-0 opacity-[0.04] [background-image:radial-gradient(circle,_rgba(71,85,105,0.9)_1px,_transparent_1px)] [background-size:36px_36px]',
-  pageGlow: 'absolute top-8 right-8 h-[30rem] w-[30rem] rounded-full bg-brand/8 blur-[120px]',
-  pageGlowAlt: 'absolute bottom-0 left-[-8rem] h-[22rem] w-[22rem] rounded-full bg-brand-light/6 blur-[120px]',
-  pageTopLine: 'absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-brand/20 to-transparent',
+    'absolute inset-0 opacity-[0.06] [background-image:radial-gradient(circle,_rgba(160,120,48,0.6)_1px,_transparent_1px)] [background-size:36px_36px]',
+  pageGlow: 'absolute top-8 right-8 h-[34rem] w-[34rem] rounded-full bg-brand/14 blur-[140px]',
+  pageGlowAlt: 'absolute bottom-0 left-[-8rem] h-[26rem] w-[26rem] rounded-full bg-brand-light/10 blur-[130px]',
+  pageTopLine: 'absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-brand/30 to-transparent',
   content: 'relative z-10 w-full',
   container: 'container mx-auto w-full px-4 md:px-6',
   pageTitle: 'text-3xl font-bold tracking-tight text-slate-900 md:text-4xl',
   pageSubtitle: 'mt-2 max-w-2xl text-sm text-slate-500 md:text-base',
   sectionLabel: 'text-xs font-semibold uppercase tracking-[0.24em] text-slate-400',
   panel:
-    'rounded-2xl border border-slate-200 bg-white/80 backdrop-blur-md shadow-[0_4px_24px_rgba(0,0,0,0.06)]',
-  panelMuted: 'rounded-2xl border border-slate-200 bg-white/60 backdrop-blur-md',
+    'rounded-2xl border border-amber-100/80 bg-[#fdfaf5]/85 backdrop-blur-md shadow-[0_4px_24px_rgba(160,120,48,0.08)]',
+  panelMuted: 'rounded-2xl border border-amber-100/60 bg-[#fdfaf5]/65 backdrop-blur-md',
   statCard:
-    'rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_2px_12px_rgba(0,0,0,0.05)]',
+    'rounded-2xl border border-amber-100/70 bg-[#fdfaf5] p-5 shadow-[0_2px_12px_rgba(160,120,48,0.07)]',
   actionTile:
-    'group rounded-2xl border border-slate-200 bg-white p-5 transition-all duration-200 hover:border-brand/40 hover:shadow-[0_4px_20px_rgba(124,58,237,0.08)]',
+    'group rounded-2xl border border-amber-100/70 bg-[#fdfaf5] p-5 transition-all duration-200 hover:border-brand/40 hover:shadow-[0_4px_20px_rgba(160,120,48,0.12)]',
   input:
-    'w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-900 placeholder:text-slate-400 shadow-sm transition-all focus:outline-none focus:ring-2 focus:ring-brand/30',
+    'w-full rounded-xl border border-amber-100/80 bg-[#fdfaf5] px-4 py-3 text-slate-900 placeholder:text-slate-400 shadow-sm transition-all focus:outline-none focus:ring-2 focus:ring-brand/30',
   emptyState:
-    'rounded-2xl border border-slate-200 bg-white/80 px-6 py-10 text-center text-slate-500 backdrop-blur-md',
+    'rounded-2xl border border-amber-100/70 bg-[#fdfaf5]/85 px-6 py-10 text-center text-slate-500 backdrop-blur-md',
   spinner: 'h-8 w-8 animate-spin rounded-full border-4 border-brand border-t-transparent',
 } as const;
 
