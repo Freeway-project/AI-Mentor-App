@@ -408,7 +408,7 @@ export default function BrowsePage() {
                             {mentor.name}
                           </h3>
                           {mentor.verified && (
-                            <ShieldCheck className="h-4 w-4 flex-shrink-0 text-emerald-500" title="Verified mentor" />
+                            <ShieldCheck className="h-4 w-4 flex-shrink-0 text-emerald-500" aria-label="Verified mentor" />
                           )}
                         </div>
                         {mentor.matchScore != null && (

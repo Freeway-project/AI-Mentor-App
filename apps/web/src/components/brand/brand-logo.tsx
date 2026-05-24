@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import { cn } from '@/lib/utils';
 
 type BrandMarkProps = {
@@ -18,16 +19,15 @@ type BrandLogoImageProps = {
   alt?: string;
 };
 
-/** SVG from `public/logo.svg`, PNG fallback from `public/logo.png`. */
+/** SVG logo from `public/logo.svg`. */
 export function BrandLogoAsset({
   className,
   alt = 'Owl Mentors logo',
 }: BrandLogoImageProps) {
   return (
-    <picture className={cn('block max-h-full max-w-full', className)}>
-      <source srcSet="/logo.svg" type="image/svg+xml" />
-      <img src="/logo.png" alt={alt} className="h-full w-full max-h-full max-w-full object-contain" />
-    </picture>
+    <div className={cn('relative', className)}>
+      <Image src="/logo.svg" alt={alt} fill className="object-contain" />
+    </div>
   );
 }
 
