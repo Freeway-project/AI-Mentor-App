@@ -81,6 +81,28 @@ router.put('/coaches/:id/reject', async (req: Request, res: Response, next: Next
   }
 });
 
+// PUT /admin/coaches/:id/verify
+router.put('/coaches/:id/verify', async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const mentor = await getMentorRepo().setVerified(req.params.id, true);
+    logger.info('[Admin] Mentor verified', { requestId: req.requestId, mentorId: req.params.id, adminId: req.userId });
+    res.json({ success: true, data: mentor });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// PUT /admin/coaches/:id/unverify
+router.put('/coaches/:id/unverify', async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const mentor = await getMentorRepo().setVerified(req.params.id, false);
+    logger.info('[Admin] Mentor unverified', { requestId: req.requestId, mentorId: req.params.id, adminId: req.userId });
+    res.json({ success: true, data: mentor });
+  } catch (error) {
+    next(error);
+  }
+});
+
 // ─── Stats ───────────────────────────────────────────────────────────────────
 
 // GET /admin/stats

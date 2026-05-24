@@ -3,7 +3,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
-import { Search, Sparkles, Upload, FileText, Loader2, CheckCircle2, X } from 'lucide-react';
+import { Search, Sparkles, Upload, FileText, Loader2, CheckCircle2, X, ShieldCheck } from 'lucide-react';
 import { apiClient, MentorSearchResponse, CareerExtractedProfile } from '@/lib/api-client';
 import { Navbar } from '@/components/layout/Navbar';
 import { Button } from '@/components/ui/button';
@@ -403,9 +403,14 @@ export default function BrowsePage() {
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-start justify-between gap-2">
-                        <h3 className="truncate font-semibold text-slate-900 transition-colors group-hover:text-brand">
-                          {mentor.name}
-                        </h3>
+                        <div className="flex items-center gap-1.5 min-w-0">
+                          <h3 className="truncate font-semibold text-slate-900 transition-colors group-hover:text-brand">
+                            {mentor.name}
+                          </h3>
+                          {mentor.verified && (
+                            <ShieldCheck className="h-4 w-4 flex-shrink-0 text-emerald-500" title="Verified mentor" />
+                          )}
+                        </div>
                         {mentor.matchScore != null && (
                           <AppStatusBadge tone="brand" className="flex-shrink-0 px-1.5 py-0.5 text-[10px]">
                             {Math.round(mentor.matchScore * 100)}% match

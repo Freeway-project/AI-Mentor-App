@@ -16,6 +16,7 @@ import paymentRoutes from './payment.routes';
 import careerRoutes from './career.routes';
 import calcomRoutes from './calcom.routes';
 import logsRoutes from './logs.routes';
+import notificationRoutes from './notifications.routes';
 
 const router: Router = Router();
 
@@ -37,5 +38,6 @@ router.use('/chat', chatRoutes);
 router.use('/', calcomRoutes);
 router.use('/', bookingRoutes);
 router.use('/', logsRoutes);
+router.use('/notifications', notificationRoutes);
 
 export default router;

@@ -5,6 +5,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { BookOpen, Compass, LayoutDashboard, LogOut, MessageSquare, User } from 'lucide-react';
 import { BrandLogo } from '@/components/brand/brand-logo';
 import { useAuth } from '@/lib/auth-context';
+import { NotificationBell } from '@/components/notifications/NotificationBell';
 
 const NAV = [
   { href: '/mentee/dashboard', label: 'My Sessions', icon: LayoutDashboard },
@@ -58,6 +59,9 @@ export function MenteeSidebar() {
       </nav>
 
       <div className="shrink-0 space-y-3 border-t border-white/10 px-3 py-4">
+        <div className="flex items-center justify-between px-2">
+          <NotificationBell />
+        </div>
         <div className="flex items-center gap-3 px-2">
           <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-violet-500 to-purple-500 text-xs font-bold">
             {user?.name?.charAt(0)?.toUpperCase() || 'U'}

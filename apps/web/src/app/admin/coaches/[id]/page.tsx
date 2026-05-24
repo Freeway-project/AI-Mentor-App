@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import {
     ArrowLeft, Star, Globe, DollarSign, Clock,
     CheckCircle2, XCircle, FileText, Video, User, Mail, Phone, Circle,
+    ShieldCheck, ShieldX,
 } from 'lucide-react';
 import Link from 'next/link';
 import { ReviewChat } from '@/components/admin/ReviewChat';
@@ -104,6 +105,16 @@ export default function MentorReviewPage() {
         },
     });
 
+    const verify = useMutation({
+        mutationFn: () => adminService.verifyCoach(id),
+        onSuccess: () => qc.invalidateQueries({ queryKey: ['admin-coach-detail', id] }),
+    });
+
+    const unverify = useMutation({
+        mutationFn: () => adminService.unverifyCoach(id),
+        onSuccess: () => qc.invalidateQueries({ queryKey: ['admin-coach-detail', id] }),
+    });
+
     if (isLoading) {
         return (
             <div className="flex items-center justify-center h-full py-32">
@@ -178,6 +189,11 @@ export default function MentorReviewPage() {
                                 {mentor.isActive && (
                                     <span className="text-xs bg-purple-100 text-purple-700 font-semibold px-2 py-0.5 rounded-full">● Live</span>
                                 )}
+                                {mentor.verified && (
+                                    <span className="inline-flex items-center gap-1 text-xs bg-emerald-100 text-emerald-700 font-semibold px-2 py-0.5 rounded-full">
+                                        <ShieldCheck className="w-3 h-3" /> Verified
+                                    </span>
+                                )}
                             </div>
                             {mentor.headline && <p className="text-slate-500 text-sm mt-0.5">{mentor.headline}</p>}
                             <div className="flex items-center gap-3 mt-1 text-xs text-slate-500">
@@ -193,26 +209,49 @@ export default function MentorReviewPage() {
                 </div>
 
                 {/* Action buttons */}
-                {isPending && (
-                    <div className="flex gap-2 shrink-0">
-                        <Button
-                            disabled={approve.isPending}
-                            onClick={() => approve.mutate()}
-                            className="bg-green-600 hover:bg-green-700 text-white gap-2"
-                        >
-                            <CheckCircle2 className="w-4 h-4" />
-                            {approve.isPending ? 'Approving…' : 'Approve'}
-                        </Button>
+                <div className="flex gap-2 shrink-0 flex-wrap">
+                    {isPending && (
+                        <>
+                            <Button
+                                disabled={approve.isPending}
+                                onClick={() => approve.mutate()}
+                                className="bg-green-600 hover:bg-green-700 text-white gap-2"
+                            >
+                                <CheckCircle2 className="w-4 h-4" />
+                                {approve.isPending ? 'Approving…' : 'Approve'}
+                            </Button>
+                            <Button
+                                variant="outline"
+                                onClick={() => setShowRejectForm(!showRejectForm)}
+                                className="gap-2 text-red-600 border-red-200 hover:bg-red-50"
+                            >
+                                <XCircle className="w-4 h-4" />
+                                Reject
+                            </Button>
+                        </>
+                    )}
+                    {mentor.verified ? (
                         <Button
                             variant="outline"
-                            onClick={() => setShowRejectForm(!showRejectForm)}
-                            className="gap-2 text-red-600 border-red-200 hover:bg-red-50"
+                            disabled={unverify.isPending}
+                            onClick={() => unverify.mutate()}
+                            className="gap-2 text-slate-600 border-slate-200 hover:bg-slate-50"
                         >
-                            <XCircle className="w-4 h-4" />
-                            Reject
+                            <ShieldX className="w-4 h-4" />
+                            {unverify.isPending ? 'Removing…' : 'Remove Verification'}
                         </Button>
-                    </div>
-                )}
+                    ) : (
+                        <Button
+                            variant="outline"
+                            disabled={verify.isPending}
+                            onClick={() => verify.mutate()}
+                            className="gap-2 text-emerald-700 border-emerald-200 hover:bg-emerald-50"
+                        >
+                            <ShieldCheck className="w-4 h-4" />
+                            {verify.isPending ? 'Verifying…' : 'Mark Verified'}
+                        </Button>
+                    )}
+                </div>
             </div>
 
             {/* Rejection form */}
