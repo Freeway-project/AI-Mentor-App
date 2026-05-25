@@ -794,6 +794,214 @@ export const EmailService = {
     }
   },
 
+  async notifyAdminNewBooking(params: {
+    menteeName: string;
+    mentorName: string;
+    menteeEmail: string;
+    title: string;
+    scheduledAt: Date;
+    durationMin: number;
+    amountPaid: number;
+    meetingId: string;
+  }): Promise<void> {
+    const adminEmail = process.env.ADMIN_NOTIFICATION_EMAIL;
+    if (!adminEmail) {
+      logger.info(`[ADMIN NOTIFY] New booking: ${params.title} — ${params.menteeName} with ${params.mentorName}`);
+      return;
+    }
+
+    const fromName = process.env.SMTP_FROM_NAME || 'OWL Mentor';
+    const fromEmail = process.env.SMTP_FROM_EMAIL || process.env.SMTP_FROM || 'noreply@owlmentor.com';
+    const from = `${fromName} <${fromEmail}>`;
+    const adminUrl = process.env.ADMIN_URL || 'http://localhost:3000/admin';
+
+    const dateStr = params.scheduledAt.toLocaleDateString('en-US', {
+      weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
+    });
+    const timeStr = params.scheduledAt.toLocaleTimeString('en-US', {
+      hour: '2-digit', minute: '2-digit', timeZoneName: 'short',
+    });
+
+    const subject = `New booking: ${escapeHtml(params.title)} — ${escapeHtml(params.menteeName)} with ${escapeHtml(params.mentorName)}`;
+    const html = `
+      <div style="font-family:sans-serif;max-width:540px;margin:auto;padding:32px">
+        <h2 style="color:#0f172a;font-size:22px;margin-bottom:4px">New session booked</h2>
+        <p style="color:#64748b;margin-bottom:24px">A mentee has completed payment and booked a session.</p>
+        <table style="width:100%;border-collapse:collapse;margin-bottom:24px">
+          <tr>
+            <td style="padding:10px 12px;background:#f8fafc;border:1px solid #e2e8f0;color:#64748b;width:110px;font-size:13px">Session</td>
+            <td style="padding:10px 12px;background:#fff;border:1px solid #e2e8f0;color:#0f172a;font-weight:600;font-size:13px">${escapeHtml(params.title)}</td>
+          </tr>
+          <tr>
+            <td style="padding:10px 12px;background:#f8fafc;border:1px solid #e2e8f0;color:#64748b;font-size:13px">Mentee</td>
+            <td style="padding:10px 12px;background:#fff;border:1px solid #e2e8f0;color:#0f172a;font-size:13px">${escapeHtml(params.menteeName)} &lt;${escapeHtml(params.menteeEmail)}&gt;</td>
+          </tr>
+          <tr>
+            <td style="padding:10px 12px;background:#f8fafc;border:1px solid #e2e8f0;color:#64748b;font-size:13px">Mentor</td>
+            <td style="padding:10px 12px;background:#fff;border:1px solid #e2e8f0;color:#0f172a;font-size:13px">${escapeHtml(params.mentorName)}</td>
+          </tr>
+          <tr>
+            <td style="padding:10px 12px;background:#f8fafc;border:1px solid #e2e8f0;color:#64748b;font-size:13px">Date</td>
+            <td style="padding:10px 12px;background:#fff;border:1px solid #e2e8f0;color:#0f172a;font-size:13px">${dateStr}</td>
+          </tr>
+          <tr>
+            <td style="padding:10px 12px;background:#f8fafc;border:1px solid #e2e8f0;color:#64748b;font-size:13px">Time</td>
+            <td style="padding:10px 12px;background:#fff;border:1px solid #e2e8f0;color:#0f172a;font-size:13px">${timeStr}</td>
+          </tr>
+          <tr>
+            <td style="padding:10px 12px;background:#f8fafc;border:1px solid #e2e8f0;color:#64748b;font-size:13px">Duration</td>
+            <td style="padding:10px 12px;background:#fff;border:1px solid #e2e8f0;color:#0f172a;font-size:13px">${params.durationMin} minutes</td>
+          </tr>
+          <tr>
+            <td style="padding:10px 12px;background:#f8fafc;border:1px solid #e2e8f0;color:#64748b;font-size:13px">Amount paid</td>
+            <td style="padding:10px 12px;background:#fff;border:1px solid #e2e8f0;color:#0f172a;font-weight:700;font-size:13px">$${params.amountPaid.toFixed(2)} USD</td>
+          </tr>
+        </table>
+        <a href="${adminUrl}/sessions"
+           style="display:inline-block;padding:12px 24px;background:#2563eb;color:#fff;border-radius:8px;text-decoration:none;font-weight:600;font-size:14px">
+          View in Admin Panel →
+        </a>
+        <p style="color:#94a3b8;font-size:11px;margin-top:24px">
+          Meeting ID: ${escapeHtml(params.meetingId)}
+        </p>
+      </div>
+    `;
+
+    const transport = createTransport();
+    if (!transport) {
+      logger.info(`[ADMIN NOTIFY] New booking: ${params.title} (SMTP not configured)`);
+      return;
+    }
+
+    try {
+      await sendTrackedMail({
+        transport,
+        provider: 'smtp',
+        operation: 'notify_admin_new_booking',
+        mailOptions: { from, to: adminEmail, subject, html },
+        metadata: { emailType: 'admin_new_booking', meetingId: params.meetingId },
+      });
+      logger.info(`[ADMIN NOTIFY] New booking email sent to ${adminEmail} for meeting ${params.meetingId}`);
+    } catch (error) {
+      logger.error(`[ADMIN NOTIFY] Failed to send new booking email: ${(error as Error).message}`);
+    }
+  },
+
+  async sendPaymentReceipt(params: {
+    to: string;
+    menteeName: string;
+    mentorName: string;
+    meetingId: string;
+    title: string;
+    scheduledAt: Date;
+    durationMin: number;
+    amountPaid: number;
+    paymentIntentId: string;
+  }): Promise<void> {
+    const fromName = process.env.SMTP_FROM_NAME || 'OWL Mentor';
+    const fromEmail = process.env.SMTP_FROM_EMAIL || process.env.SMTP_FROM || 'noreply@owlmentor.com';
+    const from = `${fromName} <${fromEmail}>`;
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+
+    const dateStr = params.scheduledAt.toLocaleDateString('en-US', {
+      weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
+    });
+    const timeStr = params.scheduledAt.toLocaleTimeString('en-US', {
+      hour: '2-digit', minute: '2-digit', timeZoneName: 'short',
+    });
+
+    const subject = `Receipt: ${escapeHtml(params.title)} with ${escapeHtml(params.mentorName)} — $${params.amountPaid.toFixed(2)}`;
+    const html = `
+      <div style="font-family:sans-serif;max-width:560px;margin:auto;padding:32px;background:#fff;border-radius:12px">
+        <div style="background:#0f172a;border-radius:10px;padding:20px 24px;margin-bottom:24px;display:flex;justify-content:space-between;align-items:center">
+          <div>
+            <p style="color:#f59e0b;font-size:16px;font-weight:700;margin:0">OWL Mentor</p>
+            <p style="color:#94a3b8;font-size:12px;margin:4px 0 0">Payment Receipt</p>
+          </div>
+          <p style="color:#fff;font-size:28px;font-weight:800;margin:0">$${params.amountPaid.toFixed(2)}</p>
+        </div>
+
+        <p style="color:#0f172a;font-size:15px;margin-bottom:20px">
+          Hi <strong>${escapeHtml(params.menteeName)}</strong>, your payment was successful. Here is your receipt.
+        </p>
+
+        <table style="width:100%;border-collapse:collapse;margin-bottom:24px">
+          <tr>
+            <td style="padding:10px 12px;background:#f8fafc;border:1px solid #e2e8f0;color:#64748b;width:100px;font-size:13px">Session</td>
+            <td style="padding:10px 12px;background:#fff;border:1px solid #e2e8f0;color:#0f172a;font-weight:600;font-size:13px">${escapeHtml(params.title)}</td>
+          </tr>
+          <tr>
+            <td style="padding:10px 12px;background:#f8fafc;border:1px solid #e2e8f0;color:#64748b;font-size:13px">Mentor</td>
+            <td style="padding:10px 12px;background:#fff;border:1px solid #e2e8f0;color:#0f172a;font-size:13px">${escapeHtml(params.mentorName)}</td>
+          </tr>
+          <tr>
+            <td style="padding:10px 12px;background:#f8fafc;border:1px solid #e2e8f0;color:#64748b;font-size:13px">Date</td>
+            <td style="padding:10px 12px;background:#fff;border:1px solid #e2e8f0;color:#0f172a;font-size:13px">${dateStr}</td>
+          </tr>
+          <tr>
+            <td style="padding:10px 12px;background:#f8fafc;border:1px solid #e2e8f0;color:#64748b;font-size:13px">Time</td>
+            <td style="padding:10px 12px;background:#fff;border:1px solid #e2e8f0;color:#0f172a;font-size:13px">${timeStr}</td>
+          </tr>
+          <tr>
+            <td style="padding:10px 12px;background:#f8fafc;border:1px solid #e2e8f0;color:#64748b;font-size:13px">Duration</td>
+            <td style="padding:10px 12px;background:#fff;border:1px solid #e2e8f0;color:#0f172a;font-size:13px">${params.durationMin} minutes</td>
+          </tr>
+          <tr>
+            <td style="padding:10px 12px;background:#f8fafc;border:1px solid #e2e8f0;color:#64748b;font-size:13px;font-weight:600">Amount paid</td>
+            <td style="padding:10px 12px;background:#f0fdf4;border:1px solid #e2e8f0;color:#15803d;font-weight:700;font-size:15px">$${params.amountPaid.toFixed(2)} USD</td>
+          </tr>
+        </table>
+
+        <a href="${appUrl}/mentee/dashboard"
+           style="display:inline-block;padding:12px 24px;background:#7c3aed;color:#fff;border-radius:8px;text-decoration:none;font-weight:600;font-size:14px;margin-bottom:20px">
+          View your booking →
+        </a>
+
+        <p style="color:#94a3b8;font-size:11px;margin-top:20px;line-height:1.6">
+          Payment ref: ${escapeHtml(params.paymentIntentId)}<br/>
+          OWL Mentor &bull; <a href="${appUrl}" style="color:#7c3aed;text-decoration:none">owlmentor.com</a>
+        </p>
+      </div>
+    `;
+
+    const transport = createTransport();
+    if (transport) {
+      try {
+        await sendTrackedMail({
+          transport,
+          provider: 'smtp',
+          operation: 'send_payment_receipt',
+          mailOptions: { from, to: params.to, subject, html },
+          metadata: { emailType: 'payment_receipt', meetingId: params.meetingId },
+        });
+        logger.info(`[RECEIPT EMAIL] Sent to ${params.to}`);
+        return;
+      } catch (error) {
+        logger.error(`[RECEIPT EMAIL] SMTP failed to ${params.to}: ${(error as Error).message}`);
+        logger.warn('[RECEIPT EMAIL] Falling back to Ethereal...');
+      }
+    }
+
+    try {
+      const devTransport = await getDevTransport();
+      const info = await sendTrackedMail({
+        transport: devTransport,
+        provider: 'ethereal',
+        operation: 'send_payment_receipt',
+        mailOptions: { from, to: params.to, subject, html },
+        metadata: { emailType: 'payment_receipt', meetingId: params.meetingId },
+      });
+      const previewUrl = nodemailer.getTestMessageUrl(info);
+      logger.info(`[RECEIPT EMAIL DEV] Sent to ${params.to} | Preview: ${previewUrl}`);
+    } catch (err) {
+      await recordEmailFallbackFailure('send_payment_receipt', (err as Error).message, {
+        emailType: 'payment_receipt',
+        meetingId: params.meetingId,
+      });
+      logger.warn(`[RECEIPT EMAIL FALLBACK] Could not send to ${params.to}: ${(err as Error).message}`);
+    }
+  },
+
   /**
    * Send a marketing email to a recipient, wrapping the body in a mandatory
    * professional header + footer with CTA buttons for mentor/mentee signup.

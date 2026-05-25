@@ -314,6 +314,27 @@ router.post('/bookings', authenticate, requireEmailVerified, async (req: Request
           ...sharedEmailParams,
           dashboardPath: '/mentor/dashboard',
         }),
+        EmailService.sendPaymentReceipt({
+          to: mentee.email,
+          menteeName: mentee.name,
+          mentorName: mentor.name,
+          meetingId: meeting.id,
+          title: offerTitle,
+          scheduledAt: slotStart,
+          durationMin,
+          amountPaid,
+          paymentIntentId,
+        }),
+        EmailService.notifyAdminNewBooking({
+          menteeName: mentee.name,
+          mentorName: mentor.name,
+          menteeEmail: mentee.email,
+          title: offerTitle,
+          scheduledAt: slotStart,
+          durationMin,
+          amountPaid,
+          meetingId: meeting.id,
+        }),
       ]);
     } catch (err) {
       logger.warn(`[Booking] Confirmation email failed: ${(err as Error).message}`);

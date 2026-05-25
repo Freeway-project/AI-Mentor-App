@@ -7,6 +7,7 @@ import { apiClient } from '@/lib/api-client';
 import { ArrowLeft, Loader2, AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
 import { SessionRoomPlaceholder } from '@/components/video/SessionRoomPlaceholder';
+import { LiveKitRoom } from '@/components/video/LiveKitRoom';
 import { getSessionAccess, hasLegacySessionRoom } from '@/lib/session-access';
 
 export default function VideoCallPage() {
@@ -90,6 +91,14 @@ export default function VideoCallPage() {
             <ArrowLeft className="w-4 h-4" /> Return to Dashboard
           </button>
         </div>
+      </div>
+    );
+  }
+
+  if (meeting?.livekitRoomName) {
+    return (
+      <div className="min-h-screen bg-slate-900 px-4 py-4">
+        <LiveKitRoom meetingId={meetingId} onLeave={handleLeave} />
       </div>
     );
   }
