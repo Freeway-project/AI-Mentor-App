@@ -528,6 +528,39 @@ export function MentorProfileBookingPanel({
 
   const dateSlotsForSelected = selectedDate ? (slotsByDate[selectedDate] || []) : [];
 
+  // ── No offers — mentor not taking bookings ──────────────────────────────────
+  if (offers.length === 0) {
+    return (
+      <div
+        style={{
+          background: ED.card,
+          border: `1px solid ${ED.rule}`,
+          padding: 28,
+          position: 'sticky',
+          top: 24,
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 12,
+        }}
+      >
+        <div style={ed.mono(10, ED.inkMuted)}>Availability</div>
+        <div style={ed.serif(26, ED.ink, { letterSpacing: -0.3, lineHeight: 1.2 })}>
+          Not taking bookings
+        </div>
+        <div
+          style={{
+            fontFamily: 'Inter, sans-serif',
+            fontSize: 13,
+            color: ED.inkSoft,
+            lineHeight: 1.6,
+          }}
+        >
+          {mentorName.split(' ')[0]} isn&apos;t accepting new sessions at the moment. Check back soon.
+        </div>
+      </div>
+    );
+  }
+
   // ── Cal.com embed path ──────────────────────────────────────────────────────
   if (calLink) {
     const calOffer = offers[0] ?? null;
@@ -689,78 +722,55 @@ export function MentorProfileBookingPanel({
         {/* Step: service selection */}
         {step === 'service' && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-            {offers.length === 0 ? (
-              <div
-                style={{
-                  padding: '24px 16px',
-                  border: `1px solid ${ED.rule}`,
-                  background: ED.creamDeep,
-                  fontFamily: 'Inter, sans-serif',
-                  fontSize: 13,
-                  color: ED.inkSoft,
-                  lineHeight: 1.6,
-                  textAlign: 'center',
-                }}
-              >
-                <div style={{ fontSize: 24, marginBottom: 8 }}>📋</div>
-                <div style={{ fontWeight: 600, color: ED.ink, marginBottom: 4 }}>
-                  No session types available yet
-                </div>
-                <div>
-                  This mentor hasn&apos;t added any session types. Please check back soon.
-                </div>
-              </div>
-            ) : (
-              offers.map((offer) => {
-                const active = offer.id === selectedOfferId;
-                return (
-                  <label
-                    key={offer.id}
-                    style={{
-                      display: 'grid',
-                      gridTemplateColumns: '20px 1fr auto',
-                      gap: 14,
-                      alignItems: 'start',
-                      padding: 16,
-                      cursor: 'pointer',
-                      background: active ? ED.cream : 'transparent',
-                      border: `1px solid ${active ? ED.ink : ED.rule}`,
-                      transition: 'all 100ms ease',
-                    }}
-                  >
-                    <input
-                      type="radio"
-                      name="svc"
-                      checked={active}
-                      onChange={() => setSelectedOfferId(offer.id)}
-                      style={{ accentColor: ED.ink, marginTop: 3 }}
-                    />
-                    <div>
-                      <div style={ed.serif(20, ED.ink, { lineHeight: 1.1 })}>{offer.title}</div>
-                      <div style={ed.mono(10, ED.inkMuted, { marginTop: 2 })}>
-                        {offer.durationMinutes} min
+            {offers.map((offer) => {
+              const active = offer.id === selectedOfferId;
+              return (
+                <label
+                  key={offer.id}
+                  style={{
+                    display: 'grid',
+                    gridTemplateColumns: '20px 1fr auto',
+                    gap: 14,
+                    alignItems: 'start',
+                    padding: 16,
+                    cursor: 'pointer',
+                    background: active ? ED.cream : 'transparent',
+                    border: `1px solid ${active ? ED.ink : ED.rule}`,
+                    transition: 'all 100ms ease',
+                  }}
+                >
+                  <input
+                    type="radio"
+                    name="svc"
+                    checked={active}
+                    onChange={() => setSelectedOfferId(offer.id)}
+                    style={{ accentColor: ED.ink, marginTop: 3 }}
+                  />
+                  <div>
+                    <div style={ed.serif(20, ED.ink, { lineHeight: 1.1 })}>{offer.title}</div>
+                    <div style={ed.mono(10, ED.inkMuted, { marginTop: 2 })}>
+                      {offer.durationMinutes} min
+                    </div>
+                    {offer.description && (
+                      <div
+                        style={{
+                          fontFamily: 'Inter, sans-serif',
+                          fontSize: 12.5,
+                          color: ED.inkSoft,
+                          marginTop: 6,
+                          lineHeight: 1.5,
+                        }}
+                      >
+                        {offer.description}
                       </div>
-                      {offer.description && (
-                        <div
-                          style={{
-                            fontFamily: 'Inter, sans-serif',
-                            fontSize: 12.5,
-                            color: ED.inkSoft,
-                            marginTop: 6,
-                            lineHeight: 1.5,
-                          }}
-                        >
-                          {offer.description}
-                        </div>
-                      )}
-                    </div>
-                    <div style={ed.serif(20, offer.price === 0 ? ED.accent : ED.ink)}>
-                      {offer.price === 0 ? 'Free' : `$${offer.price}`}
-                    </div>
-                  </label>
-                );
-              })
-            )}
+                    )}
+                  </div>
+                  <div style={ed.serif(20, offer.price === 0 ? ED.accent : ED.ink)}>
+                    {offer.price === 0 ? 'Free' : `$${offer.price}`}
+                  </div>
+                </label>
+              );
+            })}
           </div>
         )}
 
