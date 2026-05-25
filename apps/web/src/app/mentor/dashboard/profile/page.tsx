@@ -44,7 +44,7 @@ export default function MentorProfilePage() {
             <div>
                 <h1 className="text-2xl font-bold text-slate-900">My Profile</h1>
                 <p className="text-slate-500 text-sm mt-1">
-                    Any changes you save will require admin re-approval before going live.
+                    Update your bio and headline — changes to your public profile go for admin review. Offers, availability, and policies save instantly.
                 </p>
             </div>
 
@@ -54,7 +54,7 @@ export default function MentorProfilePage() {
                     <Clock className="w-5 h-5 text-amber-400 shrink-0" />
                     <p className="text-sm text-amber-300">
                         <span className="font-semibold">Under Review — </span>
-                        Your profile is awaiting admin approval. Changes you make will restart the review process.
+                        Your profile is awaiting admin approval.
                     </p>
                 </div>
             )}
@@ -63,7 +63,7 @@ export default function MentorProfilePage() {
                     <CheckCircle2 className="w-5 h-5 text-purple-400 shrink-0" />
                     <p className="text-sm text-purple-300">
                         <span className="font-semibold">Live — </span>
-                        Your profile is approved and visible to mentees. Saving changes will re-submit for approval.
+                        Your profile is approved and visible to mentees.
                     </p>
                 </div>
             )}
@@ -106,16 +106,17 @@ export default function MentorProfilePage() {
                             userAvatar={userAvatar}
                             onComplete={async () => {
                                 await loadProfile();
-                                toast.success('Profile saved — submitted for review');
+                                toast.success('Profile saved');
                             }}
                         />
                     )}
                     {activeTab === 'Offers' && (
                         <OffersStep
                             mentorId={profile?.id}
+                            hourlyRate={profile?.hourlyRate}
                             onComplete={async () => {
                                 await loadProfile();
-                                toast.success('Offers saved — submitted for review');
+                                toast.success('Offers saved');
                             }}
                         />
                     )}
@@ -124,7 +125,7 @@ export default function MentorProfilePage() {
                             mentorId={profile?.id}
                             onComplete={async () => {
                                 await loadProfile();
-                                toast.success('Policies saved — submitted for review');
+                                toast.success('Policies saved');
                             }}
                         />
                     )}
@@ -133,7 +134,7 @@ export default function MentorProfilePage() {
                             profile={profile}
                             onComplete={async () => {
                                 await loadProfile();
-                                toast.success('Availability saved — submitted for review');
+                                toast.success('Availability saved');
                             }}
                         />
                     )}
