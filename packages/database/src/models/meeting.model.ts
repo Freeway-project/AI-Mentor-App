@@ -31,6 +31,7 @@ export interface IMeetingDocument extends mongoose.Document {
   livekitRoomSid?: string;
   livekitEgressId?: string;
   reminderSentAt?: Date;
+  reminder24hSentAt?: Date;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -70,6 +71,7 @@ const meetingSchema = new Schema<IMeetingDocument>(
     livekitRoomSid: { type: String },
     livekitEgressId: { type: String, index: true },
     reminderSentAt: { type: Date },
+    reminder24hSentAt: { type: Date },
   },
   { timestamps: true }
 );

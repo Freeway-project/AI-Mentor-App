@@ -2,6 +2,43 @@ import nodemailer from 'nodemailer';
 import { logger } from '@owl-mentors/utils';
 import { serviceUsageService } from './service-usage.service';
 
+// ── ICS calendar invite generator ────────────────────────────────────────────
+function toICSDate(d: Date): string {
+  return d.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
+}
+
+function generateICS(params: {
+  uid: string;
+  summary: string;
+  description: string;
+  location: string;
+  startAt: Date;
+  endAt: Date;
+  organizerEmail: string;
+  organizerName: string;
+}): string {
+  return [
+    'BEGIN:VCALENDAR',
+    'VERSION:2.0',
+    'PRODID:-//OWL Mentor//EN',
+    'CALSCALE:GREGORIAN',
+    'METHOD:REQUEST',
+    'BEGIN:VEVENT',
+    `UID:${params.uid}@owlmentor.com`,
+    `DTSTART:${toICSDate(params.startAt)}`,
+    `DTEND:${toICSDate(params.endAt)}`,
+    `SUMMARY:${params.summary}`,
+    `DESCRIPTION:${params.description.replace(/\n/g, '\\n')}`,
+    `LOCATION:${params.location}`,
+    `URL:${params.location}`,
+    `ORGANIZER;CN=${params.organizerName}:mailto:${params.organizerEmail}`,
+    'STATUS:CONFIRMED',
+    'SEQUENCE:0',
+    'END:VEVENT',
+    'END:VCALENDAR',
+  ].join('\r\n');
+}
+
 let _devTransport: nodemailer.Transporter | null = null;
 
 async function getDevTransport(): Promise<nodemailer.Transporter> {
@@ -493,8 +530,6 @@ export const EmailService = {
     title: string;
     scheduledAt: Date;
     durationMin: number;
-    dailyRoomUrl?: string;
-    meetUrl?: string;
     dashboardPath?: string;
   }): Promise<void> {
     const fromName = process.env.SMTP_FROM_NAME || 'OWL Mentor';
@@ -502,7 +537,7 @@ export const EmailService = {
     const from = `${fromName} <${fromEmail}>`;
     const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
     const sessionUrl = `${appUrl}${params.dashboardPath ?? '/mentee/dashboard'}`;
-    const callUrl = params.dailyRoomUrl || params.meetUrl;
+    const videoUrl = `${appUrl}/video/${params.meetingId}`;
 
     const dateStr = params.scheduledAt.toLocaleDateString('en-US', {
       weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
@@ -511,16 +546,24 @@ export const EmailService = {
       hour: '2-digit', minute: '2-digit', timeZoneName: 'short',
     });
 
-    const callButton = callUrl
-      ? `<a href="${callUrl}" style="display:inline-block;padding:12px 28px;background:#7c3aed;color:#fff;border-radius:8px;text-decoration:none;font-weight:700;font-size:15px;margin-right:12px">Join session →</a>`
-      : '';
+    const endAt = new Date(params.scheduledAt.getTime() + params.durationMin * 60 * 1000);
+    const icsContent = generateICS({
+      uid: params.meetingId,
+      summary: `${params.title} with ${params.mentorName}`,
+      description: `Join your mentoring session: ${videoUrl}`,
+      location: videoUrl,
+      startAt: params.scheduledAt,
+      endAt,
+      organizerEmail: fromEmail,
+      organizerName: fromName,
+    });
 
     const subject = `Booking confirmed: ${params.title} with ${params.mentorName}`;
     const html = `
       <div style="font-family:sans-serif;max-width:560px;margin:auto;padding:32px;background:#fff;border-radius:12px">
         <div style="background:#7c3aed;border-radius:10px;padding:20px 24px;margin-bottom:24px">
           <p style="color:#fff;font-size:18px;font-weight:700;margin:0">Session Confirmed</p>
-          <p style="color:#ede9fe;font-size:13px;margin:4px 0 0">Your mentoring session is booked</p>
+          <p style="color:#ede9fe;font-size:13px;margin:4px 0 0">Your mentoring session is booked — calendar invite attached</p>
         </div>
 
         <table style="width:100%;border-collapse:collapse;margin-bottom:24px">
@@ -547,17 +590,28 @@ export const EmailService = {
         </table>
 
         <div style="margin-bottom:24px">
-          ${callButton}
+          <a href="${videoUrl}" style="display:inline-block;padding:12px 28px;background:#7c3aed;color:#fff;border-radius:8px;text-decoration:none;font-weight:700;font-size:15px;margin-right:12px">Join session →</a>
           <a href="${sessionUrl}" style="display:inline-block;padding:12px 28px;background:#f1f5f9;color:#334155;border-radius:8px;text-decoration:none;font-weight:600;font-size:14px">View booking</a>
         </div>
 
-        ${callUrl ? `<p style="color:#64748b;font-size:12px;margin-bottom:24px">Call link: <a href="${callUrl}" style="color:#7c3aed">${callUrl}</a></p>` : ''}
-
+        <p style="color:#64748b;font-size:12px;margin-bottom:8px">Video link: <a href="${videoUrl}" style="color:#7c3aed">${videoUrl}</a></p>
         <p style="color:#94a3b8;font-size:11px;margin-top:16px">
           OWL Mentor &bull; <a href="${appUrl}" style="color:#7c3aed;text-decoration:none">owlmentor.com</a>
         </p>
       </div>
     `;
+
+    const mailOptions = {
+      from,
+      to: params.to,
+      subject,
+      html,
+      attachments: [{
+        filename: 'session.ics',
+        content: icsContent,
+        contentType: 'text/calendar; charset=utf-8; method=REQUEST',
+      }],
+    };
 
     const transport = createTransport();
     if (transport) {
@@ -566,7 +620,7 @@ export const EmailService = {
           transport,
           provider: 'smtp',
           operation: 'send_booking_confirmation',
-          mailOptions: { from, to: params.to, subject, html },
+          mailOptions,
           metadata: { emailType: 'booking_confirmation', meetingId: params.meetingId },
         });
         logger.info(`[BOOKING CONFIRM EMAIL] Sent to ${params.to}`);
@@ -583,7 +637,7 @@ export const EmailService = {
         transport: devTransport,
         provider: 'ethereal',
         operation: 'send_booking_confirmation',
-        mailOptions: { from, to: params.to, subject, html },
+        mailOptions,
         metadata: { emailType: 'booking_confirmation', meetingId: params.meetingId },
       });
       const previewUrl = nodemailer.getTestMessageUrl(info);
