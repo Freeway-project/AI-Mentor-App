@@ -689,55 +689,78 @@ export function MentorProfileBookingPanel({
         {/* Step: service selection */}
         {step === 'service' && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-            {offers.map((offer) => {
-              const active = offer.id === selectedOfferId;
-              return (
-                <label
-                  key={offer.id}
-                  style={{
-                    display: 'grid',
-                    gridTemplateColumns: '20px 1fr auto',
-                    gap: 14,
-                    alignItems: 'start',
-                    padding: 16,
-                    cursor: 'pointer',
-                    background: active ? ED.cream : 'transparent',
-                    border: `1px solid ${active ? ED.ink : ED.rule}`,
-                    transition: 'all 100ms ease',
-                  }}
-                >
-                  <input
-                    type="radio"
-                    name="svc"
-                    checked={active}
-                    onChange={() => setSelectedOfferId(offer.id)}
-                    style={{ accentColor: ED.ink, marginTop: 3 }}
-                  />
-                  <div>
-                    <div style={ed.serif(20, ED.ink, { lineHeight: 1.1 })}>{offer.title}</div>
-                    <div style={ed.mono(10, ED.inkMuted, { marginTop: 2 })}>
-                      {offer.durationMinutes} min
-                    </div>
-                    {offer.description && (
-                      <div
-                        style={{
-                          fontFamily: 'Inter, sans-serif',
-                          fontSize: 12.5,
-                          color: ED.inkSoft,
-                          marginTop: 6,
-                          lineHeight: 1.5,
-                        }}
-                      >
-                        {offer.description}
+            {offers.length === 0 ? (
+              <div
+                style={{
+                  padding: '24px 16px',
+                  border: `1px solid ${ED.rule}`,
+                  background: ED.creamDeep,
+                  fontFamily: 'Inter, sans-serif',
+                  fontSize: 13,
+                  color: ED.inkSoft,
+                  lineHeight: 1.6,
+                  textAlign: 'center',
+                }}
+              >
+                <div style={{ fontSize: 24, marginBottom: 8 }}>📋</div>
+                <div style={{ fontWeight: 600, color: ED.ink, marginBottom: 4 }}>
+                  No session types available yet
+                </div>
+                <div>
+                  This mentor hasn&apos;t added any session types. Please check back soon.
+                </div>
+              </div>
+            ) : (
+              offers.map((offer) => {
+                const active = offer.id === selectedOfferId;
+                return (
+                  <label
+                    key={offer.id}
+                    style={{
+                      display: 'grid',
+                      gridTemplateColumns: '20px 1fr auto',
+                      gap: 14,
+                      alignItems: 'start',
+                      padding: 16,
+                      cursor: 'pointer',
+                      background: active ? ED.cream : 'transparent',
+                      border: `1px solid ${active ? ED.ink : ED.rule}`,
+                      transition: 'all 100ms ease',
+                    }}
+                  >
+                    <input
+                      type="radio"
+                      name="svc"
+                      checked={active}
+                      onChange={() => setSelectedOfferId(offer.id)}
+                      style={{ accentColor: ED.ink, marginTop: 3 }}
+                    />
+                    <div>
+                      <div style={ed.serif(20, ED.ink, { lineHeight: 1.1 })}>{offer.title}</div>
+                      <div style={ed.mono(10, ED.inkMuted, { marginTop: 2 })}>
+                        {offer.durationMinutes} min
                       </div>
-                    )}
-                  </div>
-                  <div style={ed.serif(20, offer.price === 0 ? ED.accent : ED.ink)}>
-                    {offer.price === 0 ? 'Free' : `$${offer.price}`}
-                  </div>
-                </label>
-              );
-            })}
+                      {offer.description && (
+                        <div
+                          style={{
+                            fontFamily: 'Inter, sans-serif',
+                            fontSize: 12.5,
+                            color: ED.inkSoft,
+                            marginTop: 6,
+                            lineHeight: 1.5,
+                          }}
+                        >
+                          {offer.description}
+                        </div>
+                      )}
+                    </div>
+                    <div style={ed.serif(20, offer.price === 0 ? ED.accent : ED.ink)}>
+                      {offer.price === 0 ? 'Free' : `$${offer.price}`}
+                    </div>
+                  </label>
+                );
+              })
+            )}
           </div>
         )}
 
@@ -854,7 +877,7 @@ export function MentorProfileBookingPanel({
             <button
               onClick={() => {
                 if (step === 'service') setStep('date');
-                else if (step === 'confirm') setStep('service');
+                else if (step === 'confirm') setStep(offers.length === 1 ? 'date' : 'service');
               }}
               disabled={step === 'date'}
               style={{
@@ -879,8 +902,28 @@ export function MentorProfileBookingPanel({
                 (step === 'service' && !selectedOfferId)
               }
               onClick={() => {
-                if (step === 'date') setStep('service');
-                else if (step === 'service') {
+                if (step === 'date') {
+                  // Skip service step when there's only one offer — it's already auto-selected
+                  if (offers.length === 1) {
+                    if (!user) {
+                      dispatch(
+                        pendingBookingActions.saveIntent({
+                          mentorId,
+                          offerId: offers[0].id,
+                          selectedDate: selectedDate ?? undefined,
+                          selectedSlot: selectedSlot ?? undefined,
+                          monthCursor: { year: monthCursor.year, month: monthCursor.month },
+                          bookingStep: 'confirm',
+                        })
+                      );
+                      router.push(`/login?redirect=/mentors/${mentorId}`);
+                      return;
+                    }
+                    setStep('confirm');
+                  } else {
+                    setStep('service');
+                  }
+                } else if (step === 'service') {
                   if (!user) {
                     dispatch(
                       pendingBookingActions.saveIntent({
