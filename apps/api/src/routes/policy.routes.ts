@@ -47,7 +47,9 @@ router.put('/', authenticate, requireEmailVerified, authorize('mentor'), validat
     }
 
     const policy = await getPolicyRepo().upsert(mentor.id, req.body);
-    await getMentorRepo().update(mentor.id, { approvalStatus: 'pending', isActive: false } as any);
+    if (mentor.onboardingStep !== 'published') {
+      await getMentorRepo().update(mentor.id, { approvalStatus: 'pending', isActive: false } as any);
+    }
 
     // Policies are now part of the combined availability step — no separate step to advance
 

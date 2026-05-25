@@ -127,9 +127,9 @@ router.put('/me/availability', authenticate, requireEmailVerified, authorize('me
     }
 
     await getMentorRepo().updateAvailability(mentor.id, req.body);
-    await getMentorRepo().update(mentor.id, { approvalStatus: 'pending', isActive: false } as any);
 
     if (mentor.onboardingStep === 'availability') {
+      await getMentorRepo().update(mentor.id, { approvalStatus: 'pending', isActive: false } as any);
       await getMentorRepo().updateOnboardingStep(mentor.id, 'review');
     }
 
