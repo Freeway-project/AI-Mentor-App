@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { loadStripe } from '@stripe/stripe-js';
-import { Elements, PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js';
+import { Elements, CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
 import { X, ArrowLeft, Calendar, Clock, User } from 'lucide-react';
 import { apiClient } from '@/lib/api-client';
 import { BookingConfirmation } from './BookingConfirmation';
@@ -15,23 +15,6 @@ const stripePromise = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY
   ? loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY)
   : null;
 
-const stripeAppearance = {
-  theme: 'stripe' as const,
-  variables: {
-    colorPrimary: ED.accent,
-    colorBackground: ED.card,
-    colorText: ED.ink,
-    colorDanger: '#b45309',
-    borderRadius: '10px',
-    fontFamily: 'Inter, ui-sans-serif, system-ui, sans-serif',
-  },
-  rules: {
-    '.Input': {
-      borderColor: ED.rule,
-      boxShadow: 'none',
-    },
-  },
-};
 
 interface Offer {
   id: string;
@@ -63,11 +46,13 @@ function formatSlotTime(iso: string): string {
 
 // Inner form — must live inside <Elements>
 function StripePaymentForm({
+  clientSecret,
   amountUsd,
   bookingPayload,
   onSuccess,
   onBack,
 }: {
+  clientSecret: string;
   amountUsd: number;
   bookingPayload: { mentorId: string; offerId?: string; scheduledAt: string; duration: number; title: string; calBookingUid?: string };
   onSuccess: (booking: any) => void;
@@ -83,22 +68,16 @@ function StripePaymentForm({
     setPaying(true);
     setError('');
 
-    const { error: submitError } = await elements.submit();
-    if (submitError) {
-      frontendLogger.warn('Booking payment form submit failed', {
-        mentorId: bookingPayload.mentorId,
-        scheduledAt: bookingPayload.scheduledAt,
-        error: submitError.message,
-      });
-      setError(submitError.message || 'Payment details are incomplete');
+    const cardElement = elements.getElement(CardElement);
+    if (!cardElement) {
+      setError('Card form not loaded. Please refresh and try again.');
       setPaying(false);
       return;
     }
 
-    const { error: confirmError, paymentIntent } = await stripe.confirmPayment({
-      elements,
-      confirmParams: { return_url: window.location.href },
-      redirect: 'if_required',
+    // confirmCardPayment handles 3DS in-place via Stripe overlay — never redirects
+    const { error: confirmError, paymentIntent } = await stripe.confirmCardPayment(clientSecret, {
+      payment_method: { card: cardElement },
     });
 
     if (confirmError) {
@@ -143,15 +122,7 @@ function StripePaymentForm({
         toast.error(msg);
         setPaying(false);
       }
-    } else if (paymentIntent?.status === 'processing') {
-      setError('Your payment is still processing. Please wait a moment and try again, or contact support.');
-      setPaying(false);
     } else {
-      frontendLogger.warn('Stripe payment not completed', {
-        mentorId: bookingPayload.mentorId,
-        scheduledAt: bookingPayload.scheduledAt,
-        status: paymentIntent?.status,
-      });
       setError('Payment was not completed. Please try again.');
       setPaying(false);
     }
@@ -159,7 +130,25 @@ function StripePaymentForm({
 
   return (
     <div className="space-y-4">
-      <PaymentElement />
+      <div
+        className="rounded-xl border px-4 py-3.5"
+        style={{ borderColor: ED.rule, background: ED.card }}
+      >
+        <CardElement
+          options={{
+            style: {
+              base: {
+                fontSize: '15px',
+                color: ED.ink,
+                fontFamily: 'Inter, ui-sans-serif, system-ui, sans-serif',
+                '::placeholder': { color: ED.inkMuted },
+              },
+              invalid: { color: '#b45309' },
+            },
+            hidePostalCode: true,
+          }}
+        />
+      </div>
       {error && (
         <p
           className="text-sm rounded-lg px-3 py-2 border"
@@ -178,11 +167,7 @@ function StripePaymentForm({
           onClick={onBack}
           disabled={paying}
           className="flex items-center gap-1.5 px-4 py-2.5 text-sm rounded-lg transition-colors disabled:opacity-40 border font-medium"
-          style={{
-            color: ED.inkSoft,
-            borderColor: ED.rule,
-            background: 'transparent',
-          }}
+          style={{ color: ED.inkSoft, borderColor: ED.rule, background: 'transparent' }}
         >
           <ArrowLeft className="w-4 h-4" /> Back
         </button>
@@ -379,11 +364,9 @@ export function BookingModal({ mentorId, mentorName, offer, hourlyRate, slot, ca
           )}
 
           {step === 'payment' && clientSecret && stripePromise && (
-            <Elements
-              stripe={stripePromise}
-              options={{ clientSecret, appearance: stripeAppearance }}
-            >
+            <Elements stripe={stripePromise} options={{ clientSecret }}>
               <StripePaymentForm
+                clientSecret={clientSecret}
                 amountUsd={amountUsd}
                 bookingPayload={{
                   mentorId,
