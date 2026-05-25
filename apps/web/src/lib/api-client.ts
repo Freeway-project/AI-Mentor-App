@@ -583,11 +583,6 @@ class ApiClient {
     return this.request<any[]>(`/mentors/${mentorId}/offers`);
   }
 
-  // Credits
-  async getCreditsBalance(): Promise<{ balance: number; heldBalance: number }> {
-    return this.request<{ balance: number; heldBalance: number }>('/credits/balance');
-  }
-
   // Chat
   async getConversations(): Promise<any[]> {
     return this.request<any[]>('/chat/conversations');

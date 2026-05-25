@@ -105,7 +105,7 @@ export default function SessionsPage() {
                 <th className="px-4 py-3 text-left font-medium text-slate-600">Coach</th>
                 <th className="px-4 py-3 text-left font-medium text-slate-600">Scheduled</th>
                 <th className="px-4 py-3 text-left font-medium text-slate-600">Duration</th>
-                <th className="px-4 py-3 text-left font-medium text-slate-600">Credits</th>
+                <th className="px-4 py-3 text-left font-medium text-slate-600">Paid</th>
                 <th className="px-4 py-3 text-left font-medium text-slate-600">Status</th>
               </tr>
             </thead>
@@ -125,7 +125,7 @@ export default function SessionsPage() {
                     {session.duration ? `${session.duration} min` : '—'}
                   </td>
                   <td className="px-4 py-3 text-slate-500">
-                    {session.creditCost !== undefined ? session.creditCost.toFixed(1) : '—'}
+                    {session.amountPaid !== undefined ? `$${session.amountPaid.toFixed(2)}` : '—'}
                   </td>
                   <td className="px-4 py-3">
                     <StatusBadge status={session.status} />

@@ -5,7 +5,6 @@ import {
   UserRepository,
   MentorRepository,
   MeetingRepository,
-  CreditRepository,
   OfferRepository,
   PolicyRepository,
   ServiceUsageRepository,
@@ -29,7 +28,6 @@ const router: Router = Router();
 let userRepo: UserRepository;
 let mentorRepo: MentorRepository;
 let meetingRepo: MeetingRepository;
-let creditRepo: CreditRepository;
 let offerRepo: OfferRepository;
 let policyRepo: PolicyRepository;
 let serviceUsageRepo: ServiceUsageRepository;
@@ -37,7 +35,6 @@ let serviceUsageRepo: ServiceUsageRepository;
 function getUserRepo() { if (!userRepo) userRepo = new UserRepository(); return userRepo; }
 function getMentorRepo() { if (!mentorRepo) mentorRepo = new MentorRepository(); return mentorRepo; }
 function getMeetingRepo() { if (!meetingRepo) meetingRepo = new MeetingRepository(); return meetingRepo; }
-function getCreditRepo() { if (!creditRepo) creditRepo = new CreditRepository(); return creditRepo; }
 function getOfferRepo() { if (!offerRepo) offerRepo = new OfferRepository(); return offerRepo; }
 function getPolicyRepo() { if (!policyRepo) policyRepo = new PolicyRepository(); return policyRepo; }
 function getServiceUsageRepo() { if (!serviceUsageRepo) serviceUsageRepo = new ServiceUsageRepository(); return serviceUsageRepo; }
@@ -113,13 +110,11 @@ router.get('/stats', async (req: Request, res: Response, next: NextFunction) => 
       mentorsResult,
       pendingResult,
       statusCounts,
-      creditStats,
     ] = await Promise.all([
       getUserRepo().findAll({}, 1, 0),
       getMentorRepo().findAll({ isActive: true }, 1, 0),
       getMentorRepo().findPendingApproval(1, 0),
       getMeetingRepo().getStatusCounts(),
-      getCreditRepo().getCirculationStats(),
     ]);
 
     res.json({
@@ -129,7 +124,6 @@ router.get('/stats', async (req: Request, res: Response, next: NextFunction) => 
         activeCoaches: mentorsResult.total,
         pendingApproval: pendingResult.total,
         sessionsByStatus: statusCounts,
-        credits: creditStats,
       },
     });
   } catch (error) {
@@ -155,24 +149,6 @@ router.get('/sessions', async (req: Request, res: Response, next: NextFunction) 
     });
 
     res.json({ success: true, data: result });
-  } catch (error) {
-    next(error);
-  }
-});
-
-// ─── Credits ─────────────────────────────────────────────────────────────────
-
-// GET /admin/credits
-router.get('/credits', async (req: Request, res: Response, next: NextFunction) => {
-  try {
-    const { userId, type, limit, offset } = req.query;
-    const result = await getCreditRepo().listTransactions(
-      { userId: userId as string, type: type as any },
-      Number(limit) || 20,
-      Number(offset) || 0
-    );
-    const stats = await getCreditRepo().getCirculationStats();
-    res.json({ success: true, data: { ...result, stats } });
   } catch (error) {
     next(error);
   }

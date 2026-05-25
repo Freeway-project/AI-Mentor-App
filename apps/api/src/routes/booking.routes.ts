@@ -12,7 +12,6 @@ import {
   MentorRepository,
   MeetingRepository,
   PolicyRepository,
-  CreditRepository,
   OfferRepository,
   UserRepository,
   UserIntegrationRepository,
@@ -26,7 +25,6 @@ const router: Router = Router();
 const mentorRepo = new MentorRepository();
 const meetingRepo = new MeetingRepository();
 const policyRepo = new PolicyRepository();
-const creditRepo = new CreditRepository();
 const offerRepo = new OfferRepository();
 const userRepo = new UserRepository();
 const integrationRepo = new UserIntegrationRepository();
@@ -184,8 +182,9 @@ router.post('/bookings', authenticate, requireEmailVerified, async (req: Request
     // Load mentor
     const mentor = await mentorRepo.findById(mentorId);
 
-    // Load offer if provided (get creditCost)
-    let creditCost = durationMin <= 30 ? 0.5 : 1.0;
+    // Load offer if provided
+    const fallbackRate = mentor.hourlyRate ?? 50;
+    let sessionPriceUsd = durationMin <= 30 ? fallbackRate / 2 : fallbackRate;
     let offerTitle = title || 'Mentoring Session';
     if (offerId) {
       try {
@@ -193,7 +192,7 @@ router.post('/bookings', authenticate, requireEmailVerified, async (req: Request
         if (offer.mentorId !== mentorId) {
           throw new AppError(400, 'INVALID_OFFER', 'Offer does not belong to this mentor');
         }
-        creditCost = offer.price;
+        sessionPriceUsd = offer.price;
         offerTitle = offer.title;
       } catch (e: any) {
         if (e instanceof AppError) throw e;
@@ -230,39 +229,26 @@ router.post('/bookings', authenticate, requireEmailVerified, async (req: Request
     // Fetch mentee early (used for menteeName on meeting + emails below)
     const mentee = await userRepo.findById(req.userId!);
 
-    // Payment verification: Stripe (preferred) or legacy credits
-    let amountPaid: number | undefined;
-    if (paymentIntentId) {
-      const pi = await stripeService.retrievePaymentIntent(paymentIntentId);
-      if (pi.status !== 'succeeded') {
-        throw new AppError(402, 'PAYMENT_NOT_CONFIRMED', 'Stripe payment has not been completed');
-      }
-      const expectedCents = Math.round(creditCost * 100);
-      if (pi.amount !== expectedCents) {
-        throw new AppError(400, 'PAYMENT_AMOUNT_MISMATCH', 'Payment amount does not match session price');
-      }
-      amountPaid = pi.amount / 100;
-      logger.info('[Booking] Stripe payment verified', {
-        requestId: req.requestId,
-        userId: req.userId,
-        mentorId,
-        paymentIntentId,
-        amountPaid,
-      });
-    } else {
-      // Legacy credit flow
-      const account = await creditRepo.getBalance(req.userId!);
-      if (account.balance < creditCost) {
-        throw new AppError(402, 'INSUFFICIENT_CREDITS', 'Not enough credits to book this session');
-      }
-      logger.info('[Booking] Legacy credit flow verified', {
-        requestId: req.requestId,
-        userId: req.userId,
-        mentorId,
-        creditCost,
-        balance: account.balance,
-      });
+    // Payment verification — Stripe required
+    if (!paymentIntentId) {
+      throw new AppError(402, 'PAYMENT_REQUIRED', 'A Stripe payment is required to book a session');
     }
+    const pi = await stripeService.retrievePaymentIntent(paymentIntentId);
+    if (pi.status !== 'succeeded') {
+      throw new AppError(402, 'PAYMENT_NOT_CONFIRMED', 'Stripe payment has not been completed');
+    }
+    const expectedCents = Math.round(sessionPriceUsd * 100);
+    if (pi.amount !== expectedCents) {
+      throw new AppError(400, 'PAYMENT_AMOUNT_MISMATCH', 'Payment amount does not match session price');
+    }
+    const amountPaid = pi.amount / 100;
+    logger.info('[Booking] Stripe payment verified', {
+      requestId: req.requestId,
+      userId: req.userId,
+      mentorId,
+      paymentIntentId,
+      amountPaid,
+    });
 
     // Create meeting
     const meeting = await meetingRepo.create(req.userId!, {
@@ -272,17 +258,11 @@ router.post('/bookings', authenticate, requireEmailVerified, async (req: Request
       scheduledAt: slotStart.toISOString(),
       duration: durationMin,
       offerId,
-      creditCost,
-      paymentIntentId: paymentIntentId || undefined,
+      paymentIntentId,
       amountPaid,
       menteeName: mentee.name,
       calBookingUid: calBookingUid || undefined,
     });
-
-    // Hold credits (legacy flow only)
-    if (!paymentIntentId) {
-      await creditRepo.holdCredits(req.userId!, creditCost, meeting.id);
-    }
 
     // Create/store LiveKit room metadata for this meeting.
     const roomName = livekitService.createRoomName(meeting.id);
@@ -364,7 +344,7 @@ router.post('/bookings', authenticate, requireEmailVerified, async (req: Request
       mentorId,
       meetingId: meeting.id,
       durationMin,
-      creditCost,
+      amountPaid,
       hasMeetUrl: Boolean(meetUrl),
       hasLiveKitRoom: Boolean(roomName),
     });
@@ -505,13 +485,6 @@ router.post('/bookings/:id/cancel', authenticate, requireEmailVerified, async (r
       actorUserId: req.userId,
       reason: reason || 'Cancelled by user',
     });
-
-    // Return credits to mentee
-    try {
-      await creditRepo.returnHeldCredits(meeting.menteeId, meeting.creditCost, meeting.id);
-    } catch (_) {
-      // Non-fatal if credits already returned
-    }
 
     // Delete Google Calendar event if present
     const googleEventId = (cancelled as any).googleEventId;

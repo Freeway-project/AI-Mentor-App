@@ -5,7 +5,7 @@ import { useAuth } from '@/lib/auth-context';
 import { BrandLoader } from '@/components/brand/brand-loader';
 import { motion } from 'framer-motion';
 import { apiClient } from '@/lib/api-client';
-import { Calendar, Clock, CreditCard, ArrowRight, BookOpen, Video, X, RotateCcw, Star } from 'lucide-react';
+import { Calendar, Clock, ArrowRight, BookOpen, Video, X, RotateCcw, Star } from 'lucide-react';
 import Link from 'next/link';
 import { toast } from 'sonner';
 import { SlotPicker } from '@/components/booking/SlotPicker';
@@ -49,7 +49,6 @@ export default function MenteeDashboardPage() {
   const { user } = useAuth();
   const [upcoming, setUpcoming] = useState<any[]>([]);
   const [past, setPast] = useState<any[]>([]);
-  const [credits, setCredits] = useState<{ balance: number; heldBalance: number } | null>(null);
   const [loading, setLoading] = useState(true);
 
   // Cancel state
@@ -68,10 +67,9 @@ export default function MenteeDashboardPage() {
 
   const load = useCallback(async () => {
     try {
-      const [upcomingData, pastData, creditsData] = await Promise.all([
+      const [upcomingData, pastData] = await Promise.all([
         apiClient.getMyBookings({ status: 'booked' }),
         apiClient.getMyBookings({ status: 'completed' }),
-        apiClient.getCreditsBalance(),
       ]);
 
       const sorted = [...upcomingData.meetings].sort(
@@ -80,7 +78,6 @@ export default function MenteeDashboardPage() {
 
       setUpcoming(sorted);
       setPast(pastData.meetings);
-      setCredits(creditsData);
     } catch (e: any) {
       toast.error(e.message || 'Failed to load dashboard');
     } finally {
@@ -147,12 +144,11 @@ export default function MenteeDashboardPage() {
     <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} className="mx-auto w-full min-w-0 max-w-5xl space-y-8 px-4 py-6 sm:px-6 md:py-8 md:px-8">
       <AppPageHeader
         title={`Welcome back, ${user?.name?.split(' ')[0] ?? 'Learner'}`}
-        description="Track credits, upcoming sessions, and reschedules from the same shared dashboard system."
+        description="Track upcoming sessions and past activity from your dashboard."
         titleClassName="text-2xl md:text-3xl"
       />
 
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <AppStatCard icon={<CreditCard className="h-5 w-5" />} label="Credits" value={credits?.balance ?? '—'} tone="amber" />
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <AppStatCard icon={<Calendar className="h-5 w-5" />} label="Upcoming" value={upcoming.length} tone="brand" />
         <AppStatCard icon={<BookOpen className="h-5 w-5" />} label="Sessions Done" value={past.length} tone="purple" />
       </div>

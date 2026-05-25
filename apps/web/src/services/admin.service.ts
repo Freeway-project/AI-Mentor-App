@@ -41,7 +41,6 @@ export interface AdminStats {
   activeCoaches: number;
   pendingApproval: number;
   sessionsByStatus: Record<string, number>;
-  credits: { totalBalance: number; totalHeld: number; totalSpent: number };
 }
 
 export interface AdminCoach {
@@ -75,18 +74,7 @@ export interface AdminSession {
   scheduledAt: string;
   duration: number;
   status: string;
-  creditCost: number;
-}
-
-export interface AdminTransaction {
-  id: string;
-  userId: string;
-  type: string;
-  amount: number;
-  balanceAfter: number;
-  sessionId?: string;
-  description: string;
-  createdAt: string;
+  amountPaid?: number;
 }
 
 export interface AdminServiceUsageOverview {
@@ -205,14 +193,6 @@ export const adminService = {
     if (params?.limit) q.set('limit', String(params.limit));
     if (params?.offset !== undefined) q.set('offset', String(params.offset));
     return apiFetch<{ meetings: AdminSession[]; total: number }>(`/admin/sessions?${q}`);
-  },
-
-  listCredits: (params?: { type?: string; limit?: number; offset?: number }) => {
-    const q = new URLSearchParams();
-    if (params?.type) q.set('type', params.type);
-    if (params?.limit) q.set('limit', String(params.limit));
-    if (params?.offset !== undefined) q.set('offset', String(params.offset));
-    return apiFetch<{ transactions: AdminTransaction[]; total: number; stats: any }>(`/admin/credits?${q}`);
   },
 
   getServiceUsage: (params?: {
