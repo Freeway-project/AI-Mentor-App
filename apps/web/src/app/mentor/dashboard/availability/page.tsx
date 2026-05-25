@@ -25,7 +25,7 @@ export default function MentorAvailabilityPage() {
     }
 
     return (
-        <div className="p-8 max-w-3xl mx-auto space-y-6">
+        <div className="px-4 py-6 sm:px-6 md:p-8 max-w-3xl mx-auto space-y-6">
             <div>
                 <h1 className="text-2xl font-bold text-white">Availability</h1>
                 <p className="text-slate-400 text-sm mt-1">Set your weekly schedule for mentoring sessions.</p>

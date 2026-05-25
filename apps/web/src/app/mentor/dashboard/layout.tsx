@@ -6,12 +6,16 @@ import { useAuth } from '@/lib/auth-context';
 import { MentorSidebar } from '@/components/layout/MentorSidebar';
 import { apiClient } from '@/lib/api-client';
 import { appTheme } from '@/components/ui/app-theme';
+import { Menu } from 'lucide-react';
+import { BrandLogo } from '@/components/brand/brand-logo';
+import Link from 'next/link';
 
 export default function MentorDashboardLayout({ children }: { children: React.ReactNode }) {
     const { user, loading } = useAuth();
     const router = useRouter();
     const [approvalStatus, setApprovalStatus] = useState<string>('pending');
     const [profileLoaded, setProfileLoaded] = useState(false);
+    const [mobileNavOpen, setMobileNavOpen] = useState(false);
 
     useEffect(() => {
         if (loading) return;
@@ -21,7 +25,6 @@ export default function MentorDashboardLayout({ children }: { children: React.Re
 
         apiClient.getMyMentorProfile()
             .then((p) => {
-                // Allow 'published' (submitted, awaiting approval) through to dashboard
                 if (p.onboardingStep !== 'completed' && p.onboardingStep !== 'published') {
                     router.replace('/onboarding');
                     return;
@@ -30,7 +33,6 @@ export default function MentorDashboardLayout({ children }: { children: React.Re
                 setProfileLoaded(true);
             })
             .catch(() => {
-                // Fallback for errors or empty profile — push to onboarding
                 router.replace('/onboarding');
             });
     }, [user, loading, router]);
@@ -47,10 +49,29 @@ export default function MentorDashboardLayout({ children }: { children: React.Re
 
     return (
         <div className="flex h-screen overflow-hidden bg-slate-50">
-            <MentorSidebar approvalStatus={approvalStatus} />
-            <main className="flex-1 overflow-y-auto bg-slate-50">
-                {children}
-            </main>
+            <MentorSidebar
+                approvalStatus={approvalStatus}
+                isOpen={mobileNavOpen}
+                onClose={() => setMobileNavOpen(false)}
+            />
+            <div className="flex flex-1 flex-col min-w-0 overflow-hidden">
+                {/* Mobile top bar */}
+                <header className="lg:hidden flex items-center gap-3 px-4 h-14 border-b border-slate-200 bg-white shrink-0">
+                    <button
+                        onClick={() => setMobileNavOpen(true)}
+                        className="p-1.5 rounded-lg text-slate-600 hover:bg-slate-100"
+                        aria-label="Open menu"
+                    >
+                        <Menu className="w-5 h-5" />
+                    </button>
+                    <Link href="/">
+                        <BrandLogo markClassName="h-7 w-7" wordmarkClassName="text-[0.75rem] tracking-[0.2em]" />
+                    </Link>
+                </header>
+                <main className="flex-1 overflow-y-auto bg-slate-50">
+                    {children}
+                </main>
+            </div>
         </div>
     );
 }

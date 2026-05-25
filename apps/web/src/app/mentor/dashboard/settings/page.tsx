@@ -54,7 +54,7 @@ export default function MentorSettingsPage() {
     };
 
     return (
-        <div className="p-8 max-w-2xl mx-auto space-y-6">
+        <div className="px-4 py-6 sm:px-6 md:p-8 max-w-2xl mx-auto space-y-6">
             <Suspense fallback={null}>
                 <CalendarOAuthToast />
             </Suspense>

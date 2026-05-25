@@ -47,7 +47,9 @@ router.post('/', authenticate, requireEmailVerified, authorize('mentor'), valida
     }
 
     const offer = await getOfferRepo().create(mentor.id, req.body);
-    await getMentorRepo().update(mentor.id, { approvalStatus: 'pending', isActive: false } as any);
+    if (mentor.onboardingStep !== 'published') {
+      await getMentorRepo().update(mentor.id, { approvalStatus: 'pending', isActive: false } as any);
+    }
 
     // Advance onboarding step (policies merged into availability step)
     if (mentor.onboardingStep === 'offers') {
@@ -77,7 +79,9 @@ router.put('/:offerId', authenticate, requireEmailVerified, authorize('mentor'),
     }
 
     const updated = await getOfferRepo().update(req.params.offerId, req.body);
-    await getMentorRepo().update(mentor.id, { approvalStatus: 'pending', isActive: false } as any);
+    if (mentor.onboardingStep !== 'published') {
+      await getMentorRepo().update(mentor.id, { approvalStatus: 'pending', isActive: false } as any);
+    }
 
     res.json({
       success: true,
@@ -102,7 +106,9 @@ router.delete('/:offerId', authenticate, requireEmailVerified, authorize('mentor
     }
 
     await getOfferRepo().delete(req.params.offerId);
-    await getMentorRepo().update(mentor.id, { approvalStatus: 'pending', isActive: false } as any);
+    if (mentor.onboardingStep !== 'published') {
+      await getMentorRepo().update(mentor.id, { approvalStatus: 'pending', isActive: false } as any);
+    }
 
     res.json({
       success: true,

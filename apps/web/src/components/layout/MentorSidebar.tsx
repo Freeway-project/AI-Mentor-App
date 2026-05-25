@@ -21,6 +21,8 @@ const NAV = [
 
 interface MentorSidebarProps {
     approvalStatus?: 'pending' | 'approved' | 'rejected' | string;
+    isOpen?: boolean;
+    onClose?: () => void;
 }
 
 type MentorSidebarProfile = {
@@ -37,7 +39,7 @@ const statusConfig = {
 
 const PROFILE_KEY = 'active_mentor_profile_id';
 
-export function MentorSidebar({ approvalStatus }: MentorSidebarProps) {
+export function MentorSidebar({ approvalStatus, isOpen, onClose }: MentorSidebarProps) {
     const pathname = usePathname();
     const router = useRouter();
     const { user, logout } = useAuth();
@@ -103,17 +105,24 @@ export function MentorSidebar({ approvalStatus }: MentorSidebarProps) {
     const status = approvalStatus as keyof typeof statusConfig;
     const statusInfo = statusConfig[status];
 
-    return (
-        <aside className="w-64 shrink-0 h-screen flex flex-col bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900 text-white">
+    const sidebarContent = (
+        <aside className="w-64 shrink-0 h-full flex flex-col bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900 text-white">
             {/* Logo */}
-            <div className="px-5 py-5 border-b border-white/10">
-                <Link href="/" className="flex items-center gap-2.5">
-                    <BrandLogo
-                        markClassName="h-9 w-9"
-                        wordmarkClassName="text-xs tracking-[0.24em]"
-                    />
-                </Link>
-                <p className="mt-1 text-xs text-slate-400 pl-0.5">Mentor Portal</p>
+            <div className="px-5 py-5 border-b border-white/10 flex items-start justify-between">
+                <div>
+                    <Link href="/" className="flex items-center gap-2.5">
+                        <BrandLogo
+                            markClassName="h-9 w-9"
+                            wordmarkClassName="text-xs tracking-[0.24em]"
+                        />
+                    </Link>
+                    <p className="mt-1 text-xs text-slate-400 pl-0.5">Mentor Portal</p>
+                </div>
+                {onClose && (
+                    <button onClick={onClose} className="lg:hidden p-1 text-slate-400 hover:text-white mt-1">
+                        <X className="w-5 h-5" />
+                    </button>
+                )}
             </div>
 
             {/* Nav */}
@@ -124,6 +133,7 @@ export function MentorSidebar({ approvalStatus }: MentorSidebarProps) {
                         <Link
                             key={href}
                             href={href}
+                            onClick={onClose}
                             className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${isActive
                                 ? 'bg-gradient-to-r from-amber-700 to-amber-600 text-white shadow-md shadow-amber-900/40'
                                 : 'text-slate-400 hover:text-white hover:bg-white/8'
@@ -241,5 +251,29 @@ export function MentorSidebar({ approvalStatus }: MentorSidebarProps) {
                 </button>
             </div>
         </aside>
+    );
+
+    return (
+        <>
+            {/* Desktop sidebar — always visible on lg+ */}
+            <div className="hidden lg:flex h-screen w-64 shrink-0">
+                {sidebarContent}
+            </div>
+
+            {/* Mobile overlay drawer */}
+            {isOpen && (
+                <div className="lg:hidden fixed inset-0 z-50 flex">
+                    {/* Backdrop */}
+                    <div
+                        className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+                        onClick={onClose}
+                    />
+                    {/* Drawer panel */}
+                    <div className="relative h-full w-64 shrink-0">
+                        {sidebarContent}
+                    </div>
+                </div>
+            )}
+        </>
     );
 }

@@ -39,7 +39,7 @@ export default function MentorProfilePage() {
     const status = profile?.approvalStatus;
 
     return (
-        <div className="p-8 max-w-4xl mx-auto space-y-6">
+        <div className="px-4 py-6 sm:px-6 md:p-8 max-w-4xl mx-auto space-y-6">
             {/* Header */}
             <div>
                 <h1 className="text-2xl font-bold text-slate-900">My Profile</h1>
@@ -78,12 +78,12 @@ export default function MentorProfilePage() {
             )}
 
             {/* Tab bar */}
-            <div className="flex border-b border-slate-200 gap-1">
+            <div className="flex border-b border-slate-200 gap-1 overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0" style={{ scrollbarWidth: 'none' }}>
                 {TABS.map((tab) => (
                     <button
                         key={tab}
                         onClick={() => setActiveTab(tab)}
-                        className={`px-4 py-2.5 text-sm font-medium border-b-2 -mb-px transition-colors ${activeTab === tab
+                        className={`px-4 py-2.5 text-sm font-medium border-b-2 -mb-px transition-colors whitespace-nowrap ${activeTab === tab
                                 ? 'border-brand text-brand'
                                 : 'border-transparent text-slate-500 hover:text-slate-700'
                             }`}
