@@ -224,11 +224,11 @@ export default function BrowsePage() {
                 placeholder="Try: I'm weak at TypeScript"
               />
             </div>
-            <div className="flex gap-3 sm:contents">
+            <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
               <Button
                 type="submit"
                 size="lg"
-                className="flex-1 sm:flex-none h-[52px] gap-2 rounded-xl bg-brand px-6 text-white shadow-[0_0_20px_rgba(160,120,48,0.22)] hover:bg-brand-light"
+                className="flex-1 sm:flex-none h-[52px] gap-2 rounded-xl bg-brand px-6 text-white shadow-[0_0_20px_rgba(160,120,48,0.22)] hover:bg-brand-light w-full sm:w-auto"
               >
                 {query.length > 3 ? <Sparkles className="w-4 h-4" /> : <Search className="w-4 h-4" />}
                 Search
@@ -245,7 +245,7 @@ export default function BrowsePage() {
                 size="lg"
                 disabled={resumeUploading}
                 onClick={() => resumeInputRef.current?.click()}
-                className="h-[52px] gap-2 rounded-xl bg-brand px-5 text-white shadow-[0_0_20px_rgba(160,120,48,0.22)] hover:bg-brand-light disabled:opacity-60"
+                className="h-[52px] gap-2 rounded-xl bg-brand px-5 text-white shadow-[0_0_20px_rgba(160,120,48,0.22)] hover:bg-brand-light disabled:opacity-60 w-full sm:w-auto"
                 title="Upload resume to find matching mentors"
               >
                 {resumeUploading
