@@ -91,8 +91,12 @@ router.put('/me', authenticate, requireEmailVerified, authorize('mentor'), valid
       throw new AppError(404, 'NOT_FOUND', 'Mentor profile not found');
     }
 
-    // Any profile change requires re-review and should not stay live until approved again
-    const updatePayload = { ...req.body, approvalStatus: 'pending', isActive: false };
+    // Once published, mentor edits their own profile freely — no re-review needed.
+    // Only during onboarding steps does a profile save trigger pending status.
+    const isPublished = mentor.onboardingStep === 'published';
+    const updatePayload = isPublished
+      ? req.body
+      : { ...req.body, approvalStatus: 'pending', isActive: false };
     await getMentorRepo().update(mentor.id, updatePayload);
 
     // Advance onboarding step through the profile-building steps

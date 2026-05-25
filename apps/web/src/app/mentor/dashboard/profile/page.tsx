@@ -44,7 +44,7 @@ export default function MentorProfilePage() {
             <div>
                 <h1 className="text-2xl font-bold text-slate-900">My Profile</h1>
                 <p className="text-slate-500 text-sm mt-1">
-                    Update your bio and headline — changes to your public profile go for admin review. Offers, availability, and policies save instantly.
+                    Update your profile, offers, availability, and policies. All changes save instantly.
                 </p>
             </div>
 
