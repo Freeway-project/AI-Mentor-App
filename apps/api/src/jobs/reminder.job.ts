@@ -5,16 +5,20 @@ import { EmailService } from '../services/email.service';
 const userRepo = new UserRepository();
 const mentorRepo = new MentorRepository();
 
-// Find meetings starting in the 4–6 minute window that haven't been reminded yet
-async function sendDueReminders(): Promise<void> {
+async function sendReminderWindow(params: {
+  minAheadMinutes: number;
+  maxAheadMinutes: number;
+  sentAtField: 'reminderSentAt' | 'reminder24hSentAt';
+  reminderLeadHours?: number;
+}): Promise<void> {
   const now = Date.now();
-  const windowStart = new Date(now + 4 * 60 * 1000); // 4 min from now
-  const windowEnd = new Date(now + 6 * 60 * 1000);   // 6 min from now
+  const windowStart = new Date(now + params.minAheadMinutes * 60 * 1000);
+  const windowEnd = new Date(now + params.maxAheadMinutes * 60 * 1000);
 
   const meetings = await MeetingModel.find({
     scheduledAt: { $gte: windowStart, $lte: windowEnd },
     status: { $in: ['booked', 'confirmed'] },
-    reminderSentAt: { $exists: false },
+    [params.sentAtField]: { $exists: false },
   });
 
   if (!meetings.length) return;
@@ -24,7 +28,7 @@ async function sendDueReminders(): Promise<void> {
   for (const meeting of meetings) {
     try {
       // Mark as reminded first (prevents duplicate sends if the job overlaps)
-      await MeetingModel.findByIdAndUpdate(meeting._id, { $set: { reminderSentAt: new Date() } });
+      await MeetingModel.findByIdAndUpdate(meeting._id, { $set: { [params.sentAtField]: new Date() } });
 
       const menteeId = meeting.menteeId.toString();
       const mentorId = meeting.mentorId.toString();
@@ -41,8 +45,7 @@ async function sendDueReminders(): Promise<void> {
         title: meeting.title,
         scheduledAt: meeting.scheduledAt,
         durationMin: meeting.duration,
-        dailyRoomUrl: meeting.dailyRoomUrl,
-        meetUrl: meeting.meetingLink,
+        reminderLeadHours: params.reminderLeadHours,
         mentorName: mentor.name,
         menteeName: mentee.name,
       };
@@ -64,10 +67,26 @@ async function sendDueReminders(): Promise<void> {
       logger.info(`[ReminderJob] Reminders sent for meeting ${meeting._id}`);
     } catch (err) {
       logger.error(`[ReminderJob] Failed for meeting ${meeting._id}: ${(err as Error).message}`);
-      // Unmark reminderSentAt so it can retry next tick
-      await MeetingModel.findByIdAndUpdate(meeting._id, { $unset: { reminderSentAt: 1 } }).catch(() => {});
+      // Unmark reminder field so it can retry next tick
+      await MeetingModel.findByIdAndUpdate(meeting._id, { $unset: { [params.sentAtField]: 1 } }).catch(() => {});
     }
   }
+}
+
+// Find meetings for 24-hour and 5-minute reminder windows.
+async function sendDueReminders(): Promise<void> {
+  await sendReminderWindow({
+    minAheadMinutes: 24 * 60 - 1,
+    maxAheadMinutes: 24 * 60 + 1,
+    sentAtField: 'reminder24hSentAt',
+    reminderLeadHours: 24,
+  });
+  await sendReminderWindow({
+    minAheadMinutes: 4,
+    maxAheadMinutes: 6,
+    sentAtField: 'reminderSentAt',
+    reminderLeadHours: 0,
+  });
 }
 
 let intervalHandle: ReturnType<typeof setInterval> | null = null;

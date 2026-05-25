@@ -95,6 +95,7 @@ export default async function MentorProfilePage({ params }: PageProps) {
                 <MentorProfileBookingPanel
                   mentorId={mentor.id}
                   mentorName={mentor.name}
+                  mentorTimezone={mentor.availability?.timezone}
                   offers={offers}
                   hourlyRate={mentor.hourlyRate}
                   introVideoUrl={mentor.introVideoUrl}

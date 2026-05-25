@@ -381,6 +381,7 @@ const STEPS: { key: Step; label: string }[] = [
 export function MentorProfileBookingPanel({
   mentorId,
   mentorName,
+  mentorTimezone,
   offers,
   hourlyRate,
   introVideoUrl,
@@ -388,6 +389,7 @@ export function MentorProfileBookingPanel({
 }: {
   mentorId: string;
   mentorName: string;
+  mentorTimezone?: string;
   offers: MentorOffer[];
   hourlyRate?: number;
   introVideoUrl?: string;
@@ -715,6 +717,7 @@ export function MentorProfileBookingPanel({
               slots={dateSlotsForSelected}
               selectedSlot={selectedSlot}
               onSelectSlot={handleSlotSelect}
+              timezone={mentorTimezone}
             />
           </div>
         )}

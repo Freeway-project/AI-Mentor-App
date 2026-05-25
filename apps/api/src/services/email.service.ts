@@ -39,6 +39,11 @@ function generateICS(params: {
   ].join('\r\n');
 }
 
+function buildSessionVideoUrl(meetingId: string): string {
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+  return `${appUrl}/video/${meetingId}`;
+}
+
 let _devTransport: nodemailer.Transporter | null = null;
 
 async function getDevTransport(): Promise<nodemailer.Transporter> {
@@ -537,7 +542,7 @@ export const EmailService = {
     const from = `${fromName} <${fromEmail}>`;
     const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
     const sessionUrl = `${appUrl}${params.dashboardPath ?? '/mentee/dashboard'}`;
-    const videoUrl = `${appUrl}/video/${params.meetingId}`;
+    const videoUrl = buildSessionVideoUrl(params.meetingId);
 
     const dateStr = params.scheduledAt.toLocaleDateString('en-US', {
       weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
@@ -660,48 +665,43 @@ export const EmailService = {
     title: string;
     scheduledAt: Date;
     durationMin: number;
-    dailyRoomUrl?: string;
-    meetUrl?: string;
+    reminderLeadHours?: number;
   }): Promise<void> {
     const fromName = process.env.SMTP_FROM_NAME || 'OWL Mentor';
     const fromEmail = process.env.SMTP_FROM_EMAIL || process.env.SMTP_FROM || 'noreply@owlmentor.com';
     const from = `${fromName} <${fromEmail}>`;
     const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
-    const callUrl = params.dailyRoomUrl || params.meetUrl;
+    const callUrl = buildSessionVideoUrl(params.meetingId);
+    const leadHours = params.reminderLeadHours ?? 0;
+    const is24hReminder = leadHours >= 24;
 
     const timeStr = params.scheduledAt.toLocaleTimeString('en-US', {
       hour: '2-digit', minute: '2-digit', timeZoneName: 'short',
     });
 
-    const subject = `Your session starts in 5 minutes — ${params.title}`;
+    const subject = is24hReminder
+      ? `Reminder: your session is tomorrow — ${params.title}`
+      : `Your session starts in 5 minutes — ${params.title}`;
     const html = `
       <div style="font-family:sans-serif;max-width:560px;margin:auto;padding:32px;background:#fff;border-radius:12px">
         <div style="background:linear-gradient(135deg,#7c3aed,#6d28d9);border-radius:10px;padding:20px 24px;margin-bottom:24px;text-align:center">
-          <p style="color:#fff;font-size:28px;font-weight:800;margin:0">⏰ 5 Minutes!</p>
-          <p style="color:#ede9fe;font-size:14px;margin:6px 0 0">Your mentoring session is about to start</p>
+          <p style="color:#fff;font-size:28px;font-weight:800;margin:0">${is24hReminder ? '📅 24 Hours' : '⏰ 5 Minutes!'}</p>
+          <p style="color:#ede9fe;font-size:14px;margin:6px 0 0">${is24hReminder ? 'Your mentoring session is tomorrow' : 'Your mentoring session is about to start'}</p>
         </div>
 
         <p style="color:#0f172a;font-size:15px;margin-bottom:20px">
           Hi <strong>${escapeHtml(params.recipientName)}</strong>, your session <strong>"${escapeHtml(params.title)}"</strong> with ${escapeHtml(params.mentorName === params.recipientName ? params.menteeName : params.mentorName)} starts at <strong>${timeStr}</strong> (${params.durationMin} min).
         </p>
 
-        ${callUrl ? `
         <div style="text-align:center;margin-bottom:24px">
           <a href="${callUrl}"
              style="display:inline-block;padding:16px 40px;background:#7c3aed;color:#fff;border-radius:10px;text-decoration:none;font-weight:800;font-size:17px;letter-spacing:-0.3px">
-            Join Now →
+            ${is24hReminder ? 'View Session →' : 'Join Now →'}
           </a>
         </div>
         <p style="color:#64748b;font-size:12px;text-align:center;margin-bottom:24px">
           <a href="${callUrl}" style="color:#7c3aed">${callUrl}</a>
-        </p>` : `
-        <p style="color:#ef4444;font-size:13px;margin-bottom:24px">No call link found — check your booking in the dashboard.</p>
-        <div style="text-align:center;margin-bottom:24px">
-          <a href="${appUrl}/dashboard/sessions/${params.meetingId}"
-             style="display:inline-block;padding:14px 32px;background:#7c3aed;color:#fff;border-radius:8px;text-decoration:none;font-weight:700;font-size:15px">
-            Open Session →
-          </a>
-        </div>`}
+        </p>
 
         <p style="color:#94a3b8;font-size:11px;text-align:center">
           OWL Mentor &bull; <a href="${appUrl}" style="color:#7c3aed;text-decoration:none">owlmentor.com</a>
@@ -956,12 +956,24 @@ export const EmailService = {
     const fromEmail = process.env.SMTP_FROM_EMAIL || process.env.SMTP_FROM || 'noreply@owlmentor.com';
     const from = `${fromName} <${fromEmail}>`;
     const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+    const videoUrl = buildSessionVideoUrl(params.meetingId);
 
     const dateStr = params.scheduledAt.toLocaleDateString('en-US', {
       weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
     });
     const timeStr = params.scheduledAt.toLocaleTimeString('en-US', {
       hour: '2-digit', minute: '2-digit', timeZoneName: 'short',
+    });
+    const endAt = new Date(params.scheduledAt.getTime() + params.durationMin * 60 * 1000);
+    const icsContent = generateICS({
+      uid: params.meetingId,
+      summary: `${params.title} with ${params.mentorName}`,
+      description: `Join your mentoring session: ${videoUrl}`,
+      location: videoUrl,
+      startAt: params.scheduledAt,
+      endAt,
+      organizerEmail: fromEmail,
+      organizerName: fromName,
     });
 
     const subject = `Receipt: ${escapeHtml(params.title)} with ${escapeHtml(params.mentorName)} — $${params.amountPaid.toFixed(2)}`;
@@ -978,6 +990,7 @@ export const EmailService = {
         <p style="color:#0f172a;font-size:15px;margin-bottom:20px">
           Hi <strong>${escapeHtml(params.menteeName)}</strong>, your payment was successful. Here is your receipt.
         </p>
+        <p style="color:#64748b;font-size:12px;margin-bottom:14px">Calendar invite attached for quick add to Google/Apple Calendar.</p>
 
         <table style="width:100%;border-collapse:collapse;margin-bottom:24px">
           <tr>
@@ -1025,7 +1038,17 @@ export const EmailService = {
           transport,
           provider: 'smtp',
           operation: 'send_payment_receipt',
-          mailOptions: { from, to: params.to, subject, html },
+          mailOptions: {
+            from,
+            to: params.to,
+            subject,
+            html,
+            attachments: [{
+              filename: 'session.ics',
+              content: icsContent,
+              contentType: 'text/calendar; charset=utf-8; method=REQUEST',
+            }],
+          },
           metadata: { emailType: 'payment_receipt', meetingId: params.meetingId },
         });
         logger.info(`[RECEIPT EMAIL] Sent to ${params.to}`);
@@ -1042,7 +1065,17 @@ export const EmailService = {
         transport: devTransport,
         provider: 'ethereal',
         operation: 'send_payment_receipt',
-        mailOptions: { from, to: params.to, subject, html },
+        mailOptions: {
+          from,
+          to: params.to,
+          subject,
+          html,
+          attachments: [{
+            filename: 'session.ics',
+            content: icsContent,
+            contentType: 'text/calendar; charset=utf-8; method=REQUEST',
+          }],
+        },
         metadata: { emailType: 'payment_receipt', meetingId: params.meetingId },
       });
       const previewUrl = nodemailer.getTestMessageUrl(info);
