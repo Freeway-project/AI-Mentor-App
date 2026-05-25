@@ -20,7 +20,7 @@ export class StripeService {
       const pi = await stripe.paymentIntents.create({
         amount: params.amountCents,
         currency: params.currency ?? 'usd',
-        automatic_payment_methods: { enabled: true },
+        payment_method_types: ['card'],
         metadata: params.metadata ?? {},
       });
       if (!pi.client_secret) throw new Error('Stripe did not return a client_secret');

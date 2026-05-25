@@ -140,9 +140,12 @@ function StripePaymentForm({
           error: msg,
         });
         setError(msg);
-        toast.error('Booking failed after payment — please contact support');
+        toast.error(msg);
         setPaying(false);
       }
+    } else if (paymentIntent?.status === 'processing') {
+      setError('Your payment is still processing. Please wait a moment and try again, or contact support.');
+      setPaying(false);
     } else {
       frontendLogger.warn('Stripe payment not completed', {
         mentorId: bookingPayload.mentorId,
