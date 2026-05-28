@@ -15,8 +15,8 @@ rtc:
 # Built-in TURN server (handles NAT traversal — required for mobile / corporate networks)
 turn:
   enabled: true
-  # Set this to the domain that resolves to this server's public IP
-  domain: livekit.yourdomain.com
+  # ladyfinger.ca resolves to this server's public IP (155.248.218.193)
+  domain: ladyfinger.ca
   udp_port: 3478
   tls_port: 5349
   # TLS terminated by nginx upstream — LiveKit sees plain TCP on 5349

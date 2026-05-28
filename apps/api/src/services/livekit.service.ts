@@ -20,10 +20,11 @@ function getApiSecret(): string {
 }
 
 function getHost(): string {
-  const url = process.env.LIVEKIT_URL;
-  if (!url) throw new Error('LIVEKIT_URL environment variable is required');
-  // RoomServiceClient and EgressClient need http(s)://, not ws(s)://
-  return url.replace('wss://', 'https://').replace('ws://', 'http://');
+  // LIVEKIT_HOST is the internal Docker URL for server-side API calls (RoomServiceClient, EgressClient).
+  // Falls back to converting LIVEKIT_URL so local dev without LIVEKIT_HOST still works.
+  const host = process.env.LIVEKIT_HOST ?? process.env.LIVEKIT_URL;
+  if (!host) throw new Error('LIVEKIT_HOST (or LIVEKIT_URL) environment variable is required');
+  return host.replace('wss://', 'https://').replace('ws://', 'http://');
 }
 
 export class LiveKitService {
