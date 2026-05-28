@@ -10,6 +10,7 @@ import {
   TranscriptRepository,
 } from '@owl-mentors/database';
 import type { WebhookEvent } from 'livekit-server-sdk';
+import { EgressStatus } from 'livekit-server-sdk';
 import { LiveKitService } from '../services/livekit.service';
 import { WhisperService } from '../services/whisper.service';
 import { EmailService } from '../services/email.service';
@@ -97,10 +98,9 @@ async function handleLiveKitEvent(event: WebhookEvent): Promise<void> {
     const egressInfo = event.egressInfo;
     const egressId = egressInfo?.egressId ?? '';
     const roomName = egressInfo?.roomName ?? '';
-    const status = String(egressInfo?.status ?? '');
 
-    if (!egressId || status !== 'EGRESS_COMPLETE') {
-      logger.warn(`[Webhook/LiveKit] Egress ${egressId} ended with status ${status} — skipping`);
+    if (!egressId || egressInfo?.status !== EgressStatus.EGRESS_COMPLETE) {
+      logger.warn(`[Webhook/LiveKit] Egress ${egressId} ended with status ${egressInfo?.status} — skipping`);
       return;
     }
 
@@ -121,16 +121,19 @@ async function handleLiveKitEvent(event: WebhookEvent): Promise<void> {
     const menteeId = meetingDoc.menteeId.toString();
     const mentorId = meetingDoc.mentorId.toString();
 
-    const fileResults: any[] = (egressInfo as any)?.fileResults ?? [];
-    const rawLocation: string = fileResults[0]?.location ?? (egressInfo as any)?.file?.location ?? '';
+    const fileResult = egressInfo.fileResults[0];
+    const rawLocation: string = fileResult?.location ?? '';
     if (!rawLocation) {
       logger.warn(`[Webhook/LiveKit] No file location in egress ${egressId}`);
       return;
     }
     const audioUrl = s3LocationToHttpUrl(rawLocation);
 
-    const durationSeconds: number = (egressInfo as any)?.duration
-      ? Number((egressInfo as any).duration) / 1_000_000_000
+    // FileInfo.duration is int64/bigint nanoseconds; fall back to endedAt-startedAt, then meeting.duration
+    const durationNs: bigint = fileResult?.duration
+      || (egressInfo.endedAt > 0n ? egressInfo.endedAt - egressInfo.startedAt : 0n);
+    const durationSeconds: number = durationNs > 0n
+      ? Number(durationNs) / 1_000_000_000
       : meetingDoc.duration * 60;
 
     // Transcribe

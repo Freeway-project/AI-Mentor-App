@@ -101,26 +101,22 @@ export class LiveKitService {
 
     const startTime = Date.now();
     try {
-      const { EgressClient, EncodedFileOutput, EncodedFileType } = await import('livekit-server-sdk');
+      const { EgressClient, EncodedFileOutput, EncodedFileType, S3Upload } = await import('livekit-server-sdk');
       const egressClient = new EgressClient(getHost(), getApiKey(), getApiSecret());
 
-      const s3Config: Record<string, unknown> = {
+      const s3 = new S3Upload({
         accessKey: process.env.AWS_ACCESS_KEY_ID ?? '',
         secret: process.env.AWS_SECRET_ACCESS_KEY ?? '',
         region: process.env.AWS_REGION ?? 'us-east-1',
         bucket,
-      };
-      if (process.env.AWS_S3_ENDPOINT) {
-        s3Config.endpoint = process.env.AWS_S3_ENDPOINT;
-      }
-      if (process.env.AWS_S3_FORCE_PATH_STYLE === 'true') {
-        s3Config.forcePathStyle = true;
-      }
+        endpoint: process.env.AWS_S3_ENDPOINT ?? '',
+        forcePathStyle: process.env.AWS_S3_FORCE_PATH_STYLE === 'true',
+      });
 
       const output = new EncodedFileOutput({
         fileType: EncodedFileType.MP4,
         filepath: `recordings/${meetingId}/{time}.mp4`,
-        output: { case: 's3', value: s3Config as any },
+        output: { case: 's3', value: s3 },
       });
 
       const egress = await egressClient.startRoomCompositeEgress(roomName, { file: output });
