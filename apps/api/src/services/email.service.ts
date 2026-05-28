@@ -89,6 +89,14 @@ function escapeHtml(input: string): string {
     .replace(/'/g, '&#39;');
 }
 
+function getAppUrl(): string {
+  return process.env.NEXT_PUBLIC_APP_URL || process.env.APP_URL || 'https://owlmentor.com';
+}
+
+function getAdminUrl(): string {
+  return process.env.ADMIN_URL || `${getAppUrl()}/admin`;
+}
+
 export const EmailService = {
   async sendOtp(to: string, code: string): Promise<void> {
     const fromName = process.env.SMTP_FROM_NAME || 'Owl Mentors';
@@ -222,7 +230,7 @@ export const EmailService = {
     const fromName = process.env.SMTP_FROM_NAME || 'OWL Mentor';
     const fromEmail = process.env.SMTP_FROM_EMAIL || process.env.SMTP_FROM || 'noreply@owlmentor.com';
     const from = `${fromName} <${fromEmail}>`;
-    const adminUrl = process.env.ADMIN_URL || 'http://localhost:3000/admin';
+    const adminUrl = getAdminUrl();
     const reviewUrl = `${adminUrl}/coaches/${mentor.mentorId}`;
 
     const subject = `Mentor profile ready for review: ${mentor.name}`;
@@ -286,7 +294,7 @@ export const EmailService = {
     const fromName = process.env.SMTP_FROM_NAME || 'OWL Mentor';
     const fromEmail = process.env.SMTP_FROM_EMAIL || process.env.SMTP_FROM || 'noreply@owlmentor.com';
     const from = `${fromName} <${fromEmail}>`;
-    const adminUrl = process.env.ADMIN_URL || 'http://localhost:3000/admin';
+    const adminUrl = getAdminUrl();
 
     const subject = `New mentor signup: ${mentor.name}`;
     const html = `
@@ -347,7 +355,7 @@ export const EmailService = {
     const fromName = process.env.SMTP_FROM_NAME || 'OWL Mentor';
     const fromEmail = process.env.SMTP_FROM_EMAIL || process.env.SMTP_FROM || 'noreply@owlmentor.com';
     const from = `${fromName} <${fromEmail}>`;
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+    const appUrl = getAppUrl();
     const profileUrl = `${appUrl}/mentor/dashboard/profile`;
     const messagePreview = escapeHtml(params.message.trim()).slice(0, 280);
 
@@ -425,7 +433,7 @@ export const EmailService = {
     const fromName = process.env.SMTP_FROM_NAME || 'OWL Mentor';
     const fromEmail = process.env.SMTP_FROM_EMAIL || process.env.SMTP_FROM || 'noreply@owlmentor.com';
     const from = `${fromName} <${fromEmail}>`;
-    const adminUrl = process.env.ADMIN_URL || 'http://localhost:3000/admin';
+    const adminUrl = getAdminUrl();
     const reviewUrl = `${adminUrl}/coaches/${params.mentorId}`;
     const messagePreview = escapeHtml(params.message.trim()).slice(0, 280);
 
@@ -500,7 +508,7 @@ export const EmailService = {
     const fromName = process.env.SMTP_FROM_NAME || 'OWL Mentor';
     const fromEmail = process.env.SMTP_FROM_EMAIL || process.env.SMTP_FROM || 'noreply@owlmentor.com';
     const from = `${fromName} <${fromEmail}>`;
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+    const appUrl = getAppUrl();
     const sessionUrl = `${appUrl}${params.dashboardPath ?? '/mentee/dashboard'}`;
     const callUrl = params.dailyRoomUrl || params.meetUrl;
 
@@ -612,7 +620,7 @@ export const EmailService = {
     const fromName = process.env.SMTP_FROM_NAME || 'OWL Mentor';
     const fromEmail = process.env.SMTP_FROM_EMAIL || process.env.SMTP_FROM || 'noreply@owlmentor.com';
     const from = `${fromName} <${fromEmail}>`;
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+    const appUrl = getAppUrl();
     const callUrl = params.dailyRoomUrl || params.meetUrl;
 
     const timeStr = params.scheduledAt.toLocaleTimeString('en-US', {
@@ -707,7 +715,7 @@ export const EmailService = {
     const fromName = process.env.SMTP_FROM_NAME || 'OWL Mentor';
     const fromEmail = process.env.SMTP_FROM_EMAIL || process.env.SMTP_FROM || 'noreply@owlmentor.com';
     const from = `${fromName} <${fromEmail}>`;
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+    const appUrl = getAppUrl();
     const sessionUrl = `${appUrl}/mentee/dashboard`;
 
     const durationMin = Math.round(params.durationSeconds / 60);
@@ -813,7 +821,7 @@ export const EmailService = {
     const fromName = process.env.SMTP_FROM_NAME || 'OWL Mentor';
     const fromEmail = process.env.SMTP_FROM_EMAIL || process.env.SMTP_FROM || 'noreply@owlmentor.com';
     const from = `${fromName} <${fromEmail}>`;
-    const adminUrl = process.env.ADMIN_URL || 'http://localhost:3000/admin';
+    const adminUrl = getAdminUrl();
 
     const dateStr = params.scheduledAt.toLocaleDateString('en-US', {
       weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
@@ -901,7 +909,7 @@ export const EmailService = {
     const fromName = process.env.SMTP_FROM_NAME || 'OWL Mentor';
     const fromEmail = process.env.SMTP_FROM_EMAIL || process.env.SMTP_FROM || 'noreply@owlmentor.com';
     const from = `${fromName} <${fromEmail}>`;
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+    const appUrl = getAppUrl();
 
     const dateStr = params.scheduledAt.toLocaleDateString('en-US', {
       weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
@@ -1010,7 +1018,7 @@ export const EmailService = {
     const fromName = process.env.SMTP_FROM_NAME || 'OWL Mentor';
     const fromEmail = process.env.SMTP_FROM_EMAIL || process.env.SMTP_FROM || 'noreply@owlmentor.com';
     const from = `${fromName} <${fromEmail}>`;
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+    const appUrl = getAppUrl();
     const mentorSignupUrl = `${appUrl}/register?role=mentor`;
     const menteeSignupUrl = `${appUrl}/register?role=mentee`;
 

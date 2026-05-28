@@ -431,7 +431,7 @@ router.get('/bookings/:id/token', authenticate, requireEmailVerified, async (req
     }
 
     const user = await userRepo.findById(req.userId!);
-    const token = livekitService.generateToken({
+    const token = await livekitService.generateToken({
       roomName,
       participantIdentity: req.userId!,
       participantName: user.name || 'Participant',

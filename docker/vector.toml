@@ -1,0 +1,69 @@
+data_dir = "/var/lib/vector"
+
+# ── Sources ──────────────────────────────────────────────────────────────────
+
+[sources.container_logs]
+type           = "docker_logs"
+exclude_images = ["timberio/vector"]   # skip Vector's own logs
+
+[sources.host_metrics]
+type                 = "host_metrics"
+scrape_interval_secs = 30
+collectors           = ["cpu", "memory", "disk", "filesystem", "network", "load_average"]
+
+# ── Transforms ───────────────────────────────────────────────────────────────
+
+[transforms.enrich_logs]
+type   = "remap"
+inputs = ["container_logs"]
+source = '''
+  .project = "owl-mentors"
+  .env     = "production"
+'''
+
+[transforms.metrics_to_log]
+type   = "metric_to_log"
+inputs = ["host_metrics"]
+
+[transforms.enrich_metrics]
+type   = "remap"
+inputs = ["metrics_to_log"]
+source = '''
+  .project = "owl-mentors"
+  .env     = "production"
+  .type    = "metric"
+'''
+
+# ── Sinks ─────────────────────────────────────────────────────────────────────
+
+[sinks.betterstack_logs]
+type                = "http"
+inputs              = ["enrich_logs"]
+uri                 = "https://in.logs.betterstack.com"
+encoding.codec      = "json"
+framing.method      = "newline_delimited"
+request.concurrency = 4
+
+[sinks.betterstack_logs.auth]
+strategy = "bearer"
+token    = "${BETTERSTACK_LOGS_TOKEN}"
+
+[sinks.betterstack_logs.batch]
+max_bytes    = 1_048_576
+timeout_secs = 5
+
+[sinks.betterstack_metrics]
+type                = "http"
+inputs              = ["enrich_metrics"]
+uri                 = "https://in.logs.betterstack.com"
+encoding.codec      = "json"
+framing.method      = "newline_delimited"
+request.concurrency = 2
+
+[sinks.betterstack_metrics.auth]
+strategy = "bearer"
+token    = "${BETTERSTACK_METRICS_TOKEN}"
+
+[sinks.betterstack_metrics.batch]
+max_bytes    = 524_288
+timeout_secs = 30
