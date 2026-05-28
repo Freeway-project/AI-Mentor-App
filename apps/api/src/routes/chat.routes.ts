@@ -48,6 +48,7 @@ router.get('/conversations/:id/messages', authenticate, async (req: Request, res
       conversationId: req.params.id,
       before: before as string | undefined,
       limit: Number(limit) || 50,
+      offset: 0,
     });
     res.json({ success: true, data: messages });
   } catch (error) {
