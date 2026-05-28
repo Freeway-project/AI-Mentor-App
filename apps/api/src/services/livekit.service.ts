@@ -119,7 +119,8 @@ export class LiveKitService {
         output: { case: 's3', value: s3 },
       });
 
-      const egress = await egressClient.startRoomCompositeEgress(roomName, { file: output });
+      // audioOnly: skip video rendering — smaller file, faster Whisper transcription
+      const egress = await egressClient.startRoomCompositeEgress(roomName, { file: output }, { audioOnly: true });
       const egressId = egress.egressId;
 
       logger.info(`[LiveKit] Egress started: ${egressId} for room ${roomName}`);
