@@ -22,12 +22,5 @@
   "devDependencies": {
     "@types/bun": "latest",
     "typescript": "^5.3.3"
-  },
-  "dependencies": {
-    "@aws-sdk/client-s3": "^3.1054.0",
-    "@aws-sdk/s3-request-presigner": "^3.1054.0",
-    "@owl-mentors/api": "workspace:*",
-    "@owl-mentors/api": "./apps/api",
-    "livekit-server-sdk": "^2.15.3"
   }
 }
