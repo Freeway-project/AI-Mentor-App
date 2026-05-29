@@ -122,7 +122,7 @@ services:
 
   # ── Vector — container logs + VPS metrics → BetterStack ──────────────────
   vector:
-    image: timberio/vector:0.42-alpine
+    image: timberio/vector:0.43.0-alpine
     restart: unless-stopped
     user: "0"
     volumes:
