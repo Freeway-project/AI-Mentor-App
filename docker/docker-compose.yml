@@ -7,6 +7,17 @@ name: owl-mentors
 
 services:
 
+  # ── Redis — LiveKit server ↔ egress worker coordination ──────────────────
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    command: redis-server --save "" --appendonly no
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
   # ── MinIO (S3-compatible object storage) ─────────────────────────────────
   minio:
     image: minio/minio:latest
@@ -47,6 +58,8 @@ services:
     image: livekit/livekit-server:latest
     restart: unless-stopped
     depends_on:
+      redis:
+        condition: service_healthy
       minio:
         condition: service_healthy
       minio-init:
@@ -61,11 +74,29 @@ services:
       --config /etc/livekit.yaml
       --keys "${LIVEKIT_API_KEY}: ${LIVEKIT_API_SECRET}"
     ports:
-      - "7880:7880"              # WebSocket signaling
+      - "7880:7880"              # WebSocket signaling (proxied by nginx → wss://ladyfinger.ca:7443)
       - "7881:7881/tcp"          # TCP media fallback
       - "3478:3478/udp"          # TURN UDP (NAT traversal)
       - "5349:5349/tcp"          # TURN TLS
       - "50000-60000:50000-60000/udp"  # WebRTC RTP media range
+
+  # ── LiveKit Egress — records rooms to MinIO ───────────────────────────────
+  egress:
+    image: livekit/egress:latest
+    restart: unless-stopped
+    depends_on:
+      redis:
+        condition: service_healthy
+      livekit:
+        condition: service_started
+      minio:
+        condition: service_healthy
+    environment:
+      EGRESS_CONFIG_FILE: /etc/livekit/egress.yaml
+    volumes:
+      - ./egress.yaml:/etc/livekit/egress.yaml:ro
+    cap_add:
+      - SYS_ADMIN   # required for Chrome sandbox inside egress container
 
   # ── API ───────────────────────────────────────────────────────────────────
   api:
