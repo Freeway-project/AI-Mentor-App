@@ -176,7 +176,7 @@ export function ProgressPath() {
                             className="group h-14 w-full rounded-full bg-brand text-lg font-bold text-white shadow-[0_0_20px_rgba(124,58,237,0.3)] hover:bg-brand-light"
                             asChild
                         >
-                            <Link href="/find-mentor">
+                            <Link href="/browse">
                                 Start Your Path
                                 <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
                             </Link>

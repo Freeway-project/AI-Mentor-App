@@ -21,12 +21,14 @@ function RegisterPageInner() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [role, setRole] = useState<'mentee' | 'mentor'>('mentee');
+  const searchParams = useSearchParams();
+  const [role, setRole] = useState<'mentee' | 'mentor'>(
+    searchParams.get('role') === 'mentor' ? 'mentor' : 'mentee'
+  );
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const { register, loginWithGoogle } = useAuth();
   const router = useRouter();
-  const searchParams = useSearchParams();
   const redirect = searchParams.get('redirect');
   const loginHref = redirect ? `/login?redirect=${encodeURIComponent(redirect)}` : '/login';
 

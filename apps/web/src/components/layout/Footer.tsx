@@ -27,8 +27,9 @@ export function Footer() {
                             Platform
                         </h3>
                         <ul className="space-y-3 text-sm text-slate-500">
+                            <li><Link href="/browse" className="transition-colors hover:text-brand">Browse Mentors</Link></li>
+                            <li><Link href="/mentee/career" className="transition-colors hover:text-brand">AI Career Plan</Link></li>
                             <li><Link href="/how-it-works" className="transition-colors hover:text-brand">How it Works</Link></li>
-                            <li><Link href="#mentors" className="transition-colors hover:text-brand">Browse Mentors</Link></li>
                             <li><Link href="/login" className="transition-colors hover:text-brand">Log In</Link></li>
                         </ul>
                     </div>

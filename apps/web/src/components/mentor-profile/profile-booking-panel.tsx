@@ -77,6 +77,10 @@ function EditorialCalendar({
   while (cells.length % 7 !== 0) cells.push(null);
 
   const monthLabel = mStart.toLocaleDateString('en-GB', { month: 'long', year: 'numeric' });
+  const nextMonthLabel = new Date(year, month + 1, 1).toLocaleDateString('en-GB', { month: 'long' });
+  const hasAvailable = cells.some(
+    (d) => d && toISO(d) >= todayISO && (slotsByDate[toISO(d)] || []).length > 0
+  );
 
   return (
     <div>
@@ -219,30 +223,79 @@ function EditorialCalendar({
         })}
       </div>
 
-      {/* Legend */}
-      <div
-        style={{
-          display: 'flex',
-          gap: 18,
-          marginTop: 14,
-          paddingTop: 10,
-          borderTop: `1px solid ${ED.rule}`,
-          fontFamily: '"JetBrains Mono", ui-monospace, monospace',
-          fontSize: 10,
-          color: ED.inkMuted,
-          letterSpacing: '0.08em',
-          textTransform: 'uppercase',
-        }}
-      >
-        <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-          <span style={{ width: 10, height: 10, background: ED.accentTint, border: `1px solid ${ED.rule}` }} />
-          Available
-        </span>
-        <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-          <span style={{ width: 10, height: 10, background: ED.ink }} />
-          Selected
-        </span>
-      </div>
+      {/* Availability status */}
+      {loading ? (
+        <div
+          style={{
+            marginTop: 14,
+            paddingTop: 10,
+            borderTop: `1px solid ${ED.rule}`,
+            ...ed.mono(10, ED.inkMuted, { letterSpacing: '0.12em' }),
+          }}
+        >
+          CHECKING AVAILABILITY…
+        </div>
+      ) : !hasAvailable ? (
+        <div
+          style={{
+            marginTop: 14,
+            paddingTop: 12,
+            borderTop: `1px solid ${ED.rule}`,
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 10,
+          }}
+        >
+          <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, color: ED.inkSoft, lineHeight: 1.5 }}>
+            No openings in {monthLabel}.
+          </span>
+          <button
+            onClick={() => onMonthChange(1)}
+            style={{
+              alignSelf: 'flex-start',
+              background: 'transparent',
+              border: `1px solid ${ED.ink}`,
+              color: ED.ink,
+              cursor: 'pointer',
+              fontFamily: 'Inter, sans-serif',
+              fontSize: 13,
+              fontWeight: 500,
+              padding: '8px 14px',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 6,
+            }}
+          >
+            Check {nextMonthLabel}
+            <ChevronRight size={13} />
+          </button>
+        </div>
+      ) : (
+        /* Legend */
+        <div
+          style={{
+            display: 'flex',
+            gap: 18,
+            marginTop: 14,
+            paddingTop: 10,
+            borderTop: `1px solid ${ED.rule}`,
+            fontFamily: '"JetBrains Mono", ui-monospace, monospace',
+            fontSize: 10,
+            color: ED.inkMuted,
+            letterSpacing: '0.08em',
+            textTransform: 'uppercase',
+          }}
+        >
+          <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            <span style={{ width: 10, height: 10, background: ED.accentTint, border: `1px solid ${ED.rule}` }} />
+            Available
+          </span>
+          <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            <span style={{ width: 10, height: 10, background: ED.ink }} />
+            Selected
+          </span>
+        </div>
+      )}
     </div>
   );
 }
@@ -523,7 +576,9 @@ export function MentorProfileBookingPanel({
     setSelectedSlot(slot);
   };
 
-  const stepIdx = STEPS.findIndex((s) => s.key === step);
+  // Service step is auto-skipped when there's a single offer, so hide it from the progress display too.
+  const visibleSteps = offers.length <= 1 ? STEPS.filter((s) => s.key !== 'service') : STEPS;
+  const stepIdx = visibleSteps.findIndex((s) => s.key === step);
   const canAdvanceDate = selectedDate && selectedSlot;
 
   const dateSlotsForSelected = selectedDate ? (slotsByDate[selectedDate] || []) : [];
@@ -672,7 +727,7 @@ export function MentorProfileBookingPanel({
         {/* Header */}
         <div>
           <div style={ed.mono(10, ED.inkMuted)}>
-            Booking · Step {step === 'done' ? '✓' : `${stepIdx + 1}/3`}
+            Booking · Step {step === 'done' ? '✓' : `${stepIdx + 1}/${visibleSteps.length}`}
           </div>
           <h3 style={ed.serif(28, ED.ink, { margin: '4px 0 0', letterSpacing: -0.3 })}>
             {step === 'date' && 'Pick a time'}
@@ -685,7 +740,7 @@ export function MentorProfileBookingPanel({
         {/* Progress bar */}
         {step !== 'done' && (
           <div style={{ display: 'flex', gap: 6 }}>
-            {STEPS.map((s, i) => (
+            {visibleSteps.map((s, i) => (
               <div
                 key={s.key}
                 style={{
