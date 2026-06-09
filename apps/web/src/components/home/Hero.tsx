@@ -88,7 +88,7 @@ export function Hero() {
                                 </Link>
                             </Button>
                             <Button size="lg" variant="outline" className="rounded-full border-slate-300 bg-white text-slate-700 hover:border-brand/40 hover:bg-slate-50 hover:text-brand shadow-sm" asChild>
-                                <Link href="/register">Become a Mentor</Link>
+                                <Link href="/register?role=mentor">Become a Mentor</Link>
                             </Button>
                         </motion.div>
 
@@ -188,7 +188,7 @@ export function Hero() {
                             >
                                 <div className="text-sm font-bold uppercase tracking-widest text-brand drop-shadow-[0_0_4px_rgba(124,58,237,0.2)]">Success</div>
                                 <Button size="lg" className="group gap-2 rounded-full bg-brand px-8 py-6 text-lg font-bold text-white shadow-[0_4px_24px_rgba(124,58,237,0.3)] transition-all hover:scale-105 hover:bg-brand-light hover:shadow-[0_8px_32px_rgba(124,58,237,0.4)]" asChild>
-                                    <Link href="/find-mentor">
+                                    <Link href="/browse">
                                         Book Your Session
                                         <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                                     </Link>
