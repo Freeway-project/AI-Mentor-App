@@ -78,7 +78,6 @@ services:
       - "7881:7881/tcp"          # TCP media fallback
       - "3478:3478/udp"          # TURN UDP (NAT traversal)
       - "5349:5349/tcp"          # TURN TLS
-      - "50000-60000:50000-60000/udp"  # WebRTC RTP media range
 
   # ── LiveKit Egress — records rooms to MinIO ───────────────────────────────
   egress:
