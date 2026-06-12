@@ -127,8 +127,14 @@ export function MentorSidebar({ approvalStatus, isOpen, onClose }: MentorSidebar
 
             {/* Nav */}
             <nav className="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto">
-                {NAV.map(({ href, label, icon: Icon }) => {
-                    const isActive = pathname === href || (href !== '/mentor/dashboard' && pathname.startsWith(href));
+                {(() => {
+                  // Only the most-specific matching route is active, so parent
+                  // items don't stay highlighted on their child routes.
+                  const activeHref = NAV
+                    .filter(({ href }) => pathname === href || pathname.startsWith(href + '/'))
+                    .sort((a, b) => b.href.length - a.href.length)[0]?.href;
+                  return NAV.map(({ href, label, icon: Icon }) => {
+                    const isActive = href === activeHref;
                     return (
                         <Link
                             key={href}
@@ -143,7 +149,8 @@ export function MentorSidebar({ approvalStatus, isOpen, onClose }: MentorSidebar
                             {label}
                         </Link>
                     );
-                })}
+                  });
+                })()}
             </nav>
 
             {/* Bottom */}

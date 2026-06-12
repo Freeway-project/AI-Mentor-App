@@ -36,6 +36,12 @@ function RegisterPageInner() {
     e.preventDefault();
     setError('');
 
+    const strongPassword = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/;
+    if (!strongPassword.test(password)) {
+      setError('Password must be at least 8 characters and include an uppercase letter, a lowercase letter, a number, and a special character.');
+      return;
+    }
+
     if (password !== confirmPassword) {
       setError('Passwords do not match');
       return;
@@ -130,20 +136,6 @@ function RegisterPageInner() {
               Whether you&apos;re here to learn or share expertise — you&apos;re in the right place.
             </p>
           </div>
-
-          {/* Stats */}
-          <div className="mt-10 grid grid-cols-3 gap-4 max-w-sm">
-            {[
-              { value: '500+', label: 'Expert Mentors' },
-              { value: '2k+', label: 'Active Learners' },
-              { value: '95%', label: 'Satisfaction' },
-            ].map(({ value, label }) => (
-              <div key={label} className="p-4 rounded-xl bg-white border border-slate-200 text-center shadow-sm">
-                <p className="text-xl font-bold text-slate-900">{value}</p>
-                <p className="text-slate-500 font-medium text-xs mt-0.5">{label}</p>
-              </div>
-            ))}
-          </div>
         </div>
       </div>
 
@@ -221,7 +213,7 @@ function RegisterPageInner() {
             {/* Form */}
             <form onSubmit={handleSubmit} className="space-y-3.5">
               <div className="space-y-1.5">
-                <label htmlFor="name" className="block text-xs font-semibold text-slate-600 uppercase tracking-wider">
+                <label htmlFor="name" className="block text-xs font-semibold text-slate-600">
                   Full name
                 </label>
                 <input
@@ -236,7 +228,7 @@ function RegisterPageInner() {
               </div>
 
               <div className="space-y-1.5">
-                <label htmlFor="email" className="block text-xs font-semibold text-slate-600 uppercase tracking-wider">
+                <label htmlFor="email" className="block text-xs font-semibold text-slate-600">
                   Email address
                 </label>
                 <input
@@ -252,7 +244,7 @@ function RegisterPageInner() {
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div className="space-y-1.5">
-                  <label htmlFor="password" className="block text-xs font-semibold text-slate-600 uppercase tracking-wider">
+                  <label htmlFor="password" className="block text-xs font-semibold text-slate-600">
                     Password
                   </label>
                   <input
@@ -267,8 +259,8 @@ function RegisterPageInner() {
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <label htmlFor="confirmPassword" className="block text-xs font-semibold text-slate-600 uppercase tracking-wider">
-                    Confirm
+                  <label htmlFor="confirmPassword" className="block text-xs font-semibold text-slate-600">
+                    Confirm Password
                   </label>
                   <input
                     id="confirmPassword"
@@ -277,7 +269,7 @@ function RegisterPageInner() {
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-brand/40 focus:ring-4 focus:ring-brand/5 transition-all text-sm shadow-sm"
-                    placeholder="Repeat it"
+                    placeholder="Confirm password"
                   />
                 </div>
               </div>

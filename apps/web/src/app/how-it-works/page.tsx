@@ -22,9 +22,10 @@ export default function HowItWorksPage() {
               <h1 className="text-4xl font-bold tracking-tight text-white md:text-5xl">
                 A clear path from discovery to booked mentorship
               </h1>
-              <p className="mx-auto max-w-3xl text-base leading-relaxed text-slate-400 md:text-lg">
-                Browse mentors, get matched, choose a time, and book sessions from one consistent flow.
-                This page gives that journey its own route instead of relying on a homepage anchor.
+              <p className="mx-auto max-w-3xl text-base leading-relaxed text-slate-300 md:text-lg">
+                Tell us your goals and our AI builds a personalised career plan, then matches you with
+                the right mentors. Pick a time that suits you, book your session, and join the call —
+                guidance and next steps in one simple flow.
               </p>
               <div className="flex flex-col items-center justify-center gap-3 sm:flex-row">
                 <Link

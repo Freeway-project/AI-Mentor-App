@@ -37,9 +37,15 @@ export function MenteeSidebar() {
       </div>
 
       <nav className="min-h-0 flex-1 space-y-0.5 overflow-y-auto px-3 py-4">
-        {NAV.map(({ href, label, icon: Icon }) => {
-          const isActive =
-            pathname === href || (href !== '/browse' && pathname.startsWith(href));
+        {(() => {
+          // Pick the single most-specific matching route so parent items
+          // (e.g. "My Sessions") don't stay highlighted on child routes
+          // (e.g. "Messages").
+          const activeHref = NAV
+            .filter(({ href }) => pathname === href || pathname.startsWith(href + '/'))
+            .sort((a, b) => b.href.length - a.href.length)[0]?.href;
+          return NAV.map(({ href, label, icon: Icon }) => {
+          const isActive = href === activeHref;
 
           return (
             <Link
@@ -55,7 +61,8 @@ export function MenteeSidebar() {
               {label}
             </Link>
           );
-        })}
+          });
+        })()}
       </nav>
 
       <div className="shrink-0 space-y-3 border-t border-white/10 px-3 py-4">

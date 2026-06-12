@@ -488,12 +488,6 @@ export default function BrowsePage() {
                       </div>
                     )}
 
-                    {mentor.matchReason && (
-                      <p className="mt-4 rounded-xl border border-violet-100 bg-violet-50 px-3.5 py-3 text-sm leading-6 text-slate-600">
-                        {mentor.matchReason}
-                      </p>
-                    )}
-
                     <div className="flex items-center justify-between mt-auto pt-6 border-t border-slate-100 text-sm">
                       <div className="flex items-center gap-3 text-slate-500">
                         {mentor.rating && (
