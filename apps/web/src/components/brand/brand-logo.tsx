@@ -12,6 +12,8 @@ type BrandLogoProps = {
   wordmarkClassName?: string;
   stacked?: boolean;
   showWordmark?: boolean;
+  /** Render the wordmark as a solid color (e.g. black) instead of the gold gradient. */
+  solidWordmark?: boolean;
 };
 
 type BrandLogoImageProps = {
@@ -41,6 +43,7 @@ export function BrandLogo({
   wordmarkClassName,
   stacked = false,
   showWordmark = true,
+  solidWordmark = false,
 }: BrandLogoProps) {
   return (
     <div
@@ -54,7 +57,10 @@ export function BrandLogo({
       {showWordmark ? (
         <span
           className={cn(
-            'bg-gradient-to-r from-amber-200 via-yellow-400 to-amber-600 bg-clip-text font-semibold leading-none text-transparent',
+            'font-semibold leading-none',
+            solidWordmark
+              ? 'text-slate-900'
+              : 'bg-gradient-to-r from-amber-200 via-yellow-400 to-amber-600 bg-clip-text text-transparent',
             stacked ? 'text-lg tracking-[0.32em]' : 'text-sm tracking-[0.24em]',
             wordmarkClassName
           )}

@@ -68,7 +68,7 @@ export function TemplateEditor({ initialData, onSave, onDelete, saving }: Templa
                         </div>
                         <div>
                             <label className="block text-xs font-semibold text-slate-600 mb-1.5 uppercase tracking-wider">Email Subject</label>
-                            <input className={inputCls} placeholder="e.g. Become an OWL Mentor mentor today" value={subject} onChange={(e) => setSubject(e.target.value)} />
+                            <input className={inputCls} placeholder="e.g. Become an Owl Mentors mentor today" value={subject} onChange={(e) => setSubject(e.target.value)} />
                         </div>
                         <div>
                             <label className="block text-xs font-semibold text-slate-600 mb-1.5 uppercase tracking-wider">
@@ -93,7 +93,7 @@ export function TemplateEditor({ initialData, onSave, onDelete, saving }: Templa
                             <div style={{ fontFamily: "'Helvetica Neue',sans-serif", maxWidth: 600, margin: '0 auto', background: '#fff', borderRadius: 12, overflow: 'hidden', boxShadow: '0 1px 6px rgba(0,0,0,0.06)' }}>
                                 {/* Header */}
                                 <div style={{ background: 'linear-gradient(135deg,#0a0a1a,#0f0b1e)', padding: '28px 36px', textAlign: 'center' }}>
-                                    <p style={{ color: '#f59e0b', fontSize: 22, fontWeight: 800, margin: 0 }}>🦉 OWL Mentor</p>
+                                    <p style={{ color: '#f59e0b', fontSize: 22, fontWeight: 800, margin: 0 }}>🦉 Owl Mentors</p>
                                     <p style={{ color: '#94a3b8', fontSize: 12, margin: '6px 0 0' }}>Connect. Learn. Grow.</p>
                                 </div>
                                 {/* Greeting */}
@@ -114,8 +114,8 @@ export function TemplateEditor({ initialData, onSave, onDelete, saving }: Templa
                                 {/* Footer */}
                                 <div style={{ background: '#f8fafc', padding: '18px 36px', borderTop: '1px solid #e2e8f0', textAlign: 'center' }}>
                                     <p style={{ color: '#94a3b8', fontSize: 11, margin: 0, lineHeight: 1.6 }}>
-                                        © {new Date().getFullYear()} OWL Mentor by Jaddpi &nbsp;|&nbsp;<a href="#" style={{ color: '#7c3aed', textDecoration: 'none' }}>Visit our website</a><br />
-                                        You are receiving this email because your contact was provided to OWL Mentor for outreach.
+                                        © {new Date().getFullYear()} Owl Mentors by Jaddpi &nbsp;|&nbsp;<a href="#" style={{ color: '#7c3aed', textDecoration: 'none' }}>Visit our website</a><br />
+                                        You are receiving this email because your contact was provided to Owl Mentors for outreach.
                                     </p>
                                 </div>
                             </div>

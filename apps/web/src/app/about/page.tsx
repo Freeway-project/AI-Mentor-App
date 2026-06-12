@@ -9,9 +9,25 @@ export default function AboutPage() {
             </div>
             <Navbar />
             <div className="flex-1 container mx-auto px-4 py-20 relative z-10">
-                <div className="max-w-3xl mx-auto bg-slate-900/40 backdrop-blur-md border border-slate-800/80 p-8 md:p-12 rounded-2xl shadow-xl">
-                    <h1 className="text-4xl font-bold tracking-tight text-white mb-6">About Us</h1>
-                    <p className="text-lg text-slate-400">Content coming soon...</p>
+                <div className="max-w-3xl mx-auto bg-slate-900/40 backdrop-blur-md border border-slate-800/80 p-8 md:p-12 rounded-2xl shadow-xl space-y-6">
+                    <h1 className="text-4xl font-bold tracking-tight text-white">About Us</h1>
+                    <p className="text-lg leading-relaxed text-slate-300">
+                        Owl Mentors is a mentorship platform built by{' '}
+                        <span className="font-semibold text-white">Blu Codes</span>. We help people move
+                        forward in their careers by pairing them with experienced mentors and an AI
+                        career planner that turns their background into a clear, actionable path.
+                    </p>
+                    <p className="text-base leading-relaxed text-slate-400">
+                        Blu Codes is a software studio focused on building practical, people-first
+                        products. Owl Mentors is our answer to a simple problem: getting the right
+                        guidance shouldn&apos;t be hard. From your first AI-generated career plan to
+                        booking a session with the right mentor, everything lives in one place.
+                    </p>
+                    <p className="text-base leading-relaxed text-slate-400">
+                        Our mission is to make quality mentorship accessible — so whether you&apos;re
+                        switching fields, levelling up, or just getting started, there&apos;s a mentor
+                        and a plan ready for you.
+                    </p>
                 </div>
             </div>
             <Footer />

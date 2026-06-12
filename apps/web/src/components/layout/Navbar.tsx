@@ -30,6 +30,7 @@ export function Navbar() {
                 {/* Logo */}
                 <Link href="/" className="flex items-center space-x-2">
                     <BrandLogo
+                        solidWordmark
                         markClassName="h-16 w-16"
                         wordmarkClassName="text-[0.92rem] tracking-[0.22em]"
                     />
