@@ -354,8 +354,13 @@ export default function BrowsePage() {
                   <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-brand/0 to-transparent transition-all duration-300 group-hover:via-brand/40" />
 
                   <div className="flex items-start gap-4">
-                    <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full border border-brand/20 bg-brand/10 text-lg font-semibold text-brand shadow-sm">
-                      {mentor.name?.charAt(0)?.toUpperCase()}
+                    <div className="flex h-16 w-16 flex-shrink-0 items-center justify-center rounded-full border-2 border-brand/20 bg-brand/10 text-lg font-semibold text-brand shadow-sm overflow-hidden">
+                      {mentor.avatarUrl ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img src={mentor.avatarUrl} alt={mentor.name} className="h-full w-full object-cover" />
+                      ) : (
+                        mentor.name?.charAt(0)?.toUpperCase()
+                      )}
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-start justify-between gap-2">
