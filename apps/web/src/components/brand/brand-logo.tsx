@@ -26,7 +26,7 @@ export function BrandLogoAsset({
   return (
     <picture className={cn('block max-h-full max-w-full', className)}>
       <source srcSet="/logo.svg" type="image/svg+xml" />
-      <img src="/logo.png" alt={alt} className="h-full w-full max-h-full max-w-full object-contain" />
+      <img src="/logo.png" alt={alt} className="h-full w-full max-h-full max-w-full object-contain mix-blend-multiply" />
     </picture>
   );
 }
@@ -54,7 +54,7 @@ export function BrandLogo({
       {showWordmark ? (
         <span
           className={cn(
-            'bg-gradient-to-r from-amber-200 via-yellow-400 to-amber-600 bg-clip-text font-semibold leading-none text-transparent',
+            'font-semibold leading-none text-slate-900',
             stacked ? 'text-lg tracking-[0.32em]' : 'text-sm tracking-[0.24em]',
             wordmarkClassName
           )}
