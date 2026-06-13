@@ -59,7 +59,7 @@ export function Footer() {
 
                 <div className="mt-12 flex flex-col items-center justify-between space-y-4 border-t border-slate-100 pt-8 md:flex-row md:space-y-0">
                     <p className="text-sm text-slate-400">
-                        © {new Date().getFullYear()} OWL Mentor by Jaddpi. All rights reserved.
+                        © {new Date().getFullYear()} Owl Mentors by Jaddpi. All rights reserved.
                     </p>
                     <div className="flex space-x-6">
                         <Link href="#" className="text-slate-400 transition-colors hover:text-brand">

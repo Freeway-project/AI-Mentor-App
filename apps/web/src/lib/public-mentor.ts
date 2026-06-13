@@ -46,8 +46,8 @@ export const getMentorProfilePageData = cache(async (mentorId: string): Promise<
 
 export function buildMentorMetadata(mentor: PublicMentorProfile): Metadata {
   const title = mentor.headline
-    ? `${mentor.name} | ${mentor.headline} | OWL Mentor`
-    : `${mentor.name} | Mentor Profile | OWL Mentor`;
+    ? `${mentor.name} | ${mentor.headline} | Owl Mentors`
+    : `${mentor.name} | Mentor Profile | Owl Mentors`;
 
   const descriptionParts = [
     mentor.headline,
@@ -55,7 +55,7 @@ export function buildMentorMetadata(mentor: PublicMentorProfile): Metadata {
     mentor.specialties?.length ? `Topics: ${mentor.specialties.slice(0, 4).join(', ')}` : null,
   ].filter(Boolean);
 
-  const description = (descriptionParts.join(' ') || `Book a mentoring session with ${mentor.name} on OWL Mentor.`).slice(0, 155);
+  const description = (descriptionParts.join(' ') || `Book a mentoring session with ${mentor.name} on Owl Mentors.`).slice(0, 155);
   const url = `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/mentors/${mentor.id}`;
   const keywords = [
     mentor.name,
