@@ -130,6 +130,19 @@ export default function MenteeDashboardPage() {
     }
   };
 
+  const canReschedule = (session: any): { allowed: boolean; reason?: string } => {
+    if (session.rescheduledCount >= 1) return { allowed: false, reason: 'You can only reschedule once' };
+    const hoursUntil = (new Date(session.scheduledAt).getTime() - Date.now()) / (1000 * 60 * 60);
+    if (hoursUntil < 4) return { allowed: false, reason: 'Reschedule must be at least 4 hours before the session' };
+    return { allowed: true };
+  };
+
+  const canCancel = (session: any): { allowed: boolean; reason?: string } => {
+    const hoursUntil = (new Date(session.scheduledAt).getTime() - Date.now()) / (1000 * 60 * 60);
+    if (hoursUntil < 24) return { allowed: false, reason: 'Cancellation must be at least 24 hours before the session — no refund available after this point' };
+    return { allowed: true };
+  };
+
   const nextSession = upcoming[0] ?? null;
   const nextSessionAccess = nextSession ? getSessionAccess(nextSession) : null;
 
@@ -243,26 +256,44 @@ export default function MenteeDashboardPage() {
                     )}
                   </div>
                   <div className="flex gap-2 flex-shrink-0">
-                    <button
-                      onClick={() => {
-                        setReschedulingId(reschedulingId === session.id ? null : session.id);
-                        setCancellingId(null);
-                        setNewSlot(null);
-                      }}
-                      className="flex items-center gap-1 rounded-lg border border-slate-200 px-3 py-1.5 text-xs text-slate-600 transition-colors hover:border-brand/40 hover:text-brand"
-                    >
-                      <RotateCcw className="w-3 h-3" /> Reschedule
-                    </button>
-                    <button
-                      onClick={() => {
-                        setCancellingId(cancellingId === session.id ? null : session.id);
-                        setReschedulingId(null);
-                        setCancelReason('');
-                      }}
-                      className="flex items-center gap-1 rounded-lg border border-slate-200 px-3 py-1.5 text-xs text-slate-600 transition-colors hover:border-red-400 hover:text-red-600"
-                    >
-                      <X className="w-3 h-3" /> Cancel
-                    </button>
+                    {(() => {
+                      const rs = canReschedule(session);
+                      return rs.allowed ? (
+                        <button
+                          onClick={() => {
+                            setReschedulingId(reschedulingId === session.id ? null : session.id);
+                            setCancellingId(null);
+                            setNewSlot(null);
+                          }}
+                          className="flex items-center gap-1 rounded-lg border border-slate-200 px-3 py-1.5 text-xs text-slate-600 transition-colors hover:border-brand/40 hover:text-brand"
+                        >
+                          <RotateCcw className="w-3 h-3" /> Reschedule
+                        </button>
+                      ) : (
+                        <span title={rs.reason} className="flex items-center gap-1 rounded-lg border border-slate-100 bg-slate-50 px-3 py-1.5 text-xs text-slate-400 cursor-not-allowed">
+                          <RotateCcw className="w-3 h-3" /> Reschedule
+                        </span>
+                      );
+                    })()}
+                    {(() => {
+                      const cc = canCancel(session);
+                      return cc.allowed ? (
+                        <button
+                          onClick={() => {
+                            setCancellingId(cancellingId === session.id ? null : session.id);
+                            setReschedulingId(null);
+                            setCancelReason('');
+                          }}
+                          className="flex items-center gap-1 rounded-lg border border-slate-200 px-3 py-1.5 text-xs text-slate-600 transition-colors hover:border-red-400 hover:text-red-600"
+                        >
+                          <X className="w-3 h-3" /> Cancel
+                        </button>
+                      ) : (
+                        <span title={cc.reason} className="flex items-center gap-1 rounded-lg border border-slate-100 bg-slate-50 px-3 py-1.5 text-xs text-slate-400 cursor-not-allowed">
+                          <X className="w-3 h-3" /> Cancel
+                        </span>
+                      );
+                    })()}
                   </div>
                 </div>
 
