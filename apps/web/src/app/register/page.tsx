@@ -24,15 +24,36 @@ function RegisterPageInner() {
   const [role, setRole] = useState<'mentee' | 'mentor'>('mentee');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [passwordStrength, setPasswordStrength] = useState<string[]>([]);
   const { register, loginWithGoogle } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
   const redirect = searchParams.get('redirect');
   const loginHref = redirect ? `/login?redirect=${encodeURIComponent(redirect)}` : '/login';
 
+  const validatePassword = (pwd: string): string[] => {
+    const errors: string[] = [];
+    if (pwd.length < 8) errors.push('At least 8 characters');
+    if (!/[A-Z]/.test(pwd)) errors.push('At least one uppercase letter');
+    if (!/[0-9]/.test(pwd)) errors.push('At least one number');
+    if (!/[^A-Za-z0-9]/.test(pwd)) errors.push('At least one special character');
+    return errors;
+  };
+
+  const handlePasswordChange = (value: string) => {
+    setPassword(value);
+    setPasswordStrength(validatePassword(value));
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+
+    const pwdErrors = validatePassword(password);
+    if (pwdErrors.length > 0) {
+      setError(`Password must have: ${pwdErrors.join(', ')}`);
+      return;
+    }
 
     if (password !== confirmPassword) {
       setError('Passwords do not match');
@@ -131,19 +152,6 @@ function RegisterPageInner() {
             </p>
           </div>
 
-          {/* Stats */}
-          <div className="mt-10 grid grid-cols-3 gap-4 max-w-sm">
-            {[
-              { value: '500+', label: 'Expert Mentors' },
-              { value: '2k+', label: 'Active Learners' },
-              { value: '95%', label: 'Satisfaction' },
-            ].map(({ value, label }) => (
-              <div key={label} className="p-4 rounded-xl bg-white border border-slate-200 text-center shadow-sm">
-                <p className="text-xl font-bold text-slate-900">{value}</p>
-                <p className="text-slate-500 font-medium text-xs mt-0.5">{label}</p>
-              </div>
-            ))}
-          </div>
         </div>
       </div>
 
@@ -221,7 +229,7 @@ function RegisterPageInner() {
             {/* Form */}
             <form onSubmit={handleSubmit} className="space-y-3.5">
               <div className="space-y-1.5">
-                <label htmlFor="name" className="block text-xs font-semibold text-slate-600 uppercase tracking-wider">
+                <label htmlFor="name" className="block text-xs font-semibold text-slate-600">
                   Full name
                 </label>
                 <input
@@ -236,7 +244,7 @@ function RegisterPageInner() {
               </div>
 
               <div className="space-y-1.5">
-                <label htmlFor="email" className="block text-xs font-semibold text-slate-600 uppercase tracking-wider">
+                <label htmlFor="email" className="block text-xs font-semibold text-slate-600">
                   Email address
                 </label>
                 <input
@@ -250,36 +258,50 @@ function RegisterPageInner() {
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
-                <div className="space-y-1.5">
-                  <label htmlFor="password" className="block text-xs font-semibold text-slate-600 uppercase tracking-wider">
-                    Password
-                  </label>
-                  <input
-                    id="password"
-                    type="password"
-                    required
-                    minLength={8}
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-brand/40 focus:ring-4 focus:ring-brand/5 transition-all text-sm shadow-sm"
-                    placeholder="Min 8 chars"
-                  />
-                </div>
-                <div className="space-y-1.5">
-                  <label htmlFor="confirmPassword" className="block text-xs font-semibold text-slate-600 uppercase tracking-wider">
-                    Confirm
-                  </label>
-                  <input
-                    id="confirmPassword"
-                    type="password"
-                    required
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                    className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-brand/40 focus:ring-4 focus:ring-brand/5 transition-all text-sm shadow-sm"
-                    placeholder="Repeat it"
-                  />
-                </div>
+              <div className="space-y-1.5">
+                <label htmlFor="password" className="block text-xs font-semibold text-slate-600">
+                  Password
+                </label>
+                <input
+                  id="password"
+                  type="password"
+                  required
+                  value={password}
+                  onChange={(e) => handlePasswordChange(e.target.value)}
+                  className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-brand/40 focus:ring-4 focus:ring-brand/5 transition-all text-sm shadow-sm"
+                  placeholder="Min 8 chars, uppercase, number, special"
+                />
+                {password && passwordStrength.length > 0 && (
+                  <ul className="mt-1 space-y-0.5">
+                    {passwordStrength.map(msg => (
+                      <li key={msg} className="flex items-center gap-1.5 text-xs text-red-500">
+                        <span className="w-1.5 h-1.5 rounded-full bg-red-400 shrink-0" />
+                        {msg}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+                {password && passwordStrength.length === 0 && (
+                  <p className="flex items-center gap-1.5 text-xs text-emerald-600 mt-1">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0" />
+                    Strong password
+                  </p>
+                )}
+              </div>
+
+              <div className="space-y-1.5">
+                <label htmlFor="confirmPassword" className="block text-xs font-semibold text-slate-600">
+                  Confirm Password
+                </label>
+                <input
+                  id="confirmPassword"
+                  type="password"
+                  required
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-brand/40 focus:ring-4 focus:ring-brand/5 transition-all text-sm shadow-sm"
+                  placeholder="Confirm password"
+                />
               </div>
 
               <button
