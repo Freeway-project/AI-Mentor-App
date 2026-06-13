@@ -322,50 +322,6 @@ export default function BrowsePage() {
             </div>
           ) : null}
 
-          {/* Semantic indicator */}
-          {!loading && mentors.length > 0 && (isSemantic || searchMeta.queryAnalysis?.focusTerms?.length) && (
-            <div className="mx-auto mb-6 flex max-w-3xl flex-col items-center gap-3 text-center">
-              <div className="flex flex-wrap items-center justify-center gap-2">
-                {isSemantic && (
-                  <span className="flex items-center gap-1.5 rounded-full border border-violet-200 bg-violet-50 px-3 py-1.5 text-xs text-violet-600">
-                    <Sparkles className="h-3 w-3" />
-                    {searchMeta.hybrid ? 'AI + keyword matched' : 'AI-matched results'}
-                  </span>
-                )}
-                {searchMeta.llmEnhanced && (
-                  <span className="rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-xs text-emerald-600">
-                    Ranked with match reasons
-                  </span>
-                )}
-              </div>
-
-              {searchMeta.queryAnalysis?.focusTerms?.length ? (
-                <>
-                  <p className="max-w-2xl text-sm text-slate-600">
-                    We matched this search against{' '}
-                    <span className="font-medium text-slate-900">
-                      {searchMeta.queryAnalysis.focusTerms.join(', ')}
-                    </span>
-                    {searchMeta.queryAnalysis.experienceLevel && (
-                      <> for a {searchMeta.queryAnalysis.experienceLevel} learner</>
-                    )}
-                    .
-                  </p>
-                  <div className="flex flex-wrap justify-center gap-2">
-                    {searchMeta.queryAnalysis.focusTerms.map(term => (
-                      <Badge
-                        key={term}
-                        variant="outline"
-                        className="border-violet-200 bg-violet-50 text-xs text-violet-600"
-                      >
-                        {term}
-                      </Badge>
-                    ))}
-                  </div>
-                </>
-              ) : null}
-            </div>
-          )}
 
           {/* Results */}
           {loading ? (
