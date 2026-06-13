@@ -364,50 +364,6 @@ export default function BrowsePage() {
             </div>
           ) : null}
 
-          {/* Semantic indicator */}
-          {!loading && mentors.length > 0 && (isSemantic || searchMeta.queryAnalysis?.focusTerms?.length) && (
-            <div className="mx-auto mb-6 flex max-w-3xl flex-col items-center gap-3 text-center">
-              <div className="flex flex-wrap items-center justify-center gap-2">
-                {isSemantic && (
-                  <span className="flex items-center gap-1.5 rounded-full border border-violet-200 bg-violet-50 px-3 py-1.5 text-xs text-violet-600">
-                    <Sparkles className="h-3 w-3" />
-                    {searchMeta.hybrid ? 'AI + keyword matched' : 'AI-matched results'}
-                  </span>
-                )}
-                {searchMeta.llmEnhanced && (
-                  <span className="rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-xs text-emerald-600">
-                    Ranked with match reasons
-                  </span>
-                )}
-              </div>
-
-              {searchMeta.queryAnalysis?.focusTerms?.length ? (
-                <>
-                  <p className="max-w-2xl text-sm text-slate-600">
-                    We matched this search against{' '}
-                    <span className="font-medium text-slate-900">
-                      {searchMeta.queryAnalysis.focusTerms.join(', ')}
-                    </span>
-                    {searchMeta.queryAnalysis.experienceLevel && (
-                      <> for a {searchMeta.queryAnalysis.experienceLevel} learner</>
-                    )}
-                    .
-                  </p>
-                  <div className="flex flex-wrap justify-center gap-2">
-                    {searchMeta.queryAnalysis.focusTerms.map(term => (
-                      <Badge
-                        key={term}
-                        variant="outline"
-                        className="border-violet-200 bg-violet-50 text-xs text-violet-600"
-                      >
-                        {term}
-                      </Badge>
-                    ))}
-                  </div>
-                </>
-              ) : null}
-            </div>
-          )}
 
           {/* Results */}
           {loading ? (
@@ -453,8 +409,13 @@ export default function BrowsePage() {
                     <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-brand/0 to-transparent transition-all duration-300 group-hover:via-brand/40" />
 
                     <div className="flex items-start gap-4">
-                      <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full border border-brand/20 bg-brand/10 text-lg font-semibold text-brand shadow-sm">
-                        {mentor.name?.charAt(0)?.toUpperCase()}
+                      <div className="flex h-16 w-16 flex-shrink-0 items-center justify-center rounded-full border-2 border-brand/20 bg-brand/10 text-lg font-semibold text-brand shadow-sm overflow-hidden">
+                        {mentor.avatarUrl ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img src={mentor.avatarUrl} alt={mentor.name} className="h-full w-full object-cover" />
+                        ) : (
+                          mentor.name?.charAt(0)?.toUpperCase()
+                        )}
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-start justify-between gap-2">

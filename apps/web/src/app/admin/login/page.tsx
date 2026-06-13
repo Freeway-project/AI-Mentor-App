@@ -60,7 +60,7 @@ export default function AdminLoginPage() {
                     </div>
                     <div>
                         <h1 className="text-2xl font-bold text-white">Admin Portal</h1>
-                        <p className="text-slate-400 text-sm mt-1">OWL Mentor administration</p>
+                        <p className="text-slate-400 text-sm mt-1">Owl Mentors administration</p>
                     </div>
                 </div>
 

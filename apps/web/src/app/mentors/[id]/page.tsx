@@ -49,8 +49,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     return buildMentorMetadata(mentor);
   } catch {
     return {
-      title: 'Mentor Profile | OWL Mentor',
-      description: 'Explore mentor details and book a session on OWL Mentor.',
+      title: 'Mentor Profile | Owl Mentors',
+      description: 'Explore mentor details and book a session on Owl Mentors.',
     };
   }
 }

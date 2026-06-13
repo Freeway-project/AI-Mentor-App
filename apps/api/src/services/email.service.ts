@@ -159,15 +159,15 @@ export const EmailService = {
 
 
   async sendPasswordResetEmail(to: string, resetUrl: string): Promise<void> {
-    const fromName = process.env.SMTP_FROM_NAME || 'OWL Mentor';
-    const fromEmail = process.env.SMTP_FROM_EMAIL || process.env.SMTP_FROM || 'noreply@owlmentor.com';
+    const fromName = process.env.SMTP_FROM_NAME || 'Owl Mentors';
+    const fromEmail = process.env.SMTP_FROM_EMAIL || process.env.SMTP_FROM || 'noreply@owlmentors.com';
     const from = `${fromName} <${fromEmail}>`;
-    const subject = 'Reset your OWL Mentor password';
+    const subject = 'Reset your Owl Mentors password';
     const html = `
       <div style="font-family:sans-serif;max-width:480px;margin:auto;padding:32px">
         <h2 style="color:#1e40af;font-size:24px;margin-bottom:8px">Reset your password</h2>
         <p style="color:#475569;margin-bottom:24px">
-          Click the button below to reset your OWL Mentor password.
+          Click the button below to reset your Owl Mentors password.
           This link expires in <strong>1 hour</strong>.
         </p>
         <a href="${resetUrl}"
@@ -227,8 +227,8 @@ export const EmailService = {
       return;
     }
 
-    const fromName = process.env.SMTP_FROM_NAME || 'OWL Mentor';
-    const fromEmail = process.env.SMTP_FROM_EMAIL || process.env.SMTP_FROM || 'noreply@owlmentor.com';
+    const fromName = process.env.SMTP_FROM_NAME || 'Owl Mentors';
+    const fromEmail = process.env.SMTP_FROM_EMAIL || process.env.SMTP_FROM || 'noreply@owlmentors.com';
     const from = `${fromName} <${fromEmail}>`;
     const adminUrl = getAdminUrl();
     const reviewUrl = `${adminUrl}/coaches/${mentor.mentorId}`;
@@ -259,7 +259,7 @@ export const EmailService = {
           Review profile →
         </a>
         <p style="color:#94a3b8;font-size:11px;margin-top:24px">
-          This is an automated notification from OWL Mentor.
+          This is an automated notification from Owl Mentors.
         </p>
       </div>
     `;
@@ -291,8 +291,8 @@ export const EmailService = {
       return;
     }
 
-    const fromName = process.env.SMTP_FROM_NAME || 'OWL Mentor';
-    const fromEmail = process.env.SMTP_FROM_EMAIL || process.env.SMTP_FROM || 'noreply@owlmentor.com';
+    const fromName = process.env.SMTP_FROM_NAME || 'Owl Mentors';
+    const fromEmail = process.env.SMTP_FROM_EMAIL || process.env.SMTP_FROM || 'noreply@owlmentors.com';
     const from = `${fromName} <${fromEmail}>`;
     const adminUrl = getAdminUrl();
 
@@ -320,7 +320,7 @@ export const EmailService = {
           Review in Admin Panel →
         </a>
         <p style="color:#94a3b8;font-size:11px;margin-top:24px">
-          This is an automated notification from OWL Mentor.
+          This is an automated notification from Owl Mentors.
         </p>
       </div>
     `;
@@ -352,8 +352,8 @@ export const EmailService = {
     mentorId: string;
     message: string;
   }): Promise<void> {
-    const fromName = process.env.SMTP_FROM_NAME || 'OWL Mentor';
-    const fromEmail = process.env.SMTP_FROM_EMAIL || process.env.SMTP_FROM || 'noreply@owlmentor.com';
+    const fromName = process.env.SMTP_FROM_NAME || 'Owl Mentors';
+    const fromEmail = process.env.SMTP_FROM_EMAIL || process.env.SMTP_FROM || 'noreply@owlmentors.com';
     const from = `${fromName} <${fromEmail}>`;
     const appUrl = getAppUrl();
     const profileUrl = `${appUrl}/mentor/dashboard/profile`;
@@ -364,7 +364,7 @@ export const EmailService = {
       <div style="font-family:sans-serif;max-width:540px;margin:auto;padding:32px">
         <h2 style="color:#0f172a;font-size:22px;margin-bottom:6px">You have new profile feedback</h2>
         <p style="color:#475569;margin-bottom:18px">
-          Hi ${escapeHtml(params.mentorName)}, an OWL Mentor admin sent a review message about your mentor profile.
+          Hi ${escapeHtml(params.mentorName)}, an Owl Mentors admin sent a review message about your mentor profile.
         </p>
         <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:14px 16px;margin-bottom:20px">
           <p style="color:#64748b;font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:0.4px;margin:0 0 8px">Admin message</p>
@@ -430,8 +430,8 @@ export const EmailService = {
       return;
     }
 
-    const fromName = process.env.SMTP_FROM_NAME || 'OWL Mentor';
-    const fromEmail = process.env.SMTP_FROM_EMAIL || process.env.SMTP_FROM || 'noreply@owlmentor.com';
+    const fromName = process.env.SMTP_FROM_NAME || 'Owl Mentors';
+    const fromEmail = process.env.SMTP_FROM_EMAIL || process.env.SMTP_FROM || 'noreply@owlmentors.com';
     const from = `${fromName} <${fromEmail}>`;
     const adminUrl = getAdminUrl();
     const reviewUrl = `${adminUrl}/coaches/${params.mentorId}`;
@@ -505,8 +505,8 @@ export const EmailService = {
     meetUrl?: string;
     dashboardPath?: string;
   }): Promise<void> {
-    const fromName = process.env.SMTP_FROM_NAME || 'OWL Mentor';
-    const fromEmail = process.env.SMTP_FROM_EMAIL || process.env.SMTP_FROM || 'noreply@owlmentor.com';
+    const fromName = process.env.SMTP_FROM_NAME || 'Owl Mentors';
+    const fromEmail = process.env.SMTP_FROM_EMAIL || process.env.SMTP_FROM || 'noreply@owlmentors.com';
     const from = `${fromName} <${fromEmail}>`;
     const appUrl = getAppUrl();
     const sessionUrl = `${appUrl}${params.dashboardPath ?? '/mentee/dashboard'}`;
@@ -562,7 +562,7 @@ export const EmailService = {
         ${callUrl ? `<p style="color:#64748b;font-size:12px;margin-bottom:24px">Call link: <a href="${callUrl}" style="color:#7c3aed">${callUrl}</a></p>` : ''}
 
         <p style="color:#94a3b8;font-size:11px;margin-top:16px">
-          OWL Mentor &bull; <a href="${appUrl}" style="color:#7c3aed;text-decoration:none">owlmentor.com</a>
+          Owl Mentors &bull; <a href="${appUrl}" style="color:#7c3aed;text-decoration:none">owlmentors.com</a>
         </p>
       </div>
     `;
@@ -617,8 +617,8 @@ export const EmailService = {
     dailyRoomUrl?: string;
     meetUrl?: string;
   }): Promise<void> {
-    const fromName = process.env.SMTP_FROM_NAME || 'OWL Mentor';
-    const fromEmail = process.env.SMTP_FROM_EMAIL || process.env.SMTP_FROM || 'noreply@owlmentor.com';
+    const fromName = process.env.SMTP_FROM_NAME || 'Owl Mentors';
+    const fromEmail = process.env.SMTP_FROM_EMAIL || process.env.SMTP_FROM || 'noreply@owlmentors.com';
     const from = `${fromName} <${fromEmail}>`;
     const appUrl = getAppUrl();
     const callUrl = params.dailyRoomUrl || params.meetUrl;
@@ -658,7 +658,7 @@ export const EmailService = {
         </div>`}
 
         <p style="color:#94a3b8;font-size:11px;text-align:center">
-          OWL Mentor &bull; <a href="${appUrl}" style="color:#7c3aed;text-decoration:none">owlmentor.com</a>
+          Owl Mentors &bull; <a href="${appUrl}" style="color:#7c3aed;text-decoration:none">owlmentors.com</a>
         </p>
       </div>
     `;
@@ -712,8 +712,8 @@ export const EmailService = {
     actionItems: string[];
     keyTopics: string[];
   }): Promise<void> {
-    const fromName = process.env.SMTP_FROM_NAME || 'OWL Mentor';
-    const fromEmail = process.env.SMTP_FROM_EMAIL || process.env.SMTP_FROM || 'noreply@owlmentor.com';
+    const fromName = process.env.SMTP_FROM_NAME || 'Owl Mentors';
+    const fromEmail = process.env.SMTP_FROM_EMAIL || process.env.SMTP_FROM || 'noreply@owlmentors.com';
     const from = `${fromName} <${fromEmail}>`;
     const appUrl = getAppUrl();
     const sessionUrl = `${appUrl}/mentee/dashboard`;
@@ -759,7 +759,7 @@ export const EmailService = {
         </a>
 
         <p style="color:#94a3b8;font-size:11px;margin-top:28px">
-          OWL Mentor &bull; <a href="${appUrl}" style="color:#7c3aed;text-decoration:none">owlmentor.com</a>
+          Owl Mentors &bull; <a href="${appUrl}" style="color:#7c3aed;text-decoration:none">owlmentors.com</a>
         </p>
       </div>
     `;
@@ -1015,8 +1015,8 @@ export const EmailService = {
    * professional header + footer with CTA buttons for mentor/mentee signup.
    */
   async sendMarketing(to: string, recipientName: string, subject: string, bodyHtml: string): Promise<void> {
-    const fromName = process.env.SMTP_FROM_NAME || 'OWL Mentor';
-    const fromEmail = process.env.SMTP_FROM_EMAIL || process.env.SMTP_FROM || 'noreply@owlmentor.com';
+    const fromName = process.env.SMTP_FROM_NAME || 'Owl Mentors';
+    const fromEmail = process.env.SMTP_FROM_EMAIL || process.env.SMTP_FROM || 'noreply@owlmentors.com';
     const from = `${fromName} <${fromEmail}>`;
     const appUrl = getAppUrl();
     const mentorSignupUrl = `${appUrl}/register?role=mentor`;
@@ -1025,7 +1025,7 @@ export const EmailService = {
     const header = `
       <div style="font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;max-width:600px;margin:0 auto;background:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 1px 6px rgba(0,0,0,0.06);">
         <div style="background:linear-gradient(135deg,#0a0a1a 0%,#0f0b1e 100%);padding:28px 36px;text-align:center;">
-          <p style="color:#f59e0b;font-size:22px;font-weight:800;letter-spacing:-0.5px;margin:0;">🦉 OWL Mentor</p>
+          <p style="color:#f59e0b;font-size:22px;font-weight:800;letter-spacing:-0.5px;margin:0;">🦉 Owl Mentors</p>
           <p style="color:#94a3b8;font-size:12px;margin:6px 0 0;">Connect. Learn. Grow.</p>
         </div>
         <div style="padding:32px 36px 0;">
@@ -1043,9 +1043,9 @@ export const EmailService = {
         </div>
         <div style="background:#f8fafc;padding:18px 36px;border-top:1px solid #e2e8f0;text-align:center;">
           <p style="color:#94a3b8;font-size:11px;margin:0;line-height:1.6;">
-            © ${new Date().getFullYear()} OWL Mentor by Jaddpi &nbsp;|&nbsp;
+            © ${new Date().getFullYear()} Owl Mentors by Jaddpi &nbsp;|&nbsp;
             <a href="${appUrl}" style="color:#7c3aed;text-decoration:none;">Visit our website</a><br/>
-            You are receiving this email because your contact was provided to OWL Mentor for outreach.
+            You are receiving this email because your contact was provided to Owl Mentors for outreach.
           </p>
         </div>
       </div>

@@ -24,6 +24,7 @@ const GoogleAuthButton = nextDynamic(
 function LoginForm() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [rememberMe, setRememberMe] = useState(false);
   const [loading, setLoading] = useState(false);
   const dispatch = useDispatch<AppDispatch>();
   const { login: ctxLogin, loginWithGoogle } = useAuth();
@@ -41,13 +42,17 @@ function LoginForm() {
       dispatch(setUser(user as any));
       dispatch(setToken(token));
 
+      if (rememberMe) {
+        localStorage.setItem('remember_me_until', String(Date.now() + 30 * 24 * 60 * 60 * 1000));
+      }
+
       if (user.roles.includes('admin')) {
         router.push('/admin');
       } else if (user.roles.includes('mentor')) {
         window.location.href = '/mentor/dashboard';
       } else {
         const pending = loadPendingBooking();
-        router.push(pending ? `/mentors/${pending.mentorId}?restore=1` : (redirect || '/mentee/dashboard'));
+        router.push(pending ? `/mentors/${pending.mentorId}?restore=1` : (redirect || '/browse'));
       }
     } catch (err: any) {
       if (err?.code === 'EMAIL_NOT_VERIFIED') {
@@ -83,7 +88,7 @@ function LoginForm() {
         window.location.href = '/mentor/dashboard';
       } else {
         const pending = loadPendingBooking();
-        router.push(pending ? `/mentors/${pending.mentorId}?restore=1` : (redirect || '/mentee/dashboard'));
+        router.push(pending ? `/mentors/${pending.mentorId}?restore=1` : (redirect || '/browse'));
       }
     } catch (err: any) {
       toast.error(err.message || 'Google sign-in failed');
@@ -142,28 +147,6 @@ function LoginForm() {
             </p>
           </div>
 
-          {/* Testimonial */}
-          <div className="mt-10 max-w-sm p-5 rounded-2xl bg-white border border-slate-200 shadow-sm transition-all hover:border-brand/30 hover:shadow-md">
-            <p className="text-slate-700 text-sm leading-relaxed italic">
-              &ldquo;Within 3 months of working with my mentor I landed a senior engineering role at a FAANG company.&rdquo;
-            </p>
-            <div className="flex items-center gap-3 mt-4">
-              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-amber-600 to-amber-700 flex items-center justify-center text-white text-xs font-bold shadow-sm">
-                A
-              </div>
-              <div>
-                <p className="text-slate-900 text-sm font-semibold">Alex K.</p>
-                <p className="text-slate-500 text-xs font-medium">Software Engineer, Google</p>
-              </div>
-              <div className="ml-auto flex gap-0.5">
-                {[...Array(5)].map((_, i) => (
-                  <svg key={i} className="w-3 h-3 text-amber-400 fill-current" viewBox="0 0 20 20">
-                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                  </svg>
-                ))}
-              </div>
-            </div>
-          </div>
         </div>
       </div>
 
@@ -205,7 +188,7 @@ function LoginForm() {
             {/* Form */}
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-1.5">
-                <label htmlFor="email" className="block text-xs font-semibold text-slate-600 uppercase tracking-wider">
+                <label htmlFor="email" className="block text-xs font-semibold text-slate-600">
                   Email address
                 </label>
                 <input
@@ -221,7 +204,7 @@ function LoginForm() {
 
               <div className="space-y-1.5">
                 <div className="flex items-center justify-between">
-                  <label htmlFor="password" className="block text-xs font-semibold text-slate-600 uppercase tracking-wider">
+                  <label htmlFor="password" className="block text-xs font-semibold text-slate-600">
                     Password
                   </label>
                   <Link href="/forgot-password" className="text-sm font-medium text-brand hover:text-brand-light transition-colors py-1">
@@ -237,6 +220,19 @@ function LoginForm() {
                   className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-brand/40 focus:ring-4 focus:ring-brand/5 transition-all text-sm shadow-sm"
                   placeholder="Enter your password"
                 />
+              </div>
+
+              <div className="flex items-center gap-2">
+                <input
+                  id="rememberMe"
+                  type="checkbox"
+                  checked={rememberMe}
+                  onChange={(e) => setRememberMe(e.target.checked)}
+                  className="h-4 w-4 rounded border-slate-300 accent-brand"
+                />
+                <label htmlFor="rememberMe" className="text-sm text-slate-600 cursor-pointer">
+                  Keep me signed in for 30 days
+                </label>
               </div>
 
               <button
