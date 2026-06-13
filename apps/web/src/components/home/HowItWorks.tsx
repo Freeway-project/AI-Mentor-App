@@ -1,6 +1,5 @@
 'use client';
 
-import Image from 'next/image';
 import { UserPlus, Search, Calendar, Repeat, ArrowRight } from 'lucide-react';
 import { motion, Variants } from 'framer-motion';
 
@@ -136,17 +135,12 @@ export function HowItWorks() {
                                 transition={{ duration: 4, repeat: Infinity, ease: "easeInOut", delay: 1 }}
                                 className="absolute bottom-16 left-0 z-30 flex items-center gap-4 rounded-2xl border border-slate-200 bg-white/90 p-4 shadow-lg"
                             >
-                                <div className="relative">
-                                    <div className="h-12 w-12 overflow-hidden rounded-full border-2 border-slate-200 bg-slate-100 shadow-sm ring-2 ring-white">
-                                        <Image src="https://i.pravatar.cc/150?img=11" alt="Student" width={48} height={48} className="w-full h-full object-cover" />
-                                    </div>
-                                    <div className="absolute -bottom-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full border-2 border-white bg-brand">
-                                        <ArrowRight className="w-3 h-3 text-white -rotate-45" />
-                                    </div>
+                                <div className="flex h-12 w-12 items-center justify-center rounded-full border-2 border-brand/20 bg-brand/10 text-brand">
+                                    <ArrowRight className="w-5 h-5 -rotate-45" />
                                 </div>
                                 <div>
                                     <p className="text-sm font-bold text-slate-800">Career breakthrough</p>
-                                    <p className="text-xs text-brand">Achieved in 3 months</p>
+                                    <p className="text-xs text-brand">Start your journey today</p>
                                 </div>
                             </motion.div>
                         </div>
