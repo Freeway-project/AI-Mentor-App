@@ -198,7 +198,7 @@ function LoginForm() {
             {/* Form */}
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-1.5">
-                <label htmlFor="email" className="block text-xs font-semibold text-slate-600 uppercase tracking-wider">
+                <label htmlFor="email" className="block text-xs font-semibold text-slate-600">
                   Email address
                 </label>
                 <input
@@ -214,7 +214,7 @@ function LoginForm() {
 
               <div className="space-y-1.5">
                 <div className="flex items-center justify-between">
-                  <label htmlFor="password" className="block text-xs font-semibold text-slate-600 uppercase tracking-wider">
+                  <label htmlFor="password" className="block text-xs font-semibold text-slate-600">
                     Password
                   </label>
                   <Link href="/forgot-password" className="text-xs font-medium text-brand hover:text-brand-light transition-colors">
