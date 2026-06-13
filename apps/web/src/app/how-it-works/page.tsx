@@ -16,15 +16,14 @@ export default function HowItWorksPage() {
         <section className="container mx-auto px-4 pb-8 pt-16 md:px-6 md:pt-24">
           <AppPanel className="mx-auto max-w-5xl overflow-hidden p-8 md:p-12">
             <div className="space-y-6 text-center">
-              <p className="text-sm font-semibold uppercase tracking-[0.28em] text-brand-lighter">
+              <p className="text-sm font-semibold tracking-wide text-brand-lighter">
                 How It Works
               </p>
               <h1 className="text-4xl font-bold tracking-tight text-white md:text-5xl">
-                A clear path from discovery to booked mentorship
+                Your path from discovery to expert mentorship
               </h1>
-              <p className="mx-auto max-w-3xl text-base leading-relaxed text-slate-400 md:text-lg">
-                Browse mentors, get matched, choose a time, and book sessions from one consistent flow.
-                This page gives that journey its own route instead of relying on a homepage anchor.
+              <p className="mx-auto max-w-3xl text-base leading-relaxed text-slate-300 md:text-lg">
+                Browse expert mentors, get AI-matched results, pick a time that works for you, and start growing your career with personalised 1-on-1 guidance.
               </p>
               <div className="flex flex-col items-center justify-center gap-3 sm:flex-row">
                 <Link

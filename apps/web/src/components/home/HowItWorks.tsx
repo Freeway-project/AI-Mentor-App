@@ -72,10 +72,10 @@ export function HowItWorks() {
                     className="text-center mb-16 md:mb-24 space-y-4"
                 >
                     <h2 className="text-3xl font-extrabold tracking-tight text-slate-900 sm:text-4xl md:text-5xl">
-                        Your Journey to Mastery
+                        How It Works
                     </h2>
                     <p className="mx-auto max-w-2xl text-lg text-slate-600">
-                        We&apos;ve streamlined the mentorship process. Getting expert guidance has never been this simple and effective.
+                        Four simple steps to connect with the right mentor and accelerate your career growth.
                     </p>
                 </motion.div>
 
