@@ -90,7 +90,7 @@ function escapeHtml(input: string): string {
 }
 
 function getAppUrl(): string {
-  return process.env.NEXT_PUBLIC_APP_URL || process.env.APP_URL || 'https://owlmentor.com';
+  return process.env.NEXT_PUBLIC_APP_URL || process.env.APP_URL || 'https://owlmentors.com';
 }
 
 function getAdminUrl(): string {
@@ -616,27 +616,43 @@ export const EmailService = {
     durationMin: number;
     dailyRoomUrl?: string;
     meetUrl?: string;
+    leadLabel?: 'tomorrow' | 'in 30 minutes' | string;
   }): Promise<void> {
     const fromName = process.env.SMTP_FROM_NAME || 'Owl Mentors';
     const fromEmail = process.env.SMTP_FROM_EMAIL || process.env.SMTP_FROM || 'noreply@owlmentors.com';
     const from = `${fromName} <${fromEmail}>`;
     const appUrl = getAppUrl();
     const callUrl = params.dailyRoomUrl || params.meetUrl;
+    const leadLabel = params.leadLabel || 'soon';
 
     const timeStr = params.scheduledAt.toLocaleTimeString('en-US', {
       hour: '2-digit', minute: '2-digit', timeZoneName: 'short',
     });
+    const dateStr = params.scheduledAt.toLocaleDateString('en-US', {
+      weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
+    });
 
-    const subject = `Your session starts in 5 minutes — ${params.title}`;
+    const headlinePill = leadLabel === 'tomorrow'
+      ? '🗓️ Your session is tomorrow'
+      : leadLabel === 'in 30 minutes'
+        ? '⏰ Your session starts in 30 minutes'
+        : `Your session is ${leadLabel}`;
+
+    const subject = leadLabel === 'tomorrow'
+      ? `Reminder: your session tomorrow — ${params.title}`
+      : leadLabel === 'in 30 minutes'
+        ? `Your session starts in 30 minutes — ${params.title}`
+        : `Reminder: ${params.title}`;
+
     const html = `
       <div style="font-family:sans-serif;max-width:560px;margin:auto;padding:32px;background:#fff;border-radius:12px">
         <div style="background:linear-gradient(135deg,#7c3aed,#6d28d9);border-radius:10px;padding:20px 24px;margin-bottom:24px;text-align:center">
-          <p style="color:#fff;font-size:28px;font-weight:800;margin:0">⏰ 5 Minutes!</p>
-          <p style="color:#ede9fe;font-size:14px;margin:6px 0 0">Your mentoring session is about to start</p>
+          <p style="color:#fff;font-size:22px;font-weight:800;margin:0">${headlinePill}</p>
+          <p style="color:#ede9fe;font-size:14px;margin:6px 0 0">${escapeHtml(dateStr)} · ${escapeHtml(timeStr)} · ${params.durationMin} min</p>
         </div>
 
         <p style="color:#0f172a;font-size:15px;margin-bottom:20px">
-          Hi <strong>${escapeHtml(params.recipientName)}</strong>, your session <strong>"${escapeHtml(params.title)}"</strong> with ${escapeHtml(params.mentorName === params.recipientName ? params.menteeName : params.mentorName)} starts at <strong>${timeStr}</strong> (${params.durationMin} min).
+          Hi <strong>${escapeHtml(params.recipientName)}</strong>, this is a reminder that your session <strong>"${escapeHtml(params.title)}"</strong> with ${escapeHtml(params.mentorName === params.recipientName ? params.menteeName : params.mentorName)} is scheduled for <strong>${escapeHtml(dateStr)}</strong> at <strong>${escapeHtml(timeStr)}</strong> (${params.durationMin} min).
         </p>
 
         ${callUrl ? `
@@ -818,8 +834,8 @@ export const EmailService = {
       return;
     }
 
-    const fromName = process.env.SMTP_FROM_NAME || 'OWL Mentor';
-    const fromEmail = process.env.SMTP_FROM_EMAIL || process.env.SMTP_FROM || 'noreply@owlmentor.com';
+    const fromName = process.env.SMTP_FROM_NAME || 'Owl Mentors';
+    const fromEmail = process.env.SMTP_FROM_EMAIL || process.env.SMTP_FROM || 'noreply@owlmentors.com';
     const from = `${fromName} <${fromEmail}>`;
     const adminUrl = getAdminUrl();
 
@@ -906,8 +922,8 @@ export const EmailService = {
     amountPaid: number;
     paymentIntentId: string;
   }): Promise<void> {
-    const fromName = process.env.SMTP_FROM_NAME || 'OWL Mentor';
-    const fromEmail = process.env.SMTP_FROM_EMAIL || process.env.SMTP_FROM || 'noreply@owlmentor.com';
+    const fromName = process.env.SMTP_FROM_NAME || 'Owl Mentors';
+    const fromEmail = process.env.SMTP_FROM_EMAIL || process.env.SMTP_FROM || 'noreply@owlmentors.com';
     const from = `${fromName} <${fromEmail}>`;
     const appUrl = getAppUrl();
 
@@ -923,7 +939,7 @@ export const EmailService = {
       <div style="font-family:sans-serif;max-width:560px;margin:auto;padding:32px;background:#fff;border-radius:12px">
         <div style="background:#0f172a;border-radius:10px;padding:20px 24px;margin-bottom:24px;display:flex;justify-content:space-between;align-items:center">
           <div>
-            <p style="color:#f59e0b;font-size:16px;font-weight:700;margin:0">OWL Mentor</p>
+            <p style="color:#f59e0b;font-size:16px;font-weight:700;margin:0">Owl Mentors</p>
             <p style="color:#94a3b8;font-size:12px;margin:4px 0 0">Payment Receipt</p>
           </div>
           <p style="color:#fff;font-size:28px;font-weight:800;margin:0">$${params.amountPaid.toFixed(2)}</p>
@@ -967,7 +983,7 @@ export const EmailService = {
 
         <p style="color:#94a3b8;font-size:11px;margin-top:20px;line-height:1.6">
           Payment ref: ${escapeHtml(params.paymentIntentId)}<br/>
-          OWL Mentor &bull; <a href="${appUrl}" style="color:#7c3aed;text-decoration:none">owlmentor.com</a>
+          Owl Mentors &bull; <a href="${appUrl}" style="color:#7c3aed;text-decoration:none">owlmentors.com</a>
         </p>
       </div>
     `;

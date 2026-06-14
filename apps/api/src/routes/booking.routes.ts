@@ -492,10 +492,25 @@ router.post('/bookings/:id/cancel', authenticate, requireEmailVerified, async (r
     }
 
     // Authorization: mentee or mentor's userId
-    if (meeting.menteeId !== req.userId) {
+    const isMenteeActor = meeting.menteeId === req.userId;
+    if (!isMenteeActor) {
       const mentor = await mentorRepo.findById(meeting.mentorId);
       if (mentor.userId !== req.userId) {
         throw new AppError(403, 'FORBIDDEN', 'Access denied');
+      }
+    }
+
+    // Policy: mentees can only cancel ≥24 hours before the session
+    // (Mentors are not subject to the same notice window.)
+    if (isMenteeActor) {
+      const hoursUntil =
+        (new Date(meeting.scheduledAt).getTime() - Date.now()) / (60 * 60 * 1000);
+      if (hoursUntil < 24) {
+        throw new AppError(
+          400,
+          'CANCEL_WINDOW_PASSED',
+          'Cancellation is not possible — sessions can only be cancelled at least 24 hours before the start time. No refund or change is available within this window.'
+        );
       }
     }
 
@@ -558,10 +573,31 @@ router.post('/bookings/:id/reschedule', authenticate, requireEmailVerified, asyn
       throw new AppError(400, 'INVALID_STATUS', 'Meeting cannot be rescheduled in its current state');
     }
 
-    if (meeting.menteeId !== req.userId) {
+    const isMenteeActor = meeting.menteeId === req.userId;
+    if (!isMenteeActor) {
       const mentor = await mentorRepo.findById(meeting.mentorId);
       if (mentor.userId !== req.userId) {
         throw new AppError(403, 'FORBIDDEN', 'Access denied');
+      }
+    }
+
+    // Policy: mentee can only reschedule ≥4 hours before; only once.
+    if (isMenteeActor) {
+      const hoursUntil =
+        (new Date(meeting.scheduledAt).getTime() - Date.now()) / (60 * 60 * 1000);
+      if (hoursUntil < 4) {
+        throw new AppError(
+          400,
+          'RESCHEDULE_WINDOW_PASSED',
+          'Reschedule is not possible — sessions can only be rescheduled at least 4 hours before the start time.'
+        );
+      }
+      if ((meeting as any).rescheduledFrom) {
+        throw new AppError(
+          400,
+          'RESCHEDULE_ALREADY_USED',
+          'Reschedule is not possible — each booking can be rescheduled only once.'
+        );
       }
     }
 

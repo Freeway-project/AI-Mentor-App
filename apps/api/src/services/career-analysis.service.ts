@@ -200,12 +200,60 @@ export class CareerAnalysisService {
       .filter(Boolean)
       .join(' ');
 
+    const recommendedCourses = recommendedFocusAreas.flatMap((area) => {
+      const normalized = area.toLowerCase();
+      if (normalized.includes('admin') || normalized.includes('office')) {
+        return ['Microsoft Excel (Advanced)', 'Business Communication', 'Administrative Professional Certificate'];
+      }
+      if (normalized.includes('hr') || normalized.includes('human resource') || normalized.includes('recruit')) {
+        return ['HR Fundamentals', 'Recruitment & Talent Acquisition', 'Employment Law Basics'];
+      }
+      if (normalized.includes('marketing') || normalized.includes('seo') || normalized.includes('social media')) {
+        return ['Digital Marketing Fundamentals', 'Search Engine Optimization (SEO)', 'Content Marketing'];
+      }
+      if (normalized.includes('supply chain') || normalized.includes('logistics') || normalized.includes('inventory')) {
+        return ['Supply Chain Management', 'Logistics & Transportation', 'Inventory Management'];
+      }
+      if (normalized.includes('beauty') || normalized.includes('esthet') || normalized.includes('spa')) {
+        return ['Medical Esthetics', 'Advanced Skin Care', 'Spa Management'];
+      }
+      if (normalized.includes('customer') || normalized.includes('client service') || normalized.includes('support')) {
+        return ['Customer Experience (CX)', 'Conflict Resolution', 'CRM Platforms'];
+      }
+      if (normalized.includes('react') || normalized.includes('javascript') || normalized.includes('typescript')) {
+        return ['Modern React Patterns', 'Advanced TypeScript', 'System Design Fundamentals'];
+      }
+      if (normalized.includes('system design')) {
+        return ['Designing Data-Intensive Applications (study group)', 'System Design Interview Prep'];
+      }
+      if (normalized.includes('product')) {
+        return ['Product Management Foundations', 'Stakeholder Management', 'Roadmap & Prioritisation'];
+      }
+      return [`Foundations of ${area}`, `Applied ${area}`];
+    }).slice(0, 8);
+    const dedupedCourses = Array.from(new Set(recommendedCourses));
+
+    const recommendedCertifications = [
+      'Microsoft Excel Advanced',
+      'Customer Service Certificate',
+      'Digital Marketing Certificate',
+    ].filter((cert) => recommendedFocusAreas.some((area) => {
+      const a = area.toLowerCase();
+      return (
+        (cert.includes('Excel') && (a.includes('admin') || a.includes('office') || a.includes('data') || a.includes('logistics'))) ||
+        (cert.includes('Customer Service') && (a.includes('customer') || a.includes('support') || a.includes('client'))) ||
+        (cert.includes('Digital Marketing') && (a.includes('marketing') || a.includes('seo') || a.includes('social')))
+      );
+    }));
+
     return {
       currentLevelSummary: extractedProfile.summary,
       topStrengths: extractedProfile.strengthSignals.slice(0, 5),
       primaryGaps,
       recommendedFocusAreas,
       recommendedLearningOrder: recommendedFocusAreas,
+      recommendedCourses: dedupedCourses,
+      recommendedCertifications,
       explorationSuggestions: extractedProfile.careerInterests.slice(0, 3),
       briefPlan: goalProfile.goalSummary,
       mentorSearchQuery,

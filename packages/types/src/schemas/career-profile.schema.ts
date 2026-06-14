@@ -84,6 +84,8 @@ export const careerAnalysisSchema = z.object({
   primaryGaps: z.array(z.string()).default([]),
   recommendedFocusAreas: z.array(z.string()).default([]),
   recommendedLearningOrder: z.array(z.string()).default([]),
+  recommendedCourses: z.array(z.string()).default([]),
+  recommendedCertifications: z.array(z.string()).default([]),
   explorationSuggestions: z.array(z.string()).default([]),
   briefPlan: z.string(),
   mentorSearchQuery: z.string(),

@@ -42,7 +42,7 @@ export function Navbar() {
                             <Link href="/about" className="text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors">
                                 About Us
                             </Link>
-                            <Link href="/how-it-works" className="text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors">
+                            <Link href="/what-we-do" className="text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors">
                                 What We Do
                             </Link>
                             <Link href="/browse" className="text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors">

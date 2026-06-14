@@ -343,6 +343,30 @@ router.post('/verify-email', validate(verifyEmailSchema), async (req: Request, r
   }
 });
 
+// Dev-only: instantly verify an account's email (bypasses OTP).
+// Used by e2e tests and local development. Disabled when NODE_ENV=production.
+router.post('/dev-verify', async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    if (process.env.NODE_ENV === 'production') {
+      throw new AppError(404, 'NOT_FOUND', 'Route not found');
+    }
+    const { email } = req.body || {};
+    if (!email || typeof email !== 'string') {
+      throw new AppError(400, 'VALIDATION_ERROR', 'email is required');
+    }
+    const user = await getUserRepo().findByEmail(email);
+    if (!user) {
+      throw new AppError(404, 'USER_NOT_FOUND', 'User does not exist');
+    }
+    if (!user.emailVerified) {
+      await getUserRepo().markEmailVerified(user.id);
+    }
+    res.json({ success: true, data: { email, emailVerified: true } });
+  } catch (error) {
+    next(error);
+  }
+});
+
 // Logout (client-side token clearing for MVP)
 router.post('/logout', (req: Request, res: Response) => {
   res.json({

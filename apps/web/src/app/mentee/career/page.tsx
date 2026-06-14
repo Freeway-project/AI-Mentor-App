@@ -537,6 +537,39 @@ export default function MenteeCareerPage() {
                   <p className="text-sm leading-6 text-slate-600">{profile.latestAnalysis.briefPlan}</p>
                 </div>
 
+                {profile.latestAnalysis.recommendedCourses?.length > 0 ? (
+                  <div className="rounded-xl border border-violet-200 bg-violet-50/60 p-4">
+                    <AppSectionLabel className="mb-3">Recommended Courses</AppSectionLabel>
+                    <ul className="grid gap-2 sm:grid-cols-2">
+                      {profile.latestAnalysis.recommendedCourses.map(item => (
+                        <li
+                          key={item}
+                          className="rounded-lg border border-violet-200 bg-white px-3 py-2 text-sm text-slate-700"
+                        >
+                          {item}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ) : null}
+
+                {profile.latestAnalysis.recommendedCertifications?.length > 0 ? (
+                  <div className="rounded-xl border border-amber-200 bg-amber-50/70 p-4">
+                    <AppSectionLabel className="mb-3">Certifications Worth Pursuing</AppSectionLabel>
+                    <div className="flex flex-wrap gap-2">
+                      {profile.latestAnalysis.recommendedCertifications.map(item => (
+                        <Badge
+                          key={item}
+                          variant="outline"
+                          className="border-amber-300 bg-amber-100 text-amber-900"
+                        >
+                          {item}
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+                ) : null}
+
                 {profile.latestAnalysis.explorationSuggestions.length > 0 ? (
                   <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
                     <AppSectionLabel className="mb-3">Explore Further</AppSectionLabel>

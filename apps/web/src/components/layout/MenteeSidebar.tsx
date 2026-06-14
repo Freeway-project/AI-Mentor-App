@@ -38,8 +38,15 @@ export function MenteeSidebar() {
 
       <nav className="min-h-0 flex-1 space-y-0.5 overflow-y-auto px-3 py-4">
         {NAV.map(({ href, label, icon: Icon }) => {
-          const isActive =
-            pathname === href || (href !== '/browse' && pathname.startsWith(href));
+          // Mark active only when this is the most specific matching entry.
+          const isPrefix = pathname === href || pathname.startsWith(href + '/');
+          const hasMoreSpecific = NAV.some(
+            (other) =>
+              other.href !== href &&
+              other.href.startsWith(href + '/') &&
+              (pathname === other.href || pathname.startsWith(other.href + '/'))
+          );
+          const isActive = href === '/browse' ? pathname === href : isPrefix && !hasMoreSpecific;
 
           return (
             <Link
