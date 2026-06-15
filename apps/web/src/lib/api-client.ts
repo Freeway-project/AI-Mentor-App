@@ -104,6 +104,8 @@ export interface CareerAnalysis {
   primaryGaps: string[];
   recommendedFocusAreas: string[];
   recommendedLearningOrder: string[];
+  recommendedCourses: string[];
+  recommendedCertifications: string[];
   explorationSuggestions: string[];
   briefPlan: string;
   mentorSearchQuery: string;

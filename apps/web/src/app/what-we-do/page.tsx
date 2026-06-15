@@ -54,7 +54,7 @@ export default function WhatWeDoPage() {
                         </h2>
                         <p className="text-slate-600 mb-6">
                             Sign in and ask for a plan in your own words — admin, beauty, supply chain,
-                            digital marketing, anything. You'll get a recommendation and matching
+                            digital marketing, anything. You&apos;ll get a recommendation and matching
                             mentors right after.
                         </p>
                         <Link

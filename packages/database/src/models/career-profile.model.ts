@@ -60,6 +60,8 @@ export interface ICareerProfileDocument extends mongoose.Document {
     primaryGaps: string[];
     recommendedFocusAreas: string[];
     recommendedLearningOrder: string[];
+    recommendedCourses: string[];
+    recommendedCertifications: string[];
     explorationSuggestions: string[];
     briefPlan: string;
     mentorSearchQuery: string;
@@ -167,6 +169,8 @@ const careerProfileSchema = new Schema<ICareerProfileDocument>(
       primaryGaps: { type: [String], default: [] },
       recommendedFocusAreas: { type: [String], default: [] },
       recommendedLearningOrder: { type: [String], default: [] },
+      recommendedCourses: { type: [String], default: [] },
+      recommendedCertifications: { type: [String], default: [] },
       explorationSuggestions: { type: [String], default: [] },
       briefPlan: { type: String },
       mentorSearchQuery: { type: String },

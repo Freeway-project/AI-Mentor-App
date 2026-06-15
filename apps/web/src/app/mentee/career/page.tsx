@@ -537,7 +537,7 @@ export default function MenteeCareerPage() {
                   <p className="text-sm leading-6 text-slate-600">{profile.latestAnalysis.briefPlan}</p>
                 </div>
 
-                {profile.latestAnalysis.recommendedCourses?.length > 0 ? (
+                {(profile.latestAnalysis.recommendedCourses?.length ?? 0) > 0 ? (
                   <div className="rounded-xl border border-violet-200 bg-violet-50/60 p-4">
                     <AppSectionLabel className="mb-3">Recommended Courses</AppSectionLabel>
                     <ul className="grid gap-2 sm:grid-cols-2">
@@ -553,7 +553,7 @@ export default function MenteeCareerPage() {
                   </div>
                 ) : null}
 
-                {profile.latestAnalysis.recommendedCertifications?.length > 0 ? (
+                {(profile.latestAnalysis.recommendedCertifications?.length ?? 0) > 0 ? (
                   <div className="rounded-xl border border-amber-200 bg-amber-50/70 p-4">
                     <AppSectionLabel className="mb-3">Certifications Worth Pursuing</AppSectionLabel>
                     <div className="flex flex-wrap gap-2">
