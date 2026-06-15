@@ -64,7 +64,7 @@ export function Navbar() {
                                 My Sessions
                             </Link>
                             <Link href="/mentee/career" className="text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors">
-                                Career Plan
+                                AI Career Plan
                             </Link>
                             <Link href="/mentee/dashboard/messages" className="text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors">
                                 Messages
@@ -138,7 +138,7 @@ export function Navbar() {
                                     My Sessions
                                 </Link>
                                 <Link href="/mentee/career" className="text-sm font-medium text-slate-600 hover:text-slate-900" onClick={toggleMenu}>
-                                    Career Plan
+                                    AI Career Plan
                                 </Link>
                                 <Link href="/mentee/dashboard/messages" className="text-sm font-medium text-slate-600 hover:text-slate-900" onClick={toggleMenu}>
                                     Messages
