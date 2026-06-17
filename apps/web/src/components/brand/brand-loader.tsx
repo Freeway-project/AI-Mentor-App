@@ -12,10 +12,8 @@ export function BrandLoader({
 }: BrandLoaderProps) {
   return (
     <div className={cn('flex w-full max-w-lg flex-col items-center gap-5 px-2 text-center', className)}>
-      <div className="relative flex aspect-square w-full max-h-[min(50vh,20rem)] max-w-[min(20rem,calc(100vw-2.5rem))] items-center justify-center">
-        <div className="absolute inset-[-12%] rounded-full bg-amber-200/20 blur-3xl animate-pulse" />
-        <div className="absolute inset-[-6%] rounded-full border border-amber-300/50" />
-        <div className="absolute inset-[-6%] rounded-full border-[3px] border-amber-200/70 border-t-amber-600 animate-spin [animation-duration:2.4s]" />
+      <div className="relative flex aspect-square w-full max-h-[min(50vh,16rem)] max-w-[min(16rem,calc(100vw-2.5rem))] items-center justify-center">
+        <div className="absolute inset-[-6%] rounded-full border-[3px] border-amber-200/70 border-t-amber-600 animate-spin" />
         <img
           src="/loader-learning.svg"
           alt=""

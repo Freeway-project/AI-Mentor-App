@@ -2,11 +2,12 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { Menu, X, LogOut, User } from 'lucide-react';
+import { useRouter, usePathname } from 'next/navigation';
+import { Menu, X, LogOut, User, Search } from 'lucide-react';
 import { BrandLogo } from '@/components/brand/brand-logo';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/lib/auth-context';
+import { cn } from '@/lib/utils';
 
 export function Navbar() {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -23,6 +24,8 @@ export function Navbar() {
     const isMentor = user?.roles?.includes('mentor');
     const isAdmin = user?.roles?.includes('admin');
     const isMentee = user && !isMentor && !isAdmin;
+    const pathname = usePathname();
+    const onBrowse = pathname === '/browse';
 
     return (
         <nav className="sticky top-0 z-50 w-full shrink-0 border-b border-amber-100/80 bg-[#f7f2e8]/90 backdrop-blur-md">
@@ -36,17 +39,14 @@ export function Navbar() {
                 </Link>
 
                 {/* Desktop Navigation */}
-                <div className="hidden md:flex md:items-center md:space-x-8">
+                <div className="hidden md:flex md:items-center md:space-x-6">
                     {!user && (
                         <>
                             <Link href="/about" className="text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors">
                                 About Us
                             </Link>
                             <Link href="/how-it-works" className="text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors">
-                                What We Do
-                            </Link>
-                            <Link href="/browse" className="text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors">
-                                Find a Mentor
+                                How It Works
                             </Link>
                             <Link href="/register" className="text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors">
                                 Become a Mentor
@@ -74,7 +74,24 @@ export function Navbar() {
                 </div>
 
                 {/* Desktop Actions */}
-                <div className="hidden md:flex md:items-center md:space-x-4">
+                <div className="hidden md:flex md:items-center md:gap-3">
+                    {!user && (
+                        <Button
+                            asChild
+                            size="sm"
+                            className={cn(
+                                'gap-1.5 rounded-full px-4 font-semibold transition-all',
+                                onBrowse
+                                    ? 'bg-brand/10 text-brand border border-brand/30 shadow-none hover:bg-brand/15'
+                                    : 'bg-brand text-white shadow-[0_0_16px_rgba(160,120,48,0.3)] hover:bg-brand-light'
+                            )}
+                        >
+                            <Link href="/browse">
+                                <Search className="h-3.5 w-3.5" />
+                                Find a Mentor
+                            </Link>
+                        </Button>
+                    )}
                     {user ? (
                         <div className="flex items-center gap-3">
                             <div className="flex items-center gap-2 text-sm text-slate-600">
@@ -113,14 +130,21 @@ export function Navbar() {
                     <div className="flex flex-col space-y-4">
                         {!user && (
                             <>
+                                <Button
+                                    asChild
+                                    className="w-full gap-2 rounded-full bg-brand text-white shadow-[0_0_16px_rgba(160,120,48,0.3)] hover:bg-brand-light"
+                                    onClick={toggleMenu}
+                                >
+                                    <Link href="/browse">
+                                        <Search className="h-4 w-4" />
+                                        Find a Mentor
+                                    </Link>
+                                </Button>
                                 <Link href="/about" className="text-sm font-medium text-slate-600 hover:text-slate-900" onClick={toggleMenu}>
                                     About Us
                                 </Link>
                                 <Link href="/how-it-works" className="text-sm font-medium text-slate-600 hover:text-slate-900" onClick={toggleMenu}>
-                                    What We Do
-                                </Link>
-                                <Link href="/browse" className="text-sm font-medium text-slate-600 hover:text-slate-900" onClick={toggleMenu}>
-                                    Find a Mentor
+                                    How It Works
                                 </Link>
                                 <Link href="/register" className="text-sm font-medium text-slate-600 hover:text-slate-900" onClick={toggleMenu}>
                                     Become a Mentor

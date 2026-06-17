@@ -220,9 +220,19 @@ export default function BrowsePage() {
                 value={query}
                 onChange={e => setQuery(e.target.value)}
                 suggestions={SUGGESTED_QUERIES}
-                className={cn(appTheme.input, 'py-3.5 pl-12 pr-4')}
+                className={cn(appTheme.input, 'py-3.5 pl-12', query ? 'pr-10' : 'pr-4')}
                 placeholder="Try: I'm weak at TypeScript"
               />
+              {query && (
+                <button
+                  type="button"
+                  onClick={() => setQuery('')}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full p-1 text-slate-400 hover:text-slate-600 transition-colors"
+                  aria-label="Clear search"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              )}
             </div>
             <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
               <Button
@@ -334,7 +344,7 @@ export default function BrowsePage() {
                   <button
                     key={chip}
                     onClick={() => handleChip(chip)}
-                    className="rounded-full border border-amber-100 bg-[#fdfaf5] px-4 py-2.5 text-sm text-slate-600 transition-colors hover:border-brand/40 hover:text-brand shadow-sm min-h-[44px]"
+                    className="rounded-full border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-600 transition-colors hover:border-brand/40 hover:text-brand shadow-sm min-h-[44px]"
                   >
                     {chip}
                   </button>
@@ -351,7 +361,7 @@ export default function BrowsePage() {
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: i * 0.05 }}
                       onClick={() => handleChip(cat.query)}
-                      className="group flex flex-col items-center gap-3 rounded-2xl border border-amber-100/80 bg-[#fdfaf5] p-4 transition-all hover:border-brand/30 hover:shadow-md min-h-[44px]"
+                      className="group flex flex-col items-center gap-3 rounded-2xl border border-slate-200 bg-white p-4 transition-all hover:border-brand/30 hover:shadow-md min-h-[44px]"
                     >
                       <div className={cn('rounded-xl p-3 transition-transform group-hover:scale-110', cat.bg, cat.color)}>
                         <cat.icon className="w-6 h-6" />
